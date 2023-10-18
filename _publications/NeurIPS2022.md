@@ -1,7 +1,7 @@
 ---
 title: "Sagemix: Saliency-guided mixup for point clouds"
 collection: publications
-permalink: /publication/2010-10-01-paper-title-number-2
+permalink: /publication/NeurIPS2022
 excerpt: 'Sanghyeok Lee\*, Minkyu Jeon\*, Injae Kim, Yunyang Xiong, Hyunwoo J Kim'
 date: 2022-12-06
 venue: 'NeurIPS'
