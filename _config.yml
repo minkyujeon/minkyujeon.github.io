@@ -227,7 +227,6 @@ defaults:
       author_profile: true
       share: false
       comments: true
-      - \*co-first
   # _portfolio
   - scope:
       path: ""
