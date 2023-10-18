@@ -7,7 +7,7 @@
 
 # Site Settings
 locale                   : "en-US"
-title                    : "Minkyu Jeon"
+title                    : "Home"
 title_separator          : "-"
 name                     : &name "Minkyu Jeon"
 description              : &description "personal description"
@@ -80,7 +80,7 @@ analytics:
 
 # Site Author
 author:
-  name             : "Minkyu Jeon"
+  # name             : "Minkyu Jeon"
   avatar           : "1.png"
   bio              : "Ph.D student in the Computer Science Department at Princeton University"
   location         : "Princeton, NJ, USA"
