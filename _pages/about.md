@@ -8,7 +8,7 @@ redirect_from:
   - /about.html
 ---
 
-Hello! I'm a Ph.D. student in Computer Science at Princeton University under the guidance of [Prof. Ellen D. Zhong](https://ezlab.princeton.edu/). My main research focuses on 3D Reconsturction, Generative Models, and their applications to inverse problems encountered in computer vision, with a particular emphasis on scientific imaging such as Cryo-EM. Furthermore, I am interested in addressing a significant challenge faced by existing machine learning methods, specifically their limitations in generalizing beyond training distributions.
+Hello! I'm a Ph.D. student in Computer Science at Princeton University under the guidance of [Prof. Ellen D. Zhong](https://ezlab.princeton.edu/). My main research focuses on 3D reconstruction, generative models, and their applications to inverse problems encountered in computer vision, with a particular emphasis on scientific imaging modalities such as cryo-EM. Furthermore, I am interested in understanding and developing methods that address the limitations faced by existing machine learning methods in generalizing beyond their training distributions.
 
 Research Interest
 ======
