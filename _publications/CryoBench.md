@@ -4,7 +4,7 @@ collection: publications
 permalink: /publication/CryoBench
 excerpt: 'Minkyu Jeon, Rishwanth Raghu, Miro Astore, Geoffrey Woollard, Ryan Feathers, Alkin Kaz,  Sonya M. Hanson, Pilar Cossio, Ellen D. Zhong'
 date: 2024-08-10
-venue: ''
+venue: 'NeurIPS (Sotlight)'
 paperurl: 'https://arxiv.org/abs/2408.05526'
 citation: #'Your Name, You. (2010). &quot;Paper Title Number 2.&quot; <i>Journal 1</i>. 1(2).'
 ---
