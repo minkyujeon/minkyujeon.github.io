@@ -83,12 +83,12 @@
 
     <tr onmouseout="cryobench_stop()" onmouseover="cryobench_start()" bgcolor="#ffffd0">
       <td style="padding:16px;width:20%;vertical-align:middle">
-        <div class="one">
-          <div class="two" id='cryobench_image'><video  width=100% height=100% muted autoplay loop>
+        <div class="one" style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
+          <div class="two" id='cryobench_image' style="width: 160px; display: flex; justify-content: center; align-items: center;">
           <source src="images/cryobench.png" type="video/mp4">
           Your browser does not support the video tag.
           </video></div>
-          <img src='images/cryobench.png' width="160">
+          <img src='images/cryobench.png' width="160" style="margin-top: 10px;">
         </div>
         <script type="text/javascript">
           function cryobench_start() {
@@ -117,7 +117,7 @@
         Pilar Cossio,
         Ellen D. Zhong,
         <br>
-        <em>NeurIPS</em>, 2024 (Spotlight)
+        <em>NeurIPS</em>, 2024 <strong>(Spotlight)<\strong>
         <br>
         <a href="https://cryobench.cs.princeton.edu/">project page</a>
         /
