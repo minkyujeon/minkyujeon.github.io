@@ -80,7 +80,7 @@
           <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
 
 
-
+    <!-- CryoBench -->
     <tr onmouseout="cryobench_stop()" onmouseover="cryobench_start()" bgcolor="#ffffd0">
       <td style="padding:16px;width:20%;vertical-align:middle">
         <div class="one" style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
@@ -119,66 +119,59 @@
         <br>
         <em>NeurIPS</em>, 2024 <strong>(Spotlight)</strong>
         <br>
-        <a href="https://cryobench.cs.princeton.edu/">project page</a>
+        <!-- <a href="https://cryobench.cs.princeton.edu/">project page</a> -->
         /
         <a href="https://arxiv.org/pdf/2408.05526">arXiv</a>
         <p></p>
         <p>
-				Dataset, benchmarks, and metrics for cryo-EM heterogeneous reconstruction.
+				We propose CryoBench, a suite of datasets, metrics, and performance benchmarks for heterogeneous reconstruction in cryo-EM.
         </p>
       </td>
     </tr>
 
-
-    <!-- <tr onmouseout="ever_stop()" onmouseover="ever_start()">
+    <!-- CROFFLE -->
+    <tr onmouseout="random_stop()" onmouseover="random_start()">
       <td style="padding:16px;width:20%;vertical-align:middle">
         <div class="one">
-          <div class="two" id='ever_image'>
-					  <img src='images/ever_after.png' width=100%>
+          <div class="two" id='random_image'>
+					  <img src='images/randomly_shuffled.png' width=100%>
 					</div>
-          <img src='images/ever_before.png' width=100%>
+          <img src='images/randomly_shuffled.png' width=100%>
         </div>
         <script type="text/javascript">
-          function ever_start() {
-            document.getElementById('ever_image').style.opacity = "1";
+          function random_start() {
+            document.getElementById('random_image').style.opacity = "1";
           }
 
-          function ever_stop() {
-            document.getElementById('ever_image').style.opacity = "0";
+          function random_stop() {
+            document.getElementById('random_image').style.opacity = "0";
           }
-          ever_stop()
+          random_stop()
         </script>
       </td>
       <td style="padding:8px;width:80%;vertical-align:middle">
-        <a href="https://half-potato.gitlab.io/posts/ever/">
-			<span class="papertitle">EVER: Exact Volumetric Ellipsoid Rendering for Real-time View Synthesis
+        <!-- <a href="https://half-potato.gitlab.io/posts/ever/"> -->
+			<span class="papertitle">Randomly shuffled convolution for self-supervised representation learning
 </span>
         </a>
         <br>
-				<a href="https://half-potato.gitlab.io/">Alexander Mai</a>, 
-				<a href="https://phogzone.com/">Peter Hedman</a>,
-				<a href="https://grgkopanas.github.io/">George Kopanas</a>,
-        <a href="https://dorverbin.github.io/">Dor Verbin</a>,
-        <a href="https://scholar.google.com/citations?user=ozNFrecAAAAJ&hl=en">David Futschik</a>,
-        <a href="https://xharlie.github.io/">Qiangeng Xu</a>,
-        <a href="https://jacobsschool.ucsd.edu/faculty/profile?id=253">Falko Kuester</a>,
-				<strong>Jonathan T. Barron</strong>,
-        <a href="https://www.zhangyinda.com/">Yinda Zhang</a>
+				Youngjin Oh*,
+				<strong>Minkyu Jeon*</strong>,
+        Dohwan Ko,
+        Hyunwoo J. Kim
 				<br>
-        <em>arXiv</em>, 2024
+        <em>Information Sciences Journal</em>, 2023
         <br>
-        <a href="https://half-potato.gitlab.io/posts/ever/">project page</a>
-        /
-        <a href="https://arxiv.org/abs/2410.01804">arXiv</a>
+        <a href="https://pdf.sciencedirectassets.com/271625/1-s2.0-S0020025522X00352/1-s2.0-S0020025522013032/main.pdf?X-Amz-Security-Token=IQoJb3JpZ2luX2VjEK%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJIMEYCIQD%2Bvzx3DV5i27Ypjj113MccHTw2PfOJc%2BYIEN9yvBaJSwIhANwUyZH%2FiyBd%2BvH28lS5zwfCUMkeg%2Bgiueya2kAQ6Vt5KrMFCGcQBRoMMDU5MDAzNTQ2ODY1IgwHDAqgTfSzsGWqIwUqkAUM%2F2%2BhHRSkGNqx5B5ACLUVs6RczrbRT76%2BrDjg4VubHyTKIk5zMSWGtmtMT4zZTyp4PfkeqObzVk%2BvtN8zBcE9Jbiha%2F%2B2gUGnLF0uKDAqi66ynRu8iaOVIFDfeXZCh7%2FKvSEfEWX45C4XrhtPYpQYxMzlGNze4hBIgK%2F%2B3R93TdUfpKe57ASykNc2ptsTKHuMWO%2F6ttalDvIr2P6JYHotc3IfyZdmp%2FKNo0REH9qr%2BK929XopJ10BdjsXCq40hzcvrTWxaAMr8N8Fj%2Bv1PT5X153aDA2hfUEX6kRA0zbsAQoVzyWPoFcmIPhLhUWQRPEb8K0udLJqaa4PWMH1by7S7yBOElHIZH39xO%2Be39JZNWRgy9GjwaUJzo1yub59Waq2zI%2BlQJu4%2FsFleAN1qTMeodFV%2BHaXN1%2FJadGleyirdeIAkWlrSA8Tk73mOnFcUCn3cjZBlrDd%2BUtXgHYpkt1ze5%2FMrbdvhSPRI7MI6yXTeDqs5FNJjN84iQqn%2B6CctGCJlDy6lM3AyCM5k53nTzMEA%2BvTxKgeZ8BmTCnFSCS6JBIfTABZM3IMJJtAjFX%2FR71Gn6y989KPemxFeDBl3WIbU%2B4BCHJtLOtnSKbBi9SUvqEgTtlzDSVd6y4yNiVUkoLhKE7SKKh0uaVZooRTyOj66sy4mYG7iweKzfkthjM974pRf6u8FEp64%2Fid4WBckLU1vE60Loyv1ingOdFovC6R%2FNNhnsWOq8clsVIHL4S16yXJcVPI0qG%2FlfhN6L5O7%2BH00qjjkaalu3x0yz79bvPNm0LA29Gpdy2PFKNx4qgB5dRz7cInwVgzgLurbQGvSF0PSgMQGTbXZ3OVUZcXezciU6R37TdsAzshWxnMBPR1LDCYtdi6BjqwAShoMnnXRCAFcSCdedUc%2FH6ue%2FYUxDHBAGCxF7B5j4s0RwZzLAahM4SLP9Zpnm4H1bu8J9EbILb4moX%2BJRPetvvkgLy4lEK%2Be74CQ9EEOgY6q01%2BAPVn1vh1pNl0%2FU8e1awms9O7Yo3LlmdUOuA95zqAPERL7x7LMdRSJzkYbKWa5UN8C%2FybYiMs%2F8OjTov2KFKKZ7xlJojopGo1GAy81Bp0vMYiYTt9TqW1ggIFJjGl&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20241208T224043Z&X-Amz-SignedHeaders=host&X-Amz-Expires=300&X-Amz-Credential=ASIAQ3PHCVTYZBT6V6U2%2F20241208%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=7fd7cd4bc18f0cc413ff235e63b51d2d0af450dea223227b61ecca686b3765e6&hash=094ab6791ca7102ce8d0bf57284fb5d7007b21537ff0e26ae2670ca62bf534e4&host=68042c943591013ac2b2430a89b270f6af2c76d8dfd086a07176afe7c76c2c61&pii=S0020025522013032&tid=spdf-9caea4df-6528-42c3-9192-beb678998af5&sid=037fefad58908542af6b03d9198c2654607agxrqa&type=client&tsoh=d3d3LnNjaWVuY2VkaXJlY3QuY29t&ua=0f15590a065457525751&rr=8ef042407e49205e&cc=us">Paper</a>
         <p></p>
         <p>
-				Raytracing constant-density ellipsoids yields more accurate and flexible radiance fields than splatting Gaussians, and still runs in real-time.
+          We introduce Convolution with RandOmly shuFFLed kErnels (CROFFLE) which randomly shuffles the convolution kernels. The proposed method learns covariant features which can be induced by positional relations between the entities within a small region of an image.
         </p>
       </td>
     </tr>
 
 
-    <tr onmouseout="cat3d_stop()" onmouseover="cat3d_start()" bgcolor="#ffffd0">
+    <!-- <tr onmouseout="cat3d_stop()" onmouseover="cat3d_start()" bgcolor="#ffffd0">
       <td style="padding:16px;width:20%;vertical-align:middle">
         <div class="one">
           <div class="two" id='cat3d_image'><video  width=100% height=100% muted autoplay loop>
