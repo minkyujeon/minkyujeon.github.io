@@ -128,6 +128,48 @@
       </td>
     </tr>
 
+    <!-- CryoNOO -->
+    <tr onmouseout="cryonoo_stop()" onmouseover="cryonoo_start()">
+      <td style="padding:16px;width:20%;vertical-align:middle">
+        <div class="one" style="width: 160px; display: flex; justify-content: center; align-items: center; flex-direction: column;">
+          <img src='images/cryonoo.png' width=100% style="margin-top: 5px;">
+        </div>
+        <script type="text/javascript">
+          function cryonoostart() {
+            document.getElementById('cryonoo_image').style.opacity = "1";
+          }
+
+          function cryonoo_stop() {
+            document.getElementById('cryonoo_image').style.opacity = "0";
+          }
+          cryonoo_stop()
+        </script>
+      </td>
+      <td style="padding:8px;width:80%;vertical-align:middle">
+        <a href="https://arxiv.org/pdf/2512.06332">
+			<span class="papertitle">Separating Signal From Noise: A Self-Distillation Approach for Amortized Heterogeneous Cryo-EM Reconstruction
+</span>
+        </a>
+        <br>
+				<strong>Minkyu Jeon*</strong>,
+        Jeffrey Gu*,
+        Ambri Ma,
+        Serena Yeung-Levy,
+        Vincent Sitzmann,
+        Ellen D. Zhong,
+        <br>
+        <em>Machine Learning for Structural Biology (Oral)</em>, 2025
+        <br>
+        <a href="https://openreview.net/pdf?id=YIvDrdPCo2">Paper</a>
+        /
+        <a href="https://openreview.net/pdf?id=YIvDrdPCo2">Project page</a>
+        <p></p>
+        <p>
+          We propose Cryo-No-Overfit (CryoNOO), which extends CryoDRGN via self-distillation by leveraging the reconstruction method itself as a denoiser to generate augmented views of training images.
+        </p>
+      </td>
+    </tr>
+
     <!-- CHIMERA -->
     <tr onmouseout="chimera_stop()" onmouseover="chimera_start()">
       <td style="padding:16px;width:20%;vertical-align:middle">
