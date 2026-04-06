@@ -10,8 +10,6 @@ permalink: /
 Hello! I'm **Minkyu Jeon**, a Ph.D. candidate in Computer Science at [Princeton University](https://www.cs.princeton.edu/), advised by [Prof. Ellen D. Zhong](https://ezlab.princeton.edu/), and a part-time research intern at Prescient Design (Frontier Research).
 {:.lead}
 
-<!--author-->
-
 ## Research Interests
 
 My main research focuses on **3D reconstruction and generative models**, particularly their applications to inverse problems in computer vision. I place special emphasis on scientific imaging modalities such as **protein design** and **cryo-EM**, leveraging generative approaches like diffusion and autoregressive models. Furthermore, I am interested in developing methods to address the limitations of current machine learning models in generalizing beyond their training distributions.

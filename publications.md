@@ -6,6 +6,8 @@ description: >
 hide_description: true
 ---
 
+\* denotes co-first author.
+
 ## 2026
 
 - **CryoHype: Reconstructing a thousand cryo-EM structures with transformer-based hypernetworks**
