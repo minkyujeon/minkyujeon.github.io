@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Learned Token Ordering for Visual Autoregressive Generation</title>
+<style>
+  :root {
+    --bg: #fafbfc;
+    --card: #ffffff;
+    --text: #1a1a2e;
+    --muted: #5a6577;
+    --accent: #2563eb;
+    --accent-light: #dbeafe;
+    --border: #e2e8f0;
+    --green: #059669;
+    --green-light: #d1fae5;
+    --orange: #d97706;
+    --orange-light: #fef3c7;
+    --red: #dc2626;
+    --red-light: #fee2e2;
+    --purple: #7c3aed;
+    --purple-light: #ede9fe;
+    --code-bg: #f1f5f9;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.7;
+  }
+  .hero {
+    background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%);
+    color: #fff; padding: 60px 24px 48px;
+  }
+  .hero .container { max-width: 960px; margin: 0 auto; }
+  .hero .breadcrumb { font-size: 0.85rem; color: #94a3b8; margin-bottom: 16px; }
+  .hero .breadcrumb a { color: #93c5fd; text-decoration: none; }
+  .hero h1 { font-size: 2.1rem; font-weight: 800; line-height: 1.25; margin-bottom: 12px; }
+  .hero .subtitle { font-size: 1.05rem; color: #cbd5e1; max-width: 700px; line-height: 1.6; }
+  .hero .meta { margin-top: 20px; display: flex; gap: 20px; flex-wrap: wrap; font-size: 0.85rem; color: #94a3b8; }
+  .main { max-width: 960px; margin: 0 auto; padding: 32px 24px 80px; }
+  .section { margin-bottom: 48px; }
+  .section h2 {
+    font-size: 1.45rem; font-weight: 700; margin-bottom: 16px;
+    padding-bottom: 8px; border-bottom: 2px solid var(--accent); display: inline-block;
+  }
+  .section h3 { font-size: 1.1rem; font-weight: 600; margin: 20px 0 8px; color: var(--text); }
+  .section p, .section li { color: var(--muted); font-size: 0.95rem; }
+  .section p { margin-bottom: 12px; }
+  .section ul, .section ol { padding-left: 20px; margin-bottom: 12px; }
+  .section li { margin-bottom: 4px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 24px; margin-bottom: 16px; }
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 16px; }
+  .stat-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+  .stat { flex: 1; min-width: 140px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; text-align: center; }
+  .stat .num { font-size: 1.6rem; font-weight: 800; color: var(--accent); }
+  .stat .label { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+  .stat.green .num { color: var(--green); }
+  .stat.orange .num { color: var(--orange); }
+  .stat.red .num { color: var(--red); }
+  .tag { display: inline-block; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; padding: 2px 8px; border-radius: 4px; margin-right: 4px; }
+  .tag-green { background: var(--green-light); color: var(--green); }
+  .tag-orange { background: var(--orange-light); color: var(--orange); }
+  .tag-red { background: var(--red-light); color: var(--red); }
+  .tag-blue { background: var(--accent-light); color: var(--accent); }
+  .tag-purple { background: var(--purple-light); color: var(--purple); }
+  .table-wrap { overflow-x: auto; margin-bottom: 16px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; background: var(--card); border: 1px solid var(--border); border-radius: 8px; }
+  th { background: #f8fafc; font-weight: 600; text-align: left; padding: 10px 12px; border-bottom: 2px solid var(--border); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+  td { padding: 8px 12px; border-bottom: 1px solid #f1f5f9; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover { background: #f8fafc; }
+  .best { font-weight: 700; color: var(--green); }
+  .fail { color: var(--red); }
+  .callout { background: var(--accent-light); border-left: 4px solid var(--accent); padding: 14px 18px; border-radius: 0 8px 8px 0; margin-bottom: 16px; }
+  .callout p { color: var(--text); margin: 0; font-size: 0.92rem; }
+  .callout strong { color: var(--accent); }
+  .callout.warn { background: var(--orange-light); border-left-color: var(--orange); }
+  .callout.warn strong { color: var(--orange); }
+  .diagram { background: #f8fafc; border: 1px solid var(--border); border-radius: 10px; padding: 24px; margin-bottom: 16px; font-family: "SF Mono", "Fira Code", monospace; font-size: 0.82rem; line-height: 1.6; overflow-x: auto; white-space: pre; }
+  code { background: var(--code-bg); padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; }
+  img { max-width: 100%; border-radius: 8px; margin-bottom: 16px; }
+  .img-caption { font-size: 0.82rem; color: var(--muted); text-align: center; margin-top: -10px; margin-bottom: 16px; }
+  .toc { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; margin-bottom: 32px; }
+  .toc h3 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 10px; }
+  .toc ol { padding-left: 20px; }
+  .toc li { margin-bottom: 4px; }
+  .toc a { color: var(--accent); text-decoration: none; font-size: 0.9rem; }
+  .toc a:hover { text-decoration: underline; }
+  .page-link { display: block; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; margin-bottom: 12px; text-decoration: none; color: inherit; transition: border-color 0.2s, box-shadow 0.2s; }
+  .page-link:hover { border-color: var(--accent); box-shadow: 0 4px 12px rgba(37,99,235,0.1); }
+  .page-link h3 { font-size: 1.05rem; color: var(--accent); margin-bottom: 4px; }
+  .page-link p { font-size: 0.88rem; color: var(--muted); margin: 0; }
+  .footer { text-align: center; padding: 32px 24px; color: var(--muted); font-size: 0.82rem; border-top: 1px solid var(--border); }
+  .footer a { color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="container">
+    <div class="breadcrumb"><a href="/">Minkyu Jeon</a> / <a href="/projects/">Projects</a></div>
+    <h1>Learned Token Ordering for Visual Autoregressive Generation</h1>
+    <p class="subtitle">
+      Can we learn a better-than-raster generation order for discrete visual tokens?
+      Investigating OrderHead-guided token ordering in both masked (MAR) and causal (LlamaGen) autoregressive image generation.
+    </p>
+    <div class="meta">
+      <span>Minkyu Jeon</span>
+      <span>Princeton University</span>
+      <span>March &ndash; April 2026</span>
+      <span><span class="tag tag-orange">In Progress</span></span>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+<div class="toc">
+  <h3>Contents</h3>
+  <ol>
+    <li><a href="#motivation">Motivation</a></li>
+    <li><a href="#background">Background: MAR vs LlamaGen</a></li>
+    <li><a href="#orderhead">The OrderHead Approach</a></li>
+    <li><a href="#summary">Results Summary</a></li>
+    <li><a href="#findings">Key Findings</a></li>
+    <li><a href="#pages">Detailed Experiment Pages</a></li>
+  </ol>
+</div>
+
+<!-- 1. MOTIVATION -->
+<div class="section" id="motivation">
+  <h2>1. Motivation</h2>
+  <p>
+    Standard autoregressive image generation models (LlamaGen, VQGAN+GPT) generate discrete visual tokens in a fixed
+    <strong>raster-scan order</strong> (left-to-right, top-to-bottom). Unlike language, where left-to-right follows
+    semantic structure, this ordering is arbitrary for images &mdash; there is no inherent reason why the top-left
+    pixel should be generated before the center of an object.
+  </p>
+  <p>
+    The hypothesis: if we generate <strong>class-discriminative (important) tokens first</strong>, they provide better
+    context for generating the remaining tokens. For example, generating the dog's face before the background could
+    give the model much richer context than generating background sky first.
+  </p>
+
+  <img src="img/04_spatial_coverage.png" alt="Spatial coverage comparison: raster vs random ordering">
+  <p class="img-caption">Spatial coverage of generated context at step 32: raster order (left) vs random order (right). Raster provides 34.8% spatial neighbor coverage; random only provides 5-6%.</p>
+
+  <div class="callout">
+    <p><strong>Research question:</strong> Can a learned token ordering (via an OrderHead module) improve image generation quality compared to the default raster-scan order?</p>
+  </div>
+</div>
+
+<!-- 2. BACKGROUND -->
+<div class="section" id="background">
+  <h2>2. Background: MAR vs LlamaGen</h2>
+  <p>We investigate token ordering in two fundamentally different autoregressive architectures:</p>
+
+  <div class="card-grid">
+    <div class="card">
+      <h3><span class="tag tag-blue">MAR</span> Masked Autoregressive</h3>
+      <p>
+        Generates tokens by iteratively unmasking subsets. Uses <strong>bidirectional attention</strong> &mdash;
+        every visible token attends to every other visible token. The generation order determines which tokens
+        are revealed first as context. Inherently order-agnostic: trained with random masking.
+      </p>
+      <p><strong>Key property:</strong> "Important first" means those tokens become <em>context</em> for the rest.</p>
+    </div>
+    <div class="card">
+      <h3><span class="tag tag-purple">LlamaGen</span> Causal Autoregressive</h3>
+      <p>
+        Generates tokens one-by-one with <strong>causal (left-only) attention</strong>. Each token can only see
+        previously generated tokens. Uses 2D RoPE for spatial position encoding independent of sequence order.
+        Trained with teacher forcing on a fixed sequence order.
+      </p>
+      <p><strong>Key property:</strong> "First in sequence" means predicted with <em>least context</em>.</p>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+  <table>
+    <tr><th>Property</th><th>MAR</th><th>LlamaGen</th></tr>
+    <tr><td>Attention</td><td>Bidirectional (all visible tokens)</td><td>Causal (left-context only)</td></tr>
+    <tr><td>Position encoding</td><td>Learned absolute</td><td>2D RoPE (spatial)</td></tr>
+    <tr><td>Tokens per step</td><td>Multiple (cosine schedule)</td><td>One</td></tr>
+    <tr><td>Loss</td><td>Diffusion (continuous latents)</td><td>Cross-entropy (discrete VQ tokens)</td></tr>
+    <tr><td>Order agnosticism</td><td>Inherent (random masking)</td><td>Must be explicitly trained (RAR)</td></tr>
+    <tr><td>Ordering effect</td><td>"First" = best context provider</td><td>"First" = least context available</td></tr>
+  </table>
+  </div>
+</div>
+
+<!-- 3. ORDERHEAD -->
+<div class="section" id="orderhead">
+  <h2>3. The OrderHead Approach</h2>
+
+  <h3>Architecture</h3>
+  <p>
+    The <strong>OrderHead</strong> is a small ViT-like transformer (3.5M params) that scores all spatial positions.
+    High scores indicate tokens that should be generated first. It is trained alongside the main generation model
+    using a combination of:
+  </p>
+  <ul>
+    <li><strong>STE (Straight-Through Estimator):</strong> Binary-split mask with differentiable backward pass via sigmoid approximation. Gradient flows from generation loss through token ordering back to OrderHead.</li>
+    <li><strong>ViT Oracle supervision:</strong> A frozen ViT classifier trained on partial token observations provides per-token importance scores as regression targets.</li>
+  </ul>
+
+  <div class="diagram">Pipeline:
+  GT tokens [B, 256, 8] ──┐
+                           ↓  (GT routing during training)
+  GPT hidden states [B, 256, D] ──→ OrderHead ──→ scores [B, 256]
+                                                      ↓
+                                              STE binary mask
+                                                      ↓
+                                    Reorder tokens (top-k first)
+                                                      ↓
+                                   GPT forward with position_ids
+                                                      ↓
+                                             CE loss → backward
+                                                      ↓
+                                   STE gradient → OrderHead update</div>
+
+  <h3>Binary-Split STE (k=64)</h3>
+  <p>
+    Rather than a full permutation, we use a binary split: the top-64 scored positions form the "context group"
+    (generated first), and the remaining 192 form the "prediction group." Within each group, tokens follow raster
+    order. The STE connects CE loss gradients back to OrderHead scores through a differentiable sigmoid approximation.
+  </p>
+</div>
+
+<!-- 4. RESULTS SUMMARY -->
+<div class="section" id="summary">
+  <h2>4. Results Summary</h2>
+
+  <div class="stat-row">
+    <div class="stat green">
+      <div class="num">25.4</div>
+      <div class="label">Raster baseline FID (IN-100)</div>
+    </div>
+    <div class="stat">
+      <div class="num">5.32</div>
+      <div class="label">Raster baseline FID (IN-1K)</div>
+    </div>
+    <div class="stat orange">
+      <div class="num">6.55</div>
+      <div class="label">Best MAR+OH FID-50K (IN-1K)</div>
+    </div>
+    <div class="stat red">
+      <div class="num">140.9</div>
+      <div class="label">Best LlamaGen+OH FID (IN-100)</div>
+    </div>
+  </div>
+
+  <h3>LlamaGen (Causal AR) &mdash; Heuristic Orderings (IN-100, 5K samples)</h3>
+  <p>All non-raster orderings evaluated at inference on a raster-trained GPT-B model without retraining:</p>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Ordering</th><th>FID</th><th>sFID</th><th>Notes</th></tr>
+    <tr><td>Raster (baseline)</td><td class="best">25.40</td><td>66.33</td><td>Standard left-to-right, top-to-bottom</td></tr>
+    <tr><td>Zigzag</td><td>71.69</td><td>82.08</td><td>Best non-raster heuristic</td></tr>
+    <tr><td>Diagonal</td><td>117.58</td><td>93.89</td><td></td></tr>
+    <tr><td>Stride-2</td><td>128.18</td><td>93.83</td><td>Even positions first, then odd</td></tr>
+    <tr><td>Spiral</td><td>132.25</td><td>97.06</td><td></td></tr>
+    <tr><td>Column-major</td><td>139.79</td><td>100.69</td><td></td></tr>
+    <tr><td>Center-spiral</td><td>153.53</td><td>111.03</td><td></td></tr>
+    <tr><td>Reverse</td><td>156.18</td><td>109.45</td><td></td></tr>
+    <tr><td>Random</td><td class="fail">173.08</td><td>119.23</td><td>Fixed random permutation (seed=0)</td></tr>
+  </table>
+  </div>
+
+  <h3>LlamaGen &mdash; Trained with Specific Orderings (IN-100, 5K samples)</h3>
+  <p>Models trained from scratch with each ordering (300 epochs, same hyperparameters):</p>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Training Order</th><th>FID</th><th>sFID</th><th>Notes</th></tr>
+    <tr><td>Full raster retrain</td><td class="best">17.57</td><td>67.18</td><td>Fine-tuned from pretrained, best overall</td></tr>
+    <tr><td>Diagonal</td><td>24.97</td><td>65.99</td><td>Trained + evaluated in diagonal order</td></tr>
+    <tr><td>Raster baseline</td><td>25.40</td><td>66.33</td><td>Original checkpoint</td></tr>
+    <tr><td>Col-major</td><td>25.95</td><td>66.26</td><td></td></tr>
+    <tr><td>Zigzag</td><td>26.35</td><td>66.18</td><td></td></tr>
+    <tr><td>Spiral</td><td>30.94</td><td>66.42</td><td></td></tr>
+    <tr><td>Random (fixed)</td><td>44.74</td><td>66.78</td><td>One fixed random permutation throughout training</td></tr>
+    <tr><td>Partial FT (4 blocks)</td><td>58.68</td><td>67.64</td><td>Only last 4 transformer blocks fine-tuned</td></tr>
+  </table>
+  </div>
+
+  <h3>MAR &mdash; OrderHead Results (IN-1K, FID-50K, verified from eval logs)</h3>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Model</th><th>FID</th><th>IS</th><th>Notes</th></tr>
+    <tr><td>MAR-B pretrained baseline</td><td class="best">2.30</td><td>270.4</td><td>Official checkpoint</td></tr>
+    <tr><td>Random-order retrained (5ep warmup)</td><td>2.31</td><td>253.0</td><td>Comparable to baseline</td></tr>
+    <tr><td>Decoder finetune k=1</td><td>3.85</td><td>208.0</td><td></td></tr>
+    <tr><td>OH full finetune ep5</td><td>5.75</td><td>220.2</td><td>Degrades monotonically: ep10=6.94, ep15=8.16, ep20=9.58</td></tr>
+    <tr><td>OH oracle (from random-order) ep9</td><td>6.55</td><td>217.0</td><td>Best OrderHead result; stable score_std~1.6</td></tr>
+    <tr><td>OH cosine iter=256 rescore8</td><td>7.08</td><td>209.5</td><td>AR schedule ablation</td></tr>
+    <tr><td>OH pure STE (from random-order) ep9</td><td>10.95</td><td>180.5</td><td>STE-only, no oracle; score_std diverges</td></tr>
+    <tr><td>OH cosine iter=64 rescore8</td><td>13.79</td><td>169.3</td><td>Fewer AR steps degrades quality</td></tr>
+  </table>
+  </div>
+  <p style="font-size:0.82rem; color:var(--muted);">All MAR FID-50K numbers verified against Slurm evaluation logs (jobs 5864880, 5884168, 5952087, 5952436, 5957840).</p>
+</div>
+
+<!-- 5. KEY FINDINGS -->
+<div class="section" id="findings">
+  <h2>5. Key Findings</h2>
+
+  <div class="card">
+    <h3>Finding 1: Non-raster ordering catastrophically degrades causal AR</h3>
+    <p>
+      Any non-raster ordering at inference degrades FID from 25.4 to 71&ndash;173 on a raster-trained LlamaGen model.
+      The model is tightly coupled to raster-scan context patterns. Even zigzag (closest to raster structurally)
+      loses nearly 3x in FID. This is because the causal attention pattern makes context position critical &mdash;
+      the model has learned to expect specific spatial relationships in its left-context.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>Finding 2: Training with a specific ordering recovers quality</h3>
+    <p>
+      When the model is trained from scratch with a non-raster ordering (diagonal, zigzag, col-major), FID is
+      comparable to the raster baseline (24.97&ndash;26.35 vs 25.40). The ordering itself doesn't matter much &mdash;
+      what matters is consistency between training and inference. Random ordering is worse (44.74) because no
+      fixed context pattern can be learned.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>Finding 3: OrderHead has not beaten random ordering in MAR</h3>
+    <p>
+      The best MAR+OrderHead result (FID-50K = 6.55) is significantly worse than the random-order MAR baseline
+      (FID-50K = 2.31). The OrderHead adds a structured ordering, but the MAR model was already excellent with
+      random masking. The structured ordering may actually reduce diversity.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>Finding 4: Oracle supervision is critical for stability</h3>
+    <p>
+      Without ViT oracle supervision, OrderHead scores either collapse (std &rarr; 0) or explode (std &rarr; 8+).
+      With oracle (cls_k mode), score_std stabilizes at 1.0&ndash;2.0. The oracle provides a stable regression
+      target that prevents mode collapse in the discrete ordering optimization.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>Finding 5: From-scratch joint training suffers chicken-and-egg collapse</h3>
+    <p>
+      Training OrderHead and the generation model jointly from random initialization leads to collapse:
+      at epoch 0, both models are random, so the ordering signal is meaningless, and neither can bootstrap.
+      The only successful OrderHead training starts from a <strong>pretrained, order-agnostic backbone</strong>.
+    </p>
+  </div>
+
+  <div class="callout warn">
+    <p><strong>The causal AR paradox:</strong> In causal AR, "first in sequence" = "predicted with least context."
+    Putting important tokens first makes them <em>harder</em> to predict. This is the fundamental tension that
+    makes learned ordering harder in causal AR than in masked AR (MAR).</p>
+  </div>
+</div>
+
+<!-- 6. DETAILED PAGES -->
+<div class="section" id="pages">
+  <h2>6. Detailed Experiment Pages</h2>
+  <p>Each page contains comprehensive experiment details, verified metrics, visualizations, and analysis:</p>
+
+  <a href="llamagen.html" class="page-link">
+    <h3>LlamaGen Experiments &rarr;</h3>
+    <p>Heuristic orderings, trained orderings, RAR random-order training, OrderHead Phase 1/2, from-scratch curriculum. 30+ experiments with verified FID on IN-100 and IN-1K.</p>
+  </a>
+
+  <a href="mar.html" class="page-link">
+    <h3>MAR Experiments &rarr;</h3>
+    <p>OrderHead on Masked Autoregressive models. Oracle vs STE-only, from-scratch vs finetuned, IN-100 and IN-1K evaluations. 20+ experiments with FID-50K verified from Slurm logs.</p>
+  </a>
+</div>
+
+</div>
+
+<div class="footer">
+  <p>Minkyu Jeon &middot; <a href="/">minkyujeon.github.io</a></p>
+</div>
+
+</body>
+</html>

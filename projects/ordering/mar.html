@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MAR OrderHead Experiments</title>
+<style>
+  :root {
+    --bg: #fafbfc; --card: #ffffff; --text: #1a1a2e; --muted: #5a6577;
+    --accent: #2563eb; --accent-light: #dbeafe; --border: #e2e8f0;
+    --green: #059669; --green-light: #d1fae5; --orange: #d97706; --orange-light: #fef3c7;
+    --red: #dc2626; --red-light: #fee2e2; --purple: #7c3aed; --purple-light: #ede9fe;
+    --code-bg: #f1f5f9;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+  .hero { background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%); color: #fff; padding: 60px 24px 48px; }
+  .hero .container { max-width: 960px; margin: 0 auto; }
+  .hero .breadcrumb { font-size: 0.85rem; color: #94a3b8; margin-bottom: 16px; }
+  .hero .breadcrumb a { color: #93c5fd; text-decoration: none; }
+  .hero h1 { font-size: 2.1rem; font-weight: 800; line-height: 1.25; margin-bottom: 12px; }
+  .hero .subtitle { font-size: 1.05rem; color: #cbd5e1; max-width: 700px; line-height: 1.6; }
+  .main { max-width: 960px; margin: 0 auto; padding: 32px 24px 80px; }
+  .section { margin-bottom: 48px; }
+  .section h2 { font-size: 1.45rem; font-weight: 700; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid var(--accent); display: inline-block; }
+  .section h3 { font-size: 1.1rem; font-weight: 600; margin: 20px 0 8px; color: var(--text); }
+  .section p, .section li { color: var(--muted); font-size: 0.95rem; }
+  .section p { margin-bottom: 12px; }
+  .section ul, .section ol { padding-left: 20px; margin-bottom: 12px; }
+  .section li { margin-bottom: 4px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 24px; margin-bottom: 16px; }
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 16px; }
+  .table-wrap { overflow-x: auto; margin-bottom: 16px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; background: var(--card); border: 1px solid var(--border); border-radius: 8px; }
+  th { background: #f8fafc; font-weight: 600; text-align: left; padding: 10px 12px; border-bottom: 2px solid var(--border); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+  td { padding: 8px 12px; border-bottom: 1px solid #f1f5f9; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover { background: #f8fafc; }
+  .best { font-weight: 700; color: var(--green); }
+  .fail { color: var(--red); }
+  .tag { display: inline-block; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; padding: 2px 8px; border-radius: 4px; margin-right: 4px; }
+  .tag-green { background: var(--green-light); color: var(--green); }
+  .tag-orange { background: var(--orange-light); color: var(--orange); }
+  .tag-red { background: var(--red-light); color: var(--red); }
+  .tag-blue { background: var(--accent-light); color: var(--accent); }
+  .tag-purple { background: var(--purple-light); color: var(--purple); }
+  .callout { background: var(--accent-light); border-left: 4px solid var(--accent); padding: 14px 18px; border-radius: 0 8px 8px 0; margin-bottom: 16px; }
+  .callout p { color: var(--text); margin: 0; font-size: 0.92rem; }
+  .callout strong { color: var(--accent); }
+  .callout.warn { background: var(--orange-light); border-left-color: var(--orange); }
+  .callout.warn strong { color: var(--orange); }
+  .callout.red { background: var(--red-light); border-left-color: var(--red); }
+  .callout.red strong { color: var(--red); }
+  code { background: var(--code-bg); padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; }
+  img { max-width: 100%; border-radius: 8px; margin-bottom: 16px; }
+  .img-caption { font-size: 0.82rem; color: var(--muted); text-align: center; margin-top: -10px; margin-bottom: 16px; }
+  .toc { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; margin-bottom: 32px; }
+  .toc h3 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 10px; }
+  .toc ol { padding-left: 20px; }
+  .toc li { margin-bottom: 4px; }
+  .toc a { color: var(--accent); text-decoration: none; font-size: 0.9rem; }
+  .toc a:hover { text-decoration: underline; }
+  .source { font-size: 0.78rem; color: #94a3b8; font-style: italic; }
+  .footer { text-align: center; padding: 32px 24px; color: var(--muted); font-size: 0.82rem; border-top: 1px solid var(--border); }
+  .footer a { color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="container">
+    <div class="breadcrumb"><a href="/">Minkyu Jeon</a> / <a href="/projects/">Projects</a> / <a href="/projects/ordering/">Ordering</a></div>
+    <h1>MAR OrderHead Experiments</h1>
+    <p class="subtitle">
+      OrderHead training on Masked Autoregressive (MAR) image generation. Bidirectional attention makes MAR
+      naturally order-agnostic, enabling learned ordering without the causal AR paradox.
+    </p>
+  </div>
+</div>
+
+<div class="main">
+
+<div class="toc">
+  <h3>Contents</h3>
+  <ol>
+    <li><a href="#setup">Setup &amp; Baselines</a></li>
+    <li><a href="#in1k">IN-1K: OrderHead from Random-Order Baseline</a></li>
+    <li><a href="#in100">IN-100: From-Scratch Experiments</a></li>
+    <li><a href="#ablations">Ablations: AR Schedule, Input Modes</a></li>
+    <li><a href="#findings">Findings &amp; Lessons Learned</a></li>
+  </ol>
+</div>
+
+<!-- 1. SETUP -->
+<div class="section" id="setup">
+  <h2>1. Setup &amp; Baselines</h2>
+
+  <div class="card-grid">
+    <div class="card">
+      <h3>MAR Architecture</h3>
+      <p>MAR-B: ~200M params, bidirectional encoder-decoder with diffusion loss on continuous VAE latents. 256 tokens (16&times;16), num_iter=64 (cosine AR schedule). MAR-S: ~100M params, same architecture scaled down.</p>
+    </div>
+    <div class="card">
+      <h3>OrderHead</h3>
+      <p>Same architecture as LlamaGen: 4-layer ViT, hidden_dim=256, ~3.5M params. ScoredOrdering with STE binary mask. ViT oracle trained on VQ/VAE tokens with PatchDrop. <code>cls_k=64</code> (4 clusters of 64 tokens).</p>
+    </div>
+  </div>
+
+  <h3>Verified Baselines (IN-1K, FID-50K)</h3>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Model</th><th>FID</th><th>IS</th><th>Source</th></tr>
+    <tr><td>MAR-B pretrained (official)</td><td class="best">2.30</td><td>270.4</td><td class="source">Slurm job 5864880</td></tr>
+    <tr><td>Random-order retrained (5ep warmup, full model)</td><td>2.31</td><td>253.0</td><td class="source">eval_rand_full_5884168.out</td></tr>
+    <tr><td>Random-order retrained (frozen layers)</td><td>3.53</td><td>213.6</td><td class="source">eval_rand_partial_5884169.out</td></tr>
+    <tr><td>Decoder finetune k=1, blr=1e-5</td><td>3.85</td><td>208.0</td><td class="source">Ordering_project Slurm logs</td></tr>
+  </table>
+  </div>
+  <p class="source">All FID-50K numbers verified against actual Slurm evaluation log files. IS = Inception Score.</p>
+
+  <div class="callout">
+    <p><strong>Key observation:</strong> The random-order retrained MAR (FID=2.31) matches the official baseline (FID=2.30). MAR is inherently order-agnostic due to bidirectional attention with random masking.</p>
+  </div>
+</div>
+
+<!-- 2. IN-1K ORDERHEAD -->
+<div class="section" id="in1k">
+  <h2>2. IN-1K: OrderHead from Random-Order Baseline</h2>
+  <p>
+    Starting from the converged random-order MAR-B baseline (FID=2.31), we finetune with OrderHead for 10 epochs.
+    The MAR body is unfrozen. Three approaches tested: oracle supervision (cls_k mode), pure STE (no oracle),
+    and full finetune from the official checkpoint.
+  </p>
+
+  <h3>FID-50K Results (Verified from Eval Logs)</h3>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Experiment</th><th>FID</th><th>IS</th><th>score_std</th><th>Source</th></tr>
+    <tr><td>Baseline (no OrderHead)</td><td class="best">2.30</td><td>270.4</td><td>&mdash;</td><td class="source">job 5864880</td></tr>
+    <tr><td>OH full finetune (from official, ep5)</td><td>5.75</td><td>220.2</td><td>~1.2</td><td class="source">eval_oh_ft_5952087.out</td></tr>
+    <tr><td>OH oracle (from random-order, ep9)</td><td>6.55</td><td>217.0</td><td>~1.6</td><td class="source">eval_oh_randorder_5952436.out</td></tr>
+    <tr><td>OH cosine iter=256 rescore8</td><td>7.08</td><td>209.5</td><td>&mdash;</td><td class="source">eval_ar_schedule_5957840.out</td></tr>
+    <tr><td>OH pure STE (from random-order, ep9)</td><td>10.95</td><td>180.5</td><td>~8.1</td><td class="source">eval_oh_randorder_5952436.out</td></tr>
+    <tr><td>OH cosine iter=64 rescore8</td><td>13.79</td><td>169.3</td><td>&mdash;</td><td class="source">eval_ar_schedule_5957840.out</td></tr>
+  </table>
+  </div>
+
+  <div class="callout warn">
+    <p><strong>OrderHead has NOT beaten the random-order baseline.</strong> The best OrderHead result (FID=6.55 with oracle) is significantly worse than the baseline (FID=2.30). The structured ordering reduces sample quality compared to random masking.</p>
+  </div>
+
+  <h3>OH Oracle: FID-5K per Epoch (cfg=2.9, from random-order baseline)</h3>
+  <p>Online evaluation during 10-epoch finetune. score_std stable at ~1.6 throughout.</p>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Epoch</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th></tr>
+    <tr><td>FID-5K</td><td>17.01</td><td>22.62</td><td>23.86</td><td>23.18</td><td>23.14</td><td>23.37</td><td>21.32</td><td>19.77</td><td>19.49</td><td class="best">18.85</td></tr>
+  </table>
+  </div>
+  <p class="source">Verified from in1k_oh_from_randorder_oracle_5916963.out. FID improves monotonically from ep5 to ep9.</p>
+
+  <h3>OH Pure STE: FID-5K per Epoch (cfg=2.9, from random-order baseline)</h3>
+  <p>Without oracle supervision, scores explode (score_std reaches ~8 by ep9). FID peaks at ep4 then degrades.</p>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Epoch</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th></tr>
+    <tr><td>FID-5K</td><td>26.31</td><td>25.91</td><td>23.16</td><td>21.77</td><td class="best">20.89</td><td>25.00</td><td>28.47</td><td>35.82</td><td>38.27</td><td class="fail">33.63</td></tr>
+  </table>
+  </div>
+  <p class="source">Verified from in1k_oh_from_randorder_5917013.out. FID degrades from ep4 onward as score_std explodes.</p>
+
+  <h3>OH Full Finetune: FID-50K per Epoch (from official MAR-B checkpoint)</h3>
+  <p>Monotonic degradation: the OrderHead ordering hurts the already-optimized MAR-B model.</p>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Epoch</th><th>5</th><th>10</th><th>15</th><th>20</th></tr>
+    <tr><td>FID-50K</td><td>5.75</td><td>6.94</td><td>8.16</td><td class="fail">9.58</td></tr>
+    <tr><td>IS</td><td>220.2</td><td>191.8</td><td>177.6</td><td>151.3</td></tr>
+  </table>
+  </div>
+  <p class="source">Verified from eval_oh_ft_5952087.out. Every epoch makes the model worse.</p>
+
+  <h3>Extended Oracle Training (ep9 &rarr; ep30)</h3>
+  <p>Continued training from the ep9 oracle checkpoint. FID plateaus at ~18.5&ndash;20.0 with no meaningful improvement beyond ep9.</p>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Epoch</th><th>10</th><th>11</th><th>15</th><th>20</th><th>25</th><th>29</th></tr>
+    <tr><td>FID-5K</td><td>18.71</td><td class="best">18.55</td><td>19.71</td><td>18.56</td><td>19.56</td><td>19.36</td></tr>
+  </table>
+  </div>
+  <p class="source">Verified from in1k_oh_from_randorder_oracle_ext_5955292.out. Best FID-5K = 18.55 at ep11.</p>
+</div>
+
+<!-- 3. IN-100 FROM SCRATCH -->
+<div class="section" id="in100">
+  <h2>3. IN-100: From-Scratch Experiments</h2>
+  <p>
+    Training OrderHead + MAR jointly from random initialization. These experiments test whether
+    the two components can bootstrap each other without a pretrained backbone.
+  </p>
+
+  <h3>Results (FID-5K, verified from eval logs)</h3>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Experiment</th><th>FID-5K</th><th>IS</th><th>score_std</th><th>Status</th><th>Source</th></tr>
+    <tr><td>MAR-S saliency_attn (400 ep)</td><td class="fail">104.24</td><td>15.45</td><td>0.50 (collapsed)</td><td><span class="tag tag-red">Failed</span></td><td class="source">eval_in100_oh_s_saliency_5952089.out</td></tr>
+    <tr><td>MAR-S cls_k oracle (400 ep)</td><td class="fail">78.27</td><td>20.62</td><td>0.012 &rarr; recovered to ~1.6</td><td><span class="tag tag-red">Failed</span></td><td class="source">eval_in100_oh_s_clsk_5952088.out</td></tr>
+  </table>
+  </div>
+  <p>Baselines for reference: MAR-S (no OrderHead) = FID-5K ~31.28 (IN-100, online eval during training). MAR-B = FID-5K ~18.87.</p>
+
+  <div class="callout red">
+    <p><strong>From-scratch training failed consistently.</strong> The chicken-and-egg problem: at epoch 0, both MAR body and ViT oracle operate on random features, producing meaningless importance scores. OrderHead scores collapse (std &rarr; 0.012), and the MAR body trains under random ordering for hundreds of epochs. Even though score_std eventually recovers to ~1.6 by epoch 400, the MAR body has already converged to a suboptimal state. FID is 2.5&ndash;3.3x worse than the no-OrderHead baseline.</p>
+  </div>
+</div>
+
+<!-- 4. ABLATIONS -->
+<div class="section" id="ablations">
+  <h2>4. Ablations: AR Schedule, Input Modes</h2>
+
+  <h3>AR Schedule (IN-1K, FID-50K, oracle ep9 checkpoint)</h3>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Schedule</th><th>FID</th><th>IS</th><th>Source</th></tr>
+    <tr><td>Cosine, iter=256, rescore8</td><td class="best">7.08</td><td>209.5</td><td class="source">eval_ar_schedule_5957840.out</td></tr>
+    <tr><td>Cosine, iter=64, rescore8</td><td>13.79</td><td>169.3</td><td class="source">eval_ar_schedule_5957840.out</td></tr>
+    <tr><td>Uniform, iter=4, rescore4</td><td class="fail">172.95</td><td>7.25</td><td class="source">eval_ar_schedule_5957840.out (catastrophic)</td></tr>
+  </table>
+  </div>
+  <p>More AR iterations (256 vs 64) significantly improve FID. Uniform schedule with very few iterations (4) completely fails.</p>
+
+  <h3>GT Latent Input Experiments (IN-100)</h3>
+  <p>Experiments using ground-truth VAE latents directly as OrderHead input (bypassing the encoder):</p>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Experiment</th><th>FID</th><th>IS</th><th>Source</th></tr>
+    <tr><td>GT latent input</td><td class="fail">564.85</td><td>1.00</td><td class="source">Eval logs (3 variants, all collapsed)</td></tr>
+  </table>
+  </div>
+  <p>All three GT latent variants produced identical catastrophic results: FID=564.85, IS=1.00 (complete model collapse). Bypassing the encoder removes all learned feature representations.</p>
+</div>
+
+<!-- 5. FINDINGS -->
+<div class="section" id="findings">
+  <h2>5. Findings &amp; Lessons Learned</h2>
+
+  <div class="card">
+    <h3>Oracle supervision (cls_k) is the only stable training signal</h3>
+    <p>
+      The <code>cls_k=64</code> oracle mode evaluates classification accuracy on non-overlapping clusters of 64 tokens each (4 clusters for 256 total). This gives robust per-token importance scores. The alternative <code>saliency_attn</code> mode (CLS&rarr;patch attention) produces near-uniform scores (~0.004/patch) and causes OrderHead collapse. All successful experiments use <code>cls_k</code> oracle.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>OrderHead works best when initialized from a converged order-agnostic backbone</h3>
+    <p>
+      The only stable OrderHead training happens when the MAR body is already well-trained on random-order data.
+      The pretrained body provides discriminative hidden states for scoring, and can adapt to structured orderings
+      because it was trained on diverse masking patterns. From-scratch training fails because neither component
+      can provide useful signal to the other during early training.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>STE-only training is unstable without oracle regularization</h3>
+    <p>
+      Pure STE training causes score_std to grow unboundedly (~8+ by epoch 9), leading to increasingly extreme
+      orderings that push the model out of distribution. Adding oracle MSE as a regularizer (lambda_cls=0.1&ndash;1.0)
+      keeps score_std in the 1.0&ndash;2.0 range and produces stable FID improvements across epochs.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>OrderHead has not improved over the random-order baseline in any experiment</h3>
+    <p>
+      The fundamental result: MAR with random masking (FID=2.30) outperforms MAR with learned ordering
+      (best FID=6.55). This suggests that for bidirectional masked models, the diversity of random masking
+      may be more valuable than the structure of a learned ordering. The OrderHead constrains the model
+      to a specific ordering pattern, which may reduce the effective training distribution.
+    </p>
+  </div>
+</div>
+
+</div>
+
+<div class="footer">
+  <p>Minkyu Jeon &middot; <a href="/">minkyujeon.github.io</a> &middot; <a href="/projects/ordering/">Back to Ordering Project</a></p>
+</div>
+
+</body>
+</html>

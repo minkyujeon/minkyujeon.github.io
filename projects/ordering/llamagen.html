@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LlamaGen Ordering Experiments</title>
+<style>
+  :root {
+    --bg: #fafbfc; --card: #ffffff; --text: #1a1a2e; --muted: #5a6577;
+    --accent: #2563eb; --accent-light: #dbeafe; --border: #e2e8f0;
+    --green: #059669; --green-light: #d1fae5; --orange: #d97706; --orange-light: #fef3c7;
+    --red: #dc2626; --red-light: #fee2e2; --purple: #7c3aed; --purple-light: #ede9fe;
+    --code-bg: #f1f5f9;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+  .hero { background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%); color: #fff; padding: 60px 24px 48px; }
+  .hero .container { max-width: 960px; margin: 0 auto; }
+  .hero .breadcrumb { font-size: 0.85rem; color: #94a3b8; margin-bottom: 16px; }
+  .hero .breadcrumb a { color: #93c5fd; text-decoration: none; }
+  .hero h1 { font-size: 2.1rem; font-weight: 800; line-height: 1.25; margin-bottom: 12px; }
+  .hero .subtitle { font-size: 1.05rem; color: #cbd5e1; max-width: 700px; line-height: 1.6; }
+  .main { max-width: 960px; margin: 0 auto; padding: 32px 24px 80px; }
+  .section { margin-bottom: 48px; }
+  .section h2 { font-size: 1.45rem; font-weight: 700; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid var(--accent); display: inline-block; }
+  .section h3 { font-size: 1.1rem; font-weight: 600; margin: 20px 0 8px; color: var(--text); }
+  .section p, .section li { color: var(--muted); font-size: 0.95rem; }
+  .section p { margin-bottom: 12px; }
+  .section ul, .section ol { padding-left: 20px; margin-bottom: 12px; }
+  .section li { margin-bottom: 4px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 24px; margin-bottom: 16px; }
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 16px; }
+  .table-wrap { overflow-x: auto; margin-bottom: 16px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; background: var(--card); border: 1px solid var(--border); border-radius: 8px; }
+  th { background: #f8fafc; font-weight: 600; text-align: left; padding: 10px 12px; border-bottom: 2px solid var(--border); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+  td { padding: 8px 12px; border-bottom: 1px solid #f1f5f9; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover { background: #f8fafc; }
+  .best { font-weight: 700; color: var(--green); }
+  .fail { color: var(--red); }
+  .tag { display: inline-block; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; padding: 2px 8px; border-radius: 4px; margin-right: 4px; }
+  .tag-green { background: var(--green-light); color: var(--green); }
+  .tag-orange { background: var(--orange-light); color: var(--orange); }
+  .tag-red { background: var(--red-light); color: var(--red); }
+  .tag-blue { background: var(--accent-light); color: var(--accent); }
+  .tag-purple { background: var(--purple-light); color: var(--purple); }
+  .callout { background: var(--accent-light); border-left: 4px solid var(--accent); padding: 14px 18px; border-radius: 0 8px 8px 0; margin-bottom: 16px; }
+  .callout p { color: var(--text); margin: 0; font-size: 0.92rem; }
+  .callout strong { color: var(--accent); }
+  .callout.warn { background: var(--orange-light); border-left-color: var(--orange); }
+  .callout.warn strong { color: var(--orange); }
+  .callout.red { background: var(--red-light); border-left-color: var(--red); }
+  .callout.red strong { color: var(--red); }
+  code { background: var(--code-bg); padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; }
+  img { max-width: 100%; border-radius: 8px; margin-bottom: 16px; }
+  .img-caption { font-size: 0.82rem; color: var(--muted); text-align: center; margin-top: -10px; margin-bottom: 16px; }
+  .toc { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; margin-bottom: 32px; }
+  .toc h3 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 10px; }
+  .toc ol { padding-left: 20px; }
+  .toc li { margin-bottom: 4px; }
+  .toc a { color: var(--accent); text-decoration: none; font-size: 0.9rem; }
+  .toc a:hover { text-decoration: underline; }
+  .source { font-size: 0.78rem; color: #94a3b8; font-style: italic; }
+  .footer { text-align: center; padding: 32px 24px; color: var(--muted); font-size: 0.82rem; border-top: 1px solid var(--border); }
+  .footer a { color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="container">
+    <div class="breadcrumb"><a href="/">Minkyu Jeon</a> / <a href="/projects/">Projects</a> / <a href="/projects/ordering/">Ordering</a></div>
+    <h1>LlamaGen Ordering Experiments</h1>
+    <p class="subtitle">
+      Comprehensive evaluation of token ordering strategies in causal autoregressive image generation (GPT-B, 110M params, 256 VQ tokens, 2D RoPE).
+    </p>
+  </div>
+</div>
+
+<div class="main">
+
+<div class="toc">
+  <h3>Contents</h3>
+  <ol>
+    <li><a href="#model">Model &amp; Setup</a></li>
+    <li><a href="#heuristic">Heuristic Orderings (Inference-Only)</a></li>
+    <li><a href="#trained">Trained Orderings (From Scratch)</a></li>
+    <li><a href="#randtrain">Random-Order Training (v1, no fixes)</a></li>
+    <li><a href="#rar">RAR: Random with Annealing + Target-Aware Embed</a></li>
+    <li><a href="#orderhead">OrderHead Experiments</a></li>
+    <li><a href="#bugs">Critical Bugs Found &amp; Fixed</a></li>
+  </ol>
+</div>
+
+<!-- 1. MODEL -->
+<div class="section" id="model">
+  <h2>1. Model &amp; Setup</h2>
+  <p>All experiments use the LlamaGen GPT-B architecture with VQ-VAE tokenized ImageNet:</p>
+  <div class="card-grid">
+    <div class="card">
+      <h3>GPT-B</h3>
+      <p>110M params, 24 layers, 12 heads, dim=768. Causal attention with 2D RoPE spatial encoding. Block size = 256 (16&times;16 grid). VQ vocab = 16,384.</p>
+    </div>
+    <div class="card">
+      <h3>Datasets</h3>
+      <p><strong>IN-100:</strong> ImageNet-100 subset, ~127K training images, 5K FID samples. <strong>IN-1K:</strong> Full ImageNet-1K with pretrained <code>c2i_B_256.pt</code> checkpoint.</p>
+    </div>
+    <div class="card">
+      <h3>Evaluation</h3>
+      <p>FID and sFID computed against validation reference NPZ. Standard sampling: cfg_scale=2.0, temperature=1.0. OrderHead: semifast-8 rescoring, O(L&sup2;) per image.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 2. HEURISTIC ORDERINGS -->
+<div class="section" id="heuristic">
+  <h2>2. Heuristic Orderings (Inference-Only)</h2>
+  <p>
+    The raster-trained GPT-B baseline is evaluated at inference with different spatial orderings,
+    using the <code>sample_c2i_heuristic_ddp.py</code> full-forward sampler with <code>position_ids</code>
+    for correct 2D RoPE per-token. No retraining &mdash; only the inference order changes.
+  </p>
+
+  <h3>ImageNet-100 (5K samples, cfg=2.0)</h3>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Ordering</th><th>FID</th><th>sFID</th><th>Source</th></tr>
+    <tr><td>Raster (baseline)</td><td class="best">25.40</td><td>66.33</td><td class="source">samples_fid_baseline_in100</td></tr>
+    <tr><td>Raster (heuristic sampler)</td><td>25.63</td><td>66.15</td><td class="source">samples_fid_heuristic_raster_in100</td></tr>
+    <tr><td>Zigzag</td><td>71.69</td><td>82.08</td><td class="source">samples_fid_heuristic_zigzag_in100</td></tr>
+    <tr><td>Diagonal</td><td>117.58</td><td>93.89</td><td class="source">samples_fid_heuristic_diagonal_in100</td></tr>
+    <tr><td>Stride-2</td><td>128.18</td><td>93.83</td><td class="source">samples_fid_heuristic_stride2_in100</td></tr>
+    <tr><td>Spiral</td><td>132.25</td><td>97.06</td><td class="source">samples_fid_heuristic_spiral_in100</td></tr>
+    <tr><td>Column-major</td><td>139.79</td><td>100.69</td><td class="source">samples_fid_heuristic_col_major_in100</td></tr>
+    <tr><td>Center-spiral</td><td>153.53</td><td>111.03</td><td class="source">samples_fid_heuristic_center_spiral_in100</td></tr>
+    <tr><td>Reverse</td><td>156.18</td><td>109.45</td><td class="source">samples_fid_heuristic_reverse_in100</td></tr>
+    <tr><td>Random (seed=0)</td><td class="fail">173.08</td><td>119.23</td><td class="source">samples_fid_heuristic_random0_in100</td></tr>
+  </table>
+  </div>
+  <p class="source">Raster baseline from standard KV-cache sampler (sample_c2i_ddp.py); all others from O(L&sup2;) heuristic sampler. The ~0.2 FID difference between the two raster results is due to sampling variance from the different samplers.</p>
+
+  <h3>ImageNet-1K (5K samples, cfg=2.0, pretrained c2i_B_256.pt)</h3>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Ordering</th><th>FID</th><th>sFID</th><th>Source</th></tr>
+    <tr><td>Raster</td><td class="best">5.32</td><td>7.46</td><td class="source">samples_fid_heuristic_raster_1k</td></tr>
+    <tr><td>Stride-2</td><td>119.62</td><td>45.38</td><td class="source">samples_fid_heuristic_stride2_1k</td></tr>
+    <tr><td>Center-spiral</td><td>132.08</td><td>53.35</td><td class="source">samples_fid_heuristic_center_spiral_1k</td></tr>
+    <tr><td>Random (seed=0)</td><td>151.23</td><td>66.11</td><td class="source">samples_fid_heuristic_random0_1k</td></tr>
+    <tr><td>Reverse</td><td>154.35</td><td>68.76</td><td class="source">samples_fid_heuristic_reverse_1k</td></tr>
+  </table>
+  </div>
+
+  <img src="img/05_neighbor_coverage.png" alt="Neighbor coverage: raster vs random">
+  <p class="img-caption">Spatial neighbor coverage comparison. At step 32, raster order has 34.8% of spatial neighbors already generated; random order has only 5-6%. This explains why raster is far superior for causal AR &mdash; more context from immediate neighbors.</p>
+
+  <div class="callout">
+    <p><strong>Takeaway:</strong> The raster-trained GPT is tightly coupled to raster context patterns. ANY deviation at inference degrades FID by 3x-7x. The 2D RoPE correctly encodes spatial position, but the causal attention pattern (which positions appear in the left-context) is fundamentally different.</p>
+  </div>
+</div>
+
+<!-- 3. TRAINED ORDERINGS -->
+<div class="section" id="trained">
+  <h2>3. Trained Orderings (From Scratch, IN-100)</h2>
+  <p>
+    Each model is trained from scratch on IN-100 with a fixed ordering (300 epochs, batch=256, lr=1e-4, same hyperparameters).
+    FID evaluated with matching ordering at inference using the heuristic sampler.
+  </p>
+
+  <div class="table-wrap">
+  <table>
+    <tr><th>Training Order</th><th>FID</th><th>sFID</th><th>Source</th></tr>
+    <tr><td>Full raster retrain (fine-tuned from pretrained)</td><td class="best">17.57</td><td>67.18</td><td class="source">samples_fid_raster_ft_full_in100</td></tr>
+    <tr><td>Diagonal</td><td>24.97</td><td>65.99</td><td class="source">samples_fid_train_diagonal_in100</td></tr>
+    <tr><td>Raster (original checkpoint)</td><td>25.40</td><td>66.33</td><td class="source">samples_fid_baseline_in100</td></tr>
+    <tr><td>Column-major</td><td>25.95</td><td>66.26</td><td class="source">samples_fid_train_col_major_in100</td></tr>
+    <tr><td>Zigzag</td><td>26.35</td><td>66.18</td><td class="source">samples_fid_train_zigzag_in100</td></tr>
+    <tr><td>Spiral</td><td>30.94</td><td>66.42</td><td class="source">samples_fid_train_spiral_in100</td></tr>
+    <tr><td>Random (one fixed permutation)</td><td>44.74</td><td>66.78</td><td class="source">samples_fid_train_random_fixed_in100</td></tr>
+  </table>
+  </div>
+
+  <h3>Partial Fine-Tuning (raster order, from pretrained c2i_B_256.pt)</h3>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Layers Fine-Tuned</th><th>FID</th><th>sFID</th><th>Source</th></tr>
+    <tr><td>All layers</td><td class="best">17.57</td><td>67.18</td><td class="source">samples_fid_raster_ft_full_in100</td></tr>
+    <tr><td>Last 4 blocks</td><td>58.68</td><td>67.64</td><td class="source">samples_fid_raster_ft_partial4_in100</td></tr>
+    <tr><td>Last 2 blocks</td><td>92.69</td><td>70.41</td><td class="source">samples_fid_raster_ft_partial2_in100</td></tr>
+    <tr><td>Last 1 block</td><td>98.62</td><td>71.92</td><td class="source">samples_fid_raster_ft_partial1_in100</td></tr>
+  </table>
+  </div>
+
+  <div class="callout">
+    <p><strong>Takeaway:</strong> When trained with a specific ordering, most fixed orderings achieve FID comparable to raster (24.97&ndash;26.35). The ordering itself matters less than training/inference consistency. Random (fixed) is worse (44.74) because the model cannot learn structured context patterns. Diagonal is best (24.97), slightly beating raster (25.40).</p>
+  </div>
+</div>
+
+<!-- 4. RANDOM-ORDER TRAINING -->
+<div class="section" id="randtrain">
+  <h2>4. Random-Order Training (v1, No Fixes)</h2>
+  <p>
+    First attempt at MAR-style random ordering in LlamaGen: every training step samples a new random
+    permutation per image. No target-aware positional embedding, no annealing. Uses <code>train_c2i_random_order.py</code>
+    (before RAR fixes). Trained 300 epochs on IN-100.
+  </p>
+
+  <div class="table-wrap">
+  <table>
+    <tr><th>Inference Order</th><th>FID</th><th>sFID</th><th>Source</th></tr>
+    <tr><td>Raster</td><td class="fail">159.41</td><td>115.89</td><td class="source">samples_fid_randtrain_in100_raster (job 6474613)</td></tr>
+    <tr><td>Random (seed=0)</td><td class="fail">163.98</td><td>121.23</td><td class="source">samples_fid_randtrain_in100_random0 (job 6474613)</td></tr>
+  </table>
+  </div>
+
+  <div class="callout red">
+    <p><strong>Root cause analysis:</strong> Two critical missing components identified by comparing with the RAR paper (arXiv 2411.00776):
+    (1) No <strong>target-aware positional embedding</strong> &mdash; the model cannot distinguish permutations that share a prefix but differ in the next token (ambiguous target problem).
+    (2) No <strong>annealing to raster</strong> &mdash; raster inference is OOD for a purely random-trained model.
+    Training loss plateaued at 8.45 (vs 6.30 for raster baseline). Generated images show realistic textures but no object structure.</p>
+  </div>
+</div>
+
+<!-- 5. RAR -->
+<div class="section" id="rar">
+  <h2>5. RAR: Random Ordering with Annealing + Target-Aware Embed</h2>
+  <p>
+    After identifying the two missing components from the RAR paper, we implemented:
+  </p>
+  <ul>
+    <li><strong>Target-aware positional embedding (ta_pos_table):</strong> Learnable <code>nn.Embedding(256, 768)</code> where token at step t receives the embedding of <code>perms[t+1]</code> (the next token's spatial position). Zero-initialized so it starts as a no-op. Resolves the ambiguous target problem.</li>
+    <li><strong>Annealing schedule:</strong> Epochs 0&ndash;200: 100% random permutations. Epochs 200&ndash;300: linear decay to raster. Epochs 300&ndash;400: 100% raster. ta_embed set to None during raster phase to match inference.</li>
+  </ul>
+  <p>
+    <span class="tag tag-orange">Running</span> Two experiments submitted on IN-100 (jobs 6622826, 6622875):
+  </p>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Experiment</th><th>Config</th><th>Status</th><th>Training Loss</th></tr>
+    <tr><td>RAR (with annealing)</td><td>400 epochs, anneal 200&rarr;300, ta_embed</td><td><span class="tag tag-orange">Running</span> epoch 361/400</td><td>7.22 (pure raster phase)</td></tr>
+    <tr><td>Pure random AR (no annealing)</td><td>300 epochs, random throughout, ta_embed</td><td><span class="tag tag-green">Completed</span></td><td>8.03 (final)</td></tr>
+  </table>
+  </div>
+  <p class="source">RAR job 6622826 on della-h21g2 (4x H100). Pure random job 6622875 completed at 148K steps.</p>
+</div>
+
+<!-- 6. ORDERHEAD -->
+<div class="section" id="orderhead">
+  <h2>6. OrderHead Experiments</h2>
+
+  <h3>Architecture</h3>
+  <p>
+    OrderHead: 4-layer ViT, hidden_dim=256, 3.46M params. ScoredOrdering with binary STE (k=64).
+    ViT oracle: ViT-B trained on VQ codebook embeddings with PatchDrop (val@25=66.3%).
+  </p>
+
+  <h3>Phase 1: Frozen GPT, Oracle MSE Only</h3>
+  <p>
+    GPT-B frozen at raster baseline checkpoint (0145000.pt). OrderHead trained via
+    <code>MSE(sigmoid(scores), vit_importance.detach())</code>. 48K steps.
+  </p>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Experiment</th><th>FID</th><th>sFID</th><th>Source</th></tr>
+    <tr><td>Phase 1 (oracle, semifast-8)</td><td class="fail">155.58</td><td>113.12</td><td class="source">Slurm job 6221286</td></tr>
+  </table>
+  </div>
+  <p>The frozen GPT was never exposed to non-raster orderings during training. At inference, the OH-selected ordering is completely OOD for the GPT body, producing FID worse than random heuristic ordering.</p>
+
+  <h3>Phase 2: Joint GPT + OrderHead Training</h3>
+  <p>Two variants tested, both starting from raster-trained GPT-B:</p>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Experiment</th><th>FID</th><th>sFID</th><th>CE Loss</th><th>Source</th></tr>
+    <tr><td>Phase 2 (from Phase 1 checkpoint, STE + oracle)</td><td class="fail">146.51</td><td>112.59</td><td>~7.50</td><td class="source">Slurm job 6217262</td></tr>
+    <tr><td>Phase 2 direct (from raster GPT, STE + oracle)</td><td class="fail">140.89</td><td>105.31</td><td>~7.42</td><td class="source">Slurm job 6217263</td></tr>
+  </table>
+  </div>
+
+  <div class="callout warn">
+    <p><strong>Why Phase 2 failed:</strong> The raster-trained GPT's CE loss only dropped from ~7.6 to ~7.4 over 48K joint training steps (vs baseline 6.8). The GPT body cannot quickly adapt to non-raster orderings. Joint training would need much longer (hundreds of epochs) to close this gap, effectively retraining the entire model.</p>
+  </div>
+
+  <h3>Currently Running Experiments</h3>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Experiment</th><th>Config</th><th>Status</th><th>Latest Metrics</th></tr>
+    <tr><td>OH STE finetune (no oracle)</td><td>Phase 2 from raster GPT, binary STE k=64, lambda_cls=0</td><td><span class="tag tag-orange">Running</span></td><td>step 15K, CE=7.55, score_std=7.5</td></tr>
+    <tr><td>OH from scratch (curriculum)</td><td>3-phase curriculum: raster warmup &rarr; gradual OH &rarr; full OH</td><td><span class="tag tag-orange">Running</span></td><td>step 5K, CE=8.2, Phase A (raster warmup)</td></tr>
+  </table>
+  </div>
+</div>
+
+<!-- 7. BUGS -->
+<div class="section" id="bugs">
+  <h2>7. Critical Bugs Found &amp; Fixed</h2>
+
+  <div class="card">
+    <h3>Bug 1: target_aware_embed active during raster phase</h3>
+    <p><code>ta_embed</code> was always computed and passed to GPT, even during the pure-raster phase (epochs 300-400). Standard inference (<code>sample_c2i_ddp.py</code>) never provides ta_embed, causing a train/inference mismatch. <strong>Fix:</strong> Set <code>ta_embed = None</code> when <code>random_ratio == 0</code>.</p>
+  </div>
+
+  <div class="card">
+    <h3>Bug 2: Random-order training v1 missing RAR components</h3>
+    <p>First random-order attempt had no target-aware positional embedding and no annealing schedule. Both are critical components from the RAR paper (arXiv 2411.00776). Without them, loss plateaus at 8.45 and generated images lack object structure. <strong>Fix:</strong> Implemented full RAR pipeline with <code>ta_pos_table</code> and epoch-based annealing.</p>
+  </div>
+
+  <div class="card">
+    <h3>Bug 3: Score alignment loss shape mismatch</h3>
+    <p>In the from-scratch curriculum script, <code>per_token_ce</code> computation had mismatched batch dimensions (16384 vs 16320) due to incorrect target indexing with GPT's internal logit shift. <strong>Fix:</strong> Align targets with GPT's training-mode logit convention where <code>logits[:, i]</code> predicts <code>z_indices[:, i]</code>.</p>
+  </div>
+
+  <div class="card">
+    <h3>Bug 4: saliency_attn oracle produces flat importance maps</h3>
+    <p>CLS&rarr;patch attention with all 256 tokens visible produces near-uniform attention (~0.004/patch), giving OrderHead a meaningless regression target. score_std stays at 0.2-0.5 (collapsed). <strong>Fix:</strong> Switch to <code>--classifier-mode oracle --cls-k 64</code> which uses cluster-based classification probability. score_std recovers to 1.0-1.6.</p>
+  </div>
+</div>
+
+</div>
+
+<div class="footer">
+  <p>Minkyu Jeon &middot; <a href="/">minkyujeon.github.io</a> &middot; <a href="/projects/ordering/">Back to Ordering Project</a></p>
+</div>
+
+</body>
+</html>
