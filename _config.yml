@@ -36,6 +36,8 @@ menu:
     url:               /publications/
   - title:             CV
     url:               /cv/
+  - title:             Projects
+    url:               /projects/
 
 # Add links to the footer.
 legal: []
