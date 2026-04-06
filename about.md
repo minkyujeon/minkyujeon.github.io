@@ -7,12 +7,14 @@ permalink: /
 
 # About
 
-Hello! I'm **Minkyu Jeon**, a Ph.D. candidate in Computer Science at [Princeton University](https://www.cs.princeton.edu/), advised by [Prof. Ellen D. Zhong](https://ezlab.princeton.edu/). I am a former research intern at [Prescient Design, Genentech](https://www.gene.com/scientists/our-scientists/prescient-design), and a former contractor and Associate Computational Biologist at the [Broad Institute of MIT and Harvard](https://www.broadinstitute.org/).
+Minkyu Jeon is a Ph.D. student in the Department of Computer Science at [Princeton University](https://www.cs.princeton.edu/), advised by [Prof. Ellen D. Zhong](https://ezlab.princeton.edu/). He is a former summer research intern and contractor at [Prescient Design (Genentech)](https://www.gene.com/scientists/our-scientists/prescient-design), and a former Associate Computational Biologist and visiting graduate student at the [Broad Institute of MIT and Harvard](https://www.broadinstitute.org/).
 {:.lead}
 
 ## Research Interests
 
-My research focuses on **generative models** and their applications to scientific discovery. I develop **adaptive masked diffusion models** and **scalable generative frameworks** for both vision and protein domains. Key directions include **protein design**, **de novo protein design**, and building models that generalize beyond their training distributions. A central goal of my work is to harness these methods to advance scientific discovery through machine learning.
+My research focuses on **3D reconstruction** and **generative models**, and their applications to inverse problems in computer vision, with an emphasis on scientific imaging modalities such as **cryo-EM heterogeneous 3D reconstruction**.
+
+Another key area of my research is **AI for Science**. I am currently working on **adaptive masked diffusion models** and **scalable generative models** for vision and proteins, with applications to **protein design** and **de novo protein design**, helping advance scientific discovery through machine learning.
 
 ## News
 
