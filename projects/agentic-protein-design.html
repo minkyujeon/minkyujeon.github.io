@@ -391,7 +391,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
 
   <div class="stat-row">
     <div class="stat"><div class="num">11</div><div class="label">Protein Targets</div></div>
-    <div class="stat green"><div class="num">27/33</div><div class="label">Fully Evaluated</div></div>
+    <div class="stat green"><div class="num">33/33</div><div class="label">Fully Evaluated</div></div>
     <div class="stat purple"><div class="num">3</div><div class="label">Configs Tested</div></div>
     <div class="stat orange"><div class="num">~2,700</div><div class="label">Designs Generated</div></div>
   </div>
@@ -435,7 +435,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     </tr>
     <tr>
       <td>TrkA</td><td><span class="tag tag-green">Easy</span></td>
-      <td>0.519</td><td>0.133</td>
+      <td>0.519</td><td>0.134</td>
       <td>0.145</td><td>0.136</td>
       <td class="best">0.147</td><td class="best">0.126</td>
     </tr>
@@ -504,7 +504,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
   <p class="note">
     Difficulty labels are based on our evaluation pass rates (see below), not the paper's classification.
     BetV1-wide produced only 2 samples due to timeout during beam search.
-    notto TrkA data is from paper_trka_notto_200 run (199 samples).
+    TrkA notto: 199 samples. BetV1 notto: 194 samples. All others: 200 samples.
   </p>
 
   <h3>Evaluation Pass Rates (After AF2 Refolding + ProteinMPNN Redesign)</h3>
@@ -513,8 +513,8 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     <code>self</code> = model's co-designed sequence.
     <code>mpnn</code> = ProteinMPNN redesign of same backbone.
     Pass rate = fraction of samples meeting all three criteria simultaneously.
-    notto uses 200 samples; deep/wide use 32 each.
-    6 notto evaluations still running (marked "--").
+    notto uses 194&ndash;200 samples; deep uses 9&ndash;14; wide uses 32 (except BetV1-wide: 2).
+    All 33 jobs fully evaluated.
   </p>
   <div class="table-wrap">
   <table>
@@ -522,7 +522,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     <tr><th></th><th></th><th>Self</th><th>MPNN</th><th>Self</th><th>MPNN</th><th>Self</th><th>MPNN</th></tr>
     <tr>
       <td>TrkA</td><td><span class="tag tag-green">Easy</span></td>
-      <td>--</td><td>--</td>
+      <td>7.5%</td><td>18.0%</td>
       <td class="best">100%</td><td class="best">93.8%</td>
       <td class="best">100%</td><td>90.6%</td>
     </tr>
@@ -546,19 +546,19 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     </tr>
     <tr>
       <td>CrSAS6</td><td><span class="tag tag-green">Easy</span></td>
-      <td>--</td><td>--</td>
+      <td>4.0%</td><td>4.5%</td>
       <td>75.0%</td><td>25.0%</td>
       <td class="best">100%</td><td class="best">62.5%</td>
     </tr>
     <tr>
       <td>DerF7</td><td><span class="tag tag-orange">Medium</span></td>
-      <td>--</td><td>--</td>
+      <td>4.0%</td><td>12.0%</td>
       <td class="best">100%</td><td>84.4%</td>
       <td class="best">100%</td><td class="best">100%</td>
     </tr>
     <tr>
       <td>SpCas9</td><td><span class="tag tag-orange">Medium</span></td>
-      <td>--</td><td>--</td>
+      <td>2.5%</td><td>1.5%</td>
       <td class="best">50.0%</td><td class="best">46.9%</td>
       <td>37.5%</td><td>21.9%</td>
     </tr>
@@ -576,13 +576,13 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     </tr>
     <tr>
       <td>HER2_AAV</td><td><span class="tag tag-red">Hard</span></td>
-      <td>--</td><td>--</td>
+      <td class="fail">0%</td><td class="fail">0%</td>
       <td>3.1%</td><td class="best">31.3%</td>
       <td class="fail">0%</td><td class="fail">0%</td>
     </tr>
     <tr>
       <td>BetV1</td><td><span class="tag tag-red">Hard</span></td>
-      <td>--</td><td>--</td>
+      <td class="fail">0%</td><td class="fail">0%</td>
       <td>18.8%</td><td class="fail">0%</td>
       <td class="fail">0%</td><td class="fail">0%</td>
     </tr>
@@ -660,10 +660,10 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
 
   <div class="card">
     <h3>2. Beam search dramatically outperforms random sampling</h3>
-    <p>With evaluation pass rates: IFNAR2 jumps from 24% (notto) to 100% (deep);
-    PD1 from 8.5% to 100%; Claudin1 from 0.5% to 100%.
-    Even CD45 (hard) goes from 0% to 25%. Beam search is effective across the difficulty spectrum,
-    not just for hard targets. Mean iPAE drops 3-5x from notto to beam search across all targets.</p>
+    <p>With all evaluation pass rates complete: IFNAR2 jumps from 24% (notto) to 100% (deep);
+    PD1 from 8.5% to 100%; Claudin1 from 0.5% to 100%; CrSAS6 from 4% to 100%.
+    Even CD45 (hard) goes from 0% to 25%. All 3 hard targets (CD45, HER2_AAV, BetV1) score 0% with notto
+    but achieve non-zero pass rates with beam search. Mean iPAE drops 3-5x across all targets.</p>
   </div>
 
   <div class="card">
@@ -832,7 +832,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
       <li>Test whether a simple threshold rule (e.g., "if mean_iPAE &gt; 0.7, use deep") achieves &gt;80% routing accuracy</li>
     </ul>
     <p><strong>Expected output:</strong> A decision tree mapping diagnostic statistics to recommended config.</p>
-    <p><strong>Cost:</strong> Analysis only &mdash; data already collected for 5/11 notto runs; 6 more in progress</p>
+    <p><strong>Cost:</strong> Analysis only &mdash; all 11 notto runs complete with evaluation data</p>
   </div>
 
   <div class="exp-card planned">
@@ -913,7 +913,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
       <td>Phase 0</td>
       <td>Baseline: 11 targets x 3 configs + Autoresearch 5 x 10</td>
       <td>--</td>
-      <td><span class="tag tag-green">27/33 evaluated</span></td>
+      <td><span class="tag tag-green">Done (33/33)</span></td>
       <td>April 2026</td>
     </tr>
     <tr>
@@ -946,8 +946,8 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     Prior testing found clash and radius of gyration had zero variance within beams.
     (2) Does FK Steering temperature tuning actually improve over the default T=0.1?
     Figure 7 shows the default is already competitive.
-    (3) Is the diagnostic N=32 round informative enough to route correctly,
-    or do we need the full N=200 to extract reliable statistics?</p>
+    (3) Is a cheap diagnostic N=32 round informative enough to route correctly,
+    or do we need the full N=200? All 11 notto N=200 runs are now complete for analysis.</p>
   </div>
 </div>
 
