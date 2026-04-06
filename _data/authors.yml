@@ -1,0 +1,23 @@
+# The primary author of this blog.
+# Must be the same as `author` in `_config.yml`.
+author1:
+  name:              Minkyu Jeon
+  email:             mj7341@princeton.edu
+
+  # Used at the bottom of each page and at the top of the `about` layout
+  about:             |
+    PhD Candidate in Computer Science at Princeton University, advised by Prof. Ellen D. Zhong.
+    Research focuses on 3D reconstruction, generative models, and scientific imaging (cryo-EM, protein design).
+
+  # This photo will be used in the about section
+  picture:
+    path:            /assets/img/profile.jpg
+    srcset:
+      1x:            /assets/img/profile.jpg
+      2x:            /assets/img/profile.jpg
+
+  # Social media icons in sidebar
+  social:
+    twitter:         MinkyuJeon19791
+    linkedin:        minkyu-jeon-9a5b92152
+    email:           mj7341@princeton.edu
