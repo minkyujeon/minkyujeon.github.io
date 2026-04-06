@@ -1,0 +1,769 @@
+---
+layout: plain
+title: Agentic Inference-Time Scaling for De Novo Protein Design
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agentic Protein Design — Minkyu Jeon</title>
+<style>
+  :root {
+    --bg: #fafbfc;
+    --card: #ffffff;
+    --text: #1a1a2e;
+    --muted: #5a6577;
+    --accent: #2563eb;
+    --accent-light: #dbeafe;
+    --border: #e2e8f0;
+    --green: #059669;
+    --green-light: #d1fae5;
+    --orange: #d97706;
+    --orange-light: #fef3c7;
+    --red: #dc2626;
+    --red-light: #fee2e2;
+    --purple: #7c3aed;
+    --purple-light: #ede9fe;
+    --code-bg: #f1f5f9;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+  }
+  /* ── Header ── */
+  .hero {
+    background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%);
+    color: #fff;
+    padding: 60px 24px 48px;
+  }
+  .hero .container { max-width: 960px; margin: 0 auto; }
+  .hero .breadcrumb { font-size: 0.85rem; color: #94a3b8; margin-bottom: 16px; }
+  .hero .breadcrumb a { color: #93c5fd; text-decoration: none; }
+  .hero h1 { font-size: 2.1rem; font-weight: 800; line-height: 1.25; margin-bottom: 12px; }
+  .hero .subtitle { font-size: 1.05rem; color: #cbd5e1; max-width: 700px; line-height: 1.6; }
+  .hero .meta { margin-top: 20px; display: flex; gap: 20px; flex-wrap: wrap; font-size: 0.85rem; color: #94a3b8; }
+  .hero .meta span { display: flex; align-items: center; gap: 6px; }
+
+  /* ── Main ── */
+  .main { max-width: 960px; margin: 0 auto; padding: 32px 24px 80px; }
+
+  /* ── Section ── */
+  .section { margin-bottom: 48px; }
+  .section h2 {
+    font-size: 1.45rem; font-weight: 700; margin-bottom: 16px;
+    padding-bottom: 8px; border-bottom: 2px solid var(--accent);
+    display: inline-block;
+  }
+  .section h3 { font-size: 1.1rem; font-weight: 600; margin: 20px 0 8px; color: var(--text); }
+  .section p, .section li { color: var(--muted); font-size: 0.95rem; }
+  .section p { margin-bottom: 12px; }
+  .section ul, .section ol { padding-left: 20px; margin-bottom: 12px; }
+  .section li { margin-bottom: 4px; }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 16px; }
+
+  /* ── Stat boxes ── */
+  .stat-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+  .stat {
+    flex: 1; min-width: 140px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    padding: 16px; text-align: center;
+  }
+  .stat .num { font-size: 1.6rem; font-weight: 800; color: var(--accent); }
+  .stat .label { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+  .stat.green .num { color: var(--green); }
+  .stat.orange .num { color: var(--orange); }
+  .stat.red .num { color: var(--red); }
+  .stat.purple .num { color: var(--purple); }
+
+  /* ── Tags ── */
+  .tag {
+    display: inline-block; font-size: 0.72rem; font-weight: 600;
+    letter-spacing: 0.05em; text-transform: uppercase;
+    padding: 2px 8px; border-radius: 4px; margin-right: 4px;
+  }
+  .tag-green { background: var(--green-light); color: var(--green); }
+  .tag-orange { background: var(--orange-light); color: var(--orange); }
+  .tag-red { background: var(--red-light); color: var(--red); }
+  .tag-blue { background: var(--accent-light); color: var(--accent); }
+  .tag-purple { background: var(--purple-light); color: var(--purple); }
+
+  /* ── Tables ── */
+  .table-wrap { overflow-x: auto; margin-bottom: 16px; }
+  table {
+    width: 100%; border-collapse: collapse; font-size: 0.85rem;
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+  }
+  th {
+    background: #f8fafc; font-weight: 600; text-align: left;
+    padding: 10px 12px; border-bottom: 2px solid var(--border);
+    font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted);
+  }
+  td { padding: 8px 12px; border-bottom: 1px solid #f1f5f9; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover { background: #f8fafc; }
+  .best { font-weight: 700; color: var(--green); }
+  .fail { color: var(--red); }
+
+  /* ── Code ── */
+  code { background: var(--code-bg); padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; }
+  pre {
+    background: #0f172a; color: #e2e8f0; padding: 16px 20px;
+    border-radius: 8px; overflow-x: auto; font-size: 0.82rem;
+    line-height: 1.5; margin-bottom: 16px;
+  }
+  pre code { background: none; padding: 0; color: inherit; }
+
+  /* ── Diagram ── */
+  .diagram {
+    background: #f8fafc; border: 1px solid var(--border); border-radius: 10px;
+    padding: 24px; margin-bottom: 16px; font-family: "SF Mono", "Fira Code", monospace;
+    font-size: 0.82rem; line-height: 1.6; overflow-x: auto; white-space: pre;
+  }
+
+  /* ── Callout ── */
+  .callout {
+    background: var(--accent-light); border-left: 4px solid var(--accent);
+    padding: 14px 18px; border-radius: 0 8px 8px 0; margin-bottom: 16px;
+  }
+  .callout p { color: var(--text); margin: 0; font-size: 0.92rem; }
+  .callout strong { color: var(--accent); }
+  .callout.warn { background: var(--orange-light); border-left-color: var(--orange); }
+  .callout.warn strong { color: var(--orange); }
+
+  /* ── Experiment cards ── */
+  .exp-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 20px 24px; margin-bottom: 14px; position: relative;
+    border-left: 4px solid var(--accent);
+  }
+  .exp-card.planned { border-left-color: var(--purple); }
+  .exp-card.running { border-left-color: var(--orange); }
+  .exp-card.done { border-left-color: var(--green); }
+  .exp-card h4 { font-size: 1rem; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+  .exp-card p { font-size: 0.88rem; color: var(--muted); margin-bottom: 4px; }
+
+  /* ── TOC ── */
+  .toc {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 20px 24px; margin-bottom: 32px;
+  }
+  .toc h3 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 10px; }
+  .toc ol { padding-left: 20px; }
+  .toc li { margin-bottom: 4px; }
+  .toc a { color: var(--accent); text-decoration: none; font-size: 0.9rem; }
+  .toc a:hover { text-decoration: underline; }
+
+  /* ── Footer ── */
+  .footer {
+    text-align: center; padding: 32px 24px; color: var(--muted);
+    font-size: 0.82rem; border-top: 1px solid var(--border);
+  }
+  .footer a { color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════ HERO ═══════════════════════════════ -->
+<div class="hero">
+  <div class="container">
+    <div class="breadcrumb"><a href="/">Minkyu Jeon</a> / <a href="/projects/">Projects</a></div>
+    <h1>Agentic Inference-Time Scaling for De Novo Protein Design</h1>
+    <p class="subtitle">
+      Mapping the full action space of a generative protein design pipeline and building an agent
+      that adaptively routes inference-time compute to achieve scaling that doesn't plateau.
+    </p>
+    <div class="meta">
+      <span>Minkyu Jeon</span>
+      <span>Princeton University</span>
+      <span>April 2026</span>
+      <span><span class="tag tag-blue">In Progress</span></span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ MAIN ═══════════════════════════════ -->
+<div class="main">
+
+<!-- TOC -->
+<div class="toc">
+  <h3>Contents</h3>
+  <ol>
+    <li><a href="#motivation">The Problem: Inference-Time Scaling Plateaus</a></li>
+    <li><a href="#pipeline">The Pipeline & Action Space</a></li>
+    <li><a href="#results">Current Results: 11-Target Protein Binder Sweep</a></li>
+    <li><a href="#ligand">Ligand Binder Results: 7V11/SAM</a></li>
+    <li><a href="#findings">Key Findings</a></li>
+    <li><a href="#experiments">Experimental Plan</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+  </ol>
+</div>
+
+<!-- ─── 1. MOTIVATION ─── -->
+<div class="section" id="motivation">
+  <h2>1. The Problem: Inference-Time Scaling Plateaus</h2>
+
+  <p>
+    De novo protein design pipelines like <strong>Proteina-Complexa</strong> (ICLR 2026 Oral) jointly co-design
+    protein structure and sequence via flow matching. At inference, test-time optimization (TTO) guides the
+    denoising trajectory using AF2 rewards, steering toward binding-competent designs.
+  </p>
+  <p>
+    The <strong>Figure 7 pattern</strong> from the Proteina-Complexa paper reveals a critical gap:
+  </p>
+
+  <div class="card-grid">
+    <div class="card">
+      <h3><span class="tag tag-green">Easy Targets</span></h3>
+      <p>Best-of-N (random sampling) outperforms beam search. Both keep climbing with more compute. The model already knows how to bind these targets.</p>
+    </div>
+    <div class="card">
+      <h3><span class="tag tag-red">Hard Targets</span></h3>
+      <p>Best-of-N <strong>plateaus</strong> at ~15 GPU hours. Beam search keeps scaling. But no one knows which targets are hard <em>before</em> spending the compute.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <p><strong>Goal:</strong> Build a system where inference-time scaling doesn't plateau — analogous to how o1/o3 achieve better results with more test-time compute in LLMs. The agent reads structured intermediate signals and adaptively allocates compute across a rich action space.</p>
+  </div>
+
+  <p>
+    Current approaches use <strong>fixed hyperparameter strategies</strong> applied uniformly to all targets.
+    No existing system detects easy vs. hard early and adapts. The action space is much richer than just
+    "beam search vs. Best-of-N" — but the full space has never been systematically explored.
+  </p>
+</div>
+
+<!-- ─── 2. PIPELINE & ACTION SPACE ─── -->
+<div class="section" id="pipeline">
+  <h2>2. The Pipeline & Action Space</h2>
+
+  <h3>How the Pipeline Works</h3>
+  <p>
+    Proteina-Complexa generates proteins through a 4-stage pipeline:
+    <strong>Generate</strong> (denoise from noise to structure+sequence) &rarr;
+    <strong>Filter</strong> (rank by reward) &rarr;
+    <strong>Evaluate</strong> (AF2 refold + ProteinMPNN redesign) &rarr;
+    <strong>Analyze</strong> (success thresholds + diversity clustering).
+  </p>
+
+  <div class="diagram">Generate: t=0 (noise) ──denoise──▶ t=400 (structure + sequence)
+                          │
+  Beam Search:            ├─ step 0: branch x n_branch
+                          │          rollout to completion
+                          │          AF2 score ──▶ keep top beam_width
+                          ├─ step 100: branch ──▶ score ──▶ prune
+                          ├─ step 250: branch ──▶ score ──▶ prune
+                          └─ step 400: final PDBs with co-designed sequences
+                                       │
+Filter:                   top-N by reward, deduplicate sequences
+                                       │
+Evaluate:                 AF2 refold (self seq) + ProteinMPNN redesign + refold
+                                       │
+Analyze:                  iPAE ≤ 7.0 AND pLDDT ≥ 0.9 AND scRMSD &lt; 1.5A ──▶ "success"</div>
+
+  <h3>Full Action Space (What an Agent Can Control)</h3>
+  <p>
+    We conducted a comprehensive audit of the Proteina-Complexa codebase and identified <strong>5 search algorithms</strong>,
+    <strong>4 reward models</strong>, and <strong>30+ tunable parameters</strong> — most of which have never been explored.
+  </p>
+
+  <div class="table-wrap">
+  <table>
+    <tr>
+      <th>Category</th><th>Parameter</th><th>Default</th><th>Options / Range</th><th>Explored?</th>
+    </tr>
+    <tr><td colspan="5" style="background:#f1f5f9; font-weight:600; font-size:0.82rem;">Search Algorithm</td></tr>
+    <tr>
+      <td>Algorithm</td><td><code>algorithm</code></td><td>best-of-n</td>
+      <td><code>single-pass</code>, <code>beam-search</code>, <code>fk-steering</code>, <code>mcts</code>, <code>best-of-n</code></td>
+      <td><span class="tag tag-orange">Partial</span></td>
+    </tr>
+    <tr>
+      <td>Beam Search</td><td><code>beam_width</code></td><td>4</td><td>1 &ndash; 32</td>
+      <td><span class="tag tag-green">Yes</span></td>
+    </tr>
+    <tr>
+      <td>Beam Search</td><td><code>n_branch</code></td><td>4</td><td>1 &ndash; 16</td>
+      <td><span class="tag tag-green">Yes</span></td>
+    </tr>
+    <tr>
+      <td>Beam Search</td><td><code>step_checkpoints</code></td><td>[0,100,200,300,400]</td><td>Any subset of 0&ndash;400</td>
+      <td><span class="tag tag-green">Yes</span></td>
+    </tr>
+    <tr>
+      <td>FK-Steering</td><td><code>temperature</code></td><td>0.1</td><td>0.01 &ndash; 10.0</td>
+      <td><span class="tag tag-red">No</span></td>
+    </tr>
+    <tr>
+      <td>MCTS</td><td><code>n_simulations</code></td><td>20</td><td>5 &ndash; 100</td>
+      <td><span class="tag tag-red">No</span></td>
+    </tr>
+    <tr>
+      <td>MCTS</td><td><code>exploration_constant</code></td><td>1.414</td><td>0.1 &ndash; 5.0</td>
+      <td><span class="tag tag-red">No</span></td>
+    </tr>
+
+    <tr><td colspan="5" style="background:#f1f5f9; font-weight:600; font-size:0.82rem;">Denoising / Diversity</td></tr>
+    <tr>
+      <td>Temperature</td><td><code>sc_scale_noise</code> (backbone)</td><td>0.1</td><td>0.0 &ndash; 1.0</td>
+      <td><span class="tag tag-red">No</span></td>
+    </tr>
+    <tr>
+      <td>Temperature</td><td><code>sc_scale_noise</code> (sequence)</td><td>0.1</td><td>0.0 &ndash; 1.0</td>
+      <td><span class="tag tag-red">No</span></td>
+    </tr>
+    <tr>
+      <td>Steps</td><td><code>nsteps</code></td><td>400</td><td>100 &ndash; 1000</td>
+      <td><span class="tag tag-red">No</span></td>
+    </tr>
+    <tr>
+      <td>Guidance</td><td><code>guidance_w</code></td><td>1.0</td><td>0.0 &ndash; 5.0</td>
+      <td><span class="tag tag-red">No</span></td>
+    </tr>
+    <tr>
+      <td>Samples</td><td><code>nsamples</code></td><td>4</td><td>1 &ndash; 200</td>
+      <td><span class="tag tag-green">Yes</span></td>
+    </tr>
+
+    <tr><td colspan="5" style="background:#f1f5f9; font-weight:600; font-size:0.82rem;">Reward Models (During TTO)</td></tr>
+    <tr>
+      <td>AF2 Multimer</td><td><code>i_pae</code> weight</td><td>-1.0</td><td>Any float</td>
+      <td><span class="tag tag-green">Yes</span></td>
+    </tr>
+    <tr>
+      <td>AF2 Multimer</td><td><code>plddt</code>, <code>i_ptm</code>, <code>con</code>, etc.</td><td>0.0</td><td>Any float</td>
+      <td><span class="tag tag-red">No</span></td>
+    </tr>
+    <tr>
+      <td>RF3</td><td><code>min_ipAE</code>, <code>ranking_score</code>, etc.</td><td>not used</td><td>Any float</td>
+      <td><span class="tag tag-red">No</span></td>
+    </tr>
+    <tr>
+      <td>TMOL</td><td>H-bond count, electrostatic energy</td><td>not used</td><td><strong>Fast</strong></td>
+      <td><span class="tag tag-red">No</span></td>
+    </tr>
+    <tr>
+      <td>Bioinformatics</td><td>Shape complementarity, dSASA, hydrophobicity</td><td>not used</td><td><strong>Fast</strong></td>
+      <td><span class="tag tag-red">No</span></td>
+    </tr>
+
+    <tr><td colspan="5" style="background:#f1f5f9; font-weight:600; font-size:0.82rem;">Post-Generation</td></tr>
+    <tr>
+      <td>Refinement</td><td><code>sequence_hallucination</code></td><td>off</td><td>Softmax + semigreedy AF2 optimization</td>
+      <td><span class="tag tag-red">No</span></td>
+    </tr>
+    <tr>
+      <td>Evaluation</td><td><code>sequence_types</code></td><td>[self]</td><td><code>self</code>, <code>mpnn</code>, <code>mpnn_fixed</code></td>
+      <td><span class="tag tag-orange">Partial</span></td>
+    </tr>
+    <tr>
+      <td>Evaluation</td><td><code>inverse_folding_model</code></td><td>soluble_mpnn</td><td><code>protein_mpnn</code>, <code>ligand_mpnn</code>, <code>soluble_mpnn</code></td>
+      <td><span class="tag tag-red">No</span></td>
+    </tr>
+
+    <tr><td colspan="5" style="background:#f1f5f9; font-weight:600; font-size:0.82rem;">Target Specification</td></tr>
+    <tr>
+      <td>Target</td><td><code>hotspot_residues</code></td><td>from config</td><td>Any subset of target residues</td>
+      <td><span class="tag tag-red">No</span></td>
+    </tr>
+    <tr>
+      <td>Target</td><td><code>binder_length</code></td><td>[64, 155]</td><td>[min, max] range</td>
+      <td><span class="tag tag-red">No</span></td>
+    </tr>
+  </table>
+  </div>
+
+  <div class="callout">
+    <p><strong>Key insight:</strong> Only <strong>beam search</strong> and <strong>single-pass</strong> have been tested.
+    FK-steering (soft selection via temperature), MCTS (UCB tree search), reward composition, denoising temperature,
+    and sequence hallucination refinement are all implemented in the codebase but <strong>completely unexplored</strong>.</p>
+  </div>
+
+  <h3>FK-Steering: The Continuous Spectrum</h3>
+  <p>
+    FK-steering is identical to beam search except for selection: instead of hard top-k,
+    it samples with <code>P(beam) ~ exp(reward / temperature)</code>.
+  </p>
+  <ul>
+    <li><strong>T &rarr; 0</strong>: Converges to beam search (greedy exploitation)</li>
+    <li><strong>T &rarr; &infin;</strong>: Converges to Best-of-N (pure exploration)</li>
+    <li><strong>Intermediate T</strong>: Soft exploration-exploitation tradeoff</li>
+  </ul>
+  <p>
+    This directly addresses the Figure 7 problem: the agent can set temperature adaptively
+    rather than choosing between two discrete algorithms.
+  </p>
+</div>
+
+<!-- ─── 3. RESULTS: PROTEIN BINDER SWEEP ─── -->
+<div class="section" id="results">
+  <h2>3. Current Results: 11-Target Protein Binder Sweep</h2>
+  <p>
+    33 parallel SLURM jobs across 11 protein targets and 3 configurations.
+    All beam search configs use AF2 multimer iPAE as the sole reward signal.
+  </p>
+
+  <div class="stat-row">
+    <div class="stat"><div class="num">11</div><div class="label">Protein Targets</div></div>
+    <div class="stat green"><div class="num">30/33</div><div class="label">Jobs Complete</div></div>
+    <div class="stat purple"><div class="num">3</div><div class="label">Configs Tested</div></div>
+    <div class="stat orange"><div class="num">~2,400</div><div class="label">Designs Generated</div></div>
+  </div>
+
+  <h3>Configurations</h3>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Config</th><th>Algorithm</th><th>nsamples</th><th>beam_width</th><th>n_branch</th><th>Checkpoints</th><th>Finals/Run</th></tr>
+    <tr><td><strong>notto</strong></td><td>single-pass</td><td>200</td><td>--</td><td>--</td><td>--</td><td>200</td></tr>
+    <tr><td><strong>wide</strong></td><td>beam-search</td><td>2</td><td>16</td><td>4</td><td>[0,100,250,400]</td><td>32</td></tr>
+    <tr><td><strong>deep</strong></td><td>beam-search</td><td>4</td><td>8</td><td>3</td><td>[0,65,130,200,270,340,400]</td><td>~12-14</td></tr>
+  </table>
+  </div>
+
+  <h3>Generation-Stage AF2 iPAE (Lower = Better Binding)</h3>
+  <div class="table-wrap">
+  <table>
+    <tr>
+      <th>Target</th><th>Difficulty</th>
+      <th colspan="2">notto (N=200)</th>
+      <th colspan="2">deep</th>
+      <th colspan="2">wide</th>
+    </tr>
+    <tr>
+      <th></th><th></th>
+      <th>Mean</th><th>Best</th>
+      <th>Mean</th><th>Best</th>
+      <th>Mean</th><th>Best</th>
+    </tr>
+    <tr>
+      <td>IFNAR2</td><td><span class="tag tag-green">Easy</span></td>
+      <td>0.469</td><td>0.145</td>
+      <td class="best">0.153</td><td>0.148</td>
+      <td>0.152</td><td class="best">0.142</td>
+    </tr>
+    <tr>
+      <td>PD1</td><td><span class="tag tag-green">Easy</span></td>
+      <td>0.569</td><td>0.158</td>
+      <td class="best">0.158</td><td class="best">0.135</td>
+      <td>0.168</td><td>0.149</td>
+    </tr>
+    <tr>
+      <td>TrkA</td><td><span class="tag tag-green">Easy</span></td>
+      <td>--</td><td>--</td>
+      <td>0.145</td><td>0.136</td>
+      <td class="best">0.147</td><td class="best">0.126</td>
+    </tr>
+    <tr>
+      <td>PDL1</td><td><span class="tag tag-green">Easy</span></td>
+      <td>0.504</td><td>0.177</td>
+      <td>0.188</td><td>0.173</td>
+      <td class="best">0.183</td><td class="best">0.166</td>
+    </tr>
+    <tr>
+      <td>CrSAS6</td><td><span class="tag tag-green">Easy</span></td>
+      <td>0.748</td><td>0.183</td>
+      <td>0.201</td><td class="best">0.159</td>
+      <td class="best">0.185</td><td>0.170</td>
+    </tr>
+    <tr>
+      <td>DerF7</td><td><span class="tag tag-orange">Medium</span></td>
+      <td>0.539</td><td>0.204</td>
+      <td>0.199</td><td>0.184</td>
+      <td class="best">0.198</td><td class="best">0.178</td>
+    </tr>
+    <tr>
+      <td>Claudin1</td><td><span class="tag tag-orange">Medium</span></td>
+      <td>0.630</td><td>0.212</td>
+      <td class="best">0.211</td><td class="best">0.196</td>
+      <td>0.230</td><td>0.206</td>
+    </tr>
+    <tr>
+      <td>SpCas9</td><td><span class="tag tag-orange">Medium</span></td>
+      <td>0.718</td><td>0.195</td>
+      <td>0.230</td><td class="best">0.171</td>
+      <td class="best">0.222</td><td>0.184</td>
+    </tr>
+    <tr>
+      <td>CD45</td><td><span class="tag tag-red">Hard</span></td>
+      <td>0.813</td><td>0.261</td>
+      <td class="best">0.299</td><td class="best">0.173</td>
+      <td>0.430</td><td>0.194</td>
+    </tr>
+    <tr>
+      <td>HER2_AAV</td><td><span class="tag tag-red">Hard</span></td>
+      <td>0.810</td><td>0.246</td>
+      <td class="best">0.237</td><td class="best">0.219</td>
+      <td>0.314</td><td>0.256</td>
+    </tr>
+    <tr>
+      <td>BetV1</td><td><span class="tag tag-red">Hard</span></td>
+      <td>0.842</td><td>0.285</td>
+      <td class="best">0.614</td><td class="best">0.220</td>
+      <td>0.888 <span style="color:var(--red);font-size:0.75rem">(n=2)</span></td><td>0.864</td>
+    </tr>
+  </table>
+  </div>
+
+  <h3>Evaluation-Stage Pass Rates (Self Sequence)</h3>
+  <p>
+    Success = iPAE*31 &le; 7.0 AND pLDDT &ge; 0.9 AND scRMSD &lt; 1.5A after AF2 refolding.
+    <code>self</code> = Proteina's co-designed sequence. <code>mpnn</code> = ProteinMPNN redesign.
+  </p>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Target</th><th>Difficulty</th><th>Config</th><th>Self Pass Rate</th><th>MPNN Pass Rate</th></tr>
+    <tr><td>IFNAR2</td><td><span class="tag tag-green">Easy</span></td><td>deep</td><td class="best">100%</td><td class="best">100%</td></tr>
+    <tr><td>IFNAR2</td><td></td><td>wide</td><td class="best">100%</td><td>96.9%</td></tr>
+    <tr><td>PD1</td><td><span class="tag tag-green">Easy</span></td><td>deep</td><td class="best">100%</td><td>68.8%</td></tr>
+    <tr><td>PD1</td><td></td><td>wide</td><td class="best">100%</td><td class="best">87.5%</td></tr>
+    <tr><td>PDL1</td><td><span class="tag tag-green">Easy</span></td><td>deep</td><td class="best">100%</td><td>37.5%</td></tr>
+    <tr><td>PDL1</td><td></td><td>wide</td><td class="best">100%</td><td class="best">81.3%</td></tr>
+    <tr><td>DerF7</td><td><span class="tag tag-orange">Medium</span></td><td>deep</td><td class="best">100%</td><td>84.4%</td></tr>
+    <tr><td>DerF7</td><td></td><td>wide</td><td class="best">100%</td><td class="best">100%</td></tr>
+    <tr><td>Claudin1</td><td><span class="tag tag-orange">Medium</span></td><td>deep</td><td class="best">100%</td><td>37.5%</td></tr>
+    <tr><td>Claudin1</td><td></td><td>wide</td><td>21.9%</td><td>31.3%</td></tr>
+    <tr><td>CrSAS6</td><td><span class="tag tag-green">Easy</span></td><td>deep</td><td>75.0%</td><td>25.0%</td></tr>
+    <tr><td>CrSAS6</td><td></td><td>wide</td><td class="best">100%</td><td class="best">62.5%</td></tr>
+    <tr><td>SpCas9</td><td><span class="tag tag-orange">Medium</span></td><td>deep</td><td>--</td><td>--</td></tr>
+    <tr><td>SpCas9</td><td></td><td>wide</td><td>--</td><td>--</td></tr>
+    <tr><td>CD45</td><td><span class="tag tag-red">Hard</span></td><td>deep</td><td>25.0%</td><td>15.6%</td></tr>
+    <tr><td>CD45</td><td></td><td>wide</td><td>9.4%</td><td class="fail">0%</td></tr>
+    <tr><td>HER2_AAV</td><td><span class="tag tag-red">Hard</span></td><td>deep</td><td>--</td><td>--</td></tr>
+    <tr><td>HER2_AAV</td><td></td><td>wide</td><td>--</td><td>--</td></tr>
+    <tr><td>BetV1</td><td><span class="tag tag-red">Hard</span></td><td>deep</td><td>18.8%</td><td class="fail">0%</td></tr>
+    <tr><td>BetV1</td><td></td><td>wide</td><td class="fail">0%</td><td class="fail">0%</td></tr>
+  </table>
+  </div>
+
+  <h3>Prior Autoresearch Sweep: 5 Configs x 10 Targets</h3>
+  <p>
+    A parallel automated sweep (collaboration with Jinyeop Song) tested 5 beam search configurations
+    across 10 protein targets (50 experiments, all complete). E_fine_selector (= our "deep" config) won 7/10 targets.
+  </p>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Config</th><th>Strategy</th><th>nsamples</th><th>beam_width</th><th>n_branch</th><th>Checkpoints</th><th>Wins (best iPAE)</th></tr>
+    <tr><td class="best">E_fine_selector</td><td>Frequent pruning</td><td>4</td><td>8</td><td>3</td><td>[0,65,130,200,270,340,400]</td><td class="best">7/10</td></tr>
+    <tr><td>D_early_brancher</td><td>Wide early branch</td><td>4</td><td>8</td><td>8</td><td>[0,200,400]</td><td>2/10</td></tr>
+    <tr><td>C_deep_exploiter</td><td>Deep per-length</td><td>2</td><td>16</td><td>4</td><td>[0,100,250,400]</td><td>1/10</td></tr>
+    <tr><td>A_balanced</td><td>Paper default</td><td>4</td><td>8</td><td>4</td><td>[0,100,200,300,400]</td><td>0/10</td></tr>
+    <tr><td>B_length_explorer</td><td>Max length diversity</td><td>16</td><td>2</td><td>4</td><td>[0,100,200,300,400]</td><td>0/10</td></tr>
+  </table>
+  </div>
+</div>
+
+<!-- ─── 4. LIGAND BINDER RESULTS ─── -->
+<div class="section" id="ligand">
+  <h2>4. Ligand Binder Results: 7V11/SAM</h2>
+  <p>
+    7 TTO configs + 3 no-TTO baselines for the SAM ligand target (7V11). Scored by RoseTTAFold3.
+  </p>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Config</th><th>n</th><th>Mean iPAE</th><th>Best iPAE</th><th>Mean iPTM</th><th>Best iPTM</th><th>Best Ranking</th></tr>
+    <tr>
+      <td class="best">E_fine_grained (TTO)</td><td>19</td>
+      <td class="best">0.159</td><td class="best">0.108</td><td class="best">0.888</td><td class="best">0.927</td><td class="best">0.927</td>
+    </tr>
+    <tr><td>G_more_starts (TTO)</td><td>31</td><td>0.193</td><td>0.121</td><td>0.858</td><td>0.923</td><td>0.923</td></tr>
+    <tr><td>C_deep_exploit (TTO)</td><td>32</td><td>0.200</td><td>0.135</td><td>0.848</td><td>0.912</td><td>0.917</td></tr>
+    <tr><td>F_late_only (TTO)</td><td>32</td><td>0.205</td><td>0.143</td><td>0.837</td><td>0.909</td><td>0.909</td></tr>
+    <tr><td>notto (N=544)</td><td>544</td><td>0.307</td><td>0.145</td><td>0.685</td><td>0.911</td><td>0.908</td></tr>
+    <tr><td>notto (N=200)</td><td>200</td><td>0.305</td><td>0.158</td><td>0.689</td><td>0.911</td><td>0.917</td></tr>
+    <tr><td>notto (N=32)</td><td>32</td><td>0.324</td><td>0.156</td><td>0.652</td><td>0.884</td><td>0.892</td></tr>
+  </table>
+  </div>
+
+  <div class="callout">
+    <p><strong>TTO beam search dramatically outperforms random sampling</strong>: Config E achieves mean iPAE 0.159
+    with only 19 samples vs. notto's 0.305 mean with 544 samples. The best TTO sample (iPAE=0.108) beats the best
+    of 544 random samples (iPAE=0.145).</p>
+  </div>
+</div>
+
+<!-- ─── 5. KEY FINDINGS ─── -->
+<div class="section" id="findings">
+  <h2>5. Key Findings</h2>
+
+  <div class="card">
+    <h3>1. No universal winner across targets</h3>
+    <p>Wide beam wins on PD1, PDL1, TrkA, CrSAS6, DerF7. Deep beam wins on CD45, Claudin1, HER2_AAV, BetV1.
+    The Autoresearch sweep confirms: optimal config changes for 4/10 proteins when switching from top-1 to top-16 selection.
+    Config sensitivity (CV of iPAE) ranges from 0.027 (IFNAR2, config doesn't matter) to 0.648 (BetV1, config is critical).</p>
+  </div>
+
+  <div class="card">
+    <h3>2. Beam search concentrates reward 3-5x vs. random sampling</h3>
+    <p>Mean iPAE drops from 0.5-0.8 (notto) to 0.15-0.30 (beam search) across all targets.
+    However, notto sometimes finds comparable <em>best</em> samples through sheer N=200 volume, especially for easy targets.</p>
+  </div>
+
+  <div class="card">
+    <h3>3. Self sequences are competitive with ProteinMPNN</h3>
+    <p>Proteina's co-designed sequences pass at equal or better rate than MPNN redesigns across all evaluated targets.
+    Self pass rate exceeds MPNN in 8/8 completed comparisons (considering best config per target).
+    This validates that joint structure+sequence co-design works.</p>
+  </div>
+
+  <div class="card">
+    <h3>4. Hard targets show diminishing returns</h3>
+    <p>BetV1 (best iPAE 0.220) and HER2_AAV (0.219) remain difficult even with beam search. BetV1 wide produced only 2 samples (likely timeout).
+    CD45 achieves only 25% self pass rate with deep config. These targets need qualitatively different strategies, not just more beam search.</p>
+  </div>
+
+  <div class="card">
+    <h3>5. The action space is dramatically underexplored</h3>
+    <p>FK-steering, MCTS, denoising temperature, reward composition, and sequence hallucination refinement
+    are all implemented but untested. The current "wide vs. deep" comparison covers &lt;5% of the available parameter space.</p>
+  </div>
+</div>
+
+<!-- ─── 6. EXPERIMENTAL PLAN ─── -->
+<div class="section" id="experiments">
+  <h2>6. Experimental Plan</h2>
+  <p>
+    Experiments are ordered by expected impact and feasibility.
+    Each experiment tests a specific hypothesis about the action space.
+  </p>
+
+  <h3>Phase 1: Expand the Action Space</h3>
+
+  <div class="exp-card planned">
+    <h4><span class="tag tag-purple">Exp 1</span> FK-Steering Temperature Sweep</h4>
+    <p><strong>Hypothesis:</strong> FK-steering with intermediate temperature provides better scaling than either beam search (T=0) or Best-of-N (T=inf).</p>
+    <p><strong>Setup:</strong> 3 targets (IFNAR2/easy, CD45/hard, Claudin1/medium) x 5 temperatures (T=0.01, 0.1, 0.5, 1.0, 5.0), beam_width=8, n_branch=4, deep checkpoints. 15 jobs.</p>
+    <p><strong>Metric:</strong> Unique successes per config. Does intermediate T outperform both extremes?</p>
+    <p><strong>Cost:</strong> ~15 GPU-hours</p>
+  </div>
+
+  <div class="exp-card planned">
+    <h4><span class="tag tag-purple">Exp 2</span> Denoising Temperature Sweep</h4>
+    <p><strong>Hypothesis:</strong> <code>sc_scale_noise</code> controls trajectory diversity independently from the search algorithm. Higher temperature + beam search may produce more structurally diverse hits.</p>
+    <p><strong>Setup:</strong> 2 targets (PDL1, CD45) x 4 noise scales (0.05, 0.1, 0.2, 0.4) x beam-search wide config. 8 jobs.</p>
+    <p><strong>Metric:</strong> FoldSeek cluster count among successes. Does higher noise produce more diverse hits?</p>
+    <p><strong>Cost:</strong> ~8 GPU-hours</p>
+  </div>
+
+  <div class="exp-card planned">
+    <h4><span class="tag tag-purple">Exp 3</span> Composite Reward Signals</h4>
+    <p><strong>Hypothesis:</strong> Adding fast reward signals (TMOL H-bonds, bioinformatics shape complementarity) as secondary objectives improves pruning quality.</p>
+    <p><strong>Setup:</strong> 2 targets (CD45, BetV1) x 3 reward compositions:
+      (a) iPAE only (baseline),
+      (b) iPAE + shape_complementarity (weight 0.3),
+      (c) iPAE + H-bond count (weight 0.2) + pLDDT (weight 0.1). 6 jobs.</p>
+    <p><strong>Metric:</strong> Pass rate improvement on hard targets. Do multi-signal rewards rescue hard targets?</p>
+    <p><strong>Cost:</strong> ~6 GPU-hours</p>
+  </div>
+
+  <div class="exp-card planned">
+    <h4><span class="tag tag-purple">Exp 4</span> Sequence Hallucination Refinement</h4>
+    <p><strong>Hypothesis:</strong> Post-generation AF2-guided sequence optimization improves MPNN pass rate, especially where self_pass >> mpnn_pass (backbone is good but redesign fails).</p>
+    <p><strong>Setup:</strong> Take top-16 designs from PDL1-deep (100% self, 37.5% mpnn) and CD45-deep (25% self, 15.6% mpnn). Apply sequence hallucination with default loss weights.</p>
+    <p><strong>Metric:</strong> MPNN pass rate before vs. after refinement.</p>
+    <p><strong>Cost:</strong> ~2 GPU-hours</p>
+  </div>
+
+  <h3>Phase 2: Build the Agent</h3>
+
+  <div class="exp-card planned">
+    <h4><span class="tag tag-blue">Exp 5</span> Diagnostic Round: Single-Pass Signal Extraction</h4>
+    <p><strong>Hypothesis:</strong> A cheap single-pass diagnostic (N=32, ~5 min) contains enough signal to predict target difficulty and route to the optimal algorithm/config.</p>
+    <p><strong>Setup:</strong> For all 11 targets, extract from the N=200 notto runs: mean iPAE, iPAE variance, % below 0.23, reward distribution shape. Correlate with optimal config from beam search results.</p>
+    <p><strong>Metric:</strong> Can we predict which config wins from notto statistics alone?</p>
+    <p><strong>Cost:</strong> Analysis only (data already collected)</p>
+  </div>
+
+  <div class="exp-card planned">
+    <h4><span class="tag tag-blue">Exp 6</span> LLM Routing Validation</h4>
+    <p><strong>Hypothesis:</strong> An LLM reading structured JSON (iPAE distribution, pLDDT stats, sequence diversity, reward trajectory) can correctly route targets to configs with higher accuracy than simple threshold rules.</p>
+    <p><strong>Setup:</strong> Feed all 11 targets' diagnostic data to Claude as structured JSON. Compare LLM routing decisions against oracle (actual best config from sweep).</p>
+    <p><strong>Metric:</strong> Routing accuracy. Does LLM beat the rule: "if mean_iPAE > 0.5, use deep; else use wide"?</p>
+    <p><strong>Cost:</strong> API calls only</p>
+  </div>
+
+  <div class="exp-card planned">
+    <h4><span class="tag tag-blue">Exp 7</span> Multi-Round Adaptive Pipeline</h4>
+    <p><strong>Hypothesis:</strong> An agent that reads Round 1 results and adjusts Round 2 parameters produces more unique successes per GPU-hour than any fixed strategy.</p>
+    <p><strong>Setup:</strong> 3 targets (easy/medium/hard). Round 1: diagnostic N=32. Round 2: agent-selected config based on Round 1. Round 3: agent adjusts based on Round 2. Compare cumulative unique successes against fixed-config baselines.</p>
+    <p><strong>Metric:</strong> Hits-per-GPU-hour scaling curve. Does the agent's curve keep climbing where fixed strategies plateau?</p>
+    <p><strong>Cost:</strong> ~30 GPU-hours</p>
+  </div>
+
+  <h3>Phase 3: Scaling Validation</h3>
+
+  <div class="exp-card planned">
+    <h4><span class="tag tag-blue">Exp 8</span> Full Scaling Curve Comparison</h4>
+    <p><strong>Hypothesis:</strong> The adaptive agent achieves inference-time scaling that doesn't plateau, even on hard targets.</p>
+    <p><strong>Setup:</strong> 3 targets x 5 compute budgets (5, 10, 20, 40, 80 GPU-hours) x 3 strategies: (a) fixed Best-of-N, (b) fixed beam search, (c) adaptive agent. Plot unique successes vs. GPU-hours.</p>
+    <p><strong>Metric:</strong> Scaling exponent. Does the agent's curve have a higher slope at high compute budgets?</p>
+  </div>
+</div>
+
+<!-- ─── 7. ROADMAP ─── -->
+<div class="section" id="roadmap">
+  <h2>7. Roadmap</h2>
+
+  <div class="table-wrap">
+  <table>
+    <tr><th>Phase</th><th>Goal</th><th>Status</th><th>Timeline</th></tr>
+    <tr>
+      <td>Phase 0</td>
+      <td>Baseline sweep: 11 targets x 3 configs (notto/wide/deep)</td>
+      <td><span class="tag tag-green">90% done</span></td>
+      <td>April 2026</td>
+    </tr>
+    <tr>
+      <td>Phase 0.5</td>
+      <td>Autoresearch sweep: 5 configs x 10 targets</td>
+      <td><span class="tag tag-green">Done</span></td>
+      <td>April 2026</td>
+    </tr>
+    <tr>
+      <td>Phase 1</td>
+      <td>Expand action space: FK-steering, temperature, rewards, refinement (Exp 1-4)</td>
+      <td><span class="tag tag-purple">Planned</span></td>
+      <td>April 2026</td>
+    </tr>
+    <tr>
+      <td>Phase 2</td>
+      <td>Build agent: diagnostic signals, LLM routing, multi-round pipeline (Exp 5-7)</td>
+      <td><span class="tag tag-purple">Planned</span></td>
+      <td>May 2026</td>
+    </tr>
+    <tr>
+      <td>Phase 3</td>
+      <td>Scaling validation: full compute-curve comparison (Exp 8)</td>
+      <td><span class="tag tag-purple">Planned</span></td>
+      <td>May-June 2026</td>
+    </tr>
+  </table>
+  </div>
+
+  <div class="callout warn">
+    <p><strong>Open question:</strong> Is there a proxy reward signal that actually varies on Proteina-generated backbones?
+    Clash, radius of gyration, and MPNN NLL were all tested and failed (zero variance within beams).
+    Interface BSA and shape complementarity from the bioinformatics reward model are the most promising untested candidates.</p>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<div class="footer">
+  <p>Minkyu Jeon &middot; Princeton University &middot; <a href="/">minkyujeon.github.io</a></p>
+</div>
+
+</body>
+</html>

@@ -10,121 +10,98 @@ title: Projects
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Projects — Minkyu Jeon</title>
   <style>
+    :root {
+      --bg: #fafbfc;
+      --card: #ffffff;
+      --text: #1a1a2e;
+      --muted: #5a6577;
+      --accent: #2563eb;
+      --border: #e2e8f0;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: #0f0f1a;
-      color: #e0e0e0;
-      margin: 0;
-      padding: 40px 20px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
     }
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
+    .header {
+      background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%);
+      color: #fff;
+      padding: 48px 24px 40px;
     }
-    h1 {
-      font-size: 2rem;
-      font-weight: 700;
-      color: #ffffff;
-      margin-bottom: 8px;
-    }
-    .subtitle {
-      color: #8899aa;
-      margin-bottom: 48px;
-      font-size: 1rem;
-    }
-    .project-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-      gap: 24px;
-    }
+    .header .container { max-width: 900px; margin: 0 auto; }
+    .header .breadcrumb { font-size: 0.85rem; color: #94a3b8; margin-bottom: 12px; }
+    .header .breadcrumb a { color: #93c5fd; text-decoration: none; }
+    .header h1 { font-size: 2rem; font-weight: 800; }
+    .header p { color: #cbd5e1; margin-top: 8px; }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 32px 24px; }
+    .project-list { display: flex; flex-direction: column; gap: 20px; }
     .project-card {
-      background: #1a1a2e;
-      border: 1px solid #2a2a4a;
+      background: var(--card);
+      border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 28px;
+      padding: 28px 32px;
       text-decoration: none;
+      color: inherit;
       display: block;
-      transition: border-color 0.2s, transform 0.2s;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
     .project-card:hover {
-      border-color: #4a90e8;
-      transform: translateY(-2px);
+      border-color: var(--accent);
+      box-shadow: 0 4px 12px rgba(37,99,235,0.1);
       text-decoration: none;
     }
-    .project-card.orange:hover {
-      border-color: #e8704a;
+    .project-card .tag {
+      display: inline-block; font-size: 0.72rem; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 4px; margin-bottom: 10px;
+      background: #dbeafe; color: #2563eb;
     }
-    .project-tag {
-      display: inline-block;
-      font-size: 0.72rem;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      padding: 3px 10px;
-      border-radius: 20px;
-      margin-bottom: 14px;
+    .project-card h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+    .project-card p { font-size: 0.92rem; color: var(--muted); line-height: 1.6; margin-bottom: 12px; }
+    .project-card .meta { font-size: 0.8rem; color: #94a3b8; display: flex; gap: 16px; }
+    .footer {
+      text-align: center; padding: 32px 24px; color: var(--muted);
+      font-size: 0.82rem; border-top: 1px solid var(--border); margin-top: 40px;
     }
-    .tag-blue { background: rgba(74,144,232,0.15); color: #4a90e8; }
-    .tag-orange { background: rgba(232,112,74,0.15); color: #e8704a; }
-    .project-title {
-      font-size: 1.15rem;
-      font-weight: 700;
-      color: #ffffff;
-      margin: 0 0 10px 0;
-    }
-    .project-desc {
-      font-size: 0.92rem;
-      color: #8899aa;
-      line-height: 1.6;
-      margin: 0 0 18px 0;
-    }
-    .project-meta {
-      font-size: 0.8rem;
-      color: #556677;
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-    .meta-item {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
+    .footer a { color: var(--accent); text-decoration: none; }
   </style>
 </head>
 <body>
-  <div class="container">
+
+<div class="header">
+  <div class="container" style="padding:0;">
+    <div class="breadcrumb"><a href="/">Minkyu Jeon</a></div>
     <h1>Projects</h1>
-    <p class="subtitle">Research projects in protein design and automated drug discovery.</p>
-
-    <div class="project-grid">
-      <a href="/llm-denovo-design.html" class="project-card">
-        <div class="project-tag tag-blue">Inference-Time Scaling</div>
-        <div class="project-title">LLM-Guided Inference-Time Scaling for De Novo Protein Design</div>
-        <p class="project-desc">
-          An LLM reads structured intermediate signals from diffusion trajectories to adaptively route compute — matching Best-of-N to easy targets and beam search to hard targets — enabling scaling that doesn't plateau.
-        </p>
-        <div class="project-meta">
-          <span class="meta-item">Princeton University</span>
-          <span class="meta-item">·</span>
-          <span class="meta-item">In Progress · 2026</span>
-        </div>
-      </a>
-
-      <a href="/projects/autoresearch-denovo.html" class="project-card orange">
-        <div class="project-tag tag-orange">Automated Discovery</div>
-        <div class="project-title">Autoresearch De Novo Design</div>
-        <p class="project-desc">
-          Applying the SCORE framework — LLM-guided iterative self-improvement with tree search — to automated hyperparameter optimization and experimental design in protein binder campaigns.
-        </p>
-        <div class="project-meta">
-          <span class="meta-item">Princeton University</span>
-          <span class="meta-item">·</span>
-          <span class="meta-item">Collaboration · 2026</span>
-        </div>
-      </a>
-    </div>
+    <p>Research projects in computational protein design.</p>
   </div>
+</div>
+
+<div class="container">
+  <div class="project-list">
+    <a href="/projects/agentic-protein-design.html" class="project-card">
+      <div class="tag">Inference-Time Scaling</div>
+      <h2>Agentic Inference-Time Scaling for De Novo Protein Design</h2>
+      <p>
+        Mapping the full action space of a generative protein design pipeline &mdash; search algorithms, reward composition,
+        denoising temperature, sequence refinement &mdash; and building an agent that adaptively routes compute
+        to achieve scaling that doesn't plateau. Includes results from an 11-target protein binder sweep
+        and 8 experimental plans.
+      </p>
+      <div class="meta">
+        <span>Princeton University</span>
+        <span>In Progress</span>
+        <span>April 2026</span>
+      </div>
+    </a>
+  </div>
+</div>
+
+<div class="footer">
+  <p>Minkyu Jeon &middot; <a href="/">minkyujeon.github.io</a></p>
+</div>
+
 </body>
 </html>
