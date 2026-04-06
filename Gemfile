@@ -4,7 +4,7 @@ ruby ">= 3.1.0"
 
 gem "jekyll", "~> 4.3"
 
-gem "jekyll-theme-hydejack", "~> 9.1"
+gem "jekyll-remote-theme"
 
 # IMPORTANT: The following gem is used to compile math formulas to
 # KaTeX during site building.
@@ -17,6 +17,7 @@ gem "duktape"
 gem "webrick"
 
 group :jekyll_plugins do
+  gem "jekyll-remote-theme"
   gem "jekyll-default-layout"
   gem "jekyll-feed"
   gem "jekyll-optional-front-matter"
