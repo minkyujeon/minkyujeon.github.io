@@ -7,12 +7,12 @@ permalink: /
 
 # About
 
-Hello! I'm **Minkyu Jeon**, a Ph.D. candidate in Computer Science at [Princeton University](https://www.cs.princeton.edu/), advised by [Prof. Ellen D. Zhong](https://ezlab.princeton.edu/), and a part-time research intern at Prescient Design (Frontier Research).
+Hello! I'm **Minkyu Jeon**, a Ph.D. candidate in Computer Science at [Princeton University](https://www.cs.princeton.edu/), advised by [Prof. Ellen D. Zhong](https://ezlab.princeton.edu/). I am a former research intern at [Prescient Design, Genentech](https://www.gene.com/scientists/our-scientists/prescient-design), and a former contractor and Associate Computational Biologist at the [Broad Institute of MIT and Harvard](https://www.broadinstitute.org/).
 {:.lead}
 
 ## Research Interests
 
-My main research focuses on **3D reconstruction and generative models**, particularly their applications to inverse problems in computer vision. I place special emphasis on scientific imaging modalities such as **protein design** and **cryo-EM**, leveraging generative approaches like diffusion and autoregressive models. Furthermore, I am interested in developing methods to address the limitations of current machine learning models in generalizing beyond their training distributions.
+My research focuses on **generative models** and their applications to scientific discovery. I develop **adaptive masked diffusion models** and **scalable generative frameworks** for both vision and protein domains. Key directions include **protein design**, **de novo protein design**, and building models that generalize beyond their training distributions. A central goal of my work is to harness these methods to advance scientific discovery through machine learning.
 
 ## News
 
@@ -51,5 +51,5 @@ My main research focuses on **3D reconstruction and generative models**, particu
   <a href="mailto:mj7341@princeton.edu" title="Email">✉️</a>&nbsp;&nbsp;
   <a href="https://x.com/MinkyuJeon19791" title="Twitter/X">𝕏</a>&nbsp;&nbsp;
   <a href="https://www.linkedin.com/in/minkyu-jeon-9a5b92152/" title="LinkedIn"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" width="28" height="28" style="vertical-align: middle;"></a>&nbsp;&nbsp;
-  <a href="https://scholar.google.com/citations?hl=en&user=kyQR6ecAAAAJ" title="Google Scholar">🎓</a>
+  <a href="https://scholar.google.com/citations?hl=en&user=kyQR6ecAAAAJ" title="Google Scholar"><i class="ai ai-google-scholar" style="font-size:1em;vertical-align:middle;"></i></a>
 </p>
