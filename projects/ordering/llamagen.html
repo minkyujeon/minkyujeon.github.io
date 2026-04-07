@@ -367,64 +367,86 @@
     <p><strong>Why Phase 2 failed:</strong> The raster-trained GPT's CE loss only dropped from ~7.6 to ~7.4 over 48K joint training steps (vs baseline 6.8). The GPT body cannot quickly adapt to non-raster orderings. Joint training would need much longer (hundreds of epochs) to close this gap, effectively retraining the entire model.</p>
   </div>
 
-  <h3>OH STE Finetune (Completed)</h3>
+  <h3>OH STE Finetune (300 epochs)</h3>
   <p>
     GPT + OrderHead jointly trained from raster checkpoint with binary STE (k=64), no oracle supervision.
     CE loss alone drives OrderHead via STE gradient. 300 epochs (~148K steps).
   </p>
   <div class="table-wrap">
   <table>
-    <tr><th>Metric</th><th>Start</th><th>End</th><th>Diagnosis</th></tr>
-    <tr><td>CE loss</td><td>8.55</td><td>7.33</td><td>Still far from baseline 6.8</td></tr>
-    <tr><td>score_std</td><td>0.6</td><td><span class="fail">14&ndash;17</span></td><td>Exploded &mdash; scores drift unboundedly</td></tr>
-    <tr><td>FID</td><td colspan="2"><span class="tag tag-orange">Evaluating</span></td><td>job 6642558</td></tr>
+    <tr><th>Inference</th><th>FID</th><th>sFID</th><th>Precision</th><th>Recall</th></tr>
+    <tr><td>OH semifast-8</td><td class="fail">70.63</td><td>84.17</td><td>0.291</td><td>0.662</td></tr>
+    <tr><td>Raster (GPT weights only)</td><td>27.05</td><td>68.51</td><td>0.591</td><td>0.581</td></tr>
   </table>
   </div>
   <p>
-    <strong>Post-mortem:</strong> <code>score_std=14-17</code> despite grad clipping at <code>max_grad_norm=1.0</code>.
-    Root cause: scores are internally normalized for ranking (<code>scores_to_mask</code>), so score <em>magnitude</em>
-    is unconstrained &mdash; only relative ranking matters. Over 148K steps, small clipped gradients accumulate,
-    pushing scores to extreme values. The <code>oh_lr_scale=3.0</code> (3&times; GPT LR) accelerated this drift.
+    <strong>Analysis:</strong> OH semifast-8 FID=70.63 is much worse than raster but better than random heuristic (173).
+    The raster-inference FID=27.05 is close to baseline (25.4), meaning the GPT body was only mildly degraded by 300 epochs
+    of non-raster training. The OH itself learned a non-trivial ordering (not random), but it's still far from useful.
+  </p>
+  <p>
+    <strong>Post-mortem:</strong> <code>score_std=14-17</code> at convergence (scores exploded).
+    Root cause: scores are internally normalized for ranking (<code>scores_to_mask</code>), so score magnitude
+    is unconstrained. Over 148K steps with <code>oh_lr_scale=3.0</code>, small clipped gradients accumulated unboundedly.
   </p>
 
-  <h3>OH From-Scratch Curriculum (Completed)</h3>
+  <h3>OH From-Scratch Curriculum</h3>
   <p>
     Three-phase curriculum: (A) raster warmup, (B) gradual OH introduction, (C) full OH.
-    ~136K steps to Phase C completion.
+    ~136K steps to completion.
   </p>
   <div class="table-wrap">
   <table>
-    <tr><th>Metric</th><th>Phase A</th><th>Phase C End</th><th>Diagnosis</th></tr>
-    <tr><td>CE loss</td><td>8.20</td><td>7.67</td><td>Worse than both raster (6.8) and STE finetune (7.33)</td></tr>
-    <tr><td>score_std</td><td>&mdash;</td><td><span class="fail">0.46</span></td><td>Collapsed &mdash; near-uniform scores</td></tr>
-    <tr><td>align_loss</td><td>0.02</td><td>0.021</td><td>Not improving</td></tr>
-    <tr><td>FID</td><td colspan="2"><span class="tag tag-orange">Evaluating</span></td><td>job 6642559</td></tr>
+    <tr><th>Inference</th><th>FID</th><th>sFID</th><th>Precision</th><th>Recall</th></tr>
+    <tr><td>OH semifast-8</td><td class="fail">147.92</td><td>131.82</td><td>0.121</td><td>0.200</td></tr>
+    <tr><td>Raster (GPT weights only)</td><td>63.12</td><td>86.77</td><td>0.377</td><td>0.572</td></tr>
   </table>
   </div>
   <p>
-    <strong>Post-mortem:</strong> <code>score_std=0.46</code> means the OH has collapsed to near-uniform scores,
-    effectively producing a random ordering. The curriculum was supposed to prevent this, but from-scratch training
-    encounters the chicken-and-egg problem: the GPT body never sees non-raster orderings during Phase A,
-    so when OH activates in Phase B, both models are mismatched.
+    <strong>Analysis:</strong> Much worse than the STE finetune on both OH and raster inference. The from-scratch
+    GPT never recovered baseline quality (raster FID=63 vs baseline 25). The curriculum's raster warmup phase
+    was not enough to build a strong body before OH training destabilized it.
+    <code>score_std=0.46</code> (collapsed to near-uniform scores).
   </p>
 
-  <h3>Fix: Short Finetune with Score Regularization</h3>
+  <h3>OH Short Finetune (20 epochs, with fixes)</h3>
   <p>
-    Based on the failure analysis, we identified three fixes and submitted a new 20-epoch experiment:
+    Based on the failure analysis, we implemented three fixes:
   </p>
   <ul>
     <li><strong>Short training (20 epochs &asymp; 10K steps):</strong> Don't let GPT drift far from raster competence.</li>
-    <li><strong>Separate OH grad clipping (<code>--oh-max-grad-norm 0.1</code>):</strong> 10&times; tighter clipping for OH params specifically, preventing score explosion.</li>
-    <li><strong>Score regularization (<code>--oh-score-reg 0.01</code>):</strong> L2 penalty on score magnitudes: <code>0.01 * scores.pow(2).mean()</code>. Prevents unbounded score drift.</li>
+    <li><strong>Separate OH grad clipping (<code>--oh-max-grad-norm 0.1</code>):</strong> 10&times; tighter for OH params.</li>
+    <li><strong>Score regularization (<code>--oh-score-reg 0.01</code>):</strong> L2 penalty on score magnitudes.</li>
     <li><strong>Conservative LR (<code>--oh-lr-scale 1.0</code>):</strong> Same LR as GPT instead of 3&times;.</li>
   </ul>
+  <p>
+    <strong>Result:</strong> <code>score_std=0.04</code> &mdash; over-corrected to collapse. The tight grad clipping (0.1) +
+    score reg (0.01) + fast temperature annealing (5K steps) prevented any score differentiation.
+    The OH produces near-uniform scores (effectively random ordering).
+    <span class="tag tag-orange">FID evaluating</span> (job 6661250).
+  </p>
+
+  <h3>Comprehensive OH Results Summary</h3>
   <div class="table-wrap">
   <table>
-    <tr><th>Experiment</th><th>Config</th><th>Status</th></tr>
-    <tr><td>OH short finetune (20ep)</td><td>oh_grad_clip=0.1, score_reg=0.01, lr_scale=1.0</td><td><span class="tag tag-orange">Running</span> job 6642557</td></tr>
+    <tr><th>Experiment</th><th>OH FID</th><th>Raster FID</th><th>score_std</th><th>CE</th><th>Failure Mode</th></tr>
+    <tr><td>Phase 1 (frozen GPT, oracle)</td><td class="fail">155.58</td><td>&mdash;</td><td>1.6</td><td>&mdash;</td><td>GPT never saw non-raster</td></tr>
+    <tr><td>Phase 2 (STE + oracle)</td><td class="fail">140.89</td><td>&mdash;</td><td>&mdash;</td><td>7.42</td><td>Body can't adapt fast enough</td></tr>
+    <tr><td>OH STE finetune (300ep)</td><td class="fail">70.63</td><td>27.05</td><td>14&ndash;17</td><td>7.33</td><td>Score explosion</td></tr>
+    <tr><td>OH from scratch (curriculum)</td><td class="fail">147.92</td><td>63.12</td><td>0.46</td><td>7.67</td><td>Score collapse + body degraded</td></tr>
+    <tr><td>OH short finetune (20ep)</td><td colspan="2"><span class="tag tag-orange">Evaluating</span></td><td>0.04</td><td>7.63</td><td>Over-corrected collapse</td></tr>
+    <tr><td><em>Raster baseline</em></td><td>&mdash;</td><td><em>25.40</em></td><td>&mdash;</td><td><em>6.8</em></td><td></td></tr>
   </table>
   </div>
-  <p class="source">Expected: CE stays near 6.8, score_std stays in 1&ndash;3 range. If successful, provides a controlled test of whether OH can improve upon raster within the raster-trained body's competence range.</p>
+
+  <div class="callout red">
+    <p><strong>OrderHead on raster-trained GPT is fundamentally limited.</strong>
+    Across 5 experiments and 3 training strategies, no OH configuration improves over the raster baseline.
+    The best OH inference (FID=70.63) is 2.8&times; worse than raster (25.40). The core issue: the raster-trained GPT body
+    cannot handle non-raster orderings, and joint training either destabilizes the body (CE rises from 6.8 to 7.3+)
+    or the OH collapses (score_std &rarr; 0). The most promising path forward is attaching OH to an <strong>order-agnostic
+    backbone</strong> (e.g., the RAR epoch-200 checkpoint from the random phase).</p>
+  </div>
 </div>
 
 <!-- 7. DISCUSSION -->

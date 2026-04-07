@@ -282,6 +282,19 @@
   </table>
   </div>
 
+  <h3>LlamaGen &mdash; OrderHead Results (IN-100, 5K samples)</h3>
+  <p>All OrderHead experiments failed to improve over the raster baseline:</p>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Experiment</th><th>OH FID</th><th>Raster FID</th><th>Failure Mode</th></tr>
+    <tr><td>Phase 1 (frozen GPT, oracle)</td><td class="fail">155.58</td><td>&mdash;</td><td>GPT never saw non-raster orders</td></tr>
+    <tr><td>Phase 2 direct (STE + oracle)</td><td class="fail">140.89</td><td>&mdash;</td><td>Body can't adapt fast enough</td></tr>
+    <tr><td>OH STE finetune (300ep)</td><td class="fail">70.63</td><td>27.05</td><td>Score explosion (std=14&ndash;17)</td></tr>
+    <tr><td>OH from scratch (curriculum)</td><td class="fail">147.92</td><td>63.12</td><td>Score collapse (std=0.46)</td></tr>
+    <tr><td><em>Raster baseline</em></td><td>&mdash;</td><td><em>25.40</em></td><td></td></tr>
+  </table>
+  </div>
+
   <h3>MAR &mdash; OrderHead Results (IN-1K, FID-50K, verified from eval logs)</h3>
   <div class="table-wrap">
   <table>
