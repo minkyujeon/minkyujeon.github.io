@@ -303,19 +303,19 @@
     <span class="tag tag-blue">Planned</span></p>
   </div>
 
-  <h3>IN-1K RAR Finetune</h3>
+  <h3>IN-1K RAR From Scratch</h3>
   <p>
-    Given the IN-100 success, we are finetuning the official pretrained <code>c2i_B_256.pt</code> (300 epochs raster, FID=5.32)
-    with the RAR curriculum for 40 additional epochs on IN-1K (~200K steps, matching the IN-100 step count).
-    Schedule: 20 epochs random &rarr; 10 epochs anneal &rarr; 10 epochs raster.
+    To match the IN-100 experiment exactly, we train RAR on IN-1K <strong>from scratch</strong> with the same 400-epoch
+    schedule (200 random &rarr; 100 anneal &rarr; 100 raster). The official LlamaGen baseline was trained for 300
+    epochs raster (FID=5.32). RAR uses 400 epochs total (33% more compute), which is the same ratio as IN-100.
   </p>
   <div class="table-wrap">
   <table>
     <tr><th>Experiment</th><th>Config</th><th>Status</th><th>Baseline FID</th></tr>
-    <tr><td>RAR finetune IN-1K</td><td>40 epochs from c2i_B_256.pt, anneal 20&rarr;30</td><td><span class="tag tag-orange">Running</span> job 6642829</td><td>5.32 (raster)</td></tr>
+    <tr><td>RAR from scratch IN-1K</td><td>400 epochs, anneal 200&rarr;300, ~2M steps</td><td><span class="tag tag-orange">Running</span> job 6643088</td><td>5.32 (raster, 300ep)</td></tr>
   </table>
   </div>
-  <p class="source">Question: can the RAR curriculum improve an already well-trained model, or does the benefit only appear when training from scratch?</p>
+  <p class="source">Estimated ~50 hours on 4&times; H100. Key question: does the RAR regularization benefit scale from IN-100 to IN-1K?</p>
 </div>
 
 <!-- 6. ORDERHEAD -->
