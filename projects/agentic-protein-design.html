@@ -392,8 +392,8 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
 
   <div class="stat-row">
     <div class="stat"><div class="num">11</div><div class="label">Protein Targets</div></div>
-    <div class="stat green"><div class="num">33/33</div><div class="label">Phase 0 Complete</div></div>
-    <div class="stat orange"><div class="num">24</div><div class="label">Jobs Running (Exp 2&ndash;7)</div></div>
+    <div class="stat green"><div class="num">67/69</div><div class="label">Jobs Complete (Exp 1&ndash;7)</div></div>
+    <div class="stat orange"><div class="num">5</div><div class="label">Actionable Knobs Found</div></div>
     <div class="stat purple"><div class="num">11</div><div class="label">Total Experiments</div></div>
   </div>
 
@@ -722,31 +722,31 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     </tr>
     <tr style="background:#d1fae5">
       <td style="text-align:center; font-size:1.1rem">&#9745;</td>
-      <td><strong>Exp 1: FK Steering Temperature Sweep</strong><br><span style="font-size:0.82rem;color:var(--muted)">3 targets x 5 temps + 3 beam baselines (16/18 complete)</span></td>
-      <td>16/18</td>
-      <td><span class="tag tag-green">Done*</span></td>
-      <td style="font-size:0.82rem">Beam beats FK for easy targets. FK T=0.01 ≈ Beam. For hard targets, Beam wins clearly. See detail below.</td>
+      <td><strong>Exp 1: FK Steering Temperature Sweep</strong><br><span style="font-size:0.82rem;color:var(--muted)">3 targets x 5 temps + 3 beam baselines</span></td>
+      <td>18/18</td>
+      <td><span class="tag tag-green">Done</span></td>
+      <td style="font-size:0.82rem">Beam dominates. FK is monotonically worse as T increases. See detail below.</td>
     </tr>
-    <tr style="background:#fef3c7">
-      <td style="text-align:center; font-size:1.1rem">&#9744;</td>
+    <tr style="background:#d1fae5">
+      <td style="text-align:center; font-size:1.1rem">&#9745;</td>
       <td><strong>Exp 2: Denoising Temperature Sweep</strong><br><span style="font-size:0.82rem;color:var(--muted)">PDL1 wide + CD45 deep x 4 sc_scale_noise values</span></td>
-      <td>0/8</td>
-      <td><span class="tag tag-orange">Running</span></td>
-      <td style="font-size:0.82rem">SLURM 6642560&ndash;6642567. Submitted April 6. sc_scale_noise: 0.05, 0.1, 0.2, 0.4.</td>
+      <td>8/8</td>
+      <td><span class="tag tag-green">Done</span></td>
+      <td style="font-size:0.82rem"><strong>CD45: noise 0.2&ndash;0.4 nearly doubles self pass (25%&rarr;47%), but MPNN drops to 0%.</strong> See detail below.</td>
     </tr>
-    <tr style="background:#fef3c7">
-      <td style="text-align:center; font-size:1.1rem">&#9744;</td>
+    <tr style="background:#d1fae5">
+      <td style="text-align:center; font-size:1.1rem">&#9745;</td>
       <td><strong>Exp 3: Composite Reward Signals</strong><br><span style="font-size:0.82rem;color:var(--muted)">CD45 + BetV1 deep x 3 reward compositions</span></td>
-      <td>0/6</td>
-      <td><span class="tag tag-orange">Running</span></td>
-      <td style="font-size:0.82rem">SLURM 6642568&ndash;6642573. iPAE-only vs iPAE+pLDDT+iPTM vs iPAE+iPTM+iCon.</td>
+      <td>6/6</td>
+      <td><span class="tag tag-green">Done</span></td>
+      <td style="font-size:0.82rem">Multi-AF2 helps BetV1 (19%&rarr;25%). Interface-focused (iPTM+iCon) kills both targets (0%). See detail below.</td>
     </tr>
-    <tr style="background:#fef3c7">
-      <td style="text-align:center; font-size:1.1rem">&#9744;</td>
+    <tr style="background:#d1fae5">
+      <td style="text-align:center; font-size:1.1rem">&#9745;</td>
       <td><strong>Exp 4: Sequence Hallucination</strong><br><span style="font-size:0.82rem;color:var(--muted)">HER2_AAV-deep + PDL1-deep with AF2 seq refinement</span></td>
-      <td>0/2</td>
-      <td><span class="tag tag-orange">Running</span></td>
-      <td style="font-size:0.82rem">SLURM 6642574&ndash;6642575. Full pipeline + 45 softmax + 5 one-hot + 15 greedy iters.</td>
+      <td>2/2</td>
+      <td><span class="tag tag-green">Done</span></td>
+      <td style="font-size:0.82rem"><strong>HER2_AAV: 3.1%&rarr;65.6% self pass!</strong> Hallucination dramatically rescues weak sequences. See detail below.</td>
     </tr>
     <tr>
       <td style="text-align:center; font-size:1.1rem; color:#ccc">&#9744;</td>
@@ -762,12 +762,12 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
       <td><span class="tag tag-purple">Planned</span></td>
       <td style="font-size:0.82rem">Depends on Exp 5 feature extraction.</td>
     </tr>
-    <tr style="background:#fef3c7">
-      <td style="text-align:center; font-size:1.1rem">&#9744;</td>
+    <tr style="background:#fee2e2">
+      <td style="text-align:center; font-size:1.1rem">&#9746;</td>
       <td><strong>Exp 7: CFG Guidance Scale Sweep</strong><br><span style="font-size:0.82rem;color:var(--muted)">CD45 + BetV1 deep x guidance_w = 1.0, 1.5, 2.0, 3.0</span></td>
-      <td>0/8</td>
-      <td><span class="tag tag-orange">Running</span></td>
-      <td style="font-size:0.82rem">SLURM 6642819&ndash;6642826. <strong>CFG has been OFF (w=1.0) in all prior work.</strong></td>
+      <td>2/8</td>
+      <td><span class="tag tag-red">Failed</span></td>
+      <td style="font-size:0.82rem">w=1.0 controls ran. <strong>w&gt;1.0 crashed:</strong> CFG requires fold_cond=True (CATH conditioning). Not applicable to binder design. See detail below.</td>
     </tr>
     <tr>
       <td style="text-align:center; font-size:1.1rem; color:#ccc">&#9744;</td>
@@ -788,7 +788,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
       <td><strong>Exp 8: Multi-Round Adaptive Pipeline</strong><br><span style="font-size:0.82rem;color:var(--muted)">3 targets, 3 rounds each, agent decides config</span></td>
       <td>0/~12</td>
       <td><span class="tag tag-purple">Planned</span></td>
-      <td style="font-size:0.82rem">Depends on Exp 1&ndash;7 learnings. Agent now has more knobs: guidance_w, reward composition, noise.</td>
+      <td style="font-size:0.82rem">Depends on Exp 1&ndash;7 learnings. Key knobs: noise, reward, hallucination.</td>
     </tr>
     <tr>
       <td style="text-align:center; font-size:1.1rem; color:#ccc">&#9744;</td>
@@ -802,7 +802,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
 
   <h3>Exp 1 Detail: FK Steering Temperature Sweep</h3>
   <p class="note">
-    18 SLURM jobs submitted April 6, 2026. 16/18 complete (Claudin1 T=0.5 and T=2.0 still running).
+    18 SLURM jobs submitted April 6, 2026. All 18/18 complete.
     Fixed: beam_width=8, n_branch=4, nsamples=4, checkpoints=[0,65,130,200,270,340,400], N=32 designs/run.
     Baseline: Beam Search with identical params (hard top-k instead of soft selection).
     Pass rate = fraction of 32 designs meeting iPAE*31 &le; 7.0 AND pLDDT &ge; 0.9 AND scRMSD &lt; 1.5&Aring;.
@@ -830,8 +830,8 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
       <td>75.0%</td>
       <td>31.2%</td>
       <td>3.1%</td>
-      <td><em style="color:var(--muted)">pending</em></td>
-      <td><em style="color:var(--muted)">pending</em></td>
+      <td>3.1%</td>
+      <td class="fail">0%</td>
     </tr>
     <tr>
       <td>CD45</td><td><span class="tag tag-red">Hard</span></td>
@@ -867,8 +867,8 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
       <td>37.5%</td>
       <td>18.7%</td>
       <td>15.6%</td>
-      <td><em style="color:var(--muted)">pending</em></td>
-      <td><em style="color:var(--muted)">pending</em></td>
+      <td>18.7%</td>
+      <td>18.7%</td>
     </tr>
     <tr>
       <td>CD45</td><td><span class="tag tag-red">Hard</span></td>
@@ -892,6 +892,138 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
       <li><strong>Implication:</strong> FK Steering is not a reliable improvement over Beam Search at these budgets. The next experiment should focus on alternative knobs (sc_scale_noise, composite rewards) rather than FK temperature tuning.</li>
     </ul>
   </div>
+
+  <!-- ─── EXP 2 DETAIL ─── -->
+  <h3>Exp 2 Detail: Denoising Temperature (sc_scale_noise) Sweep</h3>
+  <p class="note">
+    8 jobs. PDL1 (easy, wide config) and CD45 (hard, deep config). sc_scale_noise applied to both bb_ca and local_latents.
+    Default = 0.1. N=32 designs/run.
+  </p>
+
+  <h4 style="margin:16px 0 8px; font-size:0.95rem; color:var(--muted)">Self-sequence pass rate (%)</h4>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Target</th><th>Difficulty</th><th>0.05</th><th>0.1 (default)</th><th>0.2</th><th>0.4</th></tr>
+    <tr>
+      <td>PDL1</td><td><span class="tag tag-green">Easy</span></td>
+      <td>96.8%</td><td class="best">100%</td><td>75.0%</td><td>28.1%</td>
+    </tr>
+    <tr>
+      <td>CD45</td><td><span class="tag tag-red">Hard</span></td>
+      <td>15.6%</td><td>25.0%</td><td class="best">46.8%</td><td class="best">46.8%</td>
+    </tr>
+  </table>
+  </div>
+
+  <h4 style="margin:16px 0 8px; font-size:0.95rem; color:var(--muted)">MPNN-redesign pass rate (%)</h4>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Target</th><th>Difficulty</th><th>0.05</th><th>0.1 (default)</th><th>0.2</th><th>0.4</th></tr>
+    <tr>
+      <td>PDL1</td><td><span class="tag tag-green">Easy</span></td>
+      <td>71.8%</td><td class="best">90.6%</td><td>75.0%</td><td>31.2%</td>
+    </tr>
+    <tr>
+      <td>CD45</td><td><span class="tag tag-red">Hard</span></td>
+      <td class="fail">0%</td><td class="best">6.2%</td><td class="fail">0%</td><td class="fail">0%</td>
+    </tr>
+  </table>
+  </div>
+
+  <div class="card" style="margin-top:16px; border-left: 4px solid var(--orange);">
+    <h4 style="font-size:1rem; margin-bottom:8px;">Key Findings from Exp 2</h4>
+    <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
+      <li><strong>Higher noise nearly doubles CD45 self pass rate (25%&rarr;47%).</strong> This is the first intervention to meaningfully improve backbone success on a hard target. Noise 0.2 and 0.4 both reach 46.8%.</li>
+      <li><strong>But MPNN pass rate drops to 0%.</strong> The noisier backbones are structurally viable (pass self-consistency) but lack the fine-grained features MPNN needs to redesign sequences that refold. The backbones are &ldquo;good enough for co-designed sequences but not designable.&rdquo;</li>
+      <li><strong>Easy targets are hurt by noise &gt; 0.1.</strong> PDL1 drops from 100% to 75% (0.2) and 28% (0.4). The default 0.1 is optimal for easy targets.</li>
+      <li><strong>Implication: Noise is target-difficulty-dependent.</strong> Hard targets benefit from more exploration (higher noise), easy targets prefer the default. This is a strong signal for the adaptive agent &mdash; noise should be adjusted based on diagnostic difficulty.</li>
+      <li><strong>Combine with Exp 4:</strong> The 47% self-pass CD45 backbones at noise=0.2 might be rescued by sequence hallucination (Exp 4 showed hallucination can rescue weak sequences).</li>
+    </ul>
+  </div>
+
+  <!-- ─── EXP 3 DETAIL ─── -->
+  <h3>Exp 3 Detail: Composite Reward Signals</h3>
+  <p class="note">
+    6 jobs. CD45 and BetV1, both deep config. Three reward compositions for beam search pruning:
+    (a) iPAE only (control), (b) iPAE + pLDDT(0.3) + iPTM(0.2), (c) iPAE + iPTM(0.5) + iCon(1.0).
+  </p>
+
+  <div class="table-wrap">
+  <table>
+    <tr><th>Target</th><th>Reward</th><th>Self Pass %</th><th>MPNN Pass %</th></tr>
+    <tr><td>CD45</td><td>iPAE only</td><td>25.0%</td><td class="best">18.7%</td></tr>
+    <tr><td>CD45</td><td>iPAE + pLDDT + iPTM</td><td>25.0%</td><td>12.5%</td></tr>
+    <tr><td>CD45</td><td>iPAE + iPTM + iCon</td><td class="fail">0%</td><td class="fail">0%</td></tr>
+    <tr><td>BetV1</td><td>iPAE only</td><td>18.7%</td><td class="fail">0%</td></tr>
+    <tr><td>BetV1</td><td>iPAE + pLDDT + iPTM</td><td class="best">25.0%</td><td class="fail">0%</td></tr>
+    <tr><td>BetV1</td><td>iPAE + iPTM + iCon</td><td class="fail">0%</td><td class="fail">0%</td></tr>
+  </table>
+  </div>
+
+  <div class="card" style="margin-top:16px; border-left: 4px solid var(--orange);">
+    <h4 style="font-size:1rem; margin-bottom:8px;">Key Findings from Exp 3</h4>
+    <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
+      <li><strong>Interface-focused rewards (iPTM+iCon) completely kill generation.</strong> 0% pass rate on both targets. The heavy interface contact (iCon=1.0) and iPTM (0.5) weights likely cause the beam to prune away structurally viable backbones in favor of ones that maximize interface metrics early in denoising, before the interface has formed.</li>
+      <li><strong>Multi-AF2 slightly helps BetV1 (19%&rarr;25% self) but not CD45.</strong> Adding pLDDT and iPTM at moderate weights is neutral-to-slightly-positive. BetV1 gains 2 extra self successes.</li>
+      <li><strong>CD45 MPNN: iPAE-only is best (18.7%).</strong> Note this is higher than the Phase 0 deep baseline (15.6%), likely due to run-to-run variance at N=32.</li>
+      <li><strong>Implication:</strong> Reward composition is fragile. Aggressive multi-metric pruning hurts more than it helps. If composite rewards are used, weights should be very conservative (pLDDT &le; 0.3, iPTM &le; 0.2). iPAE alone remains the safest choice.</li>
+    </ul>
+  </div>
+
+  <!-- ─── EXP 4 DETAIL ─── -->
+  <h3>Exp 4 Detail: Sequence Hallucination</h3>
+  <p class="note">
+    2 jobs. Deep config + AF2-guided sequence refinement (45 softmax + 5 one-hot + 15 greedy iterations).
+    Compared against Phase 0 deep baselines (no hallucination).
+  </p>
+
+  <div class="table-wrap">
+  <table>
+    <tr><th>Target</th><th>Metric</th><th>Deep Baseline</th><th>Deep + Hallucination</th><th>Change</th></tr>
+    <tr>
+      <td rowspan="2">HER2_AAV</td>
+      <td>Self pass</td><td>3.1%</td><td class="best">65.6%</td><td style="color:var(--green);font-weight:700">+62.5 pp</td>
+    </tr>
+    <tr>
+      <td>MPNN pass</td><td>31.3%</td><td class="best">46.8%</td><td style="color:var(--green);font-weight:700">+15.5 pp</td>
+    </tr>
+    <tr>
+      <td rowspan="2">PDL1</td>
+      <td>Self pass</td><td>100%</td><td>81.2%</td><td style="color:var(--red)">-18.8 pp</td>
+    </tr>
+    <tr>
+      <td>MPNN pass</td><td>37.5%</td><td class="best">78.1%</td><td style="color:var(--green);font-weight:700">+40.6 pp</td>
+    </tr>
+  </table>
+  </div>
+
+  <div class="card" style="margin-top:16px; border-left: 4px solid var(--green);">
+    <h4 style="font-size:1rem; margin-bottom:8px;">Key Findings from Exp 4</h4>
+    <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
+      <li><strong>HER2_AAV: Hallucination is transformative.</strong> Self pass jumps from 3.1% to 65.6% (&times;21). This confirms the hypothesis: HER2_AAV&rsquo;s co-designed sequences were weak, but the backbones were viable. AF2-guided sequence optimization rescues them.</li>
+      <li><strong>PDL1 MPNN: Hallucination doubles pass rate (37.5%&rarr;78.1%).</strong> Even for a target where self pass was already 100%, hallucination dramatically improves the designability of the sequences (MPNN redesign succeeds more often).</li>
+      <li><strong>PDL1 self pass drops (100%&rarr;81.2%).</strong> The hallucination slightly corrupts some designs that were already perfect. This suggests hallucination should be applied selectively, not universally.</li>
+      <li><strong>Implication:</strong> Sequence hallucination is the strongest tool for targets with a &ldquo;backbone &gt; sequence&rdquo; gap. The agent should detect this gap (self &lt;&lt; mpnn, or low self with decent iPAE) and selectively apply hallucination. This validates the project&rsquo;s core premise: <em>different tools work for different situations</em>.</li>
+    </ul>
+  </div>
+
+  <!-- ─── EXP 7 DETAIL ─── -->
+  <h3>Exp 7 Detail: CFG Guidance Scale (Failed)</h3>
+  <p class="note">
+    8 jobs attempted. Only guidance_w=1.0 (control) ran successfully. All guidance_w &gt; 1.0 jobs
+    crashed with: <code>AssertionError: Classifier-free guidance should only be turned on for conditional generation.</code>
+  </p>
+
+  <div class="card" style="margin-top:16px; border-left: 4px solid var(--red);">
+    <h4 style="font-size:1rem; margin-bottom:8px;">Post-Mortem: Why CFG Failed</h4>
+    <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
+      <li><strong>Root cause:</strong> The codebase requires <code>fold_cond=True</code> (CATH code conditioning) for CFG to activate. Binder design doesn&rsquo;t use CATH conditioning &mdash; it conditions on target structure directly. The unconditional forward pass (needed for CFG) isn&rsquo;t available in binder mode.</li>
+      <li><strong>Technical detail:</strong> CFG computes <code>v_guided = w*v_cond + (1-w)*v_uncond</code>. The model needs to produce both conditional and unconditional predictions. For binders, the model is always conditioned on the target &mdash; there&rsquo;s no &ldquo;unconditional&rdquo; mode to subtract.</li>
+      <li><strong>Alternative:</strong> Autoguidance (ag_ratio=1.0) uses a separate &ldquo;bad model&rdquo; checkpoint instead of unconditional predictions, but requires training a degraded model. Not currently available.</li>
+      <li><strong>Conclusion:</strong> CFG guidance amplification is not applicable to binder design without model modifications. The two remaining paths to improve backbone quality are: (a) sc_scale_noise tuning (Exp 2, confirmed effective), and (b) LoRA finetuning / trajectory recycling (Exp 10&ndash;11, planned).</li>
+    </ul>
+  </div>
+
 </div>
 
 <!-- ─── 7. EXPERIMENTAL PLAN ─── -->
@@ -1214,7 +1346,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
       <td>Phase 1</td>
       <td>Explore unexplored action space</td>
       <td>Exp 1&ndash;4, 7</td>
-      <td><span class="tag tag-orange">In Progress (24 jobs)</span></td>
+      <td><span class="tag tag-green">Done (67/69 jobs)</span></td>
       <td>April 2026</td>
     </tr>
     <tr>
@@ -1244,14 +1376,19 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
   <div class="callout warn">
     <p><strong>Open questions:</strong>
     (1) <del>Does FK Steering temperature tuning improve over Beam Search?</del>
-    <strong>Answered (Exp 1): No.</strong> Beam Search dominates; FK is monotonically worse as T increases.
-    (2) Does <code>guidance_w &gt; 1.0</code> (CFG) improve backbone quality for hard targets?
-    <strong>Most promising unexplored knob</strong> &mdash; CFG has been OFF in all prior experiments. (Exp 7, running.)
-    (3) Do composite rewards (iPAE + pLDDT + iPTM) improve beam pruning for hard targets? (Exp 3, running.)
-    (4) Does sc_scale_noise affect backbone diversity while maintaining quality? (Exp 2, running.)
-    (5) Can LoRA finetuning on successful binders shift the model's prior toward bindable conformations? (Exp 10, planned.)
-    (6) Does trajectory recycling (warm-starting from successful intermediate states) enable local search? (Exp 11, planned.)
-    (7) Is a cheap diagnostic N=32 round informative enough to route correctly? (Exp 5, planned.)</p>
+    <strong>Answered (Exp 1): No.</strong> Beam dominates; FK monotonically worse.
+    (2) <del>Does CFG guidance_w &gt; 1.0 improve backbone quality?</del>
+    <strong>Answered (Exp 7): Not applicable.</strong> CFG requires CATH fold conditioning, unavailable for binders.
+    (3) <del>Do composite rewards improve beam pruning?</del>
+    <strong>Answered (Exp 3): Marginal.</strong> Multi-AF2 slightly helps BetV1 (+6pp). Heavy interface weights kill generation.
+    (4) <del>Does sc_scale_noise affect backbone quality?</del>
+    <strong>Answered (Exp 2): Yes!</strong> Noise 0.2&ndash;0.4 nearly doubles CD45 self pass (25%&rarr;47%), but MPNN drops to 0%. Difficulty-dependent.
+    (5) <del>Can sequence hallucination rescue weak sequences?</del>
+    <strong>Answered (Exp 4): Yes!</strong> HER2_AAV self pass 3%&rarr;66%. PDL1 MPNN pass 38%&rarr;78%.
+    (6) Can LoRA finetuning shift the model's prior toward bindable conformations? (Exp 10, planned.)
+    (7) Does trajectory recycling enable local search around good solutions? (Exp 11, planned.)
+    (8) Can combining high noise (Exp 2) + hallucination (Exp 4) solve hard targets? (Key follow-up.)
+    (9) Is a cheap diagnostic N=32 round informative enough to route correctly? (Exp 5, planned.)</p>
   </div>
 </div>
 
