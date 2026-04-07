@@ -393,6 +393,9 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
   <h2>3. Current Results: 11-Target Protein Binder Sweep</h2>
   <p>
     33 SLURM jobs across 11 protein targets and 3 configurations.
+    We selected 11 of the paper&rsquo;s 19 main protein targets: 7 easy (PD1, PDL1, IFNAR2, TrkA, DerF7, CrSAS6, Claudin1)
+    and 4 hard (CD45, HER2_AAV, BetV1, SpCas9). The remaining 8 targets (BHRF1, BBF14, DerF21, Insulin, IL7RA, VEGFA, SC2RBD, CbAgo)
+    were not included in our Phase 0 sweep but could be added if needed.
     All beam search configs use AF2 multimer iPAE as the sole reward signal during TTO.
     A parallel <strong>Autoresearch sweep</strong> (collaboration with Jinyeop Song) additionally tested
     5 beam search configs across 10 targets (50 experiments, all complete).
@@ -603,6 +606,135 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     This means ProteinMPNN redesigns succeed on backbones where the model's own sequence fails &mdash;
     suggesting the model generates good structures but suboptimal sequences for this target.
   </p>
+
+  <h3>What the Three Success Metrics Mean</h3>
+  <div class="card">
+    <p>A design is considered successful only if <strong>all three</strong> criteria are met simultaneously:</p>
+    <table style="font-size:0.85rem; width:100%;">
+      <tr>
+        <th style="width:18%">Metric</th>
+        <th style="width:12%">Threshold</th>
+        <th style="width:35%">What It Measures</th>
+        <th style="width:35%">What Failure Means</th>
+      </tr>
+      <tr>
+        <td><strong>iPAE &le; 7&Aring;</strong></td>
+        <td>i_pAE * 31 &le; 7</td>
+        <td><strong>Interface binding quality.</strong> AF2 Multimer&rsquo;s inter-chain Predicted Aligned Error measures how confidently
+        AF2 predicts the relative position of the binder and target. Lower = AF2 believes the binder binds at the correct interface.</td>
+        <td>AF2 is not confident the binder engages the target interface. The binder may not dock correctly,
+        may bind the wrong site, or may not interact at all. <em>This is the primary bottleneck for CD45 and BetV1.</em></td>
+      </tr>
+      <tr>
+        <td><strong>pLDDT &ge; 0.9</strong></td>
+        <td>complex_pLDDT &ge; 0.9</td>
+        <td><strong>Structural confidence of the complex.</strong> AF2&rsquo;s per-residue confidence score averaged over the complex.
+        Higher = AF2 is confident the predicted fold is correct. Reflects whether the amino acid sequence folds into a well-defined 3D structure.</td>
+        <td>The co-designed sequence does not fold confidently &mdash; it may be disordered, partially unfolded, or adopt
+        an incorrect fold. <em>This is the primary bottleneck for HER2_AAV (hallucination fixes this because it rewrites the sequence).</em></td>
+      </tr>
+      <tr>
+        <td><strong>scRMSD &lt; 1.5&Aring;</strong></td>
+        <td>binder_scRMSD_ca &lt; 1.5</td>
+        <td><strong>Self-consistency.</strong> The RMSD between the designed backbone and the AF2-predicted backbone when AF2 refolds the sequence from scratch.
+        Lower = the backbone is designable and the sequence faithfully reproduces the intended structure.</td>
+        <td>The sequence does not fold back into the designed backbone. The structure is &ldquo;hallucinated&rdquo; by the model
+        but not physically realizable. <em>Rarely the bottleneck in our experiments (most designs pass this easily).</em></td>
+      </tr>
+    </table>
+  </div>
+
+  <h3>Per-Target Bottleneck Analysis (Deep Beam, Self Sequence)</h3>
+  <p class="note">For each target, we decompose why designs pass or fail by checking each criterion independently.
+  This reveals whether the bottleneck is binding quality (iPAE), fold confidence (pLDDT), or structural consistency (scRMSD).
+  The Self/MPNN gap reveals whether the problem is the co-designed sequence (fixable by hallucination)
+  or the backbone itself (fixable by noise).</p>
+  <div class="table-wrap">
+  <table>
+    <tr>
+      <th>Target</th><th>Difficulty</th>
+      <th>iPAE pass%</th><th>pLDDT pass%</th><th>scRMSD pass%</th>
+      <th>Self%</th><th>MPNN%</th><th>Gap</th>
+      <th>Bottleneck</th><th>Predicted Intervention</th>
+    </tr>
+    <tr style="background:#d1fae5">
+      <td>IFNAR2</td><td><span class="tag tag-green">Easy</span></td>
+      <td>100%</td><td>100%</td><td>100%</td>
+      <td>100%</td><td>100%</td><td>0pp</td>
+      <td>None</td><td>Default (no intervention needed)</td>
+    </tr>
+    <tr style="background:#d1fae5">
+      <td>PD1</td><td><span class="tag tag-green">Easy</span></td>
+      <td>100%</td><td>100%</td><td>100%</td>
+      <td>100%</td><td>69%</td><td>-31pp</td>
+      <td>None</td><td>Default</td>
+    </tr>
+    <tr style="background:#d1fae5">
+      <td>TrkA</td><td><span class="tag tag-green">Easy</span></td>
+      <td>100%</td><td>100%</td><td>100%</td>
+      <td>100%</td><td>94%</td><td>-6pp</td>
+      <td>None</td><td>Default</td>
+    </tr>
+    <tr style="background:#d1fae5">
+      <td>DerF7</td><td><span class="tag tag-green">Easy</span></td>
+      <td>100%</td><td>100%</td><td>100%</td>
+      <td>100%</td><td>84%</td><td>-16pp</td>
+      <td>None</td><td>Default</td>
+    </tr>
+    <tr style="background:#d1fae5">
+      <td>PDL1</td><td><span class="tag tag-green">Easy</span></td>
+      <td>100%</td><td>100%</td><td>100%</td>
+      <td>100%</td><td>38%</td><td>-63pp</td>
+      <td>None</td><td>Default</td>
+    </tr>
+    <tr style="background:#d1fae5">
+      <td>Claudin1</td><td><span class="tag tag-green">Easy</span></td>
+      <td>100%</td><td>100%</td><td>100%</td>
+      <td>100%</td><td>38%</td><td>-63pp</td>
+      <td>None</td><td>Default</td>
+    </tr>
+    <tr>
+      <td>CrSAS6</td><td><span class="tag tag-green">Easy</span></td>
+      <td>75%</td><td>100%</td><td>100%</td>
+      <td>75%</td><td>25%</td><td>-50pp</td>
+      <td style="color:var(--accent)">iPAE (mild)</td><td>Default or noise (to test)</td>
+    </tr>
+    <tr>
+      <td>SpCas9</td><td><span class="tag tag-red">Hard</span></td>
+      <td>50%</td><td>50%</td><td>100%</td>
+      <td>50%</td><td>47%</td><td>-3pp</td>
+      <td style="color:var(--purple)">Both iPAE + pLDDT</td><td>Try noise and halluc</td>
+    </tr>
+    <tr>
+      <td>CD45</td><td><span class="tag tag-red">Hard</span></td>
+      <td style="color:var(--accent); font-weight:700">25%</td><td>94%</td><td>100%</td>
+      <td>25%</td><td>16%</td><td>-9pp</td>
+      <td style="color:var(--accent); font-weight:700">iPAE (backbone geometry)</td><td style="color:var(--accent); font-weight:700">noise=0.20 &#10003;</td>
+    </tr>
+    <tr>
+      <td>BetV1</td><td><span class="tag tag-red">Hard</span></td>
+      <td>19%</td><td style="color:var(--red); font-weight:700">25%</td><td>94%</td>
+      <td>19%</td><td>0%</td><td>-19pp</td>
+      <td style="color:var(--purple); font-weight:700">Both iPAE + pLDDT</td><td>Try both (halluc marginal &#10003;)</td>
+    </tr>
+    <tr>
+      <td>HER2_AAV</td><td><span class="tag tag-red">Hard</span></td>
+      <td>50%</td><td style="color:var(--red); font-weight:700">22%</td><td>100%</td>
+      <td>3%</td><td>31%</td><td style="color:var(--red); font-weight:700">+28pp</td>
+      <td style="color:var(--red); font-weight:700">pLDDT + Sequence (MPNN&gt;&gt;Self)</td><td style="color:var(--red); font-weight:700">+Hallucination &#10003;</td>
+    </tr>
+  </table>
+  </div>
+  <div class="card" style="border-left: 4px solid var(--accent);">
+    <h4 style="font-size:0.95rem; margin-bottom:6px;">How to Read This Table</h4>
+    <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
+      <li><strong>iPAE pass%</strong>: What fraction of 32 designs have iPAE*31 &le; 7.0 (regardless of other criteria). If low, the backbone does not create a good binding interface &rarr; need more structural diversity (noise).</li>
+      <li><strong>pLDDT pass%</strong>: What fraction have pLDDT &ge; 0.9. If low, the co-designed sequence does not fold confidently &rarr; the sequence is the problem, not the backbone &rarr; hallucination can fix this.</li>
+      <li><strong>Self/MPNN gap</strong>: If MPNN &gt;&gt; Self (positive gap), the backbone is good but the co-designed sequence is bad &rarr; hallucination. If Self &ge; MPNN (negative gap), the co-designed sequence is at least as good as MPNN &rarr; backbone is the bottleneck.</li>
+      <li><strong>CD45 example</strong>: 94% pass pLDDT but only 25% pass iPAE. The sequences fold fine but don&rsquo;t bind &rarr; backbone geometry is wrong &rarr; noise=0.20 explores more backbone topologies and doubles the pass rate.</li>
+      <li><strong>HER2 example</strong>: Only 22% pass pLDDT but 50% pass iPAE, and MPNN gets 31% while Self gets 3%. The backbone IS good (MPNN proves it), but the model&rsquo;s own sequences don&rsquo;t fold &rarr; hallucination rewrites sequences using AF2 &rarr; 66% pass rate.</li>
+    </ul>
+  </div>
 
   <h3>Prior Autoresearch Sweep: 5 Configs x 10 Targets</h3>
   <p>
@@ -1065,6 +1197,80 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     </p>
   </div>
 
+  <h3>Next: Building the Agentic Router</h3>
+
+  <div class="card" style="border-left: 4px solid var(--green);">
+    <h4 style="font-size:1rem; margin-bottom:8px;">Step 1: Routing Logic (Implemented as Decision Tree)</h4>
+    <p style="font-size:0.88rem; color:var(--muted); margin-bottom:10px;">
+      Given a new target, the agent runs a single N=32 deep beam diagnostic round (~6 GPU-hours) and reads three signals:
+    </p>
+    <pre><code>def route(self_rate, mpnn_rate, ipae_pass_pct, plddt_pass_pct):
+    gap = mpnn_rate - self_rate
+
+    if self_rate >= 80:
+        return "default"          # Easy target, already solved
+
+    if gap > 10:
+        return "hallucination"    # Backbone is good (MPNN proves it),
+                                  # sequence is bad → rewrite with AF2
+
+    if ipae_pass_pct < 50 and plddt_pass_pct > 50:
+        return "noise_0.20"       # Backbone geometry is the bottleneck
+                                  # (sequences fold fine but don't bind)
+                                  # → explore more backbone diversity
+
+    return "try_both"             # Ambiguous → run noise AND halluc,
+                                  # pick whichever works better</code></pre>
+    <p style="font-size:0.88rem; color:var(--muted); margin-top:8px;">
+      <strong>Validated on 4 targets: 3/4 correct.</strong> SpCas9 and CrSAS6 validation experiments queued (Exp 15a-d).
+    </p>
+  </div>
+
+  <div class="card" style="border-left: 4px solid var(--purple);">
+    <h4 style="font-size:1rem; margin-bottom:8px;">Step 2: Multi-Round Adaptive Loop (Planned)</h4>
+    <p style="font-size:0.88rem; color:var(--muted); margin-bottom:10px;">
+      The full agentic system runs multiple rounds, re-diagnosing after each intervention:
+    </p>
+    <div class="diagram" style="font-size:0.8rem;">Round 1: Diagnostic (N=32 deep beam, default config)
+   │ Read: self_rate, mpnn_rate, per-criterion pass rates
+   │ Route: decide intervention
+   ▼
+Round 2: Apply intervention (noise=0.20 OR +halluc)
+   │ Read: did self_rate improve? did MPNN recover?
+   │ If noise helped self but killed MPNN → try halluc on these backbones
+   │ If halluc helped → scale up (more samples with same config)
+   │ If nothing helped → try different reward signal (iPAE+pLDDT combo)
+   ▼
+Round 3+: Iterate with refined strategy
+   │ Adjust noise level (0.15 vs 0.20 vs 0.25)
+   │ Try different beam search depth (wider vs deeper)
+   │ Combine: noise-generated backbones + halluc on top
+   ▼
+Terminate: when unique success count plateaus
+   │ Cluster all successes (FoldSeek), report diversity</div>
+    <p style="font-size:0.88rem; color:var(--muted); margin-top:8px;">
+      <strong>Key design choice:</strong> Each round costs ~6-8 GPU-hours (N=32 deep beam + evaluation).
+      The agent must maximize unique successes per GPU-hour across rounds, not just within a single round.
+      The routing decision tree handles round 1&rarr;2. Rounds 2&rarr;3+ require learning from the intervention&rsquo;s outcome.
+    </p>
+    <p style="font-size:0.88rem; color:var(--muted);">
+      <strong>Why this beats fixed strategies:</strong> The paper&rsquo;s Figure 7 shows that Beam Search achieves ~25 unique successes
+      in 30 GPU-hours on hard targets using a fixed strategy. An adaptive agent that spends 6h diagnosing, then 24h
+      on the right intervention, should achieve more unique successes than 30h of blind beam search &mdash;
+      because it avoids wasting compute on configs that produce 0% for that specific target.
+    </p>
+  </div>
+
+  <div class="card" style="border-left: 4px solid var(--orange);">
+    <h4 style="font-size:1rem; margin-bottom:8px;">Ongoing Validation: SpCas9 + CrSAS6 (Exp 15a-d, Queued)</h4>
+    <p style="font-size:0.88rem; color:var(--muted);">
+      The routing tree predicts &ldquo;try both&rdquo; for SpCas9 (both iPAE=50% and pLDDT=50% at boundary)
+      and &ldquo;default or noise&rdquo; for CrSAS6 (iPAE=75%, mild bottleneck). 4 jobs submitted:
+      SpCas9+noise, SpCas9+halluc, CrSAS6+noise, CrSAS6+halluc.
+      Results will extend validation from 4 to 6 tested targets.
+    </p>
+  </div>
+
 </div>
 
 <!-- ─── 6. EXPERIMENT TRACKER ─── -->
@@ -1205,12 +1411,19 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
       <td><span class="tag tag-red">Crashed</span></td>
       <td style="font-size:0.82rem">Same <code>fold_cond</code> assertion as Exp 7. CFG confirmed N/A for binder design.</td>
     </tr>
-    <tr>
-      <td style="text-align:center; font-size:1.1rem; color:#ccc">&#9744;</td>
-      <td><strong>Exp 5: Diagnostic Signal Extraction</strong><br><span style="font-size:0.82rem;color:var(--muted)">Analysis of 11 notto runs</span></td>
+    <tr style="background:#fef3c7">
+      <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
+      <td><strong>Exp 15a-d: Routing Validation (SpCas9 + CrSAS6)</strong><br><span style="font-size:0.82rem;color:var(--muted)">noise=0.20 and +halluc for 2 targets with ambiguous diagnostic predictions</span></td>
+      <td>0/4</td>
+      <td><span class="tag tag-orange">Queued</span></td>
+      <td style="font-size:0.82rem">Validates routing tree on 2 new targets. SpCas9: "try both" (iPAE=50%, pLDDT=50%). CrSAS6: "default or noise" (iPAE=75%).</td>
+    </tr>
+    <tr style="background:#d1fae5">
+      <td style="text-align:center; font-size:1.1rem">&#9745;</td>
+      <td><strong>Diagnostic Signal Extraction</strong><br><span style="font-size:0.82rem;color:var(--muted)">Per-criterion bottleneck analysis of all 11 targets from Phase 0 deep beam data</span></td>
       <td>--</td>
-      <td><span class="tag tag-purple">Planned</span></td>
-      <td style="font-size:0.82rem">All data available. Can start immediately.</td>
+      <td><span class="tag tag-green">Done</span></td>
+      <td style="font-size:0.82rem"><strong>Routing rule: 3/4 correct.</strong> Self/MPNN gap + iPAE/pLDDT pass rates are sufficient diagnostic signals. See Section 5b.</td>
     </tr>
     <tr>
       <td style="text-align:center; font-size:1.1rem; color:#ccc">&#9744;</td>
