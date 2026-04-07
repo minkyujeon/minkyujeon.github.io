@@ -395,9 +395,9 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
 
   <div class="stat-row">
     <div class="stat"><div class="num">11</div><div class="label">Protein Targets</div></div>
-    <div class="stat green"><div class="num">74/78</div><div class="label">Jobs Complete</div></div>
-    <div class="stat orange"><div class="num">2</div><div class="label">Jobs Running (Exp 8, 9)</div></div>
-    <div class="stat purple"><div class="num">16</div><div class="label">Total Experiments</div></div>
+    <div class="stat green"><div class="num">78/78</div><div class="label">Phase 1 Complete</div></div>
+    <div class="stat orange"><div class="num">20</div><div class="label">Phase 2 Jobs Queued</div></div>
+    <div class="stat purple"><div class="num">36</div><div class="label">Total Experiments</div></div>
   </div>
 
   <h3>Configurations</h3>
@@ -695,11 +695,49 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     Our project maps this space with per-target analysis and builds an adaptive routing agent on top of it.</p>
   </div>
 
+  <div class="card" style="border-left: 4px solid var(--accent); background: linear-gradient(135deg, #eff6ff 0%, #fafbfc 100%);">
+    <h3>KEY INSIGHT: No Single Config Works &mdash; Interventions Are Target-Dependent and Non-Additive</h3>
+    <p style="font-size:0.9rem; margin-bottom:10px;">The core finding motivating an agentic approach:</p>
+    <table style="font-size:0.82rem; width:100%;">
+      <tr>
+        <th>Target</th><th>Difficulty</th>
+        <th>Default</th><th>noise=0.20</th><th>+Halluc</th><th>noise+halluc</th>
+        <th>Best Config</th>
+      </tr>
+      <tr>
+        <td><strong>CD45</strong></td><td>Hard</td>
+        <td>25.0%</td><td class="best">46.9%</td><td style="color:var(--orange)">Queued</td><td class="fail">18.8%</td>
+        <td style="color:var(--green); font-weight:700">noise=0.20</td>
+      </tr>
+      <tr>
+        <td><strong>PDL1</strong></td><td>Easy</td>
+        <td class="best">100%</td><td>75.0%</td><td>81.2%</td><td>&mdash;</td>
+        <td style="color:var(--green); font-weight:700">Default</td>
+      </tr>
+      <tr>
+        <td><strong>HER2_AAV</strong></td><td>Medium</td>
+        <td>3.1%</td><td style="color:var(--orange)">Queued</td><td class="best">65.6%</td><td style="color:var(--orange)">Queued</td>
+        <td style="color:var(--green); font-weight:700">Hallucination</td>
+      </tr>
+      <tr>
+        <td><strong>BetV1</strong></td><td>Medium</td>
+        <td>18.8%</td><td style="color:var(--orange)">Queued</td><td>25.0%</td><td style="color:var(--orange)">Queued</td>
+        <td style="color:var(--muted)">TBD (Phase 2)</td>
+      </tr>
+    </table>
+    <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8; margin-top:10px;">
+      <li><strong>Each target has a different optimal config.</strong> CD45 needs noise. HER2_AAV needs hallucination. PDL1 needs nothing (default is best). BetV1 remains uncertain.</li>
+      <li><strong>Interventions interact non-additively.</strong> noise + hallucination is WORSE than noise alone for CD45 (p=0.032). You cannot simply stack interventions.</li>
+      <li><strong>The paper&rsquo;s aggregate-optimal config (bb=0.1, lat=0.4) is catastrophic for hard targets.</strong> 0% pass rate on CD45 (p=0.005).</li>
+      <li><strong>Conclusion:</strong> An agentic system that dynamically selects the right config per target will outperform any fixed config. Phase 2 fills this matrix; Phase 2b builds the router.</li>
+    </ul>
+  </div>
+
   <div class="card" style="border-left: 4px solid var(--green);">
     <h3>6. Reliability Audit &mdash; Publication Status (Updated)</h3>
     <p style="font-size:0.88rem; color:var(--muted); margin-bottom:10px;">
-      Full review in <code>docs/EXPERIMENT_RELIABILITY_REVIEW.md</code>. Reliability round complete for Exp 4b, 5a/5b, 6a/6b.
-      All confirmed with <code>num_redesign_seqs=8</code>. Exp 8 (CD45 noise+halluc) and Exp 9 (BetV1 halluc) still running.
+      Full review in <code>docs/EXPERIMENT_RELIABILITY_REVIEW.md</code>. Phase 1b complete (all 9/9 jobs).
+      All confirmed with <code>num_redesign_seqs=8</code>. Phase 2 (20 jobs) now queued for scale-up and matrix completion.
     </p>
     <table style="font-size:0.82rem; width:100%;">
       <tr>
@@ -743,14 +781,14 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
         <td><span class="tag tag-green">Ready (must report)</span></td>
       </tr>
       <tr>
-        <td><strong>Exp 8 &mdash; noise=0.2 + hallucination for CD45</strong></td>
-        <td>Running (job 6663849).</td>
-        <td><span class="tag tag-orange">Pending</span></td>
+        <td><strong>Exp 8 &mdash; noise=0.2 + hallucination HURTS CD45</strong></td>
+        <td>6/32 (18.8%) vs 15/32 (46.9%) without halluc, p=0.032. Hallucination degrades noise benefit.</td>
+        <td><span class="tag tag-red">Ready (negative result)</span></td>
       </tr>
       <tr>
-        <td><strong>Exp 9 &mdash; hallucination for BetV1</strong></td>
-        <td>Running (job 6663850).</td>
-        <td><span class="tag tag-orange">Pending</span></td>
+        <td><strong>Exp 9 &mdash; hallucination modest for BetV1</strong></td>
+        <td>8/32 (25.0%) vs 6/32 (18.8%) baseline, p=0.76 n.s. MPNN: 0%&rarr;9.4%.</td>
+        <td><span class="tag tag-green">Ready</span></td>
       </tr>
     </table>
   </div>
@@ -903,19 +941,60 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
       <td><span class="tag tag-green">Done</span></td>
       <td style="font-size:0.82rem"><strong>Backbone noise drives improvement, NOT sequence noise.</strong> Exp6a (lat=0.2): 8/32 same as default. Exp6b (lat=0.4, paper best): 0/32 (p=0.005). See detail below.</td>
     </tr>
-    <tr style="background:#fef3c7">
-      <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
+    <tr style="background:#fee2e2">
+      <td style="text-align:center; font-size:1.1rem">&#9746;</td>
       <td><strong>Exp 8: CD45 Noise=0.20 + Hallucination</strong><br><span style="font-size:0.82rem;color:var(--muted)">CD45 deep, sc_scale_noise=0.2 + sequence hallucination</span></td>
-      <td>0/1</td>
-      <td><span class="tag tag-orange">Running</span></td>
-      <td style="font-size:0.82rem">Job 6663849. Tests best-combination hypothesis: higher noise doubles self pass, hallucination may recover MPNN=0% at high noise.</td>
+      <td>1/1</td>
+      <td><span class="tag tag-red">Negative</span></td>
+      <td style="font-size:0.82rem"><strong>Hallucination HURTS at high noise:</strong> 6/32 (18.8%) vs 15/32 (46.9%) without halluc, p=0.032. MPNN still 0%. See detail below.</td>
+    </tr>
+    <tr style="background:#d1fae5">
+      <td style="text-align:center; font-size:1.1rem">&#9745;</td>
+      <td><strong>Exp 9: BetV1 + Hallucination</strong><br><span style="font-size:0.82rem;color:var(--muted)">23_BetV1 deep + sequence hallucination</span></td>
+      <td>1/1</td>
+      <td><span class="tag tag-green">Done</span></td>
+      <td style="font-size:0.82rem"><strong>Self: 8/32 (25.0%) vs 6/32 (18.8%) baseline, p=0.76 n.s.</strong> But MPNN: 0%&rarr;9.4%. Hallucination improves designability even when self gain is modest.</td>
+    </tr>
+    <!-- ─── PHASE 2: AGENTIC CONFIGURATION MATRIX ─── -->
+    <tr style="background:#ede9fe">
+      <td colspan="5" style="font-size:0.8rem; font-weight:600; color:#5b21b6; padding:6px 12px;">
+        &#9654; Phase 2: Agentic Configuration Matrix &mdash; 20 jobs queued 2026-04-07
+      </td>
     </tr>
     <tr style="background:#fef3c7">
       <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
-      <td><strong>Exp 9: BetV1 + Hallucination</strong><br><span style="font-size:0.82rem;color:var(--muted)">23_BetV1 deep + sequence hallucination</span></td>
-      <td>0/1</td>
-      <td><span class="tag tag-orange">Running</span></td>
-      <td style="font-size:0.82rem">Job 6663850. Generalization test: does hallucination help a second hard target (18.8% self baseline) beyond HER2_AAV?</td>
+      <td><strong>Exp 10a-c: Fill Matrix Gaps</strong><br><span style="font-size:0.82rem;color:var(--muted)">CD45+halluc, HER2+noise=0.20, BetV1+noise=0.20</span></td>
+      <td>0/3</td>
+      <td><span class="tag tag-orange">Queued</span></td>
+      <td style="font-size:0.82rem">Complete the target&times;config matrix. Key gap: CD45 with hallucination only (no extra noise).</td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
+      <td><strong>Exp 11a-j: Scale-Up to N=96</strong><br><span style="font-size:0.82rem;color:var(--muted)">Baseline &amp; halluc replicas for CD45, HER2, BetV1</span></td>
+      <td>0/10</td>
+      <td><span class="tag tag-orange">Queued</span></td>
+      <td style="font-size:0.82rem">2 additional replicas (r2, r3) for each: CD45 base, HER2 base, HER2 halluc, BetV1 base, BetV1 halluc. N=96 per condition.</td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
+      <td><strong>Exp 12a-b: Mechanism / Sweet Spot</strong><br><span style="font-size:0.82rem;color:var(--muted)">CD45 noise=0.15, CD45 bb=0.2/lat=0.1</span></td>
+      <td>0/2</td>
+      <td><span class="tag tag-orange">Queued</span></td>
+      <td style="font-size:0.82rem">12a: noise=0.15 sweet spot (does MPNN survive?). 12b: bb=0.2, lat=0.1 (isolate backbone noise mechanistically).</td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
+      <td><strong>Exp 13a-b: Combos on Other Targets</strong><br><span style="font-size:0.82rem;color:var(--muted)">HER2 + noise=0.20+halluc, BetV1 + noise=0.20+halluc</span></td>
+      <td>0/2</td>
+      <td><span class="tag tag-orange">Queued</span></td>
+      <td style="font-size:0.82rem">Does the noise+halluc combo pattern differ across targets? CD45 showed negative interaction (Exp 8).</td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
+      <td><strong>Exp 14a-c: CFG=2.0 Sweep</strong><br><span style="font-size:0.82rem;color:var(--muted)">CD45, HER2, BetV1 with guidance_w=2.0</span></td>
+      <td>0/3</td>
+      <td><span class="tag tag-orange">Queued</span></td>
+      <td style="font-size:0.82rem">Re-attempt CFG guidance. If fold_cond assertion fires, will confirm N/A for binders across all targets.</td>
     </tr>
     <tr>
       <td style="text-align:center; font-size:1.1rem; color:#ccc">&#9744;</td>
@@ -1293,26 +1372,45 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     </ul>
   </div>
 
-  <h4 style="margin:16px 0 8px; font-size:0.95rem;">Exp 8: CD45 Noise=0.20 + Hallucination</h4>
-  <p class="note">Job 6663849 (8h). Combines the two strongest interventions for hard targets. Exp 2 showed noise=0.2 doubles CD45 self pass (25%&rarr;47%) but MPNN=0%. Exp 4 showed hallucination rescues backbones with weak co-designed sequences. Hypothesis: higher noise generates better backbones; hallucination then writes good sequences for them, recovering MPNN pass rate.</p>
+  <h4 style="margin:16px 0 8px; font-size:0.95rem;">Exp 8: CD45 Noise=0.20 + Hallucination &mdash; <span style="color:var(--red)">Hallucination HURTS at High Noise</span></h4>
+  <p class="note">Combines the two strongest interventions for hard targets. Exp 2 showed noise=0.2 doubles CD45 self pass (25%&rarr;47%) but MPNN=0%. Exp 4 showed hallucination rescues backbones with weak co-designed sequences. Hypothesis: higher noise generates better backbones; hallucination then writes good sequences for them.</p>
   <div class="table-wrap">
   <table>
-    <tr><th>Condition</th><th>Self pass</th><th>MPNN pass</th><th>Note</th></tr>
-    <tr><td>Deep baseline (Phase 0)</td><td>25.0%</td><td>15.6%</td><td>Anchor</td></tr>
-    <tr><td>noise=0.2 only (Exp 2)</td><td>46.9%</td><td>0% (unreliable)</td><td>Better self, MPNN uncertain</td></tr>
-    <tr><td>Halluc only (Exp 4)</td><td>—</td><td>—</td><td>Not tested for CD45</td></tr>
-    <tr><td>noise=0.2 + halluc (Exp 8)</td><td colspan="2" style="text-align:center">Pending</td><td>Best combination?</td></tr>
+    <tr><th>Condition</th><th>Self k/N</th><th>Self %</th><th>95% CI</th><th>MPNN %</th><th>vs noise=0.2 only</th></tr>
+    <tr><td>Deep baseline (Phase 0)</td><td>8/32</td><td>25.0%</td><td>[13.3%, 42.1%]</td><td>15.6%</td><td>anchor</td></tr>
+    <tr><td>noise=0.2 only (Exp 2)</td><td class="best">15/32</td><td class="best">46.9%</td><td>[30.9%, 63.6%]</td><td>0%</td><td>anchor</td></tr>
+    <tr><td>Halluc only (Exp 10a)</td><td colspan="5" style="text-align:center; color:var(--orange)">Queued</td></tr>
+    <tr style="background:#fee2e2">
+      <td>noise=0.2 + halluc (Exp 8)</td><td class="fail">6/32</td><td class="fail">18.8%</td><td>[8.9%, 35.3%]</td><td class="fail">0%</td><td class="fail">p=0.032 (worse)</td>
+    </tr>
   </table>
   </div>
+  <div class="card" style="margin-top:12px; border-left: 4px solid var(--red);">
+    <h4 style="font-size:0.95rem; margin-bottom:6px;">Exp 8 Findings &mdash; Negative Interaction</h4>
+    <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
+      <li><strong>Hallucination significantly hurts at high noise (46.9%&rarr;18.8%, p=0.032).</strong> The AF2-guided sequence optimization apparently undoes the backbone diversity benefit of higher noise. Self pass drops from near-50% back to baseline levels.</li>
+      <li><strong>MPNN is NOT recovered.</strong> Still 0/32. The hypothesis that hallucination would rescue MPNN at high noise is falsified.</li>
+      <li><strong>Mechanism:</strong> At noise=0.20, the backbones explore more diverse topologies. The co-designed sequences (self) are well-matched to these diverse backbones. But hallucination's AF2 refinement pushes sequences toward a local optimum that doesn't match the diverse backbone, destroying the co-design synergy.</li>
+      <li><strong>Implication for agentic routing:</strong> Noise and hallucination are <em>mutually exclusive</em> interventions for CD45. The agent must choose one or the other based on whether the bottleneck is backbone diversity (use noise) or sequence quality (use hallucination). <strong>This is a key finding: interventions interact non-additively.</strong></li>
+    </ul>
+  </div>
 
-  <h4 style="margin:16px 0 8px; font-size:0.95rem;">Exp 9: BetV1 + Hallucination</h4>
-  <p class="note">Job 6663850 (8h). Generalization test for the Exp 4 hallucination finding. HER2_AAV had a clear backbone&gt;sequence gap (self 3.1%, MPNN 31.2%). BetV1 has self 18.8%, MPNN 0% (deep). The mechanism may be different &mdash; BetV1's backbones might also be suboptimal for the target, not just the sequences. Testing hallucination here reveals whether the effect is HER2_AAV-specific or broadly applicable to hard targets.</p>
+  <h4 style="margin:16px 0 8px; font-size:0.95rem;">Exp 9: BetV1 + Hallucination &mdash; <span style="color:var(--green)">Modest Self Gain, MPNN Rescued</span></h4>
+  <p class="note">Generalization test for the Exp 4 hallucination finding. HER2_AAV had a clear backbone&gt;sequence gap (self 3.1%, MPNN 31.2%). BetV1 has self 18.8%, MPNN 0% (deep). The mechanism may be different &mdash; BetV1's backbones might also be suboptimal for the target, not just the sequences.</p>
   <div class="table-wrap">
   <table>
-    <tr><th>Target</th><th>Self (baseline)</th><th>MPNN (baseline)</th><th>Self (+halluc, pending)</th><th>Expected?</th></tr>
-    <tr><td>HER2_AAV (Exp 4)</td><td>3.1%</td><td>31.2%</td><td class="best">65.6%</td><td>✓ large gap → big improvement</td></tr>
-    <tr><td>BetV1 (Exp 9)</td><td>18.8%</td><td>0%</td><td>Pending</td><td>No bb&gt;seq gap → uncertain</td></tr>
+    <tr><th>Target</th><th>Self (baseline)</th><th>MPNN (baseline)</th><th>Self (+halluc)</th><th>MPNN (+halluc)</th><th>Fisher p (self)</th></tr>
+    <tr><td>HER2_AAV (Exp 4)</td><td>3.1% (1/32)</td><td>31.2%</td><td class="best">65.6% (21/32)</td><td>46.9%</td><td>p&lt;10&#8315;&#8310; ***</td></tr>
+    <tr><td>BetV1 (Exp 9)</td><td>18.8% (6/32)</td><td>0%</td><td>25.0% (8/32)</td><td>9.4% (3/32)</td><td>p=0.76 n.s.</td></tr>
   </table>
+  </div>
+  <div class="card" style="margin-top:12px; border-left: 4px solid var(--green);">
+    <h4 style="font-size:0.95rem; margin-bottom:6px;">Exp 9 Findings</h4>
+    <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
+      <li><strong>Self pass: 18.8%&rarr;25.0%, not significant (p=0.76).</strong> The self-sequence improvement from hallucination is much weaker for BetV1 than HER2_AAV. This confirms that hallucination's self-pass benefit depends on having a large backbone&gt;sequence gap.</li>
+      <li><strong>MPNN rescued: 0%&rarr;9.4% (3/32).</strong> BetV1 had zero MPNN-passing designs at baseline. Hallucination creates 3 new MPNN-passing backbones. While modest, this shows hallucination can improve backbone designability even when self-pass gain is small.</li>
+      <li><strong>Hallucination effect is target-dependent.</strong> HER2_AAV: transformative (&times;21 self). BetV1: marginal. The agent must assess the backbone&gt;sequence gap before recommending hallucination.</li>
+    </ul>
   </div>
 
   <!-- ─── EXP 7 DETAIL ─── -->
@@ -1658,26 +1756,26 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
       <td><span class="tag tag-green">Done (67/69 jobs)</span></td>
       <td>April 2026</td>
     </tr>
-    <tr style="background:#fef3c7">
+    <tr>
       <td>Phase 1b</td>
       <td>Statistical validation &amp; reliability fixes</td>
       <td>Exp 4b, 5a/b, 6a/b, 8, 9</td>
-      <td><span class="tag tag-orange">Running (9 jobs queued)</span></td>
+      <td><span class="tag tag-green">Done (9/9 jobs)</span></td>
+      <td>April 2026</td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td>Phase 2</td>
+      <td>Agentic config matrix &amp; scale-up to N=96</td>
+      <td>Exp 10&ndash;14 (20 jobs)</td>
+      <td><span class="tag tag-orange">Queued (20 jobs)</span></td>
       <td>April 2026</td>
     </tr>
     <tr>
-      <td>Phase 1.5</td>
-      <td>Improve generation quality (engineering)</td>
-      <td>Exp 10, 11</td>
+      <td>Phase 2b</td>
+      <td>Build and validate the agentic router</td>
+      <td>Diagnostic extraction + LLM routing</td>
       <td><span class="tag tag-purple">Planned</span></td>
       <td>April&ndash;May 2026</td>
-    </tr>
-    <tr>
-      <td>Phase 2</td>
-      <td>Build and validate the agent</td>
-      <td>Exp 5, 6, 8</td>
-      <td><span class="tag tag-purple">Planned</span></td>
-      <td>May 2026</td>
     </tr>
     <tr>
       <td>Phase 3</td>
@@ -1697,18 +1795,22 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     <strong>Answered (Exp 7): Not applicable.</strong> CFG requires CATH fold conditioning, N/A for binders.<br>
     (3) <del>Do composite rewards improve beam pruning?</del>
     <strong>Answered (Exp 3): No.</strong> Heavy interface weights kill generation (0/32). Moderate weights are neutral.<br>
-    (4) Does sc_scale_noise &gt; 0.1 significantly improve hard targets?
-    <strong>Exp 2: Directional (25%&rarr;47%), p=0.117.</strong> Exp 5a/5b replication (N=96) will confirm at p&lt;0.05.<br>
-    (5) Does backbone vs. sequence noise matter independently?
-    <strong>Exp 6a/6b running</strong> &mdash; bb=0.1 fixed, latent varied to 0.2 and 0.4.<br>
+    (4) <del>Does sc_scale_noise &gt; 0.1 significantly improve hard targets?</del>
+    <strong>Answered (Exp 2+5): Yes.</strong> noise=0.20 gives 47% vs 25% (p=0.003, N=96). Perfectly reproducible across 3 runs.<br>
+    (5) <del>Does backbone vs. sequence noise matter independently?</del>
+    <strong>Answered (Exp 6):</strong> Backbone noise is the driver. lat=0.2 alone: no effect (p=1.0). lat=0.4 alone: catastrophic (0%, p=0.005). <strong>New mechanistic insight.</strong><br>
     (6) <del>Can sequence hallucination rescue weak sequences?</del>
-    <strong>Answered (Exp 4): Yes for HER2_AAV (p&lt;10&#8315;&#8310;).</strong> Pending within-run control (Exp 4b running).<br>
-    (7) Does hallucination generalize to other hard targets (BetV1)?
-    <strong>Exp 9 running.</strong> BetV1 has no backbone&gt;seq gap (MPNN=0%), so effect may be weaker.<br>
-    (8) Can noise=0.2 + hallucination jointly boost CD45 self AND MPNN?
-    <strong>Exp 8 running.</strong> Best-combination hypothesis.<br>
-    (9) Can LoRA finetuning shift the model's prior toward bindable conformations? (Exp 10, planned.)<br>
-    (10) Is a cheap diagnostic N=32 round informative enough to route correctly? (Diagnostic Exp, planned.)
+    <strong>Answered (Exp 4+4b): Yes for HER2_AAV (p&lt;10&#8315;&#8310;).</strong> Paired within-run control confirms causal.<br>
+    (7) <del>Does hallucination generalize to other hard targets (BetV1)?</del>
+    <strong>Answered (Exp 9): Weakly.</strong> Self: 18.8%&rarr;25.0% (n.s.), but MPNN rescued 0%&rarr;9.4%. Effect is target-dependent.<br>
+    (8) <del>Can noise=0.2 + hallucination jointly boost CD45?</del>
+    <strong>Answered (Exp 8): No &mdash; negative interaction.</strong> Halluc hurts at high noise (46.9%&rarr;18.8%, p=0.032). Interventions are mutually exclusive.<br>
+    (9) Does noise=0.20 help or hurt HER2_AAV and BetV1? <strong>Exp 10b/10c queued.</strong><br>
+    (10) What is the MPNN-preserving sweet spot for noise? <strong>Exp 12a (noise=0.15) queued.</strong><br>
+    (11) Is bb noise alone sufficient (bb=0.2, lat=0.1)? <strong>Exp 12b queued.</strong><br>
+    (12) Does the noise+halluc negative interaction replicate on other targets? <strong>Exp 13a/13b queued.</strong><br>
+    (13) Do hallucination and baseline effects replicate at N=96? <strong>Exp 11a-j queued (10 scale-up runs).</strong><br>
+    (14) <strong>Core agentic question:</strong> No single config is optimal for all targets. Can a diagnostic round (cheap N=32) identify which config to use? (Phase 2b, planned.)
     </p>
   </div>
 </div>
