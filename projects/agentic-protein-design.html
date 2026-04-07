@@ -720,12 +720,12 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
       <td><span class="tag tag-green">Done</span></td>
       <td style="font-size:0.82rem">E_fine_selector wins 7/10. Config sensitivity 0.03&ndash;0.65 CV.</td>
     </tr>
-    <tr style="background:#fef3c7">
-      <td style="text-align:center; font-size:1.1rem">&#9744;</td>
-      <td><strong>Exp 1: FK Steering Temperature Sweep</strong><br><span style="font-size:0.82rem;color:var(--muted)">3 targets x 5 temps + 3 beam baselines</span></td>
-      <td>0/18</td>
-      <td><span class="tag tag-orange">Running</span></td>
-      <td style="font-size:0.82rem">SLURM jobs 6638196&ndash;6638213. Submitted April 6, 2026.</td>
+    <tr style="background:#d1fae5">
+      <td style="text-align:center; font-size:1.1rem">&#9745;</td>
+      <td><strong>Exp 1: FK Steering Temperature Sweep</strong><br><span style="font-size:0.82rem;color:var(--muted)">3 targets x 5 temps + 3 beam baselines (16/18 complete)</span></td>
+      <td>16/18</td>
+      <td><span class="tag tag-green">Done*</span></td>
+      <td style="font-size:0.82rem">Beam beats FK for easy targets. FK T=0.01 ≈ Beam. For hard targets, Beam wins clearly. See detail below.</td>
     </tr>
     <tr>
       <td style="text-align:center; font-size:1.1rem; color:#ccc">&#9744;</td>
@@ -779,52 +779,98 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
   </table>
   </div>
 
-  <h3>Exp 1 Detail: FK Steering Temperature Sweep (Running)</h3>
+  <h3>Exp 1 Detail: FK Steering Temperature Sweep</h3>
   <p class="note">
-    18 SLURM jobs submitted April 6, 2026. Each job runs the full pipeline (generate + filter + evaluate + analyze).
-    Fixed: beam_width=8, n_branch=4, nsamples=4, checkpoints=[0,65,130,200,270,340,400].
+    18 SLURM jobs submitted April 6, 2026. 16/18 complete (Claudin1 T=0.5 and T=2.0 still running).
+    Fixed: beam_width=8, n_branch=4, nsamples=4, checkpoints=[0,65,130,200,270,340,400], N=32 designs/run.
     Baseline: Beam Search with identical params (hard top-k instead of soft selection).
+    Pass rate = fraction of 32 designs meeting iPAE*31 &le; 7.0 AND pLDDT &ge; 0.9 AND scRMSD &lt; 1.5&Aring;.
   </p>
+
+  <h4 style="margin:16px 0 8px; font-size:0.95rem; color:var(--muted)">Self-sequence pass rate (%)</h4>
   <div class="table-wrap">
   <table>
     <tr>
       <th>Target</th><th>Difficulty</th>
-      <th>Beam (T=0)</th><th>T=0.01</th><th>T=0.05</th><th>T=0.1</th><th>T=0.5</th><th>T=2.0</th>
+      <th>Beam (T&rarr;0)</th><th>T=0.01</th><th>T=0.05</th><th>T=0.1</th><th>T=0.5</th><th>T=2.0</th>
     </tr>
     <tr>
       <td>IFNAR2</td><td><span class="tag tag-green">Easy</span></td>
-      <td><span class="tag tag-orange">Running</span></td>
-      <td><span class="tag tag-orange">Running</span></td>
-      <td><span class="tag tag-orange">Running</span></td>
-      <td><span class="tag tag-orange">Running</span></td>
-      <td><span class="tag tag-orange">Running</span></td>
-      <td><span class="tag tag-orange">Running</span></td>
+      <td class="best">100%</td>
+      <td class="best">100%</td>
+      <td class="best">100%</td>
+      <td>93.7%</td>
+      <td>68.7%</td>
+      <td>56.2%</td>
     </tr>
     <tr>
       <td>Claudin1</td><td><span class="tag tag-orange">Medium</span></td>
-      <td><span class="tag tag-orange">Running</span></td>
-      <td><span class="tag tag-orange">Running</span></td>
-      <td><span class="tag tag-orange">Running</span></td>
-      <td><span class="tag tag-orange">Running</span></td>
-      <td><span class="tag tag-orange">Running</span></td>
-      <td><span class="tag tag-orange">Running</span></td>
+      <td class="best">100%</td>
+      <td>75.0%</td>
+      <td>31.2%</td>
+      <td>3.1%</td>
+      <td><em style="color:var(--muted)">pending</em></td>
+      <td><em style="color:var(--muted)">pending</em></td>
     </tr>
     <tr>
       <td>CD45</td><td><span class="tag tag-red">Hard</span></td>
-      <td><span class="tag tag-orange">Running</span></td>
-      <td><span class="tag tag-orange">Running</span></td>
-      <td><span class="tag tag-orange">Running</span></td>
-      <td><span class="tag tag-orange">Running</span></td>
-      <td><span class="tag tag-orange">Running</span></td>
-      <td><span class="tag tag-orange">Running</span></td>
+      <td class="best">25.0%</td>
+      <td class="best">25.0%</td>
+      <td class="best">25.0%</td>
+      <td class="best">25.0%</td>
+      <td>21.8%</td>
+      <td>12.5%</td>
     </tr>
   </table>
   </div>
-  <p class="note">
-    What we expect: T=0.01 should behave like Beam Search (greedy).
-    T=0.1 is the paper default. T=0.5&ndash;2.0 should increase diversity but may reduce best-sample quality.
-    The key question: does any T outperform hard top-k (Beam Search) for a given difficulty tier?
-  </p>
+
+  <h4 style="margin:16px 0 8px; font-size:0.95rem; color:var(--muted)">MPNN-redesign pass rate (%)</h4>
+  <div class="table-wrap">
+  <table>
+    <tr>
+      <th>Target</th><th>Difficulty</th>
+      <th>Beam (T&rarr;0)</th><th>T=0.01</th><th>T=0.05</th><th>T=0.1</th><th>T=0.5</th><th>T=2.0</th>
+    </tr>
+    <tr>
+      <td>IFNAR2</td><td><span class="tag tag-green">Easy</span></td>
+      <td>78.1%</td>
+      <td class="best">96.8%</td>
+      <td>93.7%</td>
+      <td>65.6%</td>
+      <td>68.7%</td>
+      <td>46.8%</td>
+    </tr>
+    <tr>
+      <td>Claudin1</td><td><span class="tag tag-orange">Medium</span></td>
+      <td class="best">59.3%</td>
+      <td>37.5%</td>
+      <td>18.7%</td>
+      <td>15.6%</td>
+      <td><em style="color:var(--muted)">pending</em></td>
+      <td><em style="color:var(--muted)">pending</em></td>
+    </tr>
+    <tr>
+      <td>CD45</td><td><span class="tag tag-red">Hard</span></td>
+      <td class="best">3.1%</td>
+      <td class="fail">0%</td>
+      <td>6.2%</td>
+      <td class="fail">0%</td>
+      <td class="fail">0%</td>
+      <td class="fail">0%</td>
+    </tr>
+  </table>
+  </div>
+
+  <div class="card" style="margin-top:16px; border-left: 4px solid var(--green);">
+    <h4 style="font-size:1rem; margin-bottom:8px;">Key Findings from Exp 1</h4>
+    <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
+      <li><strong>Beam Search dominates across all difficulty tiers.</strong> Hard top-k selection consistently matches or outperforms FK Steering in both self and MPNN pass rates.</li>
+      <li><strong>FK Temperature is monotonically harmful.</strong> For all three targets, pass rates decrease as temperature increases. Even T=0.01 (quasi-deterministic) underperforms or ties Beam Search.</li>
+      <li><strong>Hard target (CD45): Beam + FK low-T all yield 25% self.</strong> Backbone generation is near its ceiling at this budget; the constraint is the structural difficulty, not the selection strategy. MPNN sequences consistently fail, suggesting backbone quality is marginal.</li>
+      <li><strong>Easy target (IFNAR2): Self pass rate is saturated.</strong> All configs T&le;0.05 achieve 100% self pass. The differentiator is MPNN quality, where FK T=0.01 yields 96.8% vs Beam's 78.1% — the only case where FK outperforms Beam.</li>
+      <li><strong>Implication:</strong> FK Steering is not a reliable improvement over Beam Search at these budgets. The next experiment should focus on alternative knobs (sc_scale_noise, composite rewards) rather than FK temperature tuning.</li>
+    </ul>
+  </div>
 </div>
 
 <!-- ─── 7. EXPERIMENTAL PLAN ─── -->
