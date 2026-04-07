@@ -93,6 +93,7 @@
     <li><a href="#rar">RAR: Random with Annealing to Raster</a></li>
     <li><a href="#orderhead">OrderHead Experiments</a></li>
     <li><a href="#comparison">Method Comparison &amp; Analysis</a></li>
+    <li><a href="#insight">Why Random Order Fails in Causal AR (LlamaGen vs MAR vs RAR)</a></li>
     <li><a href="#bugs">Critical Bugs Found &amp; Fixed</a></li>
   </ol>
 </div>
@@ -750,8 +751,181 @@
 <!-- ============================================================ -->
 <!-- 8. BUGS -->
 <!-- ============================================================ -->
+<!-- ============================================================ -->
+<!-- 8. INSIGHT: WHY RANDOM ORDER FAILS -->
+<!-- ============================================================ -->
+<div class="section" id="insight">
+  <h2>8. Why Random Order Fails in Causal AR (LlamaGen vs MAR vs RAR)</h2>
+
+  <h3>The Core Difference: Causal vs. Bidirectional Attention</h3>
+  <div class="card-grid">
+    <div class="card">
+      <h3>LlamaGen (Causal AR)</h3>
+      <p>
+        Each token can only attend to tokens <strong>before</strong> it in the sequence (left-context).
+        Token at position t sees tokens at positions {0, 1, &hellip;, t&minus;1} &mdash; a strict <strong>prefix</strong>.
+      </p>
+      <p>
+        The ordering determines which spatial positions form this prefix. In raster, position (3,5) always
+        sees (3,4), (3,3), &hellip; and all rows above. In a random ordering, position (3,5) might only see
+        (12,1), (7,9), (0,3) &mdash; spatially scattered positions with no local structure.
+      </p>
+    </div>
+    <div class="card">
+      <h3>MAR (Masked AR / Bidirectional)</h3>
+      <p>
+        Uses a <strong>bidirectional</strong> transformer (like BERT). Every token can attend to every
+        <strong>unmasked</strong> token, regardless of generation order.
+      </p>
+      <p>
+        At each step, the model sees ALL previously generated tokens simultaneously. The &ldquo;ordering&rdquo;
+        only determines which tokens are revealed vs. masked. The attention pattern is always full bidirectional
+        over the unmasked set.
+      </p>
+    </div>
+  </div>
+
+  <h3>Why Random Ordering Breaks Causal Attention</h3>
+  <div class="card">
+    <p>Consider predicting the token at spatial position (8, 5), with 3 tokens already generated: {(12,1), (0,14), (7,9)}.</p>
+    <p>
+      <strong>In LlamaGen (causal):</strong> The model can only attend to these 3 scattered positions via causal masking.
+      Even if (8,4) or (7,5) &mdash; the immediate spatial neighbors &mdash; were already generated, they are invisible
+      unless they happen to appear <em>earlier</em> in the random permutation. The context is
+      <strong>inconsistent across training steps</strong> (different random permutations each time),
+      so the model cannot learn stable context patterns. At step 32 of generation, raster order provides
+      34.8% spatial neighbor coverage; random order provides only 5&ndash;6%.
+    </p>
+    <p>
+      <strong>In MAR (bidirectional):</strong> The model attends to all 3 unmasked tokens simultaneously from any position.
+      At later steps, when more tokens are unmasked, ALL of them are visible regardless of the order they were generated.
+      The context is <strong>always the complete set</strong> of previously generated tokens &mdash; order doesn't matter.
+    </p>
+  </div>
+
+  <h3>The Ambiguous Target Problem</h3>
+  <div class="card">
+    <p>
+      In causal AR with random permutations, two different permutations can share the same prefix
+      but differ in what to predict next:
+    </p>
+    <ul>
+      <li><strong>Perm A:</strong> [&hellip;, (3,5), <strong>(8,2)</strong>, &hellip;] &mdash; next token to predict is (8,2)</li>
+      <li><strong>Perm B:</strong> [&hellip;, (3,5), <strong>(1,7)</strong>, &hellip;] &mdash; next token to predict is (1,7)</li>
+    </ul>
+    <p>
+      The model receives the <strong>exact same input</strong> (same prefix tokens, same causal mask) but must predict
+      different spatial positions. This is <strong>ill-posed</strong> &mdash; the model literally cannot determine which
+      position to predict next. Optimization becomes noisy and converges poorly (loss plateaus at 8.45 vs 6.30 for raster).
+    </p>
+    <p>
+      <strong>MAR doesn't have this problem</strong> because masked prediction always explicitly specifies which
+      positions are masked and which to predict (the mask pattern is an explicit input).
+    </p>
+    <p>
+      <strong>RAR's solution:</strong> The <code>ta_pos_table</code> adds an embedding of the <em>next</em> position
+      to predict, resolving the ambiguity. With ta_embed, Perm A and Perm B produce different inputs
+      (embedding of (8,2) vs (1,7) is added), so the model can distinguish them.
+    </p>
+  </div>
+
+  <h3>How RAR Navigates This</h3>
+  <div class="card">
+    <p>RAR's key insight: use random ordering as a <strong>training regularizer</strong>, not as the final inference strategy.</p>
+    <div class="table-wrap">
+    <table>
+      <tr><th>Phase</th><th>Epochs</th><th>What Happens</th><th>Purpose</th></tr>
+      <tr><td>Random</td><td>0&ndash;150</td><td>Fresh random permutation each step + ta_embed</td><td>Force general spatial reasoning; prevent overfitting to raster context patterns</td></tr>
+      <tr><td>Anneal</td><td>150&ndash;225</td><td>Linearly mix random &rarr; raster</td><td>Gradual specialization toward raster</td></tr>
+      <tr><td>Raster</td><td>225&ndash;300</td><td>Pure raster, ta_embed=None</td><td>Specialize for deployment; no train/inference mismatch</td></tr>
+    </table>
+    </div>
+    <p>
+      At epoch 150, the model has learned to handle arbitrary context subsets &mdash; it developed diverse attention
+      patterns (spatial proximity detectors, texture checkers, etc.) instead of raster-specific shortcuts.
+      Annealing then specializes these robust representations for raster, and the final model infers in
+      <strong>standard raster order at zero extra cost</strong>.
+    </p>
+  </div>
+
+  <h3>Summary: LlamaGen vs MAR vs RAR</h3>
+  <div class="table-wrap">
+  <table>
+    <tr>
+      <th></th>
+      <th>LlamaGen (Raster)</th>
+      <th>LlamaGen (Random)</th>
+      <th>RAR</th>
+      <th>MAR</th>
+    </tr>
+    <tr>
+      <td><strong>Attention</strong></td>
+      <td>Causal (prefix only)</td>
+      <td>Causal (prefix only)</td>
+      <td>Causal (prefix only)</td>
+      <td>Bidirectional (full)</td>
+    </tr>
+    <tr>
+      <td><strong>Training order</strong></td>
+      <td>Fixed raster</td>
+      <td>Random per step</td>
+      <td>Random &rarr; anneal &rarr; raster</td>
+      <td>Random mask ratio</td>
+    </tr>
+    <tr>
+      <td><strong>Inference order</strong></td>
+      <td>Raster</td>
+      <td>Raster or random</td>
+      <td>Raster</td>
+      <td>Iterative unmasking</td>
+    </tr>
+    <tr>
+      <td><strong>Context at step t</strong></td>
+      <td>Fixed raster prefix</td>
+      <td>Random prefix (inconsistent)</td>
+      <td>Raster prefix (after anneal)</td>
+      <td>ALL unmasked tokens</td>
+    </tr>
+    <tr>
+      <td><strong>Ambiguous target?</strong></td>
+      <td>No (deterministic)</td>
+      <td><strong class="fail">Yes</strong> (without ta_embed)</td>
+      <td>No (ta_embed during random; raster after anneal)</td>
+      <td>No (mask is explicit)</td>
+    </tr>
+    <tr>
+      <td><strong>Inference cost</strong></td>
+      <td>O(L) KV-cache</td>
+      <td>O(L&sup2;) full-forward</td>
+      <td>O(L) KV-cache</td>
+      <td>O(T&middot;L) (T decoding steps)</td>
+    </tr>
+    <tr>
+      <td><strong>FID (IN-100)</strong></td>
+      <td>25.40</td>
+      <td class="fail">159.41</td>
+      <td class="best">19.61</td>
+      <td>N/A (different arch)</td>
+    </tr>
+  </table>
+  </div>
+
+  <div class="callout">
+    <p><strong>The bottom line:</strong> Random ordering fundamentally breaks causal attention because the
+    prefix-based context becomes inconsistent and spatially incoherent across training steps.
+    MAR avoids this entirely with bidirectional attention &mdash; all unmasked tokens are always visible.
+    RAR's clever solution: use random ordering only as a <strong>training regularizer</strong> (with ta_embed to resolve
+    the ambiguous target problem), then anneal back to raster for deployment. The result is a model that
+    infers in standard raster order at zero extra cost, but with 23% better FID thanks to the more robust
+    representations learned during the random phase.</p>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 9. BUGS -->
+<!-- ============================================================ -->
 <div class="section" id="bugs">
-  <h2>8. Critical Bugs Found &amp; Fixed</h2>
+  <h2>9. Critical Bugs Found &amp; Fixed</h2>
 
   <div class="card">
     <h3>Bug 1: target_aware_embed active during raster phase</h3>
