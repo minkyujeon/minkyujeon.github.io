@@ -392,9 +392,9 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
 
   <div class="stat-row">
     <div class="stat"><div class="num">11</div><div class="label">Protein Targets</div></div>
-    <div class="stat green"><div class="num">33/33</div><div class="label">Fully Evaluated</div></div>
-    <div class="stat purple"><div class="num">3</div><div class="label">Configs Tested</div></div>
-    <div class="stat orange"><div class="num">~2,700</div><div class="label">Designs Generated</div></div>
+    <div class="stat green"><div class="num">33/33</div><div class="label">Phase 0 Complete</div></div>
+    <div class="stat orange"><div class="num">24</div><div class="label">Jobs Running (Exp 2&ndash;7)</div></div>
+    <div class="stat purple"><div class="num">11</div><div class="label">Total Experiments</div></div>
   </div>
 
   <h3>Configurations</h3>
@@ -762,23 +762,37 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
       <td><span class="tag tag-purple">Planned</span></td>
       <td style="font-size:0.82rem">Depends on Exp 5 feature extraction.</td>
     </tr>
+    <tr style="background:#fef3c7">
+      <td style="text-align:center; font-size:1.1rem">&#9744;</td>
+      <td><strong>Exp 7: CFG Guidance Scale Sweep</strong><br><span style="font-size:0.82rem;color:var(--muted)">CD45 + BetV1 deep x guidance_w = 1.0, 1.5, 2.0, 3.0</span></td>
+      <td>0/8</td>
+      <td><span class="tag tag-orange">Running</span></td>
+      <td style="font-size:0.82rem">SLURM 6642819&ndash;6642826. <strong>CFG has been OFF (w=1.0) in all prior work.</strong></td>
+    </tr>
     <tr>
       <td style="text-align:center; font-size:1.1rem; color:#ccc">&#9744;</td>
-      <td><strong>Exp 7: CFG Guidance Scale Sweep</strong><br><span style="font-size:0.82rem;color:var(--muted)">2 hard targets x 4 guidance_w values</span></td>
-      <td>0/8</td>
+      <td><strong>Exp 10: LoRA Finetuning on Successful Binders</strong><br><span style="font-size:0.82rem;color:var(--muted)">Finetune denoiser on ~500+ successful designs (all targets)</span></td>
+      <td>0/TBD</td>
       <td><span class="tag tag-purple">Planned</span></td>
-      <td style="font-size:0.82rem"><strong>High priority.</strong> guidance_w=1.0 (default) means CFG is OFF. Never explored. Potentially transformative.</td>
+      <td style="font-size:0.82rem">Requires training loop setup. Option A: supervised, Option B: DPO-style on (success, fail) pairs.</td>
+    </tr>
+    <tr>
+      <td style="text-align:center; font-size:1.1rem; color:#ccc">&#9744;</td>
+      <td><strong>Exp 11: Trajectory Recycling</strong><br><span style="font-size:0.82rem;color:var(--muted)">Warm-start from successful CD45 trajectories at t=130</span></td>
+      <td>0/TBD</td>
+      <td><span class="tag tag-purple">Planned</span></td>
+      <td style="font-size:0.82rem">Requires code mod to save/load intermediate latent states. Local search in trajectory space.</td>
     </tr>
     <tr>
       <td style="text-align:center; font-size:1.1rem; color:#ccc">&#9744;</td>
       <td><strong>Exp 8: Multi-Round Adaptive Pipeline</strong><br><span style="font-size:0.82rem;color:var(--muted)">3 targets, 3 rounds each, agent decides config</span></td>
       <td>0/~12</td>
       <td><span class="tag tag-purple">Planned</span></td>
-      <td style="font-size:0.82rem">Depends on Exp 1&ndash;6 learnings.</td>
+      <td style="font-size:0.82rem">Depends on Exp 1&ndash;7 learnings. Agent now has more knobs: guidance_w, reward composition, noise.</td>
     </tr>
     <tr>
       <td style="text-align:center; font-size:1.1rem; color:#ccc">&#9744;</td>
-      <td><strong>Exp 9: Full Scaling Curve</strong><br><span style="font-size:0.82rem;color:var(--muted)">2 targets x 5 budgets x 4 strategies</span></td>
+      <td><strong>Exp 9: Full Scaling Curve</strong><br><span style="font-size:0.82rem;color:var(--muted)">2 targets x 5 budgets x 4+ strategies</span></td>
       <td>0/~40</td>
       <td><span class="tag tag-purple">Planned</span></td>
       <td style="font-size:0.82rem">The key paper figure. Depends on all prior experiments.</td>
@@ -1036,6 +1050,67 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     <p><strong>Cost:</strong> ~8 GPU-hours</p>
   </div>
 
+  <h3>Phase 1.5: Improve Generation Quality (Engineering Required)</h3>
+  <p>These experiments go beyond tuning existing hyperparameters &mdash; they modify the model or the
+  inference procedure itself. Higher engineering cost, but potentially the highest ceiling for hard targets.</p>
+
+  <div class="exp-card planned">
+    <h4><span class="tag tag-purple">Exp 10</span> LoRA Finetuning on Successful Binders</h4>
+    <p><strong>Hypothesis:</strong> The Complexa denoiser was pre-trained on general protein structures.
+    Finetuning with LoRA adapters on successful binder designs shifts the model&rsquo;s prior distribution
+    toward structures that actually bind, improving backbone quality at generation time.</p>
+    <p><strong>Motivation:</strong> For CD45, only 25% of beam-selected backbones pass even with deep search.
+    The model&rsquo;s prior simply doesn't cover the right conformational space for hard interfaces.
+    Rather than searching harder in a bad prior (Exp 1&ndash;7), we shift the prior itself.</p>
+    <p><strong>Two approaches:</strong></p>
+    <ul>
+      <li><strong>Option A &mdash; Supervised:</strong> Finetune on all ~500+ successful designs across
+        all 11 targets. The model learns &ldquo;what successful binders look like&rdquo; in general.
+        Risk: dominated by easy targets (IFNAR2 has 100% pass rate, contributing most training data).</li>
+      <li><strong>Option B &mdash; DPO-style:</strong> Train on (successful backbone, failed backbone) pairs
+        from the same target. The model learns to distinguish what makes a binder succeed vs. fail for a given
+        interface type. More data-efficient for hard targets (CD45: 8 positive + 24 negative pairs from deep).
+        Conceptually analogous to RLHF/DPO for LLMs &mdash; aligning the model toward reward-preferred outputs.</li>
+    </ul>
+    <p><strong>Setup:</strong></p>
+    <ul>
+      <li>Collect all successful/failed backbone structures from Phase 0 + Phase 1 runs</li>
+      <li>Add LoRA adapters (rank 16&ndash;32) to the Complexa denoiser transformer blocks</li>
+      <li>Train for 500&ndash;2000 steps with small learning rate (1e-5)</li>
+      <li>Evaluate: run deep beam search on CD45 and BetV1 with finetuned model</li>
+    </ul>
+    <p><strong>Engineering required:</strong> LoRA wrapper around Complexa denoiser, denoising score matching
+    loss on successful structures (Option A) or DPO preference loss (Option B).</p>
+    <p><strong>Risk:</strong> Overfitting &mdash; only ~500 total successes across all targets, and only 8 for CD45.
+    Mitigation: low LoRA rank, early stopping on held-out target, regularization to base weights.</p>
+    <p><strong>Cost:</strong> ~20 GPU-hours training + ~10 GPU-hours evaluation. ~1-2 days engineering.</p>
+  </div>
+
+  <div class="exp-card planned">
+    <h4><span class="tag tag-purple">Exp 11</span> Trajectory Recycling / Warm-Starting</h4>
+    <p><strong>Hypothesis:</strong> Successful designs follow &ldquo;good paths&rdquo; through the denoising
+    trajectory. By saving intermediate latent states from successful trajectories and re-starting new beam
+    searches from those states (with small noise perturbations), we can do local search in trajectory space
+    to find more successes without re-exploring the global fold topology.</p>
+    <p><strong>Motivation:</strong> The Complexa denoiser runs 400 steps. The first ~130 steps determine the
+    global backbone fold topology. For CD45's 8 successful designs, steps 0&ndash;130 found the right fold
+    geometry. By seeding new runs from t=130 of these trajectories + noise, we skip the hardest part
+    (finding the right fold) and explore variations of the interface geometry.</p>
+    <p><strong>Setup:</strong></p>
+    <ul>
+      <li>Phase A: Modify beam search to save intermediate latent states at each checkpoint</li>
+      <li>Phase B: Run deep beam search on CD45, collect latent states at t=130 from the 8 successful trajectories</li>
+      <li>Phase C: Start 8 new beam searches, each seeded from one successful t=130 state + Gaussian noise (&sigma;=0.05&ndash;0.2)</li>
+      <li>Compare: unique successes from warm-started runs vs. cold-started runs with same GPU budget</li>
+    </ul>
+    <p><strong>Engineering required:</strong> Modify <code>search/beam_search.py</code> to save/load
+    intermediate trajectory states. Add noise perturbation to loaded states. ~1 day engineering.</p>
+    <p><strong>Risk:</strong> If the 8 successful trajectories share a single mode (all converged to the same
+    backbone topology), warm-starting will produce near-duplicates rather than diverse new designs.
+    Check with FoldSeek clustering first.</p>
+    <p><strong>Cost:</strong> ~8 GPU-hours runs + ~1 day engineering</p>
+  </div>
+
   <h3>Phase 2: Build the Agent</h3>
 
   <div class="exp-card planned">
@@ -1139,8 +1214,15 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
       <td>Phase 1</td>
       <td>Explore unexplored action space</td>
       <td>Exp 1&ndash;4, 7</td>
-      <td><span class="tag tag-orange">In Progress</span></td>
+      <td><span class="tag tag-orange">In Progress (24 jobs)</span></td>
       <td>April 2026</td>
+    </tr>
+    <tr>
+      <td>Phase 1.5</td>
+      <td>Improve generation quality (engineering)</td>
+      <td>Exp 10, 11</td>
+      <td><span class="tag tag-purple">Planned</span></td>
+      <td>April&ndash;May 2026</td>
     </tr>
     <tr>
       <td>Phase 2</td>
@@ -1164,11 +1246,12 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     (1) <del>Does FK Steering temperature tuning improve over Beam Search?</del>
     <strong>Answered (Exp 1): No.</strong> Beam Search dominates; FK is monotonically worse as T increases.
     (2) Does <code>guidance_w &gt; 1.0</code> (CFG) improve backbone quality for hard targets?
-    <strong>This is the most promising unexplored knob</strong> &mdash; CFG has been OFF in all prior experiments.
+    <strong>Most promising unexplored knob</strong> &mdash; CFG has been OFF in all prior experiments. (Exp 7, running.)
     (3) Do composite rewards (iPAE + pLDDT + iPTM) improve beam pruning for hard targets? (Exp 3, running.)
-    (4) Does sc_scale_noise control affect backbone diversity while maintaining quality? (Exp 2, running.)
-    (5) Is a cheap diagnostic N=32 round informative enough to route correctly,
-    or do we need the full N=200? All 11 notto N=200 runs are now complete for analysis.</p>
+    (4) Does sc_scale_noise affect backbone diversity while maintaining quality? (Exp 2, running.)
+    (5) Can LoRA finetuning on successful binders shift the model's prior toward bindable conformations? (Exp 10, planned.)
+    (6) Does trajectory recycling (warm-starting from successful intermediate states) enable local search? (Exp 11, planned.)
+    (7) Is a cheap diagnostic N=32 round informative enough to route correctly? (Exp 5, planned.)</p>
   </div>
 </div>
 
