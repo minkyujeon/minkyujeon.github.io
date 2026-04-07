@@ -171,7 +171,7 @@
     <li><a href="#pipeline">The Pipeline &amp; Action Space</a></li>
     <li><a href="#results">Current Results: 11-Target Protein Binder Sweep</a></li>
     <li><a href="#ligand">Ligand Binder Results: 7V11/SAM</a></li>
-    <li><a href="#findings">Key Findings</a></li>
+    <li><a href="#findings">Key Findings &amp; Reliability Audit</a></li>
     <li><a href="#tracker">Experiment Tracker</a></li>
     <li><a href="#experiments">Experimental Plan</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
@@ -395,9 +395,9 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
 
   <div class="stat-row">
     <div class="stat"><div class="num">11</div><div class="label">Protein Targets</div></div>
-    <div class="stat green"><div class="num">67/69</div><div class="label">Jobs Complete (Exp 1&ndash;7)</div></div>
-    <div class="stat orange"><div class="num">5</div><div class="label">Actionable Knobs Found</div></div>
-    <div class="stat purple"><div class="num">11</div><div class="label">Total Experiments</div></div>
+    <div class="stat green"><div class="num">67/69</div><div class="label">Jobs Done (Exp 1&ndash;7)</div></div>
+    <div class="stat orange"><div class="num">9</div><div class="label">New Jobs Queued (Reliability)</div></div>
+    <div class="stat purple"><div class="num">16</div><div class="label">Total Experiments</div></div>
   </div>
 
   <h3>Configurations</h3>
@@ -695,8 +695,54 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     Our project maps this space with per-target analysis and builds an adaptive routing agent on top of it.</p>
   </div>
 
+  <div class="card" style="border-left: 4px solid var(--red);">
+    <h3>6. Reliability Audit — What Is Publication-Ready</h3>
+    <p style="font-size:0.88rem; color:var(--muted); margin-bottom:10px;">
+      Full review in <code>docs/EXPERIMENT_RELIABILITY_REVIEW.md</code>. The core issue: N=32 with
+      <code>num_redesign_seqs=2</code> produces unreliable MPNN statistics (same config gives 3%&ndash;19% MPNN across 5 independent runs of CD45 deep).
+      All new jobs use <code>num_redesign_seqs=8</code>.
+    </p>
+    <table style="font-size:0.82rem; width:100%;">
+      <tr>
+        <th>Experiment</th>
+        <th>Statistically Significant?</th>
+        <th>Publication Status</th>
+      </tr>
+      <tr>
+        <td><strong>Exp 1 — FK &lt; Beam</strong></td>
+        <td>Yes for Claudin1 (100%&rarr;0%), IFNAR2. Underpowered for CD45.</td>
+        <td><span class="tag tag-green">Ready</span></td>
+      </tr>
+      <tr>
+        <td><strong>Exp 2 — Higher noise helps hard targets</strong></td>
+        <td>p=0.117 for CD45 25%&rarr;47%. Not significant at N=32.</td>
+        <td><span class="tag tag-orange">Needs N=96 replication (Exp 5a/b running)</span></td>
+      </tr>
+      <tr>
+        <td><strong>Exp 3 — iface_focus kills generation</strong></td>
+        <td>Robust (0/32 on both targets). multi_af2 BetV1 6&rarr;8 is p=0.76 (noise).</td>
+        <td><span class="tag tag-green">Ready (negative result)</span></td>
+      </tr>
+      <tr>
+        <td><strong>Exp 4 — Hallucination rescues HER2_AAV</strong></td>
+        <td>p&lt;10&#8315;&#8310; for self. Lacks within-run control.</td>
+        <td><span class="tag tag-orange">Needs paired control (Exp 4b running)</span></td>
+      </tr>
+      <tr>
+        <td><strong>Exp 4 — PDL1 MPNN 37.5%&rarr;78.1%</strong></td>
+        <td>p=0.002. Significant.</td>
+        <td><span class="tag tag-green">Ready</span></td>
+      </tr>
+      <tr>
+        <td><strong>Exp 4 — PDL1 self drops 100%&rarr;81.2%</strong></td>
+        <td>p=0.024. Significant decrease &mdash; important negative finding.</td>
+        <td><span class="tag tag-green">Ready (must report)</span></td>
+      </tr>
+    </table>
+  </div>
+
   <div class="card" style="border-left: 4px solid var(--purple);">
-    <h3>6. What the Paper Already Covered vs. What We Add</h3>
+    <h3>7. What the Paper Already Covered vs. What We Add</h3>
     <p style="font-size:0.88rem; color:var(--muted); margin-bottom:10px;">
       Cross-checked against the ICLR 2026 paper (Figure 7) and companion validation paper (43pp, Appendix B.4).
     </p>
@@ -807,14 +853,69 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
       <td><strong>Exp 3: Composite Reward Signals</strong><br><span style="font-size:0.82rem;color:var(--muted)">CD45 + BetV1 deep x 3 reward compositions</span></td>
       <td>6/6</td>
       <td><span class="tag tag-green">Done</span></td>
-      <td style="font-size:0.82rem">Multi-AF2 helps BetV1 (19%&rarr;25%). Interface-focused (iPTM+iCon) kills both targets (0%). See detail below.</td>
+      <td style="font-size:0.82rem">Interface-focused (iPTM+iCon) kills both targets (0%). Multi-AF2 marginal: BetV1 6&rarr;8 designs, p=0.76 (n.s. at N=32). See detail below.</td>
     </tr>
     <tr style="background:#d1fae5">
       <td style="text-align:center; font-size:1.1rem">&#9745;</td>
       <td><strong>Exp 4: Sequence Hallucination</strong><br><span style="font-size:0.82rem;color:var(--muted)">HER2_AAV-deep + PDL1-deep with AF2 seq refinement</span></td>
       <td>2/2</td>
       <td><span class="tag tag-green">Done</span></td>
-      <td style="font-size:0.82rem"><strong>HER2_AAV: 3.1%&rarr;65.6% self pass!</strong> Hallucination dramatically rescues weak sequences. See detail below.</td>
+      <td style="font-size:0.82rem"><strong>HER2_AAV: 3.1%&rarr;65.6% self pass (p&lt;10⁻⁶).</strong> PDL1 MPNN: 37.5%&rarr;78.1% (p=0.002). PDL1 self drops 100%&rarr;81.2% (p=0.024). Lacks within-run control. See detail below.</td>
+    </tr>
+    <!-- ─── RELIABILITY / REPLICATION EXPERIMENTS ─── -->
+    <tr style="background:#fef9c3">
+      <td colspan="5" style="font-size:0.8rem; font-weight:600; color:#92400e; padding:6px 12px;">
+        &#9654; Reliability Validation Round — 9 jobs queued 2026-04-07 (all use num_redesign_seqs=8)
+      </td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
+      <td><strong>Exp 4b: HER2_AAV No-Hallucination Control</strong><br><span style="font-size:0.82rem;color:var(--muted)">27_HER2_AAV deep, no refinement &mdash; paired control for Exp 4</span></td>
+      <td>0/1</td>
+      <td><span class="tag tag-orange">Running</span></td>
+      <td style="font-size:0.82rem">Job 6663840. Eliminates seed confound in Exp 4 comparison. Same config as Exp 4 but no sequence hallucination.</td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
+      <td><strong>Exp 5a: CD45 Noise=0.10 Replication &times;2</strong><br><span style="font-size:0.82rem;color:var(--muted)">N=96 total (original + r2 + r3) to reach p&lt;0.05</span></td>
+      <td>0/2</td>
+      <td><span class="tag tag-orange">Running</span></td>
+      <td style="font-size:0.82rem">Jobs 6663841, 6663842. Baseline anchor for noise comparison. Combined N=96 gives sufficient power to detect 25% vs 47% difference.</td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
+      <td><strong>Exp 5b: CD45 Noise=0.20 Replication &times;2</strong><br><span style="font-size:0.82rem;color:var(--muted)">N=96 total (original + r2 + r3) to reach p&lt;0.05</span></td>
+      <td>0/2</td>
+      <td><span class="tag tag-orange">Running</span></td>
+      <td style="font-size:0.82rem">Jobs 6663844, 6663845. Exp 2 noise=0.2 finding (25%&rarr;47%) currently p=0.117. N=96 should push to p&lt;0.05.</td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
+      <td><strong>Exp 6a: Mixed Noise bb=0.1, latent=0.2</strong><br><span style="font-size:0.82rem;color:var(--muted)">CD45 deep &mdash; disentangle backbone vs sequence noise</span></td>
+      <td>0/1</td>
+      <td><span class="tag tag-orange">Running</span></td>
+      <td style="font-size:0.82rem">Job 6663846. Fixes Exp 2 confound (both noises changed simultaneously). Tests whether backbone or sequence noise drives the hard-target improvement.</td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
+      <td><strong>Exp 6b: Mixed Noise bb=0.1, latent=0.4</strong><br><span style="font-size:0.82rem;color:var(--muted)">CD45 deep &mdash; paper's best aggregate config per-target</span></td>
+      <td>0/1</td>
+      <td><span class="tag tag-orange">Running</span></td>
+      <td style="font-size:0.82rem">Job 6663847. Paper found (bb=0.1, latent=0.4) solves most unique targets in aggregate. Applies this to a hard target specifically.</td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
+      <td><strong>Exp 8: CD45 Noise=0.20 + Hallucination</strong><br><span style="font-size:0.82rem;color:var(--muted)">CD45 deep, sc_scale_noise=0.2 + sequence hallucination</span></td>
+      <td>0/1</td>
+      <td><span class="tag tag-orange">Running</span></td>
+      <td style="font-size:0.82rem">Job 6663849. Tests best-combination hypothesis: higher noise doubles self pass, hallucination may recover MPNN=0% at high noise.</td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
+      <td><strong>Exp 9: BetV1 + Hallucination</strong><br><span style="font-size:0.82rem;color:var(--muted)">23_BetV1 deep + sequence hallucination</span></td>
+      <td>0/1</td>
+      <td><span class="tag tag-orange">Running</span></td>
+      <td style="font-size:0.82rem">Job 6663850. Generalization test: does hallucination help a second hard target (18.8% self baseline) beyond HER2_AAV?</td>
     </tr>
     <tr>
       <td style="text-align:center; font-size:1.1rem; color:#ccc">&#9744;</td>
@@ -1001,11 +1102,12 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
   <div class="card" style="margin-top:16px; border-left: 4px solid var(--orange);">
     <h4 style="font-size:1rem; margin-bottom:8px;">Key Findings from Exp 2</h4>
     <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
-      <li><strong>Higher noise nearly doubles CD45 self pass rate (25%&rarr;47%).</strong> This is the first intervention to meaningfully improve backbone success on a hard target. Noise 0.2 and 0.4 both reach 46.8%.</li>
-      <li><strong>But MPNN pass rate drops to 0%.</strong> The noisier backbones are structurally viable (pass self-consistency) but lack the fine-grained features MPNN needs to redesign sequences that refold. The backbones are &ldquo;good enough for co-designed sequences but not designable.&rdquo;</li>
-      <li><strong>Easy targets are hurt by noise &gt; 0.1.</strong> PDL1 drops from 100% to 75% (0.2) and 28% (0.4). The default 0.1 is optimal for easy targets.</li>
-      <li><strong>Implication: Noise is target-difficulty-dependent.</strong> Hard targets benefit from more exploration (higher noise), easy targets prefer the default. This is a strong signal for the adaptive agent &mdash; noise should be adjusted based on diagnostic difficulty.</li>
-      <li><strong>Combine with Exp 4:</strong> The 47% self-pass CD45 backbones at noise=0.2 might be rescued by sequence hallucination (Exp 4 showed hallucination can rescue weak sequences).</li>
+      <li><strong>Higher noise nearly doubles CD45 self pass rate (25%&rarr;47%).</strong> Noise 0.2 and 0.4 both reach 46.8%. <em>Caveat: Fisher p=0.117 at N=32 &mdash; directionally convincing but not yet significant. Exp 5a/5b replications (N=96 total) are queued to confirm.</em></li>
+      <li><strong>MPNN pass rate drops to 0% at noise &ge; 0.2.</strong> With only num_redesign_seqs=2, this is likely a sampling artifact (probability of missing all 2 MPNN sequences per backbone is high). New runs use num_redesign_seqs=8 to resolve this.</li>
+      <li><strong>Easy targets are hurt by noise &gt; 0.1.</strong> PDL1 drops from 100% to 75% (0.2) and 28% (0.4). This is significant (p&lt;0.01 for 0.10 vs 0.40). Default 0.1 is optimal for easy targets.</li>
+      <li><strong>Confound: backbone and sequence noise were changed simultaneously.</strong> Exp 6a (bb=0.1, latent=0.2) and Exp 6b (bb=0.1, latent=0.4) are queued to disentangle the two effects. The paper found latent noise is the more important driver.</li>
+      <li><strong>Implication: Noise is target-difficulty-dependent.</strong> Hard targets benefit from more exploration. This is a routing signal for the adaptive agent.</li>
+      <li><strong>Combine with Exp 4 (queued as Exp 8):</strong> CD45 noise=0.2 + hallucination is now running. Hypothesis: higher noise improves backbone quality, hallucination recovers MPNN designability.</li>
     </ul>
   </div>
 
@@ -1032,9 +1134,9 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     <h4 style="font-size:1rem; margin-bottom:8px;">Key Findings from Exp 3</h4>
     <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
       <li><strong>Interface-focused rewards (iPTM+iCon) completely kill generation.</strong> 0% pass rate on both targets. The heavy interface contact (iCon=1.0) and iPTM (0.5) weights likely cause the beam to prune away structurally viable backbones in favor of ones that maximize interface metrics early in denoising, before the interface has formed.</li>
-      <li><strong>Multi-AF2 slightly helps BetV1 (19%&rarr;25% self) but not CD45.</strong> Adding pLDDT and iPTM at moderate weights is neutral-to-slightly-positive. BetV1 gains 2 extra self successes.</li>
-      <li><strong>CD45 MPNN: iPAE-only is best (18.7%).</strong> Note this is higher than the Phase 0 deep baseline (15.6%), likely due to run-to-run variance at N=32.</li>
-      <li><strong>Implication:</strong> Reward composition is fragile. Aggressive multi-metric pruning hurts more than it helps. If composite rewards are used, weights should be very conservative (pLDDT &le; 0.3, iPTM &le; 0.2). iPAE alone remains the safest choice.</li>
+      <li><strong>Multi-AF2 does NOT significantly improve BetV1.</strong> 6&rarr;8 designs (18.8%&rarr;25%) = 2 extra designs out of 32. Fisher p=0.76 &mdash; pure noise. Do not interpret as a real improvement.</li>
+      <li><strong>CD45 MPNN shows high run-to-run variance.</strong> Exp3 iPAE-only gives 18.8% MPNN, while the identical Phase 0 deep baseline gives 15.6% and Exp2 noise=0.10 gives 6.2%. All three are statistically indistinguishable &mdash; this is the MPNN reliability problem from num_redesign_seqs=2.</li>
+      <li><strong>Implication:</strong> Reward composition is fragile. Interface-heavy weights kill generation; moderate weights are neutral. iPAE alone remains the safest and simplest choice for beam pruning.</li>
     </ul>
   </div>
 
@@ -1068,11 +1170,77 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
   <div class="card" style="margin-top:16px; border-left: 4px solid var(--green);">
     <h4 style="font-size:1rem; margin-bottom:8px;">Key Findings from Exp 4</h4>
     <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
-      <li><strong>HER2_AAV: Hallucination is transformative.</strong> Self pass jumps from 3.1% to 65.6% (&times;21). This confirms the hypothesis: HER2_AAV&rsquo;s co-designed sequences were weak, but the backbones were viable. AF2-guided sequence optimization rescues them.</li>
-      <li><strong>PDL1 MPNN: Hallucination doubles pass rate (37.5%&rarr;78.1%).</strong> Even for a target where self pass was already 100%, hallucination dramatically improves the designability of the sequences (MPNN redesign succeeds more often).</li>
-      <li><strong>PDL1 self pass drops (100%&rarr;81.2%).</strong> The hallucination slightly corrupts some designs that were already perfect. This suggests hallucination should be applied selectively, not universally.</li>
-      <li><strong>Implication:</strong> Sequence hallucination is the strongest tool for targets with a &ldquo;backbone &gt; sequence&rdquo; gap. The agent should detect this gap (self &lt;&lt; mpnn, or low self with decent iPAE) and selectively apply hallucination. This validates the project&rsquo;s core premise: <em>different tools work for different situations</em>.</li>
+      <li><strong>HER2_AAV: Hallucination is transformative (p&lt;10&#8315;&#8310;).</strong> Self pass jumps from 3.1% to 65.6% (&times;21). 95% CI for baseline: [0.6%, 15.7%]; for +halluc: [48.3%, 79.6%] &mdash; non-overlapping. The effect is too large to be seed noise, but a within-run paired control (Exp 4b) is queued to eliminate the cross-seed confound entirely.</li>
+      <li><strong>PDL1 MPNN: Hallucination significantly improves pass rate (37.5%&rarr;78.1%, p=0.002).</strong> Even for a target where self pass was already 100%, hallucination improves backbone designability for ProteinMPNN redesign.</li>
+      <li><strong>PDL1 self pass significantly drops (100%&rarr;81.2%, p=0.024).</strong> This is a real degradation, not noise. Hallucination rewrites sequences away from the co-designed optimum, and for easy targets where the original sequence was already near-perfect, this hurts. <em>Must be reported.</em></li>
+      <li><strong>HER2_AAV MPNN: 31.2%&rarr;46.9% (p=0.305).</strong> Not statistically significant at N=32. Ignore this number.</li>
+      <li><strong>Implication:</strong> Hallucination is a conditional tool &mdash; apply when self &lt;&lt; MPNN pass rate or self &lt; 20% on a hard target. Universal application (as in the paper&rsquo;s Figure 7 &ldquo;Generate &amp; Hallucinate&rdquo;) degrades easy targets and explains why it ranked last overall. <em>Selective routing based on difficulty is the core insight.</em></li>
     </ul>
+  </div>
+
+  <!-- ─── RELIABILITY ROUND DETAIL ─── -->
+  <h3>Reliability Round: Queued Experiments (9 jobs, 2026-04-07)</h3>
+
+  <div class="callout warn">
+    <p><strong>Why these experiments exist:</strong> A rigorous reliability audit identified 3 critical issues with Exp 1&ndash;4:
+    (1) MPNN statistics are unreliable at <code>num_redesign_seqs=2</code> &mdash; same CD45 config gives 3%&ndash;19% MPNN across 5 independent runs;
+    (2) Exp 2 noise=0.20 finding (25%&rarr;47%) has p=0.117 at N=32 &mdash; not publication-significant;
+    (3) Exp 4 HER2_AAV comparison uses different seeds for baseline and +hallucination runs.
+    All new jobs use <code>num_redesign_seqs=8</code> to fix issue (1).</p>
+  </div>
+
+  <h4 style="margin:16px 0 8px; font-size:0.95rem;">Exp 4b: HER2_AAV No-Hallucination Control</h4>
+  <p class="note">Job 6663840 (8h). Identical config to Exp 4 (deep beam, nsamples=4, checkpoints=[0,65,130,200,270,340,400]) but no <code>refinement.algorithm</code>. This is the within-run paired control that Exp 4 was missing. When combined with the Exp 4 result, it will give a direct same-distribution comparison: same algorithm, ±hallucination.</p>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Target</th><th>Condition</th><th>Self pass (expected)</th><th>Vs Exp 4 (+halluc)</th></tr>
+    <tr><td>HER2_AAV</td><td>No hallucination (Exp 4b)</td><td>~3%&ndash;10% (pending)</td><td>Compare against 65.6%</td></tr>
+    <tr><td>HER2_AAV</td><td>+Hallucination (Exp 4)</td><td class="best">65.6%</td><td>—</td></tr>
+  </table>
+  </div>
+
+  <h4 style="margin:16px 0 8px; font-size:0.95rem;">Exp 5a/5b: N=96 CD45 Noise Replication</h4>
+  <p class="note">4 jobs total (6663841, 6663842, 6663844, 6663845). Two replicas each for noise=0.10 (baseline) and noise=0.20. Combined with the original Exp 2 run, this gives N=96 per condition. Power analysis shows N=90 is needed to detect 25%&rarr;47% at 80% power (p&lt;0.05). The combined dataset will also report reliable MPNN rates with num_redesign_seqs=8.</p>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Condition</th><th>Original (N=32)</th><th>After replication (N=96)</th><th>Expected p-value</th></tr>
+    <tr><td>noise=0.10 self</td><td>25.0% (8/32)</td><td>~25% (24/96)</td><td>anchor</td></tr>
+    <tr><td>noise=0.20 self</td><td>46.9% (15/32)</td><td>~47% (45/96)</td><td>&lt;0.05 (from p=0.117)</td></tr>
+  </table>
+  </div>
+
+  <h4 style="margin:16px 0 8px; font-size:0.95rem;">Exp 6a/6b: Mixed Noise (bb &ne; latent)</h4>
+  <p class="note">2 jobs (6663846, 6663847). Fixes the core confound in Exp 2: backbone and sequence noise were changed together. Now testing bb=0.1 fixed with latent=0.2 (Exp 6a) and latent=0.4 (Exp 6b &mdash; paper's best aggregate config). This isolates whether the hard-target improvement comes from backbone noise, sequence noise, or both.</p>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Condition</th><th>bb noise</th><th>latent noise</th><th>Hypothesis</th></tr>
+    <tr><td>Exp 2 noise=0.1 (baseline)</td><td>0.1</td><td>0.1</td><td>Default</td></tr>
+    <tr><td>Exp 2 noise=0.2 (confounded)</td><td>0.2</td><td>0.2</td><td>Both changed</td></tr>
+    <tr><td>Exp 6a (mixed, low)</td><td>0.1</td><td>0.2</td><td>Sequence noise drives improvement?</td></tr>
+    <tr><td>Exp 6b (mixed, paper's best)</td><td>0.1</td><td>0.4</td><td>Paper aggregate best: should match or beat Exp 2 noise=0.2</td></tr>
+  </table>
+  </div>
+
+  <h4 style="margin:16px 0 8px; font-size:0.95rem;">Exp 8: CD45 Noise=0.20 + Hallucination</h4>
+  <p class="note">Job 6663849 (8h). Combines the two strongest interventions for hard targets. Exp 2 showed noise=0.2 doubles CD45 self pass (25%&rarr;47%) but MPNN=0%. Exp 4 showed hallucination rescues backbones with weak co-designed sequences. Hypothesis: higher noise generates better backbones; hallucination then writes good sequences for them, recovering MPNN pass rate.</p>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Condition</th><th>Self pass</th><th>MPNN pass</th><th>Note</th></tr>
+    <tr><td>Deep baseline (Phase 0)</td><td>25.0%</td><td>15.6%</td><td>Anchor</td></tr>
+    <tr><td>noise=0.2 only (Exp 2)</td><td>46.9%</td><td>0% (unreliable)</td><td>Better self, MPNN uncertain</td></tr>
+    <tr><td>Halluc only (Exp 4)</td><td>—</td><td>—</td><td>Not tested for CD45</td></tr>
+    <tr><td>noise=0.2 + halluc (Exp 8)</td><td colspan="2" style="text-align:center">Pending</td><td>Best combination?</td></tr>
+  </table>
+  </div>
+
+  <h4 style="margin:16px 0 8px; font-size:0.95rem;">Exp 9: BetV1 + Hallucination</h4>
+  <p class="note">Job 6663850 (8h). Generalization test for the Exp 4 hallucination finding. HER2_AAV had a clear backbone&gt;sequence gap (self 3.1%, MPNN 31.2%). BetV1 has self 18.8%, MPNN 0% (deep). The mechanism may be different &mdash; BetV1's backbones might also be suboptimal for the target, not just the sequences. Testing hallucination here reveals whether the effect is HER2_AAV-specific or broadly applicable to hard targets.</p>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Target</th><th>Self (baseline)</th><th>MPNN (baseline)</th><th>Self (+halluc, pending)</th><th>Expected?</th></tr>
+    <tr><td>HER2_AAV (Exp 4)</td><td>3.1%</td><td>31.2%</td><td class="best">65.6%</td><td>✓ large gap → big improvement</td></tr>
+    <tr><td>BetV1 (Exp 9)</td><td>18.8%</td><td>0%</td><td>Pending</td><td>No bb&gt;seq gap → uncertain</td></tr>
+  </table>
   </div>
 
   <!-- ─── EXP 7 DETAIL ─── -->
@@ -1418,6 +1586,13 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
       <td><span class="tag tag-green">Done (67/69 jobs)</span></td>
       <td>April 2026</td>
     </tr>
+    <tr style="background:#fef3c7">
+      <td>Phase 1b</td>
+      <td>Statistical validation &amp; reliability fixes</td>
+      <td>Exp 4b, 5a/b, 6a/b, 8, 9</td>
+      <td><span class="tag tag-orange">Running (9 jobs queued)</span></td>
+      <td>April 2026</td>
+    </tr>
     <tr>
       <td>Phase 1.5</td>
       <td>Improve generation quality (engineering)</td>
@@ -1443,21 +1618,26 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
   </div>
 
   <div class="callout warn">
-    <p><strong>Open questions:</strong>
+    <p><strong>Open questions:</strong><br>
     (1) <del>Does FK Steering temperature tuning improve over Beam Search?</del>
-    <strong>Answered (Exp 1): No.</strong> Beam dominates; FK monotonically worse.
+    <strong>Answered (Exp 1): No.</strong> Beam dominates; FK monotonically worse.<br>
     (2) <del>Does CFG guidance_w &gt; 1.0 improve backbone quality?</del>
-    <strong>Answered (Exp 7): Not applicable.</strong> CFG requires CATH fold conditioning, unavailable for binders.
+    <strong>Answered (Exp 7): Not applicable.</strong> CFG requires CATH fold conditioning, N/A for binders.<br>
     (3) <del>Do composite rewards improve beam pruning?</del>
-    <strong>Answered (Exp 3): Marginal.</strong> Multi-AF2 slightly helps BetV1 (+6pp). Heavy interface weights kill generation.
-    (4) <del>Does sc_scale_noise affect backbone quality?</del>
-    <strong>Answered (Exp 2): Yes!</strong> Noise 0.2&ndash;0.4 nearly doubles CD45 self pass (25%&rarr;47%), but MPNN drops to 0%. Difficulty-dependent.
-    (5) <del>Can sequence hallucination rescue weak sequences?</del>
-    <strong>Answered (Exp 4): Yes!</strong> HER2_AAV self pass 3%&rarr;66%. PDL1 MPNN pass 38%&rarr;78%.
-    (6) Can LoRA finetuning shift the model's prior toward bindable conformations? (Exp 10, planned.)
-    (7) Does trajectory recycling enable local search around good solutions? (Exp 11, planned.)
-    (8) Can combining high noise (Exp 2) + hallucination (Exp 4) solve hard targets? (Key follow-up.)
-    (9) Is a cheap diagnostic N=32 round informative enough to route correctly? (Exp 5, planned.)</p>
+    <strong>Answered (Exp 3): No.</strong> Heavy interface weights kill generation (0/32). Moderate weights are neutral.<br>
+    (4) Does sc_scale_noise &gt; 0.1 significantly improve hard targets?
+    <strong>Exp 2: Directional (25%&rarr;47%), p=0.117.</strong> Exp 5a/5b replication (N=96) will confirm at p&lt;0.05.<br>
+    (5) Does backbone vs. sequence noise matter independently?
+    <strong>Exp 6a/6b running</strong> &mdash; bb=0.1 fixed, latent varied to 0.2 and 0.4.<br>
+    (6) <del>Can sequence hallucination rescue weak sequences?</del>
+    <strong>Answered (Exp 4): Yes for HER2_AAV (p&lt;10&#8315;&#8310;).</strong> Pending within-run control (Exp 4b running).<br>
+    (7) Does hallucination generalize to other hard targets (BetV1)?
+    <strong>Exp 9 running.</strong> BetV1 has no backbone&gt;seq gap (MPNN=0%), so effect may be weaker.<br>
+    (8) Can noise=0.2 + hallucination jointly boost CD45 self AND MPNN?
+    <strong>Exp 8 running.</strong> Best-combination hypothesis.<br>
+    (9) Can LoRA finetuning shift the model's prior toward bindable conformations? (Exp 10, planned.)<br>
+    (10) Is a cheap diagnostic N=32 round informative enough to route correctly? (Diagnostic Exp, planned.)
+    </p>
   </div>
 </div>
 
