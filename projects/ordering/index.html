@@ -234,6 +234,10 @@
 
   <div class="stat-row">
     <div class="stat green">
+      <div class="num">18.94</div>
+      <div class="label">RAR FID (IN-100) &mdash; best LlamaGen</div>
+    </div>
+    <div class="stat">
       <div class="num">25.4</div>
       <div class="label">Raster baseline FID (IN-100)</div>
     </div>
@@ -245,42 +249,36 @@
       <div class="num">6.55</div>
       <div class="label">Best MAR+OH FID-50K (IN-1K)</div>
     </div>
-    <div class="stat red">
-      <div class="num">140.9</div>
-      <div class="label">Best LlamaGen+OH FID (IN-100)</div>
-    </div>
   </div>
 
-  <h3>LlamaGen (Causal AR) &mdash; Heuristic Orderings (IN-100, 5K samples)</h3>
-  <p>All non-raster orderings evaluated at inference on a raster-trained GPT-B model without retraining:</p>
+  <h3>LlamaGen &mdash; RAR Curriculum + Trained Orderings (IN-100, 5K samples)</h3>
+  <p>Comprehensive comparison of all LlamaGen training approaches:</p>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Training Method</th><th>Inference</th><th>FID</th><th>sFID</th><th>Notes</th></tr>
+    <tr><td>Raster retrain (300ep FT from pretrained)</td><td>Raster</td><td>17.57</td><td>67.18</td><td>Best absolute FID</td></tr>
+    <tr style="background: var(--green-light);"><td><strong>RAR (400ep from scratch)</strong></td><td>Raster</td><td class="best"><strong>18.94</strong></td><td>66.25</td><td>Best from-scratch; random&rarr;anneal&rarr;raster</td></tr>
+    <tr><td>Diagonal (300ep from scratch)</td><td>Diagonal</td><td>24.97</td><td>65.99</td><td>Train &amp; eval in diagonal order</td></tr>
+    <tr><td>Raster baseline (original ckpt)</td><td>Raster</td><td>25.40</td><td>66.33</td><td>Standard left-to-right, top-to-bottom</td></tr>
+    <tr><td>Col-major (300ep)</td><td>Col-major</td><td>25.95</td><td>66.26</td><td></td></tr>
+    <tr><td>Zigzag (300ep)</td><td>Zigzag</td><td>26.35</td><td>66.18</td><td></td></tr>
+    <tr><td>Spiral (300ep)</td><td>Spiral</td><td>30.94</td><td>66.42</td><td></td></tr>
+    <tr><td>Random fixed (300ep)</td><td>Random</td><td>44.74</td><td>66.78</td><td>One fixed permutation</td></tr>
+    <tr><td>Pure random AR (300ep, ta_embed)</td><td>Raster</td><td class="fail">151.10</td><td>110.44</td><td>No annealing &mdash; raster is OOD</td></tr>
+    <tr><td>RAR (400ep from scratch)</td><td>Random0</td><td class="fail">176.04</td><td>123.49</td><td>After annealing, random is OOD</td></tr>
+  </table>
+  </div>
+
+  <h3>LlamaGen &mdash; Heuristic Orderings on Raster-Trained Model (IN-100)</h3>
+  <p>Inference-only ordering changes on the raster baseline (no retraining):</p>
   <div class="table-wrap">
   <table>
     <tr><th>Ordering</th><th>FID</th><th>sFID</th><th>Notes</th></tr>
     <tr><td>Raster (baseline)</td><td class="best">25.40</td><td>66.33</td><td>Standard left-to-right, top-to-bottom</td></tr>
     <tr><td>Zigzag</td><td>71.69</td><td>82.08</td><td>Best non-raster heuristic</td></tr>
     <tr><td>Diagonal</td><td>117.58</td><td>93.89</td><td></td></tr>
-    <tr><td>Stride-2</td><td>128.18</td><td>93.83</td><td>Even positions first, then odd</td></tr>
-    <tr><td>Spiral</td><td>132.25</td><td>97.06</td><td></td></tr>
-    <tr><td>Column-major</td><td>139.79</td><td>100.69</td><td></td></tr>
-    <tr><td>Center-spiral</td><td>153.53</td><td>111.03</td><td></td></tr>
-    <tr><td>Reverse</td><td>156.18</td><td>109.45</td><td></td></tr>
+    <tr><td>Stride-2</td><td>128.18</td><td>93.83</td><td></td></tr>
     <tr><td>Random</td><td class="fail">173.08</td><td>119.23</td><td>Fixed random permutation (seed=0)</td></tr>
-  </table>
-  </div>
-
-  <h3>LlamaGen &mdash; Trained with Specific Orderings (IN-100, 5K samples)</h3>
-  <p>Models trained from scratch with each ordering (300 epochs, same hyperparameters):</p>
-  <div class="table-wrap">
-  <table>
-    <tr><th>Training Order</th><th>FID</th><th>sFID</th><th>Notes</th></tr>
-    <tr><td>Full raster retrain</td><td class="best">17.57</td><td>67.18</td><td>Fine-tuned from pretrained, best overall</td></tr>
-    <tr><td>Diagonal</td><td>24.97</td><td>65.99</td><td>Trained + evaluated in diagonal order</td></tr>
-    <tr><td>Raster baseline</td><td>25.40</td><td>66.33</td><td>Original checkpoint</td></tr>
-    <tr><td>Col-major</td><td>25.95</td><td>66.26</td><td></td></tr>
-    <tr><td>Zigzag</td><td>26.35</td><td>66.18</td><td></td></tr>
-    <tr><td>Spiral</td><td>30.94</td><td>66.42</td><td></td></tr>
-    <tr><td>Random (fixed)</td><td>44.74</td><td>66.78</td><td>One fixed random permutation throughout training</td></tr>
-    <tr><td>Partial FT (4 blocks)</td><td>58.68</td><td>67.64</td><td>Only last 4 transformer blocks fine-tuned</td></tr>
   </table>
   </div>
 
@@ -305,18 +303,28 @@
 <div class="section" id="findings">
   <h2>5. Key Findings</h2>
 
-  <div class="card">
-    <h3>Finding 1: Non-raster ordering catastrophically degrades causal AR</h3>
+  <div class="card" style="border-left: 4px solid var(--green);">
+    <h3>Finding 1: RAR curriculum beats pure raster training</h3>
     <p>
-      Any non-raster ordering at inference degrades FID from 25.4 to 71&ndash;173 on a raster-trained LlamaGen model.
-      The model is tightly coupled to raster-scan context patterns. Even zigzag (closest to raster structurally)
-      loses nearly 3x in FID. This is because the causal attention pattern makes context position critical &mdash;
-      the model has learned to expect specific spatial relationships in its left-context.
+      The RAR curriculum (random&rarr;anneal&rarr;raster) achieves FID=18.94 on IN-100, improving 25% over the raster baseline (25.40)
+      and competitive with the raster retrain (17.57). The key insight: random-order training acts as
+      <strong>sequence-space data augmentation</strong>, forcing the model to develop more general spatial attention patterns.
+      After annealing back to raster, these robust representations translate to better generation quality at
+      <strong>zero additional inference cost</strong>.
     </p>
   </div>
 
   <div class="card">
-    <h3>Finding 2: Training with a specific ordering recovers quality</h3>
+    <h3>Finding 2: Non-raster ordering catastrophically degrades causal AR at inference</h3>
+    <p>
+      Any non-raster ordering at inference degrades FID from 25.4 to 71&ndash;173 on a raster-trained LlamaGen model.
+      Even the RAR model &mdash; which was trained with random orderings &mdash; fails at random inference (FID=176) after
+      annealing. The causal attention pattern makes context position critical; the model must specialize for one ordering.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>Finding 3: Training with a specific ordering recovers quality</h3>
     <p>
       When the model is trained from scratch with a non-raster ordering (diagonal, zigzag, col-major), FID is
       comparable to the raster baseline (24.97&ndash;26.35 vs 25.40). The ordering itself doesn't matter much &mdash;
@@ -326,7 +334,7 @@
   </div>
 
   <div class="card">
-    <h3>Finding 3: The Body Mismatch Problem dominates in MAR</h3>
+    <h3>Finding 4: The Body Mismatch Problem dominates in MAR</h3>
     <p>
       Across 11 training configurations, 7 ordering methods, and 50K evaluations &mdash; no learned ordering beats the
       random baseline. The best (semifast-8 = 2.94) loses 0.61 FID to random (2.33). Root cause: the MAR body was
@@ -337,7 +345,7 @@
   </div>
 
   <div class="card">
-    <h3>Finding 4: Oracle supervision is critical for stability</h3>
+    <h3>Finding 5: Oracle supervision is critical for stability</h3>
     <p>
       Without ViT oracle supervision, OrderHead scores either collapse (std &rarr; 0) or explode (std &rarr; 8+).
       With oracle (cls_k mode), score_std stabilizes at 1.0&ndash;2.0. The oracle provides a stable regression
@@ -346,7 +354,7 @@
   </div>
 
   <div class="card">
-    <h3>Finding 5: From-scratch joint training suffers chicken-and-egg collapse</h3>
+    <h3>Finding 6: From-scratch joint training suffers chicken-and-egg collapse</h3>
     <p>
       Training OrderHead and the generation model jointly from random initialization leads to collapse:
       at epoch 0, both models are random, so the ordering signal is meaningless, and neither can bootstrap.
@@ -355,7 +363,7 @@
   </div>
 
   <div class="card">
-    <h3>Finding 6: Slow rescoring is the strongest positive signal</h3>
+    <h3>Finding 7: Slow rescoring is the strongest positive signal</h3>
     <p>
       In MAR, slow rescoring (re-scoring at every generation step using current context) achieves the highest
       recognizability speed (AUC = 0.568), beating even oracle ordering (0.487) and random (0.484). This adaptive

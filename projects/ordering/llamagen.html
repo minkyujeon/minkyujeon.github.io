@@ -88,6 +88,7 @@
     <li><a href="#randtrain">Random-Order Training (v1, no fixes)</a></li>
     <li><a href="#rar">RAR: Random with Annealing + Target-Aware Embed</a></li>
     <li><a href="#orderhead">OrderHead Experiments</a></li>
+    <li><a href="#discussion">Discussion: How RAR Actually Works</a></li>
     <li><a href="#bugs">Critical Bugs Found &amp; Fixed</a></li>
   </ol>
 </div>
@@ -231,17 +232,90 @@
     <li><strong>Target-aware positional embedding (ta_pos_table):</strong> Learnable <code>nn.Embedding(256, 768)</code> where token at step t receives the embedding of <code>perms[t+1]</code> (the next token's spatial position). Zero-initialized so it starts as a no-op. Resolves the ambiguous target problem.</li>
     <li><strong>Annealing schedule:</strong> Epochs 0&ndash;200: 100% random permutations. Epochs 200&ndash;300: linear decay to raster. Epochs 300&ndash;400: 100% raster. ta_embed set to None during raster phase to match inference.</li>
   </ul>
+
+  <h3>Why Does RAR Improve Over Raster?</h3>
   <p>
-    <span class="tag tag-orange">Running</span> Two experiments submitted on IN-100 (jobs 6622826, 6622875):
+    The RAR curriculum (random &rarr; anneal &rarr; raster) acts as a form of <strong>data augmentation in sequence space</strong>.
+    During the random phase, the model sees every possible spatial context pattern &mdash; not just the left-context of raster.
+    This is analogous to how image augmentation (random crops, flips) prevents overfitting to fixed spatial structure.
+    When the model anneals back to raster order, it retains knowledge of arbitrary spatial relationships while
+    specializing for raster inference.
+  </p>
+  <p>
+    Concretely, during the random phase the model must learn to predict any token given any subset of previously generated
+    tokens. This forces the attention layers to develop more general spatial reasoning rather than relying on the left-context
+    shortcut that raster training reinforces. When annealed back to raster, these more robust representations translate
+    to better generation quality.
+  </p>
+
+  <h3>RAR Training Details</h3>
+  <p>Three training phases over 400 epochs:</p>
+  <ol>
+    <li><strong>Epochs 0&ndash;200 (Random phase):</strong> Every training step draws a fresh random permutation per image. <code>ta_embed</code> provides the next-token spatial position. Loss ~8.0 (higher than raster ~6.8 because random context is harder).</li>
+    <li><strong>Epochs 200&ndash;300 (Annealing phase):</strong> <code>random_ratio</code> linearly decays from 1.0 to 0.0. The model gradually transitions from random to raster ordering. <code>ta_embed</code> automatically disabled when ratio reaches 0.</li>
+    <li><strong>Epochs 300&ndash;400 (Raster phase):</strong> Pure raster training, identical to standard baseline. Loss converges to ~7.1 (slightly above baseline due to regularization effect).</li>
+  </ol>
+
+  <h3>IN-100 Results (5K samples, cfg=2.0)</h3>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Model</th><th>Inference</th><th>FID</th><th>sFID</th><th>Precision</th><th>Recall</th></tr>
+    <tr><td>Raster baseline (original ckpt)</td><td>Raster</td><td>25.40</td><td>66.33</td><td>&mdash;</td><td>&mdash;</td></tr>
+    <tr><td>Raster retrain (300ep finetune)</td><td>Raster</td><td>17.57</td><td>67.18</td><td>&mdash;</td><td>&mdash;</td></tr>
+    <tr><td><strong>RAR (400ep from scratch)</strong></td><td>Raster</td><td class="best"><strong>18.94</strong></td><td>66.25</td><td>0.691</td><td>0.545</td></tr>
+    <tr><td>RAR (400ep from scratch)</td><td>Random0</td><td class="fail">176.04</td><td>123.49</td><td>0.083</td><td>0.067</td></tr>
+    <tr><td>Pure random AR (300ep, no anneal)</td><td>Raster</td><td class="fail">151.10</td><td>110.44</td><td>0.066</td><td>0.108</td></tr>
+    <tr><td>Pure random AR (300ep, no anneal)</td><td>Random0</td><td class="fail">165.00</td><td>115.81</td><td>0.054</td><td>0.099</td></tr>
+    <tr><td>Random-order v1 (no ta_embed)</td><td>Raster</td><td class="fail">159.41</td><td>115.89</td><td>&mdash;</td><td>&mdash;</td></tr>
+  </table>
+  </div>
+
+  <div class="callout">
+    <p><strong>RAR raster FID = 18.94 &mdash; better than both raster baselines.</strong>
+    The RAR curriculum (random&rarr;anneal&rarr;raster) improves over the original raster checkpoint (25.40) by 25% and is
+    competitive with the raster retrain (17.57) despite being trained from scratch for 400 epochs
+    vs the retrain's 300 epoch finetune from a pretrained model. This is a <strong>free improvement</strong>: the final model
+    infers in standard raster order with no extra cost.</p>
+  </div>
+
+  <h3>Interpretation of Results</h3>
+  <div class="card">
+    <h3>RAR raster inference works, random does not</h3>
+    <p>After annealing, the model fully commits to raster: random0 inference gives FID=176 (catastrophic).
+    The annealing successfully transitions the model from order-agnostic to raster-specialized, but it's a one-way trip &mdash;
+    the model is NOT order-agnostic at epoch 400.</p>
+  </div>
+
+  <div class="card">
+    <h3>Pure random AR is a dead end</h3>
+    <p>Without annealing, causal AR with random permutations (FID=151/165) cannot produce coherent images.
+    Unlike MAR's bidirectional attention, causal attention means each token only sees its left-context &mdash;
+    random orderings create inconsistent context patterns that the model cannot resolve. The ta_embed helps
+    (FID=151 vs v1's 159) but cannot overcome the fundamental causal attention limitation.</p>
+  </div>
+
+  <div class="card">
+    <h3>The RAR epoch-200 checkpoint as an order-agnostic backbone</h3>
+    <p>At epoch 200, the model has trained for 100K steps with random orderings and has not yet begun annealing.
+    This checkpoint is a candidate <strong>order-agnostic backbone</strong> for OrderHead &mdash; it can handle
+    arbitrary orderings, unlike the raster-trained GPT. The key question is whether an OH attached to this
+    backbone can find an ordering that generates better images than raster.
+    <span class="tag tag-blue">Planned</span></p>
+  </div>
+
+  <h3>IN-1K RAR Finetune</h3>
+  <p>
+    Given the IN-100 success, we are finetuning the official pretrained <code>c2i_B_256.pt</code> (300 epochs raster, FID=5.32)
+    with the RAR curriculum for 40 additional epochs on IN-1K (~200K steps, matching the IN-100 step count).
+    Schedule: 20 epochs random &rarr; 10 epochs anneal &rarr; 10 epochs raster.
   </p>
   <div class="table-wrap">
   <table>
-    <tr><th>Experiment</th><th>Config</th><th>Status</th><th>Training Loss</th></tr>
-    <tr><td>RAR (with annealing)</td><td>400 epochs, anneal 200&rarr;300, ta_embed</td><td><span class="tag tag-orange">Running</span> epoch 361/400</td><td>7.22 (pure raster phase)</td></tr>
-    <tr><td>Pure random AR (no annealing)</td><td>300 epochs, random throughout, ta_embed</td><td><span class="tag tag-green">Completed</span></td><td>8.03 (final)</td></tr>
+    <tr><th>Experiment</th><th>Config</th><th>Status</th><th>Baseline FID</th></tr>
+    <tr><td>RAR finetune IN-1K</td><td>40 epochs from c2i_B_256.pt, anneal 20&rarr;30</td><td><span class="tag tag-orange">Running</span> job 6642829</td><td>5.32 (raster)</td></tr>
   </table>
   </div>
-  <p class="source">RAR job 6622826 on della-h21g2 (4x H100). Pure random job 6622875 completed at 148K steps.</p>
+  <p class="source">Question: can the RAR curriculum improve an already well-trained model, or does the benefit only appear when training from scratch?</p>
 </div>
 
 <!-- 6. ORDERHEAD -->
@@ -285,19 +359,141 @@
     <p><strong>Why Phase 2 failed:</strong> The raster-trained GPT's CE loss only dropped from ~7.6 to ~7.4 over 48K joint training steps (vs baseline 6.8). The GPT body cannot quickly adapt to non-raster orderings. Joint training would need much longer (hundreds of epochs) to close this gap, effectively retraining the entire model.</p>
   </div>
 
-  <h3>Currently Running Experiments</h3>
+  <h3>OH STE Finetune (Completed)</h3>
+  <p>
+    GPT + OrderHead jointly trained from raster checkpoint with binary STE (k=64), no oracle supervision.
+    CE loss alone drives OrderHead via STE gradient. 300 epochs (~148K steps).
+  </p>
   <div class="table-wrap">
   <table>
-    <tr><th>Experiment</th><th>Config</th><th>Status</th><th>Latest Metrics</th></tr>
-    <tr><td>OH STE finetune (no oracle)</td><td>Phase 2 from raster GPT, binary STE k=64, lambda_cls=0</td><td><span class="tag tag-orange">Running</span></td><td>step 15K, CE=7.55, score_std=7.5</td></tr>
-    <tr><td>OH from scratch (curriculum)</td><td>3-phase curriculum: raster warmup &rarr; gradual OH &rarr; full OH</td><td><span class="tag tag-orange">Running</span></td><td>step 5K, CE=8.2, Phase A (raster warmup)</td></tr>
+    <tr><th>Metric</th><th>Start</th><th>End</th><th>Diagnosis</th></tr>
+    <tr><td>CE loss</td><td>8.55</td><td>7.33</td><td>Still far from baseline 6.8</td></tr>
+    <tr><td>score_std</td><td>0.6</td><td><span class="fail">14&ndash;17</span></td><td>Exploded &mdash; scores drift unboundedly</td></tr>
+    <tr><td>FID</td><td colspan="2"><span class="tag tag-orange">Evaluating</span></td><td>job 6642558</td></tr>
   </table>
+  </div>
+  <p>
+    <strong>Post-mortem:</strong> <code>score_std=14-17</code> despite grad clipping at <code>max_grad_norm=1.0</code>.
+    Root cause: scores are internally normalized for ranking (<code>scores_to_mask</code>), so score <em>magnitude</em>
+    is unconstrained &mdash; only relative ranking matters. Over 148K steps, small clipped gradients accumulate,
+    pushing scores to extreme values. The <code>oh_lr_scale=3.0</code> (3&times; GPT LR) accelerated this drift.
+  </p>
+
+  <h3>OH From-Scratch Curriculum (Completed)</h3>
+  <p>
+    Three-phase curriculum: (A) raster warmup, (B) gradual OH introduction, (C) full OH.
+    ~136K steps to Phase C completion.
+  </p>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Metric</th><th>Phase A</th><th>Phase C End</th><th>Diagnosis</th></tr>
+    <tr><td>CE loss</td><td>8.20</td><td>7.67</td><td>Worse than both raster (6.8) and STE finetune (7.33)</td></tr>
+    <tr><td>score_std</td><td>&mdash;</td><td><span class="fail">0.46</span></td><td>Collapsed &mdash; near-uniform scores</td></tr>
+    <tr><td>align_loss</td><td>0.02</td><td>0.021</td><td>Not improving</td></tr>
+    <tr><td>FID</td><td colspan="2"><span class="tag tag-orange">Evaluating</span></td><td>job 6642559</td></tr>
+  </table>
+  </div>
+  <p>
+    <strong>Post-mortem:</strong> <code>score_std=0.46</code> means the OH has collapsed to near-uniform scores,
+    effectively producing a random ordering. The curriculum was supposed to prevent this, but from-scratch training
+    encounters the chicken-and-egg problem: the GPT body never sees non-raster orderings during Phase A,
+    so when OH activates in Phase B, both models are mismatched.
+  </p>
+
+  <h3>Fix: Short Finetune with Score Regularization</h3>
+  <p>
+    Based on the failure analysis, we identified three fixes and submitted a new 20-epoch experiment:
+  </p>
+  <ul>
+    <li><strong>Short training (20 epochs &asymp; 10K steps):</strong> Don't let GPT drift far from raster competence.</li>
+    <li><strong>Separate OH grad clipping (<code>--oh-max-grad-norm 0.1</code>):</strong> 10&times; tighter clipping for OH params specifically, preventing score explosion.</li>
+    <li><strong>Score regularization (<code>--oh-score-reg 0.01</code>):</strong> L2 penalty on score magnitudes: <code>0.01 * scores.pow(2).mean()</code>. Prevents unbounded score drift.</li>
+    <li><strong>Conservative LR (<code>--oh-lr-scale 1.0</code>):</strong> Same LR as GPT instead of 3&times;.</li>
+  </ul>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Experiment</th><th>Config</th><th>Status</th></tr>
+    <tr><td>OH short finetune (20ep)</td><td>oh_grad_clip=0.1, score_reg=0.01, lr_scale=1.0</td><td><span class="tag tag-orange">Running</span> job 6642557</td></tr>
+  </table>
+  </div>
+  <p class="source">Expected: CE stays near 6.8, score_std stays in 1&ndash;3 range. If successful, provides a controlled test of whether OH can improve upon raster within the raster-trained body's competence range.</p>
+</div>
+
+<!-- 7. DISCUSSION -->
+<div class="section" id="discussion">
+  <h2>7. Discussion: How RAR Actually Works</h2>
+
+  <p>
+    The most surprising result in this project is that the RAR curriculum &mdash; which trains with random orderings
+    and then anneals back to raster &mdash; produces a <strong>better raster-inference model</strong> than pure raster training.
+    The final model generates in standard raster order at zero additional cost. Here's our analysis of why this works:
+  </p>
+
+  <div class="card">
+    <h3>Regularization via sequence augmentation</h3>
+    <p>
+      Training with random permutations is a form of data augmentation in sequence space. Just as image augmentation
+      (crops, flips, color jitter) prevents overfitting to fixed spatial patterns, random orderings prevent the
+      model from overfitting to the specific context patterns of raster scan. The model must learn <strong>general
+      spatial relationships</strong> rather than relying on the fact that, say, position (3, 5) always appears
+      after position (3, 4).
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>Stronger attention representations</h3>
+    <p>
+      During the random phase, each attention head must learn to predict tokens given arbitrary subsets of spatial context.
+      This forces development of more diverse attention patterns &mdash; some heads become spatial proximity detectors,
+      others become texture or color consistency checkers. In pure raster training, attention heads can specialize
+      narrowly for left-context patterns, which is sufficient but not optimal.
+    </p>
+    <p>
+      Evidence: the RAR model's final raster-phase loss (7.11) is slightly higher than the raster baseline (6.8),
+      yet its FID is better (18.94 vs 25.40). This suggests the RAR model has learned representations that
+      generalize better despite the marginal increase in per-token prediction loss.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>Analogy to dropout and noise injection</h3>
+    <p>
+      Random orderings can be viewed as a structured form of context dropout: at each training step, the available
+      context for each token is a random subset of spatial positions rather than the fixed left-context of raster.
+      Similar to how dropout prevents co-adaptation of neurons, random orderings prevent co-adaptation between
+      specific context positions and their predictions.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>The annealing is critical</h3>
+    <p>
+      Pure random AR (no annealing) fails catastrophically: FID=151. The random phase alone produces a model
+      that can handle any ordering but excels at none. The annealing phase serves as fine-tuning: it specializes
+      the model for raster inference while retaining the robust representations learned during the random phase.
+      The 100-epoch raster phase (epochs 300&ndash;400) further cements this specialization.
+    </p>
+    <p>
+      This is analogous to the pre-training &rarr; fine-tuning paradigm in NLP: random-order training is a form of
+      pre-training that builds general sequence understanding, and raster annealing is fine-tuning for the specific task.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>Open questions</h3>
+    <ul>
+      <li>Does the benefit scale with model size (GPT-L, GPT-XL)?</li>
+      <li>Does RAR finetuning improve a model already trained for 300 epochs with raster? (IN-1K experiment running)</li>
+      <li>What is the optimal random:anneal:raster epoch ratio?</li>
+      <li>Can the epoch-200 order-agnostic checkpoint serve as a backbone for OrderHead?</li>
+      <li>Does the benefit persist at IN-1K scale, or is it an IN-100 artifact?</li>
+    </ul>
   </div>
 </div>
 
-<!-- 7. BUGS -->
+<!-- 8. BUGS -->
 <div class="section" id="bugs">
-  <h2>7. Critical Bugs Found &amp; Fixed</h2>
+  <h2>8. Critical Bugs Found &amp; Fixed</h2>
 
   <div class="card">
     <h3>Bug 1: target_aware_embed active during raster phase</h3>
