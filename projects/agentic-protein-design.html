@@ -727,26 +727,26 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
       <td><span class="tag tag-green">Done*</span></td>
       <td style="font-size:0.82rem">Beam beats FK for easy targets. FK T=0.01 ≈ Beam. For hard targets, Beam wins clearly. See detail below.</td>
     </tr>
-    <tr>
-      <td style="text-align:center; font-size:1.1rem; color:#ccc">&#9744;</td>
-      <td><strong>Exp 2: Denoising Temperature Sweep</strong><br><span style="font-size:0.82rem;color:var(--muted)">2 targets x 4 sc_scale_noise values</span></td>
+    <tr style="background:#fef3c7">
+      <td style="text-align:center; font-size:1.1rem">&#9744;</td>
+      <td><strong>Exp 2: Denoising Temperature Sweep</strong><br><span style="font-size:0.82rem;color:var(--muted)">PDL1 wide + CD45 deep x 4 sc_scale_noise values</span></td>
       <td>0/8</td>
-      <td><span class="tag tag-purple">Planned</span></td>
-      <td style="font-size:0.82rem">Blocked on Exp 1 results (need to validate FK first).</td>
+      <td><span class="tag tag-orange">Running</span></td>
+      <td style="font-size:0.82rem">SLURM 6642560&ndash;6642567. Submitted April 6. sc_scale_noise: 0.05, 0.1, 0.2, 0.4.</td>
     </tr>
-    <tr>
-      <td style="text-align:center; font-size:1.1rem; color:#ccc">&#9744;</td>
-      <td><strong>Exp 3: Composite Reward Signals</strong><br><span style="font-size:0.82rem;color:var(--muted)">2 hard targets x 3 reward compositions</span></td>
+    <tr style="background:#fef3c7">
+      <td style="text-align:center; font-size:1.1rem">&#9744;</td>
+      <td><strong>Exp 3: Composite Reward Signals</strong><br><span style="font-size:0.82rem;color:var(--muted)">CD45 + BetV1 deep x 3 reward compositions</span></td>
       <td>0/6</td>
-      <td><span class="tag tag-purple">Planned</span></td>
-      <td style="font-size:0.82rem">Need to verify TMOL/bioinformatics have non-zero variance.</td>
+      <td><span class="tag tag-orange">Running</span></td>
+      <td style="font-size:0.82rem">SLURM 6642568&ndash;6642573. iPAE-only vs iPAE+pLDDT+iPTM vs iPAE+iPTM+iCon.</td>
     </tr>
-    <tr>
-      <td style="text-align:center; font-size:1.1rem; color:#ccc">&#9744;</td>
-      <td><strong>Exp 4: Sequence Refinement</strong><br><span style="font-size:0.82rem;color:var(--muted)">Top-16 from HER2_AAV-deep + PDL1-deep</span></td>
+    <tr style="background:#fef3c7">
+      <td style="text-align:center; font-size:1.1rem">&#9744;</td>
+      <td><strong>Exp 4: Sequence Hallucination</strong><br><span style="font-size:0.82rem;color:var(--muted)">HER2_AAV-deep + PDL1-deep with AF2 seq refinement</span></td>
       <td>0/2</td>
-      <td><span class="tag tag-purple">Planned</span></td>
-      <td style="font-size:0.82rem">Target: HER2_AAV (mpnn 31% &gt; self 3%).</td>
+      <td><span class="tag tag-orange">Running</span></td>
+      <td style="font-size:0.82rem">SLURM 6642574&ndash;6642575. Full pipeline + 45 softmax + 5 one-hot + 15 greedy iters.</td>
     </tr>
     <tr>
       <td style="text-align:center; font-size:1.1rem; color:#ccc">&#9744;</td>
@@ -764,14 +764,21 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     </tr>
     <tr>
       <td style="text-align:center; font-size:1.1rem; color:#ccc">&#9744;</td>
-      <td><strong>Exp 7: Multi-Round Adaptive Pipeline</strong><br><span style="font-size:0.82rem;color:var(--muted)">3 targets, 3 rounds each, agent decides config</span></td>
+      <td><strong>Exp 7: CFG Guidance Scale Sweep</strong><br><span style="font-size:0.82rem;color:var(--muted)">2 hard targets x 4 guidance_w values</span></td>
+      <td>0/8</td>
+      <td><span class="tag tag-purple">Planned</span></td>
+      <td style="font-size:0.82rem"><strong>High priority.</strong> guidance_w=1.0 (default) means CFG is OFF. Never explored. Potentially transformative.</td>
+    </tr>
+    <tr>
+      <td style="text-align:center; font-size:1.1rem; color:#ccc">&#9744;</td>
+      <td><strong>Exp 8: Multi-Round Adaptive Pipeline</strong><br><span style="font-size:0.82rem;color:var(--muted)">3 targets, 3 rounds each, agent decides config</span></td>
       <td>0/~12</td>
       <td><span class="tag tag-purple">Planned</span></td>
       <td style="font-size:0.82rem">Depends on Exp 1&ndash;6 learnings.</td>
     </tr>
     <tr>
       <td style="text-align:center; font-size:1.1rem; color:#ccc">&#9744;</td>
-      <td><strong>Exp 8: Full Scaling Curve</strong><br><span style="font-size:0.82rem;color:var(--muted)">2 targets x 5 budgets x 4 strategies</span></td>
+      <td><strong>Exp 9: Full Scaling Curve</strong><br><span style="font-size:0.82rem;color:var(--muted)">2 targets x 5 budgets x 4 strategies</span></td>
       <td>0/~40</td>
       <td><span class="tag tag-purple">Planned</span></td>
       <td style="font-size:0.82rem">The key paper figure. Depends on all prior experiments.</td>
@@ -999,6 +1006,36 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     <p><strong>Cost:</strong> ~4 GPU-hours</p>
   </div>
 
+  <div class="exp-card planned">
+    <h4><span class="tag tag-purple">Exp 7</span> Classifier-Free Guidance (CFG) Scale Sweep</h4>
+    <p><strong>Hypothesis:</strong> Increasing <code>guidance_w</code> above 1.0 amplifies the conditional signal
+    (target-conditioned velocity field minus unconditional prior), pushing the denoising trajectory harder toward
+    the target binding interface. This is analogous to high CFG scales in text-to-image diffusion models
+    and could dramatically improve backbone quality for hard targets.</p>
+    <p><strong>Motivation:</strong> <em>This is the single most impactful unexplored knob.</em>
+    The default <code>guidance_w=1.0</code> means CFG is completely disabled &mdash;
+    <code>v_guided = 1.0 * v_cond + 0.0 * v_uncond = v_cond</code>.
+    With <code>guidance_w &gt; 1.0</code>, the formula becomes
+    <code>v_guided = w * v_cond + (1-w) * v_uncond</code>, which <em>subtracts</em> the unconditional
+    prior and amplifies the target-specific signal. In image generation, CFG scales of 2&ndash;7 are
+    standard and transformative for quality. No prior Proteina experiment has tested this.</p>
+    <p><strong>Setup:</strong></p>
+    <ul>
+      <li>2 targets: CD45 (hard, 25% deep baseline), BetV1 (hard, 18.8% deep baseline)</li>
+      <li>4 guidance weights: 1.0 (control), 1.5, 2.0, 3.0</li>
+      <li>Fixed: deep config (beam_width=8, n_branch=3)</li>
+      <li>Total: 8 jobs (4 weights &times; 2 targets)</li>
+    </ul>
+    <p><strong>Hydra overrides:</strong></p>
+    <pre><code>complexa design configs/search_binder_local_pipeline.yaml \
+  ++generation.args.guidance_w=2.0</code></pre>
+    <p><strong>Risk:</strong> Very high guidance_w (3.0+) may cause mode collapse or degenerate structures,
+    similar to how high CFG in image models produces oversaturated images.
+    Also requires the model to have been trained with unconditional dropout &mdash; need to verify.</p>
+    <p><strong>Success criteria:</strong> Does guidance_w &gt; 1.0 increase self pass rate on CD45 above the 25% beam baseline?</p>
+    <p><strong>Cost:</strong> ~8 GPU-hours</p>
+  </div>
+
   <h3>Phase 2: Build the Agent</h3>
 
   <div class="exp-card planned">
@@ -1038,7 +1075,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
   </div>
 
   <div class="exp-card planned">
-    <h4><span class="tag tag-blue">Exp 7</span> Multi-Round Adaptive Pipeline</h4>
+    <h4><span class="tag tag-blue">Exp 8</span> Multi-Round Adaptive Pipeline</h4>
     <p><strong>Hypothesis:</strong> An agent that runs diagnostic Round 0, selects config for Round 1,
     reads results and adjusts for Round 2 produces more unique successes per GPU-hour than any fixed strategy.</p>
     <p><strong>Setup:</strong></p>
@@ -1055,7 +1092,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
         <br>(c) oracle (always use best config) x3 rounds = 3 GPU-hours</li>
     </ul>
     <p><strong>Agent decisions between rounds:</strong> Adjust beam_width, n_branch, FK temperature,
-    nsamples, sc_scale_noise. Record all decisions and reasoning for analysis.</p>
+    nsamples, sc_scale_noise, guidance_w, reward composition. Record all decisions and reasoning for analysis.</p>
     <p><strong>Success criteria:</strong> Agent achieves &ge;80% of oracle performance on at least 2/3 targets.</p>
     <p><strong>Cost:</strong> ~15 GPU-hours (3.5h x 3 targets + baselines)</p>
   </div>
@@ -1063,7 +1100,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
   <h3>Phase 3: Scaling Validation</h3>
 
   <div class="exp-card planned">
-    <h4><span class="tag tag-blue">Exp 8</span> Full Scaling Curve Comparison</h4>
+    <h4><span class="tag tag-blue">Exp 9</span> Full Scaling Curve Comparison</h4>
     <p><strong>Hypothesis:</strong> The adaptive agent achieves inference-time scaling that continues
     to produce new unique successes at high compute budgets where fixed strategies plateau.</p>
     <p><strong>Setup:</strong></p>
@@ -1101,21 +1138,21 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     <tr>
       <td>Phase 1</td>
       <td>Explore unexplored action space</td>
-      <td>Exp 1-4</td>
-      <td><span class="tag tag-purple">Planned</span></td>
+      <td>Exp 1&ndash;4, 7</td>
+      <td><span class="tag tag-orange">In Progress</span></td>
       <td>April 2026</td>
     </tr>
     <tr>
       <td>Phase 2</td>
       <td>Build and validate the agent</td>
-      <td>Exp 5-7</td>
+      <td>Exp 5, 6, 8</td>
       <td><span class="tag tag-purple">Planned</span></td>
       <td>May 2026</td>
     </tr>
     <tr>
       <td>Phase 3</td>
       <td>Scaling curve comparison (key paper figure)</td>
-      <td>Exp 8</td>
+      <td>Exp 9</td>
       <td><span class="tag tag-purple">Planned</span></td>
       <td>May-June 2026</td>
     </tr>
@@ -1124,11 +1161,13 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
 
   <div class="callout warn">
     <p><strong>Open questions:</strong>
-    (1) Do TMOL/bioinformatics rewards have non-zero variance on Proteina-generated backbones?
-    Prior testing found clash and radius of gyration had zero variance within beams.
-    (2) Does FK Steering temperature tuning actually improve over the default T=0.1?
-    Figure 7 shows the default is already competitive.
-    (3) Is a cheap diagnostic N=32 round informative enough to route correctly,
+    (1) <del>Does FK Steering temperature tuning improve over Beam Search?</del>
+    <strong>Answered (Exp 1): No.</strong> Beam Search dominates; FK is monotonically worse as T increases.
+    (2) Does <code>guidance_w &gt; 1.0</code> (CFG) improve backbone quality for hard targets?
+    <strong>This is the most promising unexplored knob</strong> &mdash; CFG has been OFF in all prior experiments.
+    (3) Do composite rewards (iPAE + pLDDT + iPTM) improve beam pruning for hard targets? (Exp 3, running.)
+    (4) Does sc_scale_noise control affect backbone diversity while maintaining quality? (Exp 2, running.)
+    (5) Is a cheap diagnostic N=32 round informative enough to route correctly,
     or do we need the full N=200? All 11 notto N=200 runs are now complete for analysis.</p>
   </div>
 </div>
