@@ -176,6 +176,7 @@
     <li><a href="#tracker">Experiment Tracker</a></li>
     <li><a href="#experiments">Experimental Plan</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#phase2-vision">Phase 2 Vision: From Routing to State-Aware Inference</a></li>
   </ol>
 </div>
 
@@ -2185,26 +2186,40 @@ Terminate: when unique success count plateaus
       <td><span class="tag tag-green">Done (9/9 jobs)</span></td>
       <td>April 2026</td>
     </tr>
-    <tr style="background:#fef3c7">
-      <td>Phase 2</td>
-      <td>Agentic config matrix &amp; scale-up to N=96</td>
-      <td>Exp 10&ndash;14 (20 jobs)</td>
-      <td><span class="tag tag-orange">Queued (20 jobs)</span></td>
+    <tr>
+      <td>Phase 2a</td>
+      <td>Config matrix &amp; scale-up to N=96</td>
+      <td>Exp 10&ndash;15 (24 jobs)</td>
+      <td><span class="tag tag-orange">In Progress (14 done, 8 running, 3 crashed)</span></td>
       <td>April 2026</td>
     </tr>
     <tr>
       <td>Phase 2b</td>
-      <td>Build and validate the agentic router</td>
-      <td>Diagnostic extraction + LLM routing</td>
+      <td>Diagnostic routing &amp; validation</td>
+      <td>Bottleneck analysis + routing tree + SpCas9/CrSAS6 validation</td>
+      <td><span class="tag tag-orange">In Progress (3/4 validated, 2 targets queued)</span></td>
+      <td>April 2026</td>
+    </tr>
+    <tr>
+      <td>Phase 2c</td>
+      <td>Multi-round adaptive loop demo</td>
+      <td>2&ndash;3 targets &times; 3 rounds, agent vs fixed baselines</td>
       <td><span class="tag tag-purple">Planned</span></td>
       <td>April&ndash;May 2026</td>
     </tr>
     <tr>
       <td>Phase 3</td>
       <td>Scaling curve comparison (key paper figure)</td>
-      <td>Exp 9</td>
+      <td>2 targets &times; 5 budgets &times; 4 strategies</td>
       <td><span class="tag tag-purple">Planned</span></td>
-      <td>May-June 2026</td>
+      <td>May 2026</td>
+    </tr>
+    <tr>
+      <td>Phase 4</td>
+      <td>State-aware inference &amp; future directions</td>
+      <td>Target-state banks, new targets, surrogates</td>
+      <td><span class="tag tag-purple">Proposed</span></td>
+      <td>May&ndash;June 2026</td>
     </tr>
   </table>
   </div>
@@ -2236,6 +2251,204 @@ Terminate: when unique success count plateaus
     </p>
   </div>
 </div>
+
+</div>
+
+<!-- ─── 9. PHASE 2 VISION ─── -->
+<div class="section" id="phase2-vision">
+  <h2>9. Phase 2 Vision: From Diagnostic Routing to State-Aware Inference</h2>
+
+  <h3>Phase 1 Foundation: Diagnostic Routing Already Works</h3>
+  <div class="card" style="border-left: 4px solid var(--green);">
+    <h4 style="font-size:1rem; margin-bottom:8px;">What We Have Built (Not Generic Hyperparameter Search)</h4>
+    <p style="font-size:0.88rem; color:var(--muted); margin-bottom:10px;">
+      Phase 1 established that inference-time control in Proteina-Complexa is already <strong>target-aware</strong>,
+      not a blind knob sweep. The evidence:
+    </p>
+    <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
+      <li><strong>Target-specific bottleneck identification</strong> from a single diagnostic round (N=32, ~6 GPU-hours).</li>
+      <li><strong>A validated routing tree</strong> (3/4 correct) that reads Self/MPNN gap + per-criterion pass rates to select the right intervention.</li>
+      <li><strong>Non-additive intervention effects</strong>: noise + hallucination is worse than either alone (p=0.032).</li>
+      <li><strong>Intervention specificity</strong>: hallucination helps only targets with a backbone&gt;sequence gap; noise=0.20 helps only targets with an iPAE bottleneck. Both destroy the other type of target.</li>
+      <li><strong>100+ experiments</strong> across 11 targets, 3 configs, and 15+ intervention conditions, all cross-validated at the per-design level.</li>
+    </ul>
+    <p style="font-size:0.88rem; color:var(--muted);">
+      This is the foundation. The next step is not to replace this with something else, but to <strong>extend it</strong> &mdash;
+      from single-round routing into multi-round, state-aware inference with broader target coverage.
+    </p>
+  </div>
+
+  <h3>Phase 2: From Single-Round Routing to Multi-Round Adaptive Inference</h3>
+  <div class="card" style="border-left: 4px solid var(--accent);">
+    <p style="font-size:0.88rem; color:var(--muted); margin-bottom:10px;">
+      The current routing tree handles Round 1 &rarr; Round 2 (diagnose &rarr; intervene). The next stage
+      extends this to a full adaptive loop:
+    </p>
+    <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
+      <li><strong>Multi-round feedback</strong>: After applying an intervention, read the new diagnostic signals and adjust.
+      For example, if noise=0.20 doubles self pass but kills MPNN, try hallucinating on the high-noise backbones in Round 3.</li>
+      <li><strong>Broader target validation</strong>: Currently validated on 4 targets (PDL1, CD45, HER2, BetV1).
+      Exp 15a-d will extend to SpCas9 and CrSAS6. The unrun targets below provide further test cases.</li>
+      <li><strong>Scaling curve as the key figure</strong>: Compare unique successes vs GPU-hours for the adaptive agent
+      against fixed Beam Search, fixed Best-of-N, and fixed hallucination baselines.</li>
+    </ul>
+  </div>
+
+  <h3>Packaged Targets Not Yet Run Locally</h3>
+  <p class="note">All 11 targets below are packaged in <code>configs/targets/targets_dict.yaml</code> with PDB files,
+  hotspot residues, and binder length ranges, but have zero local evaluation results. They can be run immediately.</p>
+  <div class="table-wrap">
+  <table>
+    <tr><th>ID</th><th>Target</th><th>Paper Difficulty</th><th>Notes</th><th>Recommended Priority</th></tr>
+    <tr style="background:#d1fae5">
+      <td>29</td><td>BHRF1</td><td><span class="tag tag-green">Easy</span></td>
+      <td>Strong easy target in the paper (26 unique successes with Self). Single chain.</td>
+      <td><strong>High</strong> &mdash; easy control for routing validation</td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td>30</td><td>SC2RBD</td><td><span class="tag tag-red">Hard</span></td>
+      <td>SARS-CoV-2 receptor binding domain. 0 Complexa successes in the paper (Table 10); BindCraft outperforms on this target.</td>
+      <td><strong>High</strong> &mdash; hard target where Complexa struggles</td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td>36</td><td>VEGFA</td><td><span class="tag tag-red">Hard</span></td>
+      <td>Two-chain target (V14-107, W14-107). 5 unique successes in the paper. Case study in Fig 8.</td>
+      <td><strong>High</strong> &mdash; hard multi-chain target</td>
+    </tr>
+    <tr>
+      <td>13</td><td>BBF14</td><td><span class="tag tag-green">Easy</span></td>
+      <td>24 unique successes in the paper. From BindCraft targets.</td>
+      <td>Medium</td>
+    </tr>
+    <tr>
+      <td>18</td><td>DerF21</td><td><span class="tag tag-green">Easy</span></td>
+      <td>35 unique successes in the paper. Multiple hotspot variants (IDs 18&ndash;22).</td>
+      <td>Medium</td>
+    </tr>
+    <tr>
+      <td>31</td><td>IL7RA</td><td><span class="tag tag-green">Easy</span></td>
+      <td>6 unique successes in the paper. From AlphaProteo targets.</td>
+      <td>Medium</td>
+    </tr>
+    <tr>
+      <td>34</td><td>Insulin</td><td><span class="tag tag-green">Easy</span></td>
+      <td>16 unique successes in the paper. From AlphaProteo targets.</td>
+      <td>Medium</td>
+    </tr>
+    <tr>
+      <td>25</td><td>CbAgo</td><td><span class="tag tag-red">Hard</span></td>
+      <td>0 unique successes in the paper. From BindCraft targets.</td>
+      <td>Low (likely 0% with beam search)</td>
+    </tr>
+    <tr style="background:#fee2e2">
+      <td>35</td><td>H1</td><td><span class="tag tag-red">Very Hard</span></td>
+      <td>Multi-chain. Paper used MCTS + modified reward (iPAE/31+pLDDT), NOT standard beam search. 7 successes in 475 GPU-hours.</td>
+      <td>Low &mdash; requires MCTS + modified reward, not compatible with our current beam search config</td>
+    </tr>
+    <tr style="background:#fee2e2">
+      <td>37</td><td>IL17A</td><td><span class="tag tag-red">Very Hard</span></td>
+      <td>Multi-chain. Paper used custom MCTS (K=50, &epsilon;=0.5, N<sub>sim</sub>=20). 1 success in 387 GPU-hours.</td>
+      <td>Low &mdash; requires MCTS + modified reward</td>
+    </tr>
+    <tr style="background:#fee2e2">
+      <td>38</td><td>TNF&alpha;</td><td><span class="tag tag-red">Very Hard</span></td>
+      <td>Three-chain target. Paper used MCTS + G&amp;H with 0.05&times; binder length mutations. 15 successes in 475 GPU-hours.</td>
+      <td>Low &mdash; requires MCTS + modified reward + hallucination</td>
+    </tr>
+  </table>
+  </div>
+
+  <h3>Future Directions from Planning Docs <span style="font-size:0.8rem; color:var(--orange); font-weight:normal">(Proposed, Not Yet Validated)</span></h3>
+  <p class="note">
+    The following directions are drawn from <code>docs/AGENTIC_DENOVO_DESIGN.md</code>,
+    a planning document in the local Proteina-Complexa repo. These are research ideas, not confirmed experiments.
+    None have been implemented or validated yet.
+  </p>
+  <div class="table-wrap">
+  <table>
+    <tr><th style="width:22%">Direction</th><th style="width:55%">Description</th><th style="width:23%">Status / Dependencies</th></tr>
+    <tr>
+      <td><strong>Target-state banks</strong></td>
+      <td>Instead of designing against a single target structure, build a bank of conformational states
+      (from experimental structures, AF2 subsampled predictions, or molecular dynamics) and design binders
+      that are selective for desired states. This would let the agent reason about conformational flexibility.</td>
+      <td><span class="tag tag-purple">Proposed</span>. Requires curating multi-state structural data for specific targets.</td>
+    </tr>
+    <tr>
+      <td><strong>BioEmu augmentation</strong></td>
+      <td>Use BioEmu (a learned equilibrium sampler for monomeric proteins) to generate
+      conformational ensembles for targets, expanding the state bank beyond experimental structures.
+      The planning doc (Sec 8) recommends using BioEmu for target-state banks but
+      <strong>not</strong> as a binding oracle and <strong>not</strong> on every early-stage candidate.</td>
+      <td><span class="tag tag-purple">Proposed</span>. BioEmu not installed locally. Only applicable after state-bank infrastructure is built.</td>
+    </tr>
+    <tr>
+      <td><strong>Campaign memory</strong></td>
+      <td>Store results from all prior design rounds (successes, failures, structural features, metric distributions)
+      and use them to inform future rounds. The agent would learn which structural motifs succeed on each target
+      and bias future proposals accordingly.</td>
+      <td><span class="tag tag-purple">Proposed</span>. No implementation yet. Requires defining memory schema and retrieval logic.</td>
+    </tr>
+    <tr>
+      <td><strong>Surrogate learning</strong></td>
+      <td>Train fast surrogate models (e.g., small neural nets) on accumulated AF2 evaluation data
+      to predict design quality without running full AF2 Multimer. This would let the agent evaluate
+      1000s of candidates cheaply before spending AF2 compute on the best ones.</td>
+      <td><span class="tag tag-purple">Proposed</span>. No training data or architecture selected yet. Requires 1000+ evaluated designs per target.</td>
+    </tr>
+    <tr>
+      <td><strong>Delayed LoRA / PEFT</strong></td>
+      <td>Finetune the Proteina-Complexa denoiser with LoRA on successful binder designs to shift the model&rsquo;s
+      prior toward target-specific binding topologies. The planning doc recommends this as <strong>Phase 4</strong> &mdash;
+      only after state-bank evidence, memory, and surrogate stages are established.</td>
+      <td><span class="tag tag-purple">Proposed (last priority)</span>. Planning doc explicitly says &ldquo;no early denoiser finetuning before state-bank evidence.&rdquo;</td>
+    </tr>
+  </table>
+  </div>
+
+  <h3>Conceptual Influences</h3>
+  <p class="note">Papers in the local repo (<code>papers/</code>) that inform the research direction.
+  These are conceptual references, not direct evidence that our system has these capabilities.</p>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Paper</th><th>Key Idea</th><th>Relevance to This Project</th></tr>
+    <tr>
+      <td><strong>Proteina-Complexa</strong> (ICLR 2026)</td>
+      <td>Learned latent prior + inference-time search (beam search, FK steering, MCTS) for atomistic binder design.</td>
+      <td>Our base model. All experiments use this.</td>
+    </tr>
+    <tr>
+      <td><strong>Latent Generative Search</strong> (companion paper)</td>
+      <td>1M+ binders screened against 127 targets via multiplexed phage display. Multi-objective rewards. Experimental validation.</td>
+      <td>Provides the experimental ground truth and the noise temperature ablation (Table 2).</td>
+    </tr>
+    <tr>
+      <td><strong>BindCraft</strong> (Nature 2025)</td>
+      <td>AF2-based binder hallucination: iterative sequence optimization starting from random initialization. Strong single-state baseline.</td>
+      <td>Our hallucination experiments use BindCraft&rsquo;s optimization stages. Key comparison baseline.</td>
+    </tr>
+    <tr>
+      <td><strong>SwitchCraft</strong> (under review, ICML)</td>
+      <td>Programmatic framework for designing state-switching proteins via backpropagation through compositional design constraints parameterized by structure prediction models. Multistate objective language.</td>
+      <td>Conceptual influence for future state-aware design objectives. Not yet integrated.</td>
+    </tr>
+    <tr>
+      <td><strong>Meta-Harness</strong> (Lee et al. 2026)</td>
+      <td>Outer-loop system that optimizes LLM harness code by accessing source code, scores, and execution traces of prior candidates through a filesystem.</td>
+      <td>Conceptual analogy for agentic outer-loop optimization of the design pipeline. The idea of optimizing the harness around a fixed model parallels optimizing inference-time config around a fixed Proteina-Complexa.</td>
+    </tr>
+  </table>
+  </div>
+
+  <h3>What We Will Not Do First</h3>
+  <div class="callout">
+    <p>
+      <strong>No disruptive refactor of Proteina-Complexa.</strong> All changes are additive modules, not invasive edits to the base model.<br>
+      <strong>No broad knob sweep as the main story.</strong> Phase 1 already showed that blind sweeps are wasteful &mdash; CD45&rsquo;s hallucination result (0%) proves that wrong interventions actively harm. The story is target-aware routing, not parameter search.<br>
+      <strong>No early denoiser finetuning.</strong> LoRA/PEFT comes after state-bank evidence, campaign memory, and surrogate learning are established (per planning doc guidance).<br>
+      <strong>No full pretraining from scratch.</strong> Compute budget is inference-time optimization only (up to 32 H100 GPUs).
+    </p>
+  </div>
 
 </div>
 
