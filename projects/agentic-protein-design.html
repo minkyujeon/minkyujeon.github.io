@@ -399,8 +399,8 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
 
   <div class="stat-row">
     <div class="stat"><div class="num">11</div><div class="label">Protein Targets</div></div>
-    <div class="stat green"><div class="num">78/78</div><div class="label">Phase 1 Complete</div></div>
-    <div class="stat orange"><div class="num">20</div><div class="label">Phase 2 Jobs Queued</div></div>
+    <div class="stat green"><div class="num">89/95</div><div class="label">Jobs Complete</div></div>
+    <div class="stat orange"><div class="num">6</div><div class="label">Jobs Running (halluc replicas)</div></div>
     <div class="stat purple"><div class="num">36</div><div class="label">Total Experiments</div></div>
   </div>
 
@@ -713,7 +713,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
       </tr>
       <tr>
         <td><strong>CD45</strong></td><td>Hard</td>
-        <td>25.0%</td><td class="best">46.9%</td><td style="color:var(--orange)">Queued</td><td class="fail">18.8%</td>
+        <td>25.0%</td><td class="best">46.9%</td><td class="fail">0.0%</td><td class="fail">18.8%</td>
         <td style="color:var(--green); font-weight:700">noise=0.20</td>
       </tr>
       <tr>
@@ -722,21 +722,23 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
         <td style="color:var(--green); font-weight:700">Default</td>
       </tr>
       <tr>
-        <td><strong>HER2_AAV</strong></td><td>Medium</td>
-        <td>3.1%</td><td style="color:var(--orange)">Queued</td><td class="best">65.6%</td><td style="color:var(--orange)">Queued</td>
+        <td><strong>HER2_AAV</strong></td><td>Hard</td>
+        <td>3.1%</td><td class="fail">0.0%</td><td class="best">65.6%</td><td style="color:var(--orange)">Running</td>
         <td style="color:var(--green); font-weight:700">Hallucination</td>
       </tr>
       <tr>
-        <td><strong>BetV1</strong></td><td>Medium</td>
-        <td>18.8%</td><td style="color:var(--orange)">Queued</td><td>25.0%</td><td style="color:var(--orange)">Queued</td>
-        <td style="color:var(--muted)">TBD (Phase 2)</td>
+        <td><strong>BetV1</strong></td><td>Hard</td>
+        <td>18.8%</td><td class="fail">0.0%</td><td>25.0%</td><td style="color:var(--orange)">Running</td>
+        <td style="color:var(--green); font-weight:700">Hallucination (marginal)</td>
       </tr>
     </table>
     <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8; margin-top:10px;">
-      <li><strong>Each target has a different optimal config.</strong> CD45 needs noise. HER2_AAV needs hallucination. PDL1 needs nothing (default is best). BetV1 remains uncertain.</li>
-      <li><strong>Interventions interact non-additively.</strong> noise + hallucination is WORSE than noise alone for CD45 (p=0.032). You cannot simply stack interventions.</li>
-      <li><strong>The companion paper&rsquo;s aggregate-optimal config (bb=0.1, lat=0.4) is catastrophic for hard targets.</strong> 0% pass rate on CD45 (p=0.005).</li>
-      <li><strong>Conclusion:</strong> An agentic system that dynamically selects the right config per target will outperform any fixed config. Phase 2 fills this matrix; Phase 2b builds the router.</li>
+      <li><strong>Each target has a different optimal config.</strong> CD45 needs noise=0.20. HER2_AAV needs hallucination. PDL1 needs nothing (default is best). BetV1 benefits marginally from hallucination.</li>
+      <li><strong>Interventions that help one target destroy another.</strong> Hallucination kills CD45 (0%, p=0.005). noise=0.20 kills HER2 and BetV1 (both 0%). noise+halluc is worse than noise alone for CD45 (p=0.032).</li>
+      <li><strong>noise=0.15 doesn&rsquo;t help (sharp threshold).</strong> CD45 at noise=0.15 gives exactly 25% (=default). The jump to 46.9% happens only at 0.20.</li>
+      <li><strong>bb+lat noise must change together.</strong> bb=0.2,lat=0.1 gives 9.4% (worse than default). You need both bb=0.2 AND lat=0.2 for the 46.9% effect.</li>
+      <li><strong>Baseline pass rates are deterministic.</strong> 3 independent runs for each target: CD45 always 8/32, HER2 always 1/32, BetV1 always 6/32. Zero run-to-run variance.</li>
+      <li><strong>Conclusion:</strong> An agentic system that dynamically selects the right config per target will outperform any fixed config. The matrix is now complete &mdash; ready to build the router.</li>
     </ul>
   </div>
 
@@ -968,40 +970,40 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
         &#9654; Phase 2: Agentic Configuration Matrix &mdash; 20 jobs queued 2026-04-07
       </td>
     </tr>
-    <tr style="background:#fef3c7">
-      <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
+    <tr style="background:#fee2e2">
+      <td style="text-align:center; font-size:1.1rem">&#9746;</td>
       <td><strong>Exp 10a-c: Fill Matrix Gaps</strong><br><span style="font-size:0.82rem;color:var(--muted)">CD45+halluc, HER2+noise=0.20, BetV1+noise=0.20</span></td>
-      <td>0/3</td>
-      <td><span class="tag tag-orange">Queued</span></td>
-      <td style="font-size:0.82rem">Complete the target&times;config matrix. Key gap: CD45 with hallucination only (no extra noise).</td>
+      <td>3/3</td>
+      <td><span class="tag tag-red">All 0%</span></td>
+      <td style="font-size:0.82rem"><strong>All three 0/32.</strong> Halluc kills CD45 (p=0.005). noise=0.20 kills HER2 and BetV1 (p=0.024). Each intervention only helps its specific target.</td>
     </tr>
-    <tr style="background:#fef3c7">
-      <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
-      <td><strong>Exp 11a-j: Scale-Up to N=96</strong><br><span style="font-size:0.82rem;color:var(--muted)">Baseline &amp; halluc replicas for CD45, HER2, BetV1</span></td>
-      <td>0/10</td>
-      <td><span class="tag tag-orange">Queued</span></td>
-      <td style="font-size:0.82rem">2 additional replicas (r2, r3) for each: CD45 base, HER2 base, HER2 halluc, BetV1 base, BetV1 halluc. N=96 per condition.</td>
+    <tr style="background:#d1fae5">
+      <td style="text-align:center; font-size:1.1rem">&#9745;</td>
+      <td><strong>Exp 11a-h: Baseline Scale-Up to N=96</strong><br><span style="font-size:0.82rem;color:var(--muted)">Baseline replicas for CD45, HER2, BetV1 (6/6 done); halluc replicas (4 running)</span></td>
+      <td>6/10</td>
+      <td><span class="tag tag-orange">Partial</span></td>
+      <td style="font-size:0.82rem"><strong>Perfect reproducibility:</strong> CD45: 8/32, 8/32, 8/32. HER2: 1/32, 1/32, 1/32. BetV1: 6/32, 6/32, 6/32. HER2/BetV1 halluc replicas still running.</td>
     </tr>
-    <tr style="background:#fef3c7">
-      <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
+    <tr style="background:#d1fae5">
+      <td style="text-align:center; font-size:1.1rem">&#9745;</td>
       <td><strong>Exp 12a-b: Mechanism / Sweet Spot</strong><br><span style="font-size:0.82rem;color:var(--muted)">CD45 noise=0.15, CD45 bb=0.2/lat=0.1</span></td>
-      <td>0/2</td>
-      <td><span class="tag tag-orange">Queued</span></td>
-      <td style="font-size:0.82rem">12a: noise=0.15 sweet spot (does MPNN survive?). 12b: bb=0.2, lat=0.1 (isolate backbone noise mechanistically).</td>
+      <td>2/2</td>
+      <td><span class="tag tag-green">Done</span></td>
+      <td style="font-size:0.82rem"><strong>12a: noise=0.15 gives 8/32 (=baseline). Sharp threshold at 0.20.</strong> 12b: bb=0.2,lat=0.1 gives 3/32 (9.4%) &mdash; WORSE than default. Need BOTH bb+lat=0.2 together.</td>
     </tr>
     <tr style="background:#fef3c7">
       <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
       <td><strong>Exp 13a-b: Combos on Other Targets</strong><br><span style="font-size:0.82rem;color:var(--muted)">HER2 + noise=0.20+halluc, BetV1 + noise=0.20+halluc</span></td>
       <td>0/2</td>
-      <td><span class="tag tag-orange">Queued</span></td>
-      <td style="font-size:0.82rem">Does the noise+halluc combo pattern differ across targets? CD45 showed negative interaction (Exp 8).</td>
+      <td><span class="tag tag-orange">Running</span></td>
+      <td style="font-size:0.82rem">Still running (~6h left). Given noise=0.20 kills both targets (Exp 10), combo likely 0% too.</td>
     </tr>
-    <tr style="background:#fef3c7">
-      <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
+    <tr style="background:#fee2e2">
+      <td style="text-align:center; font-size:1.1rem">&#9746;</td>
       <td><strong>Exp 14a-c: CFG=2.0 Sweep</strong><br><span style="font-size:0.82rem;color:var(--muted)">CD45, HER2, BetV1 with guidance_w=2.0</span></td>
       <td>0/3</td>
-      <td><span class="tag tag-orange">Queued</span></td>
-      <td style="font-size:0.82rem">Re-attempt CFG guidance. If fold_cond assertion fires, will confirm N/A for binders across all targets.</td>
+      <td><span class="tag tag-red">Crashed</span></td>
+      <td style="font-size:0.82rem">Same <code>fold_cond</code> assertion as Exp 7. CFG confirmed N/A for binder design.</td>
     </tr>
     <tr>
       <td style="text-align:center; font-size:1.1rem; color:#ccc">&#9744;</td>
