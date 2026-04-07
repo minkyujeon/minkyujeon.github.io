@@ -288,7 +288,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     </tr>
     <tr>
       <td>FK Steering</td><td><code>temperature</code></td><td>0.1</td><td>0.01 &ndash; 10.0</td>
-      <td><span class="tag tag-red">Default only</span></td>
+      <td><span class="tag tag-green">Yes (Exp 1)</span> &mdash; beam dominates</td>
     </tr>
     <tr>
       <td>MCTS</td><td><code>n_simulations</code>, <code>exploration_constant</code></td><td>20, 1.414</td><td>5&ndash;100, 0.1&ndash;5.0</td>
@@ -298,7 +298,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     <tr><td colspan="5" style="background:#f1f5f9; font-weight:600; font-size:0.82rem;">Denoising / Diversity</td></tr>
     <tr>
       <td>Temperature</td><td><code>sc_scale_noise</code> (backbone &amp; sequence)</td><td>0.1</td><td>0.0 &ndash; 1.0</td>
-      <td><span class="tag tag-red">No</span></td>
+      <td><span class="tag tag-green">Yes (Exp 2)</span> &mdash; paper: aggregate only; we: per-target pass rate analysis</td>
     </tr>
     <tr>
       <td>Steps</td><td><code>nsteps</code></td><td>400</td><td>100 &ndash; 1000</td>
@@ -306,7 +306,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     </tr>
     <tr>
       <td>Guidance</td><td><code>guidance_w</code></td><td>1.0</td><td>0.0 &ndash; 5.0</td>
-      <td><span class="tag tag-red">No</span></td>
+      <td><span class="tag tag-red">Blocked (Exp 7)</span> &mdash; requires fold_cond, N/A for binders</td>
     </tr>
     <tr>
       <td>Samples</td><td><code>nsamples</code></td><td>4</td><td>1 &ndash; 200</td>
@@ -320,7 +320,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     </tr>
     <tr>
       <td>AF2 Multimer</td><td><code>plddt</code>, <code>i_ptm</code>, <code>con</code>, etc.</td><td>0.0</td><td>17 available metrics</td>
-      <td><span class="tag tag-red">No</span></td>
+      <td><span class="tag tag-orange">Partial (Exp 3)</span> &mdash; moderate weights safe; aggressive weights fatal</td>
     </tr>
     <tr>
       <td>RF3</td><td><code>min_ipAE</code>, <code>ranking_score</code>, etc.</td><td>not used</td><td>14 available metrics</td>
@@ -338,7 +338,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     <tr><td colspan="5" style="background:#f1f5f9; font-weight:600; font-size:0.82rem;">Post-Generation</td></tr>
     <tr>
       <td>Refinement</td><td><code>sequence_hallucination</code></td><td>off</td><td>AF2-guided seq optimization</td>
-      <td><span class="tag tag-orange">Paper only</span></td>
+      <td><span class="tag tag-green">Yes (Exp 4)</span> &mdash; paper: universally worst; we: selective application is transformative</td>
     </tr>
     <tr>
       <td>Evaluation</td><td><code>sequence_types</code></td><td>[self]</td><td><code>self</code>, <code>mpnn</code>, <code>mpnn_fixed</code></td>
@@ -359,8 +359,11 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
 
   <p class="note">
     "Default only" = the paper tested this algorithm but only with its default parameters.
-    "Paper only" = tested in the paper (as "Generate &amp; Hallucinate") but not in our sweep.
+    "Paper (aggregate)" = the paper tested this at the level of aggregate hit counts across 127 targets &mdash; we add per-target, per-difficulty analysis.
     "No" = neither the paper nor our experiments have explored this parameter.
+    <strong>Key distinction:</strong> The paper&rsquo;s Appendix B.4 tested 4 sampling temperature (sc_scale_noise) combinations
+    in aggregate. Our analysis goes deeper: per-target pass rates reveal that hard targets benefit from higher noise but easy targets are hurt,
+    and that the self-pass vs. MPNN-pass divergence is a critical signal not visible in aggregate counts.
   </p>
 
   <h3>FK Steering: A Continuous Explore-Exploit Spectrum</h3>
@@ -685,10 +688,75 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
 
   <div class="card">
     <h3>5. Large portions of the action space remain unexplored</h3>
-    <p>The paper tested all 5 algorithms with default parameters. Our sweep tested 8 beam search configurations.
-    But FK Steering temperature tuning, MCTS parameter tuning, reward composition (17 AF2 metrics, RF3, TMOL, bioinformatics),
-    denoising temperature (<code>sc_scale_noise</code>), and binder length strategies have never been explored.
-    FK Steering already ranks 2nd on hard targets with default T=0.1 &mdash; can it do better?</p>
+    <p>The paper tested all 5 algorithms with default parameters. The paper&rsquo;s Appendix B.4 (Table 2) tested 4 sampling temperature combinations
+    (backbone T &times; latent T) at the aggregate level across all 127 targets. But FK Steering temperature tuning, MCTS parameter tuning,
+    reward composition (17 AF2 metrics, RF3, TMOL, bioinformatics), and the per-target breakdown of what noise level helps <em>hard</em> targets specifically
+    vs. easy ones &mdash; none of these have been systematically explored.
+    Our project maps this space with per-target analysis and builds an adaptive routing agent on top of it.</p>
+  </div>
+
+  <div class="card" style="border-left: 4px solid var(--purple);">
+    <h3>6. What the Paper Already Covered vs. What We Add</h3>
+    <p style="font-size:0.88rem; color:var(--muted); margin-bottom:10px;">
+      Cross-checked against the ICLR 2026 paper (Figure 7) and companion validation paper (43pp, Appendix B.4).
+    </p>
+    <table style="font-size:0.82rem; width:100%;">
+      <tr>
+        <th style="width:30%">Topic</th>
+        <th style="width:35%">What the Paper Did</th>
+        <th style="width:35%">What We Add</th>
+      </tr>
+      <tr>
+        <td><strong>FK Steering temperature</strong></td>
+        <td>Tested once with default T=0.1 in Figure 7</td>
+        <td>Full sweep T=0.01&ndash;2.0 &rarr; <strong>Beam dominates; FK monotonically worse</strong></td>
+      </tr>
+      <tr>
+        <td><strong>Sampling noise (sc_scale_noise)</strong></td>
+        <td>Appendix B.4 Table 2: 4 combinations, aggregate hit counts across 127 targets</td>
+        <td>Per-target pass rates; found <strong>noise 0.2 doubles hard-target self pass but kills MPNN</strong> &mdash; not visible in aggregates</td>
+      </tr>
+      <tr>
+        <td><strong>Sequence hallucination</strong></td>
+        <td>Figure 7: &ldquo;Generate &amp; Hallucinate&rdquo; tested universally &rarr; worst of all 5 algorithms</td>
+        <td>Selective application to backbone&gt;sequence-gap targets: <strong>HER2_AAV 3%&rarr;66% self pass</strong></td>
+      </tr>
+      <tr>
+        <td><strong>Composite reward signals</strong></td>
+        <td>iPAE only for all beam search experiments</td>
+        <td>Tested iPAE+pLDDT+iPTM and iPAE+iPTM+iCon &rarr; <strong>interface-heavy weights kill generation</strong></td>
+      </tr>
+      <tr>
+        <td><strong>CFG guidance_w</strong></td>
+        <td>Not tested (always 1.0 = off)</td>
+        <td>Attempted &rarr; <strong>blocked: not applicable to binder mode</strong></td>
+      </tr>
+      <tr>
+        <td><strong>Hard target analysis</strong></td>
+        <td>Aggregate success rates across easy+hard; no per-difficulty breakdown of what helps</td>
+        <td>Systematic isolation: hard targets benefit from higher noise; easy from default; <strong>routing signal identified</strong></td>
+      </tr>
+      <tr>
+        <td><strong>Mixed noise (bb &ne; latent)</strong></td>
+        <td>Paper found (0.1 bb, 0.4 latent) solves most unique targets</td>
+        <td><strong>Not yet tested</strong> &mdash; our Exp 2 changed both simultaneously. Key follow-up: test bb=0.1, latent=0.2 for hard targets</td>
+      </tr>
+      <tr>
+        <td><strong>Adaptive routing agent</strong></td>
+        <td>Not done &mdash; every target gets the same fixed strategy</td>
+        <td><strong>Core contribution:</strong> diagnose difficulty, route to optimal (noise level + hallucination toggle), iterate</td>
+      </tr>
+      <tr>
+        <td><strong>LoRA finetuning (Exp 10)</strong></td>
+        <td>Not done</td>
+        <td>Planned: finetune denoiser on successful binders to shift prior</td>
+      </tr>
+      <tr>
+        <td><strong>Trajectory recycling (Exp 11)</strong></td>
+        <td>Paper has &ldquo;diffuse-denoise&rdquo; (noise+regenerate finished designs) &mdash; different from in-trajectory warm-starting</td>
+        <td>Planned: warm-start from t=130 intermediate states of successful trajectories</td>
+      </tr>
+    </table>
   </div>
 </div>
 
@@ -1071,9 +1139,10 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     <p><strong>Hypothesis:</strong> <code>sc_scale_noise</code> controls trajectory diversity independently
     from the search algorithm. Higher temperature produces more structurally diverse initial trajectories,
     and when combined with beam search pruning, may yield more diverse final successes.</p>
-    <p><strong>Motivation:</strong> All current experiments use the default <code>sc_scale_noise=0.1</code>.
-    This is the "noise injection scale" during the SDE integration &mdash; the fundamental diversity knob
-    of the generative model, separate from the search algorithm's diversity.</p>
+    <p><strong>Motivation:</strong> The paper (Appendix B.4, Table 2) tested 4 aggregate sampling temperature combinations
+    across all 127 targets and found (0.1, 0.4) solves the <em>most unique targets</em> (36 vs 33 for default).
+    But the paper only reported aggregate counts &mdash; it did not break down which temperature helps <em>hard</em> targets specifically,
+    or reveal the self-pass vs. MPNN-pass divergence. We test with per-target pass rate analysis on hard targets (CD45) and easy targets (PDL1).</p>
     <p><strong>Setup:</strong></p>
     <ul>
       <li>2 targets: PDL1 (easy, 100% self pass), CD45 (hard, 25% self pass)</li>
