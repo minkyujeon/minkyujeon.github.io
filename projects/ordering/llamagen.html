@@ -303,19 +303,27 @@
     <span class="tag tag-blue">Planned</span></p>
   </div>
 
-  <h3>IN-1K RAR From Scratch</h3>
+  <h3>IN-1K RAR From Scratch (300 Epochs)</h3>
   <p>
-    To match the IN-100 experiment exactly, we train RAR on IN-1K <strong>from scratch</strong> with the same 400-epoch
-    schedule (200 random &rarr; 100 anneal &rarr; 100 raster). The official LlamaGen baseline was trained for 300
-    epochs raster (FID=5.32). RAR uses 400 epochs total (33% more compute), which is the same ratio as IN-100.
+    For a fair comparison, the IN-1K RAR uses the <strong>same 300 total epochs</strong> as the raster baseline,
+    trained from scratch with the same 50/25/25 phase ratio:
   </p>
+  <ul>
+    <li>Epochs 0&ndash;150: random ordering (with ta_embed)</li>
+    <li>Epochs 150&ndash;225: linear anneal to raster</li>
+    <li>Epochs 225&ndash;300: pure raster</li>
+  </ul>
   <div class="table-wrap">
   <table>
     <tr><th>Experiment</th><th>Config</th><th>Status</th><th>Baseline FID</th></tr>
-    <tr><td>RAR from scratch IN-1K</td><td>400 epochs, anneal 200&rarr;300, ~2M steps</td><td><span class="tag tag-orange">Running</span> job 6643088</td><td>5.32 (raster, 300ep)</td></tr>
+    <tr><td>RAR from scratch IN-1K</td><td>300 epochs, anneal 150&rarr;225, ~1.5M steps</td><td><span class="tag tag-orange">Running</span> job 6643147</td><td>5.32 (raster, 300ep)</td></tr>
   </table>
   </div>
-  <p class="source">Estimated ~50 hours on 4&times; H100. Key question: does the RAR regularization benefit scale from IN-100 to IN-1K?</p>
+  <p class="source">Estimated ~38 hours on 4&times; H100. Same total compute as baseline for a fair comparison.</p>
+
+  <div class="callout warn">
+    <p><strong>Note on IN-100 epoch mismatch:</strong> The IN-100 RAR (FID=18.94) used 400 epochs vs the raster baseline's 300 epochs &mdash; 33% more compute. A 300-epoch IN-100 RAR is needed for a fully fair comparison. The IN-1K experiment corrects this by matching epochs exactly.</p>
+  </div>
 </div>
 
 <!-- 6. ORDERHEAD -->
