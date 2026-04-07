@@ -260,9 +260,9 @@
   <div class="table-wrap">
   <table>
     <tr><th>Model</th><th>Inference</th><th>FID</th><th>sFID</th><th>Precision</th><th>Recall</th></tr>
-    <tr><td>Raster baseline (original ckpt)</td><td>Raster</td><td>25.40</td><td>66.33</td><td>&mdash;</td><td>&mdash;</td></tr>
-    <tr><td>Raster retrain (300ep finetune)</td><td>Raster</td><td>17.57</td><td>67.18</td><td>&mdash;</td><td>&mdash;</td></tr>
-    <tr><td><strong>RAR (400ep from scratch)</strong></td><td>Raster</td><td class="best"><strong>18.94</strong></td><td>66.25</td><td>0.691</td><td>0.545</td></tr>
+    <tr><td>Raster baseline (c2i_B_256.pt, 0ep on IN-100)</td><td>Raster</td><td>25.40</td><td>66.33</td><td>0.672</td><td>0.471</td></tr>
+    <tr><td>Raster retrain (300ep IN-1K + 300ep IN-100 FT)</td><td>Raster</td><td>17.57</td><td>67.18</td><td>0.761</td><td>0.513</td></tr>
+    <tr><td><strong>RAR (400ep from scratch, IN-100 only)</strong></td><td>Raster</td><td class="best"><strong>18.94</strong></td><td>66.25</td><td>0.691</td><td>0.545</td></tr>
     <tr><td>RAR (400ep from scratch)</td><td>Random0</td><td class="fail">176.04</td><td>123.49</td><td>0.083</td><td>0.067</td></tr>
     <tr><td>Pure random AR (300ep, no anneal)</td><td>Raster</td><td class="fail">151.10</td><td>110.44</td><td>0.066</td><td>0.108</td></tr>
     <tr><td>Pure random AR (300ep, no anneal)</td><td>Random0</td><td class="fail">165.00</td><td>115.81</td><td>0.054</td><td>0.099</td></tr>
@@ -271,11 +271,11 @@
   </div>
 
   <div class="callout">
-    <p><strong>RAR raster FID = 18.94 &mdash; better than both raster baselines.</strong>
-    The RAR curriculum (random&rarr;anneal&rarr;raster) improves over the original raster checkpoint (25.40) by 25% and is
-    competitive with the raster retrain (17.57) despite being trained from scratch for 400 epochs
-    vs the retrain's 300 epoch finetune from a pretrained model. This is a <strong>free improvement</strong>: the final model
-    infers in standard raster order with no extra cost.</p>
+    <p><strong>RAR raster FID = 18.94 &mdash; 25% better than the raster baseline (25.40).</strong>
+    The fair comparison is RAR (400ep from scratch on IN-100) vs raster baseline (pretrained on IN-1K, 0 epochs on IN-100).
+    The raster retrain (FID=17.57) started from the IN-1K pretrained checkpoint and finetuned 300 additional epochs on IN-100,
+    giving it effectively ~600 epochs of total training &mdash; not a fair comparison.
+    RAR is a <strong>free improvement</strong>: the final model infers in standard raster order with no extra cost.</p>
   </div>
 
   <h3>Interpretation of Results</h3>
