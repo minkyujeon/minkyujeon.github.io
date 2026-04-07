@@ -254,6 +254,10 @@
     ViT oracle: ViT-B trained on VQ codebook embeddings with PatchDrop (val@25=66.3%).
   </p>
 
+  <h3>Progressive Generation Visualization</h3>
+  <img src="img/llamagen_progressive_example.png" alt="LlamaGen OrderHead progressive generation">
+  <p class="img-caption">Progressive token generation guided by OrderHead (Phase 1, 48K steps). Each row shows a different image being generated step-by-step. The OrderHead selects which spatial positions to generate first based on oracle-trained importance scores. Notice the model tends to generate object-centric tokens early (center of images), but the causal attention structure means these tokens are predicted with minimal context.</p>
+
   <h3>Phase 1: Frozen GPT, Oracle MSE Only</h3>
   <p>
     GPT-B frozen at raster baseline checkpoint (0145000.pt). OrderHead trained via

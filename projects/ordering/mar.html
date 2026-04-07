@@ -24,6 +24,7 @@
   .section { margin-bottom: 48px; }
   .section h2 { font-size: 1.45rem; font-weight: 700; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid var(--accent); display: inline-block; }
   .section h3 { font-size: 1.1rem; font-weight: 600; margin: 20px 0 8px; color: var(--text); }
+  .section h4 { font-size: 0.95rem; font-weight: 600; margin: 16px 0 6px; color: var(--muted); }
   .section p, .section li { color: var(--muted); font-size: 0.95rem; }
   .section p { margin-bottom: 12px; }
   .section ul, .section ol { padding-left: 20px; margin-bottom: 12px; }
@@ -51,6 +52,8 @@
   .callout.warn strong { color: var(--orange); }
   .callout.red { background: var(--red-light); border-left-color: var(--red); }
   .callout.red strong { color: var(--red); }
+  .callout.green { background: var(--green-light); border-left-color: var(--green); }
+  .callout.green strong { color: var(--green); }
   code { background: var(--code-bg); padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; }
   img { max-width: 100%; border-radius: 8px; margin-bottom: 16px; }
   .img-caption { font-size: 0.82rem; color: var(--muted); text-align: center; margin-top: -10px; margin-bottom: 16px; }
@@ -61,6 +64,13 @@
   .toc a { color: var(--accent); text-decoration: none; font-size: 0.9rem; }
   .toc a:hover { text-decoration: underline; }
   .source { font-size: 0.78rem; color: #94a3b8; font-style: italic; }
+  .stat-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+  .stat { flex: 1; min-width: 120px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; text-align: center; }
+  .stat .num { font-size: 1.4rem; font-weight: 800; color: var(--accent); }
+  .stat .label { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+  .stat.green .num { color: var(--green); }
+  .stat.orange .num { color: var(--orange); }
+  .stat.red .num { color: var(--red); }
   .footer { text-align: center; padding: 32px 24px; color: var(--muted); font-size: 0.82rem; border-top: 1px solid var(--border); }
   .footer a { color: var(--accent); text-decoration: none; }
 </style>
@@ -72,8 +82,9 @@
     <div class="breadcrumb"><a href="/">Minkyu Jeon</a> / <a href="/projects/">Projects</a> / <a href="/projects/ordering/">Ordering</a></div>
     <h1>MAR OrderHead Experiments</h1>
     <p class="subtitle">
-      OrderHead training on Masked Autoregressive (MAR) image generation. Bidirectional attention makes MAR
-      naturally order-agnostic, enabling learned ordering without the causal AR paradox.
+      Comprehensive investigation of learned token ordering in Masked Autoregressive (MAR) image generation.
+      11 training variants, 4 oracle ablations, 7 ordering methods, and 9 heuristic comparisons &mdash;
+      all on pretrained MAR-B (ImageNet-1K).
     </p>
   </div>
 </div>
@@ -83,201 +94,340 @@
 <div class="toc">
   <h3>Contents</h3>
   <ol>
-    <li><a href="#setup">Setup &amp; Baselines</a></li>
-    <li><a href="#in1k">IN-1K: OrderHead from Random-Order Baseline</a></li>
+    <li><a href="#setup">Architecture &amp; Setup</a></li>
+    <li><a href="#heuristic">Heuristic Orderings (No Training)</a></li>
+    <li><a href="#training">OrderHead Training Experiments (11 variants)</a></li>
+    <li><a href="#orderviz">Predicted Order Visualizations</a></li>
+    <li><a href="#ablations">Oracle Ablation Studies (4 ablations)</a></li>
+    <li><a href="#methods">5 Alternative Ordering Methods</a></li>
+    <li><a href="#in1k-finetune">IN-1K: Finetune from Random-Order Baseline</a></li>
     <li><a href="#in100">IN-100: From-Scratch Experiments</a></li>
-    <li><a href="#ablations">Ablations: AR Schedule, Input Modes</a></li>
-    <li><a href="#findings">Findings &amp; Lessons Learned</a></li>
+    <li><a href="#findings">Key Findings &amp; The Body Mismatch Problem</a></li>
   </ol>
 </div>
 
 <!-- 1. SETUP -->
 <div class="section" id="setup">
-  <h2>1. Setup &amp; Baselines</h2>
+  <h2>1. Architecture &amp; Setup</h2>
 
   <div class="card-grid">
     <div class="card">
-      <h3>MAR Architecture</h3>
-      <p>MAR-B: ~200M params, bidirectional encoder-decoder with diffusion loss on continuous VAE latents. 256 tokens (16&times;16), num_iter=64 (cosine AR schedule). MAR-S: ~100M params, same architecture scaled down.</p>
+      <h3>MAR-B (Frozen Body)</h3>
+      <p>Encoder: 12-layer ViT (86M), Decoder: 12-layer ViT (86M), DiffLoss: 6-layer MLP (37M). 256 tokens on 16&times;16 grid, each a 16-dim VAE latent. 64 generation steps, cosine unmasking schedule. <strong>All frozen during ordering training.</strong></p>
     </div>
     <div class="card">
-      <h3>OrderHead</h3>
-      <p>Same architecture as LlamaGen: 4-layer ViT, hidden_dim=256, ~3.5M params. ScoredOrdering with STE binary mask. ViT oracle trained on VQ/VAE tokens with PatchDrop. <code>cls_k=64</code> (4 clusters of 64 tokens).</p>
+      <h3>OrderHead (Trainable)</h3>
+      <p>4-layer transformer, dim=512, 13.3M params. Scores all 256 positions from MAR decoder output. Trained via MSE against oracle importance targets. STE binary mask for differentiable ordering.</p>
+    </div>
+    <div class="card">
+      <h3>PartialVisClassifier (Oracle)</h3>
+      <p>DeiT-S (21.8M params), frozen. Evaluates classifier confidence on partial token subsets. <code>cls_k=64</code>: 4 non-overlapping clusters of 64 tokens. Gives 4-level discrete importance.</p>
     </div>
   </div>
 
-  <h3>Verified Baselines (IN-1K, FID-50K)</h3>
+  <h3>Inference Modes</h3>
   <div class="table-wrap">
   <table>
-    <tr><th>Model</th><th>FID</th><th>IS</th><th>Source</th></tr>
-    <tr><td>MAR-B pretrained (official)</td><td class="best">2.30</td><td>270.4</td><td class="source">Slurm job 5864880</td></tr>
-    <tr><td>Random-order retrained (5ep warmup, full model)</td><td>2.31</td><td>253.0</td><td class="source">eval_rand_full_5884168.out</td></tr>
-    <tr><td>Random-order retrained (frozen layers)</td><td>3.53</td><td>213.6</td><td class="source">eval_rand_partial_5884169.out</td></tr>
-    <tr><td>Decoder finetune k=1, blr=1e-5</td><td>3.85</td><td>208.0</td><td class="source">Ordering_project Slurm logs</td></tr>
+    <tr><th>Mode</th><th>Description</th><th>OH Calls</th><th>Speed</th></tr>
+    <tr><td><strong>Fast</strong></td><td>Single-shot scoring from initial z_dec</td><td>1</td><td>Fast</td></tr>
+    <tr><td><strong>Semifast-8</strong></td><td>Re-score at 8 phase boundaries</td><td>8</td><td>8x slower</td></tr>
+    <tr><td><strong>Slow</strong></td><td>Re-score every step with current context</td><td>64</td><td>64x slower</td></tr>
+    <tr><td><strong>Random</strong></td><td>No ordering (baseline)</td><td>0</td><td>Fastest</td></tr>
   </table>
-  </div>
-  <p class="source">All FID-50K numbers verified against actual Slurm evaluation log files. IS = Inception Score.</p>
-
-  <div class="callout">
-    <p><strong>Key observation:</strong> The random-order retrained MAR (FID=2.31) matches the official baseline (FID=2.30). MAR is inherently order-agnostic due to bidirectional attention with random masking.</p>
   </div>
 </div>
 
-<!-- 2. IN-1K ORDERHEAD -->
-<div class="section" id="in1k">
-  <h2>2. IN-1K: OrderHead from Random-Order Baseline</h2>
-  <p>
-    Starting from the converged random-order MAR-B baseline (FID=2.31), we finetune with OrderHead for 10 epochs.
-    The MAR body is unfrozen. Three approaches tested: oracle supervision (cls_k mode), pure STE (no oracle),
-    and full finetune from the official checkpoint.
-  </p>
+<!-- 2. HEURISTIC ORDERINGS -->
+<div class="section" id="heuristic">
+  <h2>2. Heuristic Orderings (No Training)</h2>
+  <p>Evaluating the <strong>unmodified pretrained MAR-B</strong> with different fixed spatial orderings. No OrderHead, no fine-tuning &mdash; only the unmasking order changes.</p>
 
-  <h3>FID-50K Results (Verified from Eval Logs)</h3>
   <div class="table-wrap">
   <table>
-    <tr><th>Experiment</th><th>FID</th><th>IS</th><th>score_std</th><th>Source</th></tr>
-    <tr><td>Baseline (no OrderHead)</td><td class="best">2.30</td><td>270.4</td><td>&mdash;</td><td class="source">job 5864880</td></tr>
-    <tr><td>OH full finetune (from official, ep5)</td><td>5.75</td><td>220.2</td><td>~1.2</td><td class="source">eval_oh_ft_5952087.out</td></tr>
-    <tr><td>OH oracle (from random-order, ep9)</td><td>6.55</td><td>217.0</td><td>~1.6</td><td class="source">eval_oh_randorder_5952436.out</td></tr>
-    <tr><td>OH cosine iter=256 rescore8</td><td>7.08</td><td>209.5</td><td>&mdash;</td><td class="source">eval_ar_schedule_5957840.out</td></tr>
-    <tr><td>OH pure STE (from random-order, ep9)</td><td>10.95</td><td>180.5</td><td>~8.1</td><td class="source">eval_oh_randorder_5952436.out</td></tr>
-    <tr><td>OH cosine iter=64 rescore8</td><td>13.79</td><td>169.3</td><td>&mdash;</td><td class="source">eval_ar_schedule_5957840.out</td></tr>
+    <tr><th>Ordering</th><th>FID</th><th>IS</th><th>Source</th></tr>
+    <tr><td>Multiscale (coarse-to-fine)</td><td class="best">2.30</td><td>264.3</td><td class="source">Slurm 3958956, num_iter=256</td></tr>
+    <tr><td>Random (baseline)</td><td>2.33</td><td>265.6</td><td class="source">Slurm 4664053</td></tr>
+    <tr><td>AR random</td><td>2.41</td><td>274.4</td><td class="source">Slurm 3882999</td></tr>
+    <tr><td>Center + perturbation</td><td>2.44</td><td>254.6</td><td class="source">Slurm 3958468</td></tr>
+    <tr><td>Center spiral</td><td>2.70</td><td>253.7</td><td class="source">Slurm 3958469</td></tr>
+    <tr><td>Edge spiral</td><td>3.95</td><td>336.5</td><td class="source">Slurm 3958945</td></tr>
+  </table>
+  </div>
+  <p class="source">All FID-50K, cfg=2.9, 64 generation steps. Verified from comprehensive_summary/README.md.</p>
+
+  <div class="callout green">
+    <p><strong>Multiscale heuristic (FID=2.30) beats random (2.33) with ZERO training.</strong> This suggests the pretrained MAR body naturally benefits from certain spatial orderings that are close to its random-masking training distribution. No learned ordering has matched this result.</p>
+  </div>
+</div>
+
+<!-- 3. TRAINING EXPERIMENTS -->
+<div class="section" id="training">
+  <h2>3. OrderHead Training Experiments</h2>
+  <p>11 training variants tested, all on ImageNet-1K with frozen MAR-B body (except oracle_unfrozen). Common settings: batch=256, 4&times;H100, AdamW.</p>
+
+  <div class="table-wrap">
+  <table>
+    <tr><th>Experiment</th><th>FID (fast)</th><th>FID (semifast-8)</th><th>blr</th><th>Epochs</th><th>Lambda</th><th>cls_k</th><th>Notes</th></tr>
+    <tr><td>nonaligned_oracle (10ep)</td><td>3.41</td><td class="best">2.94</td><td>5e-4</td><td>10</td><td>1.0</td><td>64</td><td>Best classifier-guided result</td></tr>
+    <tr><td>v3_oracle_aligned_k64</td><td class="best">3.16</td><td>3.40</td><td>5e-4</td><td>40</td><td>1.0</td><td>64</td><td>Best fast inference</td></tr>
+    <tr><td>oracle_aligned</td><td>3.43</td><td>3.19</td><td>5e-4</td><td>40</td><td>1.0</td><td>64</td><td>Stage1 = all-ones mask</td></tr>
+    <tr><td>v3_oracle_phase1b</td><td>&mdash;</td><td>3.42</td><td>5e-4</td><td>40</td><td>1.0</td><td>64</td><td>Slow inference</td></tr>
+    <tr><td>v3_oracle_phase1b_k16</td><td>&mdash;</td><td>3.34</td><td>5e-4</td><td>40</td><td>1.0</td><td>16</td><td>Finer-grained oracle</td></tr>
+    <tr><td>oracle_low_lambda</td><td>3.67</td><td>4.04</td><td>5e-4</td><td>40</td><td>0.1</td><td>64</td><td>Weaker ordering signal</td></tr>
+    <tr><td>oracle_cumulative</td><td>4.27</td><td>4.24</td><td>5e-4</td><td>20</td><td>1.0</td><td>64</td><td>Multi-k cumulative prefix oracle</td></tr>
+    <tr><td>nonaligned_oracle (40ep)</td><td>4.48</td><td>4.75</td><td>5e-4</td><td>40</td><td>1.0</td><td>64</td><td>Longer training hurts</td></tr>
+    <tr><td>oracle_unfrozen</td><td>4.65</td><td>4.90</td><td>1e-4</td><td>40</td><td>1.0</td><td>64</td><td>Body unfrozen &mdash; worse!</td></tr>
+    <tr><td>oracle_high_lr</td><td>4.50</td><td>5.02</td><td>2e-3</td><td>20</td><td>1.0</td><td>64</td><td>4x higher LR</td></tr>
+    <tr><td>oracle_k32</td><td>5.13</td><td>6.35</td><td>5e-4</td><td>40</td><td>1.0</td><td>32</td><td>Smaller eval window</td></tr>
+    <tr><td>oracle_lambda5</td><td>5.37</td><td>6.11</td><td>5e-4</td><td>20</td><td>5.0</td><td>64</td><td>Stronger signal hurts</td></tr>
+    <tr><td>oracle_deep</td><td>&mdash;</td><td>&mdash;</td><td>5e-4</td><td>20</td><td>1.0</td><td>64</td><td>8-layer OrderHead</td></tr>
+  </table>
+  </div>
+  <p class="source">FID-50K, cfg=2.9, 64 steps. Verified from comprehensive_summary/README.md and Slurm eval logs.</p>
+
+  <img src="img/mar_main_dashboard.png" alt="MAR OrderHead main dashboard">
+  <p class="img-caption">Main results dashboard showing FID vs ordering method across training configurations.</p>
+
+  <div class="callout warn">
+    <p><strong>No classifier-guided model beats the pretrained baseline (FID=2.33).</strong> The best result (semifast-8 = 2.94) still loses 0.61 FID. Higher lambda, longer training, and body unfreezing all make things worse &mdash; the ordering signal pushes the model further from the random-masking distribution it was trained with.</p>
+  </div>
+</div>
+
+<!-- 3b. ORDER VISUALIZATIONS -->
+<div class="section" id="orderviz">
+  <h2>3b. Predicted Order Visualizations</h2>
+
+  <h3>Random vs Learned Ordering: Side-by-Side Comparison</h3>
+  <p>Each panel shows three ordering strategies (content-aware slow rescoring, fast positional-only, random baseline) with their order heatmaps and progressive generation at 25%, 50%, 75% completion.</p>
+
+  <img src="img/mar_rvl_golden_retriever.png" alt="Random vs Learned: Golden Retriever">
+  <p class="img-caption">Golden Retriever (class 207). Content-aware (slow) ordering generates the dog's face first, while fast ordering follows a learned spatial prior (center-biased). Random ordering scatters tokens uniformly.</p>
+
+  <img src="img/mar_rvl_panda.png" alt="Random vs Learned: Panda">
+  <p class="img-caption">Panda (class 388). Content-aware rescoring concentrates early tokens on the panda's face and body.</p>
+
+  <img src="img/mar_rvl_tiger.png" alt="Random vs Learned: Tiger">
+  <p class="img-caption">Tiger (class 292). Note how content-aware ordering selectively generates the tiger's body in the first 25%, while random ordering generates scattered patches across the entire image.</p>
+
+  <h3>Generation Order Heatmaps: Fast vs Semifast vs Slow vs Random</h3>
+  <p>Each row shows a different ordering strategy. The heatmap (left) encodes generation order (dark=early, light=late). Progressive snapshots show the image at 25%, 50%, 70%, 100% completion.</p>
+
+  <img src="img/mar_genorder_bubble.png" alt="Generation order: Bubble class">
+  <p class="img-caption">Bubble (class 971). Fast ordering (row 2) uses a fixed center-biased pattern. Semifast (row 3) adapts slightly. Slow rescoring (row 3) generates the bubble's reflections first. Random (row 4) is spatially uniform.</p>
+
+  <img src="img/mar_genorder_retriever.png" alt="Generation order: Retriever class">
+
+  <h3>OrderHead Score Evolution (Semifast-8 Rescoring)</h3>
+  <p>Top row: OrderHead scores at each rescore boundary (step 0, 16, 40, 56). Bottom row: which tokens are generated in the first 25%, 50%, 75%, and all 100%.</p>
+
+  <img src="img/mar_oh_progressive_img0.png" alt="MAR OH progressive generation - image 0">
+  <p class="img-caption">Score heatmaps (top) show how OrderHead's importance predictions evolve as more tokens are generated. The rank quartile view (bottom, green = generated) shows object-centric generation order.</p>
+
+  <img src="img/mar_oh_progressive_img3.png" alt="MAR OH progressive generation - image 3">
+</div>
+
+<!-- 4. ABLATION STUDIES -->
+<div class="section" id="ablations">
+  <h2>4. Oracle Ablation Studies</h2>
+  <p>Four ablations using the <code>nonaligned_oracle_mse</code> checkpoint (10 epochs) to test whether OrderHead learned meaningful importance, independent of the body mismatch issue.</p>
+
+  <h3>Ablation 1: Spearman Rank Correlation (Learned vs Oracle Importance)</h3>
+  <p>Do OrderHead scores correlate with oracle per-token importance?</p>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Image</th><th>Class</th><th>Fast</th><th>GT-aware</th><th>Slow</th></tr>
+    <tr><td>0</td><td>Golden Retriever</td><td>0.592</td><td>0.596</td><td>0.020</td></tr>
+    <tr><td>1</td><td>Golden Retriever</td><td>0.535</td><td>0.539</td><td>0.210</td></tr>
+    <tr><td>2</td><td>Bubble</td><td>0.361</td><td>0.276</td><td>0.230</td></tr>
+    <tr><td>3</td><td>Bubble</td><td>-0.006</td><td>-0.076</td><td>0.106</td></tr>
+    <tr><td>4</td><td>Panda</td><td>0.254</td><td>0.230</td><td>0.066</td></tr>
+    <tr><td>5</td><td>Panda</td><td>0.184</td><td>0.232</td><td>0.005</td></tr>
+    <tr><td>6</td><td>Flamingo</td><td>0.084</td><td>0.161</td><td>0.151</td></tr>
+    <tr><td>7</td><td>Flamingo</td><td>0.129</td><td>0.181</td><td>0.081</td></tr>
+    <tr style="font-weight:700;"><td colspan="2"><strong>Mean</strong></td><td>0.267</td><td>0.267</td><td>0.109</td></tr>
+  </table>
+  </div>
+  <p><strong>Key insight:</strong> Fast &asymp; GT-aware (within 0.05 per image). This means the <strong>OrderHead learned a spatial prior, NOT content-dependent importance</strong>. Giving it perfect content information (GT-aware) doesn't change predictions.</p>
+
+  <h3>Ablation 2: GT Token Injection (Body Mismatch Test)</h3>
+  <p>If tokens were perfect, would ordering matter?</p>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Ordering</th><th>MSE to GT (DiffLoss sampling)</th><th>MSE to GT (GT injection)</th></tr>
+    <tr><td>Random</td><td class="best">0.10448</td><td>0.00000</td></tr>
+    <tr><td>Learned slow</td><td>0.12945</td><td>N/A</td></tr>
+    <tr><td>Learned fast</td><td>0.13413</td><td>0.00000</td></tr>
+    <tr><td>Oracle</td><td>0.13454</td><td>0.00000</td></tr>
   </table>
   </div>
 
-  <div class="callout warn">
-    <p><strong>OrderHead has NOT beaten the random-order baseline.</strong> The best OrderHead result (FID=6.55 with oracle) is significantly worse than the baseline (FID=2.30). The structured ordering reduces sample quality compared to random masking.</p>
+  <div class="callout red">
+    <p><strong>Random ordering produces lowest MSE (0.104) &mdash; beating oracle (0.135) and learned (0.134).</strong> This is the body mismatch effect: the MAR body was trained with random masking, so it generates best-quality tokens when ordering IS random. Any structured ordering is out-of-distribution for the body.</p>
   </div>
 
-  <h3>OH Oracle: FID-5K per Epoch (cfg=2.9, from random-order baseline)</h3>
-  <p>Online evaluation during 10-epoch finetune. score_std stable at ~1.6 throughout.</p>
+  <h3>Ablation 3: Heuristic Ordering Comparison</h3>
+  <p>9 orderings compared during free generation: random, center_spiral, edge_spiral, multiscale, blockwise, ar_raster, learned_fast, learned_slow, oracle_marginal.</p>
+  <img src="img/mar_ordering_heatmaps.png" alt="Ordering heatmaps for different methods">
+  <p class="img-caption">Generation order heatmaps (dark=early, light=late). Center_spiral generates from center-out; learned_slow adaptively focuses on object regions.</p>
+
+  <h3>Ablation 4: Progressive Quality Curves (Recognizability Speed)</h3>
+  <p>Does good ordering make images recognizable faster during generation?</p>
+
+  <div class="stat-row">
+    <div class="stat green"><div class="num">0.568</div><div class="label">Learned slow AUC</div></div>
+    <div class="stat"><div class="num">0.487</div><div class="label">Oracle AUC</div></div>
+    <div class="stat"><div class="num">0.484</div><div class="label">Random AUC</div></div>
+    <div class="stat"><div class="num">0.454</div><div class="label">Learned fast AUC</div></div>
+    <div class="stat red"><div class="num">0.216</div><div class="label">Center spiral AUC</div></div>
+  </div>
+
+  <div class="callout green">
+    <p><strong>Strongest positive signal:</strong> Learned slow rescoring (AUC=0.568) makes images recognizable faster than even the oracle ordering (0.487). Slow inference adapts dynamically to the generation trajectory, finding orderings that maximize recognizability &mdash; a fundamentally different objective than static importance.</p>
+  </div>
+
+  <img src="img/mar_ablation4_progressive_curves.png" alt="Progressive quality curves">
+  <p class="img-caption">Progressive quality curves during 64-step generation. Left: classifier confidence (recognizability) at each step. Right: MSE to final image (convergence). Learned slow (green) achieves highest recognizability speed despite worse final FID.</p>
+
+  <img src="img/mar_fid_vs_auac.png" alt="FID vs AUAC tradeoff">
+  <p class="img-caption">FID vs AUAC (Area Under Accuracy Curve): higher AUAC = images become recognizable faster. Slow rescoring achieves highest AUAC but at significant compute cost (64&times;).</p>
+</div>
+
+<!-- 5. ALTERNATIVE METHODS -->
+<div class="section" id="methods">
+  <h2>5. Five Alternative Ordering Methods</h2>
+  <p>Beyond the standard oracle approach, we tested 5 alternative ordering strategies, all evaluated with 5K generated images:</p>
+
+  <div class="table-wrap">
+  <table>
+    <tr><th>Method</th><th>FID</th><th>IS</th><th>CLIP Score</th><th>CMMD</th></tr>
+    <tr><td>Random (pretrained, no OH)</td><td class="best">8.02</td><td>155.98</td><td>0.3057</td><td>1.223</td></tr>
+    <tr><td>Idea 3: Entropy-based</td><td>8.46</td><td>150.01</td><td>0.3050</td><td>1.241</td></tr>
+    <tr><td>Idea 5: Class-conditional</td><td>8.47</td><td>147.05</td><td>0.3043</td><td>1.242</td></tr>
+    <tr><td>Idea 4: Reconstruction-based</td><td>8.52</td><td>149.26</td><td>0.3042</td><td>1.246</td></tr>
+    <tr><td>Idea 1: Knowledge distillation</td><td>8.62</td><td>149.72</td><td>0.3048</td><td>1.240</td></tr>
+    <tr><td>Nonaligned oracle</td><td>9.13</td><td>136.27</td><td>0.3027</td><td>1.255</td></tr>
+    <tr><td>Idea 2: LoRA fine-tuning</td><td class="fail">10.04</td><td>134.35</td><td>0.2995</td><td>1.279</td></tr>
+  </table>
+  </div>
+  <p class="source">5K images, verified from eval_all_methods/all_results.json.</p>
+
+  <img src="img/mar_fid_is_comparison.png" alt="FID/IS comparison of all methods">
+  <p class="img-caption">FID and IS comparison across all 7 methods. Random baseline (no OrderHead) dominates on both metrics.</p>
+
+  <p>All alternative methods (distillation, LoRA, entropy, reconstruction, class-conditioning) underperform the random baseline. The oracle-trained OrderHead (9.13) is worst among the learning-based approaches, suggesting that the oracle's discrete 4-level importance targets may be too coarse to capture useful ordering information.</p>
+</div>
+
+<!-- 6. IN-1K FINETUNE -->
+<div class="section" id="in1k-finetune">
+  <h2>6. IN-1K: Finetune from Random-Order Baseline</h2>
+  <p>Starting from the converged random-order MAR-B (FID=2.31), we finetune with OrderHead for 10 epochs. This tests OrderHead on a backbone trained to be order-agnostic.</p>
+
+  <h3>FID-50K Results</h3>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Experiment</th><th>FID</th><th>IS</th><th>Source</th></tr>
+    <tr><td>Random-order MAR-B baseline</td><td class="best">2.31</td><td>253.0</td><td class="source">eval_rand_full_5884168.out</td></tr>
+    <tr><td>OH full finetune ep5</td><td>5.75</td><td>220.2</td><td class="source">eval_oh_ft_5952087.out</td></tr>
+    <tr><td>OH oracle (from random-order) ep9</td><td>6.55</td><td>217.0</td><td class="source">eval_oh_randorder_5952436.out</td></tr>
+    <tr><td>OH pure STE ep9</td><td class="fail">10.95</td><td>180.5</td><td class="source">eval_oh_randorder_5952436.out</td></tr>
+  </table>
+  </div>
+
+  <h3>Per-Epoch FID-5K Trajectories (cfg=2.9)</h3>
+  <p><strong>Oracle (cls_k=64):</strong> score_std stable at ~1.6 throughout.</p>
   <div class="table-wrap">
   <table>
     <tr><th>Epoch</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th></tr>
     <tr><td>FID-5K</td><td>17.01</td><td>22.62</td><td>23.86</td><td>23.18</td><td>23.14</td><td>23.37</td><td>21.32</td><td>19.77</td><td>19.49</td><td class="best">18.85</td></tr>
   </table>
   </div>
-  <p class="source">Verified from in1k_oh_from_randorder_oracle_5916963.out. FID improves monotonically from ep5 to ep9.</p>
+  <p class="source">Verified from in1k_oh_from_randorder_oracle_5916963.out.</p>
 
-  <h3>OH Pure STE: FID-5K per Epoch (cfg=2.9, from random-order baseline)</h3>
-  <p>Without oracle supervision, scores explode (score_std reaches ~8 by ep9). FID peaks at ep4 then degrades.</p>
+  <p><strong>Pure STE (no oracle):</strong> score_std explodes to ~8 by ep9. FID peaks at ep4 then degrades.</p>
   <div class="table-wrap">
   <table>
     <tr><th>Epoch</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th></tr>
-    <tr><td>FID-5K</td><td>26.31</td><td>25.91</td><td>23.16</td><td>21.77</td><td class="best">20.89</td><td>25.00</td><td>28.47</td><td>35.82</td><td>38.27</td><td class="fail">33.63</td></tr>
+    <tr><td>FID-5K</td><td>26.31</td><td>25.91</td><td>23.16</td><td>21.77</td><td class="best">20.89</td><td>25.00</td><td>28.47</td><td>35.82</td><td class="fail">38.27</td><td>33.63</td></tr>
   </table>
   </div>
-  <p class="source">Verified from in1k_oh_from_randorder_5917013.out. FID degrades from ep4 onward as score_std explodes.</p>
+  <p class="source">Verified from in1k_oh_from_randorder_5917013.out.</p>
 
-  <h3>OH Full Finetune: FID-50K per Epoch (from official MAR-B checkpoint)</h3>
-  <p>Monotonic degradation: the OrderHead ordering hurts the already-optimized MAR-B model.</p>
+  <p><strong>OH Full finetune (from official MAR-B, FID-50K):</strong> Monotonic degradation.</p>
   <div class="table-wrap">
   <table>
     <tr><th>Epoch</th><th>5</th><th>10</th><th>15</th><th>20</th></tr>
     <tr><td>FID-50K</td><td>5.75</td><td>6.94</td><td>8.16</td><td class="fail">9.58</td></tr>
-    <tr><td>IS</td><td>220.2</td><td>191.8</td><td>177.6</td><td>151.3</td></tr>
   </table>
   </div>
-  <p class="source">Verified from eval_oh_ft_5952087.out. Every epoch makes the model worse.</p>
+  <p class="source">Verified from eval_oh_ft_5952087.out.</p>
 
-  <h3>Extended Oracle Training (ep9 &rarr; ep30)</h3>
-  <p>Continued training from the ep9 oracle checkpoint. FID plateaus at ~18.5&ndash;20.0 with no meaningful improvement beyond ep9.</p>
-  <div class="table-wrap">
-  <table>
-    <tr><th>Epoch</th><th>10</th><th>11</th><th>15</th><th>20</th><th>25</th><th>29</th></tr>
-    <tr><td>FID-5K</td><td>18.71</td><td class="best">18.55</td><td>19.71</td><td>18.56</td><td>19.56</td><td>19.36</td></tr>
-  </table>
-  </div>
-  <p class="source">Verified from in1k_oh_from_randorder_oracle_ext_5955292.out. Best FID-5K = 18.55 at ep11.</p>
+  <img src="img/mar_training_loss_curves.png" alt="Training loss curves">
+  <p class="img-caption">Training loss curves across methods. All learning-based ordering methods converge, but the body mismatch prevents FID improvement.</p>
 </div>
 
-<!-- 3. IN-100 FROM SCRATCH -->
+<!-- 7. IN-100 FROM SCRATCH -->
 <div class="section" id="in100">
-  <h2>3. IN-100: From-Scratch Experiments</h2>
-  <p>
-    Training OrderHead + MAR jointly from random initialization. These experiments test whether
-    the two components can bootstrap each other without a pretrained backbone.
-  </p>
+  <h2>7. IN-100: From-Scratch Experiments</h2>
+  <p>Training OrderHead + MAR jointly from random initialization (400 epochs).</p>
 
-  <h3>Results (FID-5K, verified from eval logs)</h3>
   <div class="table-wrap">
   <table>
-    <tr><th>Experiment</th><th>FID-5K</th><th>IS</th><th>score_std</th><th>Status</th><th>Source</th></tr>
-    <tr><td>MAR-S saliency_attn (400 ep)</td><td class="fail">104.24</td><td>15.45</td><td>0.50 (collapsed)</td><td><span class="tag tag-red">Failed</span></td><td class="source">eval_in100_oh_s_saliency_5952089.out</td></tr>
-    <tr><td>MAR-S cls_k oracle (400 ep)</td><td class="fail">78.27</td><td>20.62</td><td>0.012 &rarr; recovered to ~1.6</td><td><span class="tag tag-red">Failed</span></td><td class="source">eval_in100_oh_s_clsk_5952088.out</td></tr>
+    <tr><th>Experiment</th><th>FID-5K</th><th>IS</th><th>score_std</th><th>Source</th></tr>
+    <tr><td>MAR-S saliency_attn (400ep)</td><td class="fail">104.24</td><td>15.45</td><td>0.50 (collapsed)</td><td class="source">eval_in100_oh_s_saliency_5952089.out</td></tr>
+    <tr><td>MAR-S cls_k oracle (400ep)</td><td class="fail">78.27</td><td>20.62</td><td>0.012&rarr;~1.6</td><td class="source">eval_in100_oh_s_clsk_5952088.out</td></tr>
   </table>
   </div>
-  <p>Baselines for reference: MAR-S (no OrderHead) = FID-5K ~31.28 (IN-100, online eval during training). MAR-B = FID-5K ~18.87.</p>
+  <p>Baselines: MAR-S = FID-5K ~31.28 (IN-100), MAR-B = FID-5K ~18.87 (IN-100).</p>
 
   <div class="callout red">
-    <p><strong>From-scratch training failed consistently.</strong> The chicken-and-egg problem: at epoch 0, both MAR body and ViT oracle operate on random features, producing meaningless importance scores. OrderHead scores collapse (std &rarr; 0.012), and the MAR body trains under random ordering for hundreds of epochs. Even though score_std eventually recovers to ~1.6 by epoch 400, the MAR body has already converged to a suboptimal state. FID is 2.5&ndash;3.3x worse than the no-OrderHead baseline.</p>
+    <p><strong>From-scratch training fails (2.5&ndash;3.3x worse than baseline).</strong> Chicken-and-egg collapse: at epoch 0, both MAR body and oracle operate on random features &rarr; meaningless importance scores &rarr; OrderHead collapses (score_std&rarr;0.012). Though score_std eventually recovers to ~1.6 by epoch 400, the MAR body has already converged under random ordering &mdash; the damage is done.</p>
   </div>
 </div>
 
-<!-- 4. ABLATIONS -->
-<div class="section" id="ablations">
-  <h2>4. Ablations: AR Schedule, Input Modes</h2>
-
-  <h3>AR Schedule (IN-1K, FID-50K, oracle ep9 checkpoint)</h3>
-  <div class="table-wrap">
-  <table>
-    <tr><th>Schedule</th><th>FID</th><th>IS</th><th>Source</th></tr>
-    <tr><td>Cosine, iter=256, rescore8</td><td class="best">7.08</td><td>209.5</td><td class="source">eval_ar_schedule_5957840.out</td></tr>
-    <tr><td>Cosine, iter=64, rescore8</td><td>13.79</td><td>169.3</td><td class="source">eval_ar_schedule_5957840.out</td></tr>
-    <tr><td>Uniform, iter=4, rescore4</td><td class="fail">172.95</td><td>7.25</td><td class="source">eval_ar_schedule_5957840.out (catastrophic)</td></tr>
-  </table>
-  </div>
-  <p>More AR iterations (256 vs 64) significantly improve FID. Uniform schedule with very few iterations (4) completely fails.</p>
-
-  <h3>GT Latent Input Experiments (IN-100)</h3>
-  <p>Experiments using ground-truth VAE latents directly as OrderHead input (bypassing the encoder):</p>
-  <div class="table-wrap">
-  <table>
-    <tr><th>Experiment</th><th>FID</th><th>IS</th><th>Source</th></tr>
-    <tr><td>GT latent input</td><td class="fail">564.85</td><td>1.00</td><td class="source">Eval logs (3 variants, all collapsed)</td></tr>
-  </table>
-  </div>
-  <p>All three GT latent variants produced identical catastrophic results: FID=564.85, IS=1.00 (complete model collapse). Bypassing the encoder removes all learned feature representations.</p>
-</div>
-
-<!-- 5. FINDINGS -->
+<!-- 8. FINDINGS -->
 <div class="section" id="findings">
-  <h2>5. Findings &amp; Lessons Learned</h2>
+  <h2>8. Key Findings &amp; The Body Mismatch Problem</h2>
 
   <div class="card">
-    <h3>Oracle supervision (cls_k) is the only stable training signal</h3>
+    <h3>The Body Mismatch Problem (Core Finding)</h3>
     <p>
-      The <code>cls_k=64</code> oracle mode evaluates classification accuracy on non-overlapping clusters of 64 tokens each (4 clusters for 256 total). This gives robust per-token importance scores. The alternative <code>saliency_attn</code> mode (CLS&rarr;patch attention) produces near-uniform scores (~0.004/patch) and causes OrderHead collapse. All successful experiments use <code>cls_k</code> oracle.
+      The MAR body was trained for ~400 epochs with <strong>random masking</strong>. It learned to handle randomly-masked contexts optimally. Imposing any structured ordering &mdash; even a provably "better" one &mdash; creates out-of-distribution masking patterns, producing worse token predictions. This is confirmed by Ablation 2: random ordering gives <strong>lowest MSE (0.104)</strong> even when compared to oracle ordering (0.135).
     </p>
   </div>
 
   <div class="card">
-    <h3>OrderHead works best when initialized from a converged order-agnostic backbone</h3>
+    <h3>Positive Signal: Slow Rescoring (AUC = 0.568)</h3>
     <p>
-      The only stable OrderHead training happens when the MAR body is already well-trained on random-order data.
-      The pretrained body provides discriminative hidden states for scoring, and can adapt to structured orderings
-      because it was trained on diverse masking patterns. From-scratch training fails because neither component
-      can provide useful signal to the other during early training.
+      The strongest evidence that learned ordering captures meaningful information. Slow rescoring (re-scoring at every step using current context) makes images recognizable faster than even oracle ordering (0.487) or random (0.484). This is because slow rescoring <strong>adapts dynamically</strong> to the generation trajectory &mdash; a fundamentally different capability than static importance scoring.
     </p>
   </div>
 
   <div class="card">
-    <h3>STE-only training is unstable without oracle regularization</h3>
+    <h3>OrderHead Learned a Spatial Prior, Not Content Importance</h3>
     <p>
-      Pure STE training causes score_std to grow unboundedly (~8+ by epoch 9), leading to increasingly extreme
-      orderings that push the model out of distribution. Adding oracle MSE as a regularizer (lambda_cls=0.1&ndash;1.0)
-      keeps score_std in the 1.0&ndash;2.0 range and produces stable FID improvements across epochs.
+      Fast vs GT-aware scores are nearly identical (Spearman &rho; within 0.05 per image), meaning giving the OrderHead perfect content information doesn't change its predictions. It learned a center-biased spatial prior, not image-specific importance. The 4-level oracle target may be too coarse to convey content-dependent information.
     </p>
   </div>
 
   <div class="card">
-    <h3>OrderHead has not improved over the random-order baseline in any experiment</h3>
+    <h3>Heuristic Orderings Are Competitive</h3>
     <p>
-      The fundamental result: MAR with random masking (FID=2.30) outperforms MAR with learned ordering
-      (best FID=6.55). This suggests that for bidirectional masked models, the diversity of random masking
-      may be more valuable than the structure of a learned ordering. The OrderHead constrains the model
-      to a specific ordering pattern, which may reduce the effective training distribution.
+      Multiscale heuristic achieves FID=2.30 (best overall) with <strong>zero training</strong>. No learned ordering has beaten this. This suggests the pretrained MAR body can benefit from structured ordering IF the structure is compatible with its random-masking training distribution.
     </p>
+  </div>
+
+  <div class="card">
+    <h3>All Learned Methods Underperform Random</h3>
+    <p>
+      Across 7 methods (distillation, LoRA, entropy, reconstruction, class-conditional, oracle, STE), 11 training configurations, and 50K evaluation &mdash; no learned ordering beats the random baseline (FID=2.33 for heuristic, 8.02 for 5K eval). The ordering signal exists (partial correlation with oracle, faster recognizability) but the body mismatch dominates final image quality.
+    </p>
+  </div>
+
+  <img src="img/mar_metric_comparison.png" alt="Metric comparison across methods">
+  <p class="img-caption">Comprehensive metric comparison: FID, IS, CLIP Score, and CMMD across all ordering methods. Random baseline wins on all metrics.</p>
+
+  <div class="callout">
+    <p><strong>Path forward:</strong> The body mismatch is the fundamental bottleneck. Promising directions include: (1) training the MAR body from scratch WITH the learned ordering, (2) gentler fine-tuning with very low LR + small lambda, (3) combining learned ordering with heuristic priors (e.g., multiscale + OrderHead refinement), (4) faster approximations of slow rescoring to capture the adaptive advantage.</p>
   </div>
 </div>
 

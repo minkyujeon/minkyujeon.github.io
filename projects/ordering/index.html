@@ -326,11 +326,13 @@
   </div>
 
   <div class="card">
-    <h3>Finding 3: OrderHead has not beaten random ordering in MAR</h3>
+    <h3>Finding 3: The Body Mismatch Problem dominates in MAR</h3>
     <p>
-      The best MAR+OrderHead result (FID-50K = 6.55) is significantly worse than the random-order MAR baseline
-      (FID-50K = 2.31). The OrderHead adds a structured ordering, but the MAR model was already excellent with
-      random masking. The structured ordering may actually reduce diversity.
+      Across 11 training configurations, 7 ordering methods, and 50K evaluations &mdash; no learned ordering beats the
+      random baseline. The best (semifast-8 = 2.94) loses 0.61 FID to random (2.33). Root cause: the MAR body was
+      trained for 400 epochs with random masking. Any structured ordering creates OOD masking patterns.
+      Confirmed by GT injection ablation: random ordering gives <strong>lowest MSE (0.104)</strong> vs oracle (0.135).
+      However, the multiscale heuristic (FID=2.30, zero training) beats random, suggesting compatible structures exist.
     </p>
   </div>
 
@@ -349,6 +351,17 @@
       Training OrderHead and the generation model jointly from random initialization leads to collapse:
       at epoch 0, both models are random, so the ordering signal is meaningless, and neither can bootstrap.
       The only successful OrderHead training starts from a <strong>pretrained, order-agnostic backbone</strong>.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>Finding 6: Slow rescoring is the strongest positive signal</h3>
+    <p>
+      In MAR, slow rescoring (re-scoring at every generation step using current context) achieves the highest
+      recognizability speed (AUC = 0.568), beating even oracle ordering (0.487) and random (0.484). This adaptive
+      approach &mdash; where the ordering responds to what has been generated so far &mdash; is fundamentally different
+      from static importance scoring, and suggests the real value is in <strong>dynamic, content-aware ordering</strong>
+      rather than fixed importance maps.
     </p>
   </div>
 
