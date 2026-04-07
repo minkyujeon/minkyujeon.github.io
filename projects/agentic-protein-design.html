@@ -880,7 +880,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     <h3>6. Reliability Audit &mdash; Publication Status (Updated)</h3>
     <p style="font-size:0.88rem; color:var(--muted); margin-bottom:10px;">
       Full review in <code>docs/EXPERIMENT_RELIABILITY_REVIEW.md</code>. Phase 1b complete (all 9/9 jobs).
-      All confirmed with <code>num_redesign_seqs=8</code>. Phase 2 (20 jobs) now queued for scale-up and matrix completion.
+      All confirmed with <code>num_redesign_seqs=8</code>. Phase 2 (24 jobs) launched on April 7, 2026 for scale-up and matrix completion.
     </p>
     <table style="font-size:0.82rem; width:100%;">
       <tr>
@@ -1223,7 +1223,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     return "try_both"             # Ambiguous → run noise AND halluc,
                                   # pick whichever works better</code></pre>
     <p style="font-size:0.88rem; color:var(--muted); margin-top:8px;">
-      <strong>Validated on 4 targets: 3/4 correct.</strong> SpCas9 and CrSAS6 validation experiments queued (Exp 15a-d).
+      <strong>Validated on 4 targets: 3/4 correct.</strong> SpCas9 and CrSAS6 validation experiments are now in progress (Exp 15a-d).
     </p>
   </div>
 
@@ -1263,12 +1263,12 @@ Terminate: when unique success count plateaus
   </div>
 
   <div class="card" style="border-left: 4px solid var(--orange);">
-    <h4 style="font-size:1rem; margin-bottom:8px;">Ongoing Validation: SpCas9 + CrSAS6 (Exp 15a-d, Queued)</h4>
+    <h4 style="font-size:1rem; margin-bottom:8px;">Ongoing Validation: SpCas9 + CrSAS6 (Exp 15a-d, In Progress)</h4>
     <p style="font-size:0.88rem; color:var(--muted);">
       The routing tree predicts &ldquo;try both&rdquo; for SpCas9 (both iPAE=50% and pLDDT=50% at boundary)
-      and &ldquo;default or noise&rdquo; for CrSAS6 (iPAE=75%, mild bottleneck). 4 jobs submitted:
-      SpCas9+noise, SpCas9+halluc, CrSAS6+noise, CrSAS6+halluc.
-      Results will extend validation from 4 to 6 tested targets.
+      and &ldquo;default or noise&rdquo; for CrSAS6 (iPAE=75%, mild bottleneck). As of April 7, 2026 local logs show
+      SpCas9+noise and CrSAS6+noise completed, while SpCas9+halluc and CrSAS6+halluc are still running.
+      Full results will extend validation from 4 to 6 tested targets.
     </p>
   </div>
 
@@ -1333,7 +1333,7 @@ Terminate: when unique success count plateaus
     <!-- ─── RELIABILITY / REPLICATION EXPERIMENTS ─── -->
     <tr style="background:#fef9c3">
       <td colspan="5" style="font-size:0.8rem; font-weight:600; color:#92400e; padding:6px 12px;">
-        &#9654; Reliability Validation Round — 9 jobs queued 2026-04-07 (all use num_redesign_seqs=8)
+        &#9654; Reliability Validation Round — 9 jobs completed 2026-04-07 (all use num_redesign_seqs=8)
       </td>
     </tr>
     <tr style="background:#d1fae5">
@@ -1374,7 +1374,7 @@ Terminate: when unique success count plateaus
     <!-- ─── PHASE 2: AGENTIC CONFIGURATION MATRIX ─── -->
     <tr style="background:#ede9fe">
       <td colspan="5" style="font-size:0.8rem; font-weight:600; color:#5b21b6; padding:6px 12px;">
-        &#9654; Phase 2: Agentic Configuration Matrix &mdash; 20 jobs queued 2026-04-07
+        &#9654; Phase 2: Agentic Configuration Matrix &mdash; 24 jobs launched 2026-04-07
       </td>
     </tr>
     <tr style="background:#fee2e2">
@@ -1386,10 +1386,10 @@ Terminate: when unique success count plateaus
     </tr>
     <tr style="background:#d1fae5">
       <td style="text-align:center; font-size:1.1rem">&#9745;</td>
-      <td><strong>Exp 11a-h: Baseline Scale-Up to N=96</strong><br><span style="font-size:0.82rem;color:var(--muted)">Baseline replicas for CD45, HER2, BetV1 (6/6 done); halluc replicas (4 running)</span></td>
-      <td>6/10</td>
-      <td><span class="tag tag-orange">Partial</span></td>
-      <td style="font-size:0.82rem"><strong>Perfect reproducibility:</strong> CD45: 8/32, 8/32, 8/32. HER2: 1/32, 1/32, 1/32. BetV1: 6/32, 6/32, 6/32. HER2/BetV1 halluc replicas still running.</td>
+      <td><strong>Exp 11a-j: Baseline Scale-Up to N=96</strong><br><span style="font-size:0.82rem;color:var(--muted)">Baseline replicas for CD45, HER2, BetV1 (6/6 done); HER2/BetV1 hallucination replicas (4/4 done)</span></td>
+      <td>10/10</td>
+      <td><span class="tag tag-green">Done</span></td>
+      <td style="font-size:0.82rem"><strong>Perfect reproducibility:</strong> CD45: 8/32, 8/32, 8/32. HER2 baseline: 1/32, 1/32, 1/32. BetV1 baseline: 6/32, 6/32, 6/32. HER2 hallucination replicas completed at 22/32 and 23/32 self pass; BetV1 hallucination replicas completed at 4/32 and 6/32 self pass.</td>
     </tr>
     <tr style="background:#d1fae5">
       <td style="text-align:center; font-size:1.1rem">&#9745;</td>
@@ -1398,12 +1398,12 @@ Terminate: when unique success count plateaus
       <td><span class="tag tag-green">Done</span></td>
       <td style="font-size:0.82rem"><strong>12a: noise=0.15 gives 8/32 (=baseline). Sharp threshold at 0.20.</strong> 12b: bb=0.2,lat=0.1 gives 3/32 (9.4%) &mdash; WORSE than default. Need BOTH bb+lat=0.2 together.</td>
     </tr>
-    <tr style="background:#fef3c7">
-      <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
+    <tr style="background:#d1fae5">
+      <td style="text-align:center; font-size:1.1rem">&#9745;</td>
       <td><strong>Exp 13a-b: Combos on Other Targets</strong><br><span style="font-size:0.82rem;color:var(--muted)">HER2 + noise=0.20+halluc, BetV1 + noise=0.20+halluc</span></td>
-      <td>0/2</td>
-      <td><span class="tag tag-orange">Running</span></td>
-      <td style="font-size:0.82rem">Still running (~6h left). Given noise=0.20 kills both targets (Exp 10), combo likely 0% too.</td>
+      <td>2/2</td>
+      <td><span class="tag tag-green">Done</span></td>
+      <td style="font-size:0.82rem"><strong>Not a universal negative interaction.</strong> HER2_AAV exp13a: self 14/32 (43.75%), MPNN 19/32 (59.375%). BetV1 exp13b: self 11/32 (34.375%), MPNN 3/32 (9.375%).</td>
     </tr>
     <tr style="background:#fee2e2">
       <td style="text-align:center; font-size:1.1rem">&#9746;</td>
@@ -1415,9 +1415,9 @@ Terminate: when unique success count plateaus
     <tr style="background:#fef3c7">
       <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
       <td><strong>Exp 15a-d: Routing Validation (SpCas9 + CrSAS6)</strong><br><span style="font-size:0.82rem;color:var(--muted)">noise=0.20 and +halluc for 2 targets with ambiguous diagnostic predictions</span></td>
-      <td>0/4</td>
-      <td><span class="tag tag-orange">Queued</span></td>
-      <td style="font-size:0.82rem">Validates routing tree on 2 new targets. SpCas9: "try both" (iPAE=50%, pLDDT=50%). CrSAS6: "default or noise" (iPAE=75%).</td>
+      <td>2/4</td>
+      <td><span class="tag tag-orange">In Progress</span></td>
+      <td style="font-size:0.82rem">As of April 7, 2026 local logs show exp15a SpCas9+noise and exp15c CrSAS6+noise completed, while exp15b SpCas9+halluc and exp15d CrSAS6+halluc are still running. SpCas9: "try both" (iPAE=50%, pLDDT=50%). CrSAS6: "default or noise" (iPAE=75%).</td>
     </tr>
     <tr style="background:#d1fae5">
       <td style="text-align:center; font-size:1.1rem">&#9745;</td>
@@ -1604,12 +1604,12 @@ Terminate: when unique success count plateaus
   <div class="card" style="margin-top:16px; border-left: 4px solid var(--orange);">
     <h4 style="font-size:1rem; margin-bottom:8px;">Key Findings from Exp 2</h4>
     <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
-      <li><strong>Higher noise nearly doubles CD45 self pass rate (25%&rarr;47%).</strong> Noise 0.2 and 0.4 both reach 46.8%. <em>Caveat: Fisher p=0.117 at N=32 &mdash; directionally convincing but not yet significant. Exp 5a/5b replications (N=96 total) are queued to confirm.</em></li>
-      <li><strong>MPNN pass rate drops to 0% at noise &ge; 0.2.</strong> With only num_redesign_seqs=2, this is likely a sampling artifact (probability of missing all 2 MPNN sequences per backbone is high). New runs use num_redesign_seqs=8 to resolve this.</li>
+      <li><strong>Higher noise nearly doubles CD45 self pass rate (25%&rarr;47%).</strong> Noise 0.2 and 0.4 both reach 46.8%. <em>At N=32 this was directional (Fisher p=0.117); Exp 5a/5b later confirmed the effect at N=96 (p=0.003).</em></li>
+      <li><strong>MPNN pass rate drops to 0% at noise &ge; 0.2.</strong> This initially looked like a sampling artifact at <code>num_redesign_seqs=2</code>, but Exp 5 later confirmed the reduction is real even with <code>num_redesign_seqs=8</code>.</li>
       <li><strong>Easy targets are hurt by noise &gt; 0.1.</strong> PDL1 drops from 100% to 75% (0.2) and 28% (0.4). This is significant (p&lt;0.01 for 0.10 vs 0.40). Default 0.1 is optimal for easy targets.</li>
-      <li><strong>Confound: backbone and sequence noise were changed simultaneously.</strong> Exp 6a (bb=0.1, latent=0.2) and Exp 6b (bb=0.1, latent=0.4) are queued to disentangle the two effects. The companion paper&rsquo;s aggregate results show (0.1, 0.4) solves the most targets, but this is driven by easy targets.</li>
+      <li><strong>Confound resolved:</strong> Exp 6a (bb=0.1, latent=0.2) and Exp 6b (bb=0.1, latent=0.4) later showed that backbone noise, not latent-only noise, drives the CD45 improvement. The companion paper&rsquo;s aggregate results show (0.1, 0.4) solves the most targets, but this is driven by easy targets.</li>
       <li><strong>Implication: Noise is target-difficulty-dependent.</strong> Hard targets benefit from more exploration. This is a routing signal for the adaptive agent.</li>
-      <li><strong>Combine with Exp 4 (queued as Exp 8):</strong> CD45 noise=0.2 + hallucination is now running. Hypothesis: higher noise improves backbone quality, hallucination recovers MPNN designability.</li>
+      <li><strong>Combination test completed (Exp 8):</strong> CD45 noise=0.2 + hallucination did not recover MPNN designability and instead reduced self pass from 46.9% to 18.8%.</li>
     </ul>
   </div>
 
@@ -1672,7 +1672,7 @@ Terminate: when unique success count plateaus
   <div class="card" style="margin-top:16px; border-left: 4px solid var(--green);">
     <h4 style="font-size:1rem; margin-bottom:8px;">Key Findings from Exp 4</h4>
     <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
-      <li><strong>HER2_AAV: Hallucination is transformative (p&lt;10&#8315;&#8310;).</strong> Self pass jumps from 3.1% to 65.6% (&times;21). 95% CI for baseline: [0.6%, 15.7%]; for +halluc: [48.3%, 79.6%] &mdash; non-overlapping. The effect is too large to be seed noise, but a within-run paired control (Exp 4b) is queued to eliminate the cross-seed confound entirely.</li>
+      <li><strong>HER2_AAV: Hallucination is transformative (p&lt;10&#8315;&#8310;).</strong> Self pass jumps from 3.1% to 65.6% (&times;21). 95% CI for baseline: [0.6%, 15.7%]; for +halluc: [48.3%, 79.6%] &mdash; non-overlapping. Exp 4b later provided the within-run paired control and confirmed the effect is causal.</li>
       <li><strong>PDL1 MPNN: Hallucination significantly improves pass rate (37.5%&rarr;78.1%, p=0.002).</strong> Even for a target where self pass was already 100%, hallucination improves backbone designability for ProteinMPNN redesign.</li>
       <li><strong>PDL1 self pass significantly drops (100%&rarr;81.2%, p=0.024).</strong> This is a real degradation, not noise. Hallucination rewrites sequences away from the co-designed optimum, and for easy targets where the original sequence was already near-perfect, this hurts. <em>Must be reported.</em></li>
       <li><strong>HER2_AAV MPNN: 31.2%&rarr;46.9% (p=0.305).</strong> Not statistically significant at N=32. Ignore this number.</li>
@@ -2190,14 +2190,14 @@ Terminate: when unique success count plateaus
       <td>Phase 2a</td>
       <td>Config matrix &amp; scale-up to N=96</td>
       <td>Exp 10&ndash;15 (24 jobs)</td>
-      <td><span class="tag tag-orange">In Progress (14 done, 8 running, 3 crashed)</span></td>
+      <td><span class="tag tag-orange">In Progress (19 done, 2 running, 3 failed)</span></td>
       <td>April 2026</td>
     </tr>
     <tr>
       <td>Phase 2b</td>
       <td>Diagnostic routing &amp; validation</td>
       <td>Bottleneck analysis + routing tree + SpCas9/CrSAS6 validation</td>
-      <td><span class="tag tag-orange">In Progress (3/4 validated, 2 targets queued)</span></td>
+      <td><span class="tag tag-orange">In Progress (3/4 validated; 2 additional targets in progress)</span></td>
       <td>April 2026</td>
     </tr>
     <tr>
@@ -2242,11 +2242,11 @@ Terminate: when unique success count plateaus
     <strong>Answered (Exp 9): Weakly.</strong> Self: 18.8%&rarr;25.0% (n.s.), but MPNN rescued 0%&rarr;9.4%. Effect is target-dependent.<br>
     (8) <del>Can noise=0.2 + hallucination jointly boost CD45?</del>
     <strong>Answered (Exp 8): No &mdash; negative interaction.</strong> Halluc hurts at high noise (46.9%&rarr;18.8%, p=0.032). Interventions are mutually exclusive.<br>
-    (9) Does noise=0.20 help or hurt HER2_AAV and BetV1? <strong>Exp 10b/10c queued.</strong><br>
-    (10) What is the MPNN-preserving sweet spot for noise? <strong>Exp 12a (noise=0.15) queued.</strong><br>
-    (11) Is bb noise alone sufficient (bb=0.2, lat=0.1)? <strong>Exp 12b queued.</strong><br>
-    (12) Does the noise+halluc negative interaction replicate on other targets? <strong>Exp 13a/13b queued.</strong><br>
-    (13) Do hallucination and baseline effects replicate at N=96? <strong>Exp 11a-j queued (10 scale-up runs).</strong><br>
+    (9) <del>Does noise=0.20 help or hurt HER2_AAV and BetV1?</del> <strong>Answered (Exp 10b/10c): It hurts both.</strong> HER2_AAV and BetV1 both drop to 0/32 at noise=0.20 (p=0.024).<br>
+    (10) <del>What is the MPNN-preserving sweet spot for noise?</del> <strong>Answered (Exp 12a): No lower sweet spot on CD45.</strong> noise=0.15 gives 8/32, identical to baseline.<br>
+    (11) <del>Is bb noise alone sufficient (bb=0.2, lat=0.1)?</del> <strong>Answered (Exp 12b): No.</strong> bb=0.2, lat=0.1 gives 3/32 (9.4%), worse than default.<br>
+    (12) <del>Does the noise+halluc negative interaction replicate on other targets?</del> <strong>Answered (Exp 13a/13b): Not universally.</strong> HER2_AAV combo gives 14/32 self and 19/32 MPNN; BetV1 combo gives 11/32 self and 3/32 MPNN.<br>
+    (13) <del>Do hallucination and baseline effects replicate at N=96?</del> <strong>Answered (Exp 11a-j): Yes.</strong> Baseline replicas reproduced exactly and HER2/BetV1 hallucination replicas also completed.<br>
     (14) <strong>Core agentic question:</strong> No single config is optimal for all targets. Can a diagnostic round (cheap N=32) identify which config to use? (Phase 2b, planned.)
     </p>
   </div>
@@ -2286,7 +2286,7 @@ Terminate: when unique success count plateaus
     </p>
     <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
       <li><strong>Multi-round feedback</strong>: After applying an intervention, read the new diagnostic signals and adjust.
-      For example, if noise=0.20 doubles self pass but kills MPNN, try hallucinating on the high-noise backbones in Round 3.</li>
+      For example, if a target remains interface-limited after one round, allocate the next round to more structural exploration; if sequence quality becomes the bottleneck, switch to sequence-focused refinement.</li>
       <li><strong>Broader target validation</strong>: Currently validated on 4 targets (PDL1, CD45, HER2, BetV1).
       Exp 15a-d will extend to SpCas9 and CrSAS6. The unrun targets below provide further test cases.</li>
       <li><strong>Scaling curve as the key figure</strong>: Compare unique successes vs GPU-hours for the adaptive agent
@@ -2307,7 +2307,7 @@ Terminate: when unique success count plateaus
     </tr>
     <tr style="background:#fef3c7">
       <td>30</td><td>SC2RBD</td><td><span class="tag tag-red">Hard</span></td>
-      <td>SARS-CoV-2 receptor binding domain. 0 Complexa successes in the paper (Table 10); BindCraft outperforms on this target.</td>
+      <td>SARS-CoV-2 receptor binding domain. 0 Complexa successes in Table 10. Elsewhere the paper notes fewer unique successes than BindCraft on this target.</td>
       <td><strong>High</strong> &mdash; hard target where Complexa struggles</td>
     </tr>
     <tr style="background:#fef3c7">
@@ -2342,8 +2342,8 @@ Terminate: when unique success count plateaus
     </tr>
     <tr style="background:#fee2e2">
       <td>35</td><td>H1</td><td><span class="tag tag-red">Very Hard</span></td>
-      <td>Multi-chain. Paper used MCTS + modified reward (iPAE/31+pLDDT), NOT standard beam search. 7 successes in 475 GPU-hours.</td>
-      <td>Low &mdash; requires MCTS + modified reward, not compatible with our current beam search config</td>
+      <td>Multi-chain. Paper used MCTS + modified reward (iPAE/31+pLDDT) followed by Generate and Hallucinate, NOT standard beam search. 7 unique successes in 604 GPU-hours.</td>
+      <td>Low &mdash; requires MCTS + modified reward + Generate and Hallucinate, not compatible with our current beam search config</td>
     </tr>
     <tr style="background:#fee2e2">
       <td>37</td><td>IL17A</td><td><span class="tag tag-red">Very Hard</span></td>
