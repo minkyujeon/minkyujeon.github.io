@@ -225,104 +225,134 @@
 <!-- 5. RAR -->
 <div class="section" id="rar">
   <h2>5. RAR: Random Ordering with Annealing + Target-Aware Embed</h2>
-  <p>
-    After identifying the two missing components from the RAR paper, we implemented:
-  </p>
-  <ul>
-    <li><strong>Target-aware positional embedding (ta_pos_table):</strong> Learnable <code>nn.Embedding(256, 768)</code> where token at step t receives the embedding of <code>perms[t+1]</code> (the next token's spatial position). Zero-initialized so it starts as a no-op. Resolves the ambiguous target problem.</li>
-    <li><strong>Annealing schedule:</strong> Epochs 0&ndash;200: 100% random permutations. Epochs 200&ndash;300: linear decay to raster. Epochs 300&ndash;400: 100% raster. ta_embed set to None during raster phase to match inference.</li>
-  </ul>
 
-  <h3>Why Does RAR Improve Over Raster?</h3>
+  <h3>How RAR Works</h3>
   <p>
-    The RAR curriculum (random &rarr; anneal &rarr; raster) acts as a form of <strong>data augmentation in sequence space</strong>.
-    During the random phase, the model sees every possible spatial context pattern &mdash; not just the left-context of raster.
-    This is analogous to how image augmentation (random crops, flips) prevents overfitting to fixed spatial structure.
-    When the model anneals back to raster order, it retains knowledge of arbitrary spatial relationships while
-    specializing for raster inference.
-  </p>
-  <p>
-    Concretely, during the random phase the model must learn to predict any token given any subset of previously generated
-    tokens. This forces the attention layers to develop more general spatial reasoning rather than relying on the left-context
-    shortcut that raster training reinforces. When annealed back to raster, these more robust representations translate
-    to better generation quality.
+    RAR (Random-order with Annealing to Raster) is a training curriculum that exposes the model to random token orderings
+    before gradually annealing back to raster order. Based on the RAR paper (arXiv 2411.00776), two components are critical:
   </p>
 
-  <h3>RAR Training Details</h3>
-  <p>Three training phases over 400 epochs:</p>
-  <ol>
-    <li><strong>Epochs 0&ndash;200 (Random phase):</strong> Every training step draws a fresh random permutation per image. <code>ta_embed</code> provides the next-token spatial position. Loss ~8.0 (higher than raster ~6.8 because random context is harder).</li>
-    <li><strong>Epochs 200&ndash;300 (Annealing phase):</strong> <code>random_ratio</code> linearly decays from 1.0 to 0.0. The model gradually transitions from random to raster ordering. <code>ta_embed</code> automatically disabled when ratio reaches 0.</li>
-    <li><strong>Epochs 300&ndash;400 (Raster phase):</strong> Pure raster training, identical to standard baseline. Loss converges to ~7.1 (slightly above baseline due to regularization effect).</li>
-  </ol>
+  <div class="card-grid">
+    <div class="card">
+      <h3>Target-Aware Positional Embedding</h3>
+      <p>
+        A learnable <code>nn.Embedding(256, 768)</code> table (<code>ta_pos_table</code>). At training step t with permutation
+        <code>perm</code>, the token at position <code>perm[t]</code> receives the embedding of <code>perm[t+1]</code>
+        (the <strong>next</strong> token's spatial position). This tells the model <em>where to predict next</em>,
+        resolving the <strong>ambiguous target problem</strong>: without it, two different permutations sharing
+        a prefix but differing in the next token are indistinguishable, making optimization ill-posed.
+      </p>
+      <p>Zero-initialized so it starts as a no-op. Set to <code>None</code> during the raster phase and at inference
+        (raster order is unambiguous — next token is always the next spatial position).</p>
+    </div>
+    <div class="card">
+      <h3>Annealing Schedule</h3>
+      <p>
+        The training is split into three phases with a <code>random_ratio</code> that controls the probability of using
+        a random permutation vs raster order at each step:
+      </p>
+      <ul>
+        <li><strong>Random phase:</strong> <code>random_ratio=1.0</code> &mdash; every step draws a fresh random permutation per image</li>
+        <li><strong>Annealing phase:</strong> <code>random_ratio</code> linearly decays from 1.0 to 0.0</li>
+        <li><strong>Raster phase:</strong> <code>random_ratio=0.0</code> &mdash; pure raster, <code>ta_embed=None</code></li>
+      </ul>
+      <p>The final model infers in <strong>standard raster order</strong> with no extra cost or modification.</p>
+    </div>
+  </div>
 
-  <h3>IN-100 Results (5K samples, cfg=2.0)</h3>
+  <h3>Why Does RAR Improve Over Pure Raster?</h3>
+  <p>
+    The random phase acts as <strong>sequence-space data augmentation</strong>. During random-order training,
+    the model must predict each token given an arbitrary subset of spatial context &mdash; not just the fixed
+    left-context of raster. This forces attention heads to develop more <strong>general spatial reasoning</strong>
+    rather than overfitting to raster-specific context patterns (e.g., always seeing the pixel directly to the left).
+  </p>
+  <p>
+    After annealing, the model specializes for raster but retains the robust representations learned during the
+    random phase. Evidence: the RAR model's final raster-phase loss (7.11) is slightly higher than pure raster
+    training (~6.8), yet FID is better &mdash; suggesting representations that generalize better despite marginal
+    per-token prediction loss increase.
+  </p>
+
+  <h3>Preliminary IN-100 Result (400ep, not fair comparison)</h3>
+  <p>
+    Our initial RAR experiment used <strong>400 epochs</strong> (50% random, 25% anneal, 25% raster).
+    This is not a fair comparison with baselines trained for 300 epochs.
+  </p>
   <div class="table-wrap">
   <table>
-    <tr><th>Model</th><th>Inference</th><th>FID</th><th>sFID</th><th>Precision</th><th>Recall</th></tr>
-    <tr><td>Raster baseline (c2i_B_256.pt, 0ep on IN-100)</td><td>Raster</td><td>25.40</td><td>66.33</td><td>0.672</td><td>0.471</td></tr>
-    <tr><td>Raster retrain (300ep IN-1K + 300ep IN-100 FT)</td><td>Raster</td><td>17.57</td><td>67.18</td><td>0.761</td><td>0.513</td></tr>
-    <tr><td><strong>RAR (400ep from scratch, IN-100 only)</strong></td><td>Raster</td><td class="best"><strong>18.94</strong></td><td>66.25</td><td>0.691</td><td>0.545</td></tr>
-    <tr><td>RAR (400ep from scratch)</td><td>Random0</td><td class="fail">176.04</td><td>123.49</td><td>0.083</td><td>0.067</td></tr>
-    <tr><td>Pure random AR (300ep, no anneal)</td><td>Raster</td><td class="fail">151.10</td><td>110.44</td><td>0.066</td><td>0.108</td></tr>
-    <tr><td>Pure random AR (300ep, no anneal)</td><td>Random0</td><td class="fail">165.00</td><td>115.81</td><td>0.054</td><td>0.099</td></tr>
-    <tr><td>Random-order v1 (no ta_embed)</td><td>Raster</td><td class="fail">159.41</td><td>115.89</td><td>&mdash;</td><td>&mdash;</td></tr>
+    <tr><th>Model</th><th>Total Epochs</th><th>Inference</th><th>FID</th><th>sFID</th><th>Prec.</th><th>Recall</th></tr>
+    <tr><td>RAR 400ep from scratch</td><td>400</td><td>Raster</td><td class="best">18.94</td><td>66.25</td><td>0.691</td><td>0.545</td></tr>
+    <tr><td>RAR 400ep from scratch</td><td>400</td><td>Random0</td><td class="fail">176.04</td><td>123.49</td><td>0.083</td><td>0.067</td></tr>
+    <tr><td>Pure random AR (no anneal)</td><td>300</td><td>Raster</td><td class="fail">151.10</td><td>110.44</td><td>0.066</td><td>0.108</td></tr>
+    <tr><td>Pure random AR (no anneal)</td><td>300</td><td>Random0</td><td class="fail">165.00</td><td>115.81</td><td>0.054</td><td>0.099</td></tr>
+    <tr><td>Random-order v1 (no ta_embed)</td><td>300</td><td>Raster</td><td class="fail">159.41</td><td>115.89</td><td>&mdash;</td><td>&mdash;</td></tr>
+  </table>
+  </div>
+  <p class="source">RAR 400ep FID=18.94 is promising but uses 33% more epochs than baselines.</p>
+
+  <h3>Fair Comparison: Controlled Experiment Matrix</h3>
+  <p>
+    To isolate the effect of the RAR curriculum from epoch count, we run a <strong>controlled experiment matrix</strong>
+    where all models train for the same number of epochs from scratch on the same dataset:
+  </p>
+
+  <h4>IN-100 (300 epochs from scratch, same hyperparameters)</h4>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Model</th><th>Schedule</th><th>Inference</th><th>FID</th><th>Status</th></tr>
+    <tr><td>Raster 300ep from scratch</td><td>300ep raster</td><td>Raster</td><td>&mdash;</td><td><span class="tag tag-orange">Running</span> job 6661454</td></tr>
+    <tr><td>RAR 300ep from scratch</td><td>150 random + 75 anneal + 75 raster</td><td>Raster</td><td>&mdash;</td><td><span class="tag tag-orange">Running</span> job 6661453</td></tr>
+  </table>
+  </div>
+
+  <h4>IN-1K (300 epochs from scratch, same hyperparameters)</h4>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Model</th><th>Schedule</th><th>Inference</th><th>FID</th><th>Status</th></tr>
+    <tr><td>Raster 300ep (official c2i_B_256.pt)</td><td>300ep raster</td><td>Raster</td><td>5.32</td><td><span class="tag tag-green">Completed</span></td></tr>
+    <tr><td>RAR 300ep from scratch</td><td>150 random + 75 anneal + 75 raster</td><td>Raster</td><td>&mdash;</td><td><span class="tag tag-orange">Running</span> job 6643147 (ep 71/300)</td></tr>
   </table>
   </div>
 
   <div class="callout">
-    <p><strong>RAR raster FID = 18.94 &mdash; 25% better than the raster baseline (25.40).</strong>
-    The fair comparison is RAR (400ep from scratch on IN-100) vs raster baseline (pretrained on IN-1K, 0 epochs on IN-100).
-    The raster retrain (FID=17.57) started from the IN-1K pretrained checkpoint and finetuned 300 additional epochs on IN-100,
-    giving it effectively ~600 epochs of total training &mdash; not a fair comparison.
-    RAR is a <strong>free improvement</strong>: the final model infers in standard raster order with no extra cost.</p>
+    <p><strong>The key question:</strong> With the <strong>same total epochs</strong> and <strong>same hyperparameters</strong>,
+    does the RAR curriculum (random&rarr;anneal&rarr;raster) produce a better raster-inference model than pure raster training?
+    The RAR model spends only 25% of its training in raster mode, yet if the random phase provides sufficient
+    regularization, it should still match or beat pure raster.</p>
   </div>
 
-  <h3>Interpretation of Results</h3>
-  <div class="card">
-    <h3>RAR raster inference works, random does not</h3>
-    <p>After annealing, the model fully commits to raster: random0 inference gives FID=176 (catastrophic).
-    The annealing successfully transitions the model from order-agnostic to raster-specialized, but it's a one-way trip &mdash;
-    the model is NOT order-agnostic at epoch 400.</p>
-  </div>
-
-  <div class="card">
-    <h3>Pure random AR is a dead end</h3>
-    <p>Without annealing, causal AR with random permutations (FID=151/165) cannot produce coherent images.
-    Unlike MAR's bidirectional attention, causal attention means each token only sees its left-context &mdash;
-    random orderings create inconsistent context patterns that the model cannot resolve. The ta_embed helps
-    (FID=151 vs v1's 159) but cannot overcome the fundamental causal attention limitation.</p>
-  </div>
-
-  <div class="card">
-    <h3>The RAR epoch-200 checkpoint as an order-agnostic backbone</h3>
-    <p>At epoch 200, the model has trained for 100K steps with random orderings and has not yet begun annealing.
-    This checkpoint is a candidate <strong>order-agnostic backbone</strong> for OrderHead &mdash; it can handle
-    arbitrary orderings, unlike the raster-trained GPT. The key question is whether an OH attached to this
-    backbone can find an ordering that generates better images than raster.
-    <span class="tag tag-blue">Planned</span></p>
-  </div>
-
-  <h3>IN-1K RAR From Scratch (300 Epochs)</h3>
-  <p>
-    For a fair comparison, the IN-1K RAR uses the <strong>same 300 total epochs</strong> as the raster baseline,
-    trained from scratch with the same 50/25/25 phase ratio:
-  </p>
-  <ul>
-    <li>Epochs 0&ndash;150: random ordering (with ta_embed)</li>
-    <li>Epochs 150&ndash;225: linear anneal to raster</li>
-    <li>Epochs 225&ndash;300: pure raster</li>
-  </ul>
+  <h3>Other Baselines for Context</h3>
   <div class="table-wrap">
   <table>
-    <tr><th>Experiment</th><th>Config</th><th>Status</th><th>Baseline FID</th></tr>
-    <tr><td>RAR from scratch IN-1K</td><td>300 epochs, anneal 150&rarr;225, ~1.5M steps</td><td><span class="tag tag-orange">Running</span> job 6643147</td><td>5.32 (raster, 300ep)</td></tr>
+    <tr><th>Model</th><th>Training</th><th>FID</th><th>Notes</th></tr>
+    <tr><td>Raster baseline (c2i_B_256.pt)</td><td>300ep IN-1K pretrained, 0ep IN-100</td><td>25.40</td><td>Not trained on IN-100 at all</td></tr>
+    <tr><td>Raster retrain</td><td>300ep IN-1K + 300ep IN-100 FT</td><td>17.57</td><td>~600ep effective, unfair baseline</td></tr>
+    <tr><td>RAR 400ep</td><td>400ep from scratch on IN-100</td><td>18.94</td><td>33% more epochs than 300ep baselines</td></tr>
   </table>
   </div>
-  <p class="source">Estimated ~38 hours on 4&times; H100. Same total compute as baseline for a fair comparison.</p>
 
-  <div class="callout warn">
-    <p><strong>Note on IN-100 epoch mismatch:</strong> The IN-100 RAR (FID=18.94) used 400 epochs vs the raster baseline's 300 epochs &mdash; 33% more compute. A 300-epoch IN-100 RAR is needed for a fully fair comparison. The IN-1K experiment corrects this by matching epochs exactly.</p>
+  <h3>Interpretation of Preliminary Results</h3>
+  <div class="card">
+    <h3>After annealing, the model is NOT order-agnostic</h3>
+    <p>RAR 400ep with random0 inference: FID=176 (catastrophic). The annealing fully commits the model to raster.
+    This is a one-way trip &mdash; the random-phase knowledge is encoded in the weights as better representations,
+    not as order flexibility.</p>
+  </div>
+
+  <div class="card">
+    <h3>Pure random AR is a dead end for causal models</h3>
+    <p>Without annealing: raster FID=151, random FID=165. Causal attention means each token only sees left-context &mdash;
+    random orderings create inconsistent context. The ta_embed helps (151 vs v1's 159 without it) but cannot overcome
+    the fundamental causal limitation. This is in contrast to MAR, where bidirectional attention makes random masking work natively.</p>
+  </div>
+
+  <div class="card">
+    <h3>The RAR epoch-150 checkpoint as an order-agnostic backbone</h3>
+    <p>At epoch 150 (halfway through the 300ep schedule), the model has trained entirely with random orderings.
+    This checkpoint is a candidate <strong>order-agnostic backbone</strong> for OrderHead &mdash; it can handle
+    arbitrary orderings, unlike the raster-trained GPT.
+    <span class="tag tag-blue">Planned</span></p>
   </div>
 </div>
 
