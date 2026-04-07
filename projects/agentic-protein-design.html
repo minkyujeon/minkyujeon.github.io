@@ -361,8 +361,8 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     "Default only" = the paper tested this algorithm but only with its default parameters.
     "Paper (aggregate)" = the paper tested this at the level of aggregate hit counts across 127 targets &mdash; we add per-target, per-difficulty analysis.
     "No" = neither the paper nor our experiments have explored this parameter.
-    <strong>Key distinction:</strong> The paper&rsquo;s Appendix B.4 tested 4 sampling temperature (sc_scale_noise) combinations
-    in aggregate. Our analysis goes deeper: per-target pass rates reveal that hard targets benefit from higher noise but easy targets are hurt,
+    <strong>Key distinction:</strong> The paper tested 4 sampling temperature (sc_scale_noise) combinations
+    in aggregate across all 127 targets. Our analysis goes deeper: per-target pass rates reveal that hard targets benefit from higher noise but easy targets are hurt,
     and that the self-pass vs. MPNN-pass divergence is a critical signal not visible in aggregate counts.
   </p>
 
@@ -688,8 +688,9 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
 
   <div class="card">
     <h3>5. Large portions of the action space remain unexplored</h3>
-    <p>The paper tested all 5 algorithms with default parameters. The paper&rsquo;s Appendix B.4 (Table 2) tested 4 sampling temperature combinations
-    (backbone T &times; latent T) at the aggregate level across all 127 targets. But FK Steering temperature tuning, MCTS parameter tuning,
+    <p>The paper tested all 5 algorithms with default parameters and 4 sampling noise combinations
+    (backbone &times; latent sc_scale_noise) at the aggregate level across all 127 targets. But these results are averaged over easy and hard targets together.
+    FK Steering temperature tuning, MCTS parameter tuning,
     reward composition (17 AF2 metrics, RF3, TMOL, bioinformatics), and the per-target breakdown of what noise level helps <em>hard</em> targets specifically
     vs. easy ones &mdash; none of these have been systematically explored.
     Our project maps this space with per-target analysis and builds an adaptive routing agent on top of it.</p>
@@ -796,7 +797,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
   <div class="card" style="border-left: 4px solid var(--purple);">
     <h3>7. What the Paper Already Covered vs. What We Add</h3>
     <p style="font-size:0.88rem; color:var(--muted); margin-bottom:10px;">
-      Cross-checked against the ICLR 2026 paper (Figure 7) and companion validation paper (43pp, Appendix B.4).
+      Cross-checked against the ICLR 2026 paper (Figure 7) and its appendices.
     </p>
     <table style="font-size:0.82rem; width:100%;">
       <tr>
@@ -811,7 +812,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
       </tr>
       <tr>
         <td><strong>Sampling noise (sc_scale_noise)</strong></td>
-        <td>Appendix B.4 Table 2: 4 combinations, aggregate hit counts across 127 targets</td>
+        <td>4 noise combinations tested, aggregate hit counts across 127 targets</td>
         <td>Per-target pass rates; found <strong>noise 0.2 doubles hard-target self pass but kills MPNN</strong> &mdash; not visible in aggregates</td>
       </tr>
       <tr>
@@ -1477,9 +1478,9 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     <p><strong>Hypothesis:</strong> <code>sc_scale_noise</code> controls trajectory diversity independently
     from the search algorithm. Higher temperature produces more structurally diverse initial trajectories,
     and when combined with beam search pruning, may yield more diverse final successes.</p>
-    <p><strong>Motivation:</strong> The paper (Appendix B.4, Table 2) tested 4 aggregate sampling temperature combinations
-    across all 127 targets and found (0.1, 0.4) solves the <em>most unique targets</em> (36 vs 33 for default).
-    But the paper only reported aggregate counts &mdash; it did not break down which temperature helps <em>hard</em> targets specifically,
+    <p><strong>Motivation:</strong> The paper tested 4 aggregate sampling noise combinations
+    across all 127 targets and found (bb=0.1, lat=0.4) solves the <em>most unique targets</em> (36 vs 33 for default).
+    But the paper only reported aggregate counts &mdash; it did not break down which noise level helps <em>hard</em> targets specifically,
     or reveal the self-pass vs. MPNN-pass divergence. We test with per-target pass rate analysis on hard targets (CD45) and easy targets (PDL1).</p>
     <p><strong>Setup:</strong></p>
     <ul>
