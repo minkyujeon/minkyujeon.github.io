@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>New Plan: Latent Planning for Ideal Token Ordering</title>
+<style>
+  :root {
+    --bg: #fafbfc;
+    --card: #ffffff;
+    --text: #1a1a2e;
+    --muted: #5a6577;
+    --accent: #2563eb;
+    --accent-light: #dbeafe;
+    --border: #e2e8f0;
+    --green: #059669;
+    --green-light: #d1fae5;
+    --orange: #d97706;
+    --orange-light: #fef3c7;
+    --purple: #7c3aed;
+    --purple-light: #ede9fe;
+    --code-bg: #f1f5f9;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+  }
+  .hero {
+    background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%);
+    color: #fff;
+    padding: 60px 24px 48px;
+  }
+  .hero .container { max-width: 960px; margin: 0 auto; }
+  .hero .breadcrumb { font-size: 0.85rem; color: #94a3b8; margin-bottom: 16px; }
+  .hero .breadcrumb a { color: #93c5fd; text-decoration: none; }
+  .hero h1 { font-size: 2.1rem; font-weight: 800; line-height: 1.25; margin-bottom: 12px; }
+  .hero .subtitle { font-size: 1.05rem; color: #cbd5e1; max-width: 760px; line-height: 1.6; }
+  .hero .meta { margin-top: 20px; display:flex; gap:20px; flex-wrap:wrap; font-size:0.85rem; color:#94a3b8; }
+  .main { max-width: 960px; margin: 0 auto; padding: 32px 24px 80px; }
+  .section { margin-bottom: 48px; }
+  .section h2 {
+    font-size: 1.45rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--accent);
+    display: inline-block;
+  }
+  .section h3 { font-size: 1.1rem; font-weight: 600; margin: 20px 0 8px; color: var(--text); }
+  .section p, .section li { color: var(--muted); font-size: 0.95rem; }
+  .section p { margin-bottom: 12px; }
+  .section ul, .section ol { padding-left: 20px; margin-bottom: 12px; }
+  .section li { margin-bottom: 4px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 24px; margin-bottom: 16px; }
+  .card-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px; margin-bottom:16px; }
+  .table-wrap { overflow-x:auto; margin-bottom:16px; }
+  table { width:100%; border-collapse:collapse; font-size:0.85rem; background:var(--card); border:1px solid var(--border); border-radius:8px; }
+  th { background:#f8fafc; font-weight:600; text-align:left; padding:10px 12px; border-bottom:2px solid var(--border); font-size:0.78rem; text-transform:uppercase; letter-spacing:0.04em; color:var(--muted); }
+  td { padding:8px 12px; border-bottom:1px solid #f1f5f9; vertical-align:top; }
+  tr:last-child td { border-bottom:none; }
+  tr:hover { background:#f8fafc; }
+  .tag { display:inline-block; font-size:0.72rem; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; padding:2px 8px; border-radius:4px; margin-right:4px; }
+  .tag-blue { background: var(--accent-light); color: var(--accent); }
+  .tag-green { background: var(--green-light); color: var(--green); }
+  .tag-orange { background: var(--orange-light); color: var(--orange); }
+  .tag-purple { background: var(--purple-light); color: var(--purple); }
+  .callout { background: var(--accent-light); border-left: 4px solid var(--accent); padding: 14px 18px; border-radius: 0 8px 8px 0; margin-bottom: 16px; }
+  .callout p { color: var(--text); margin: 0; font-size: 0.92rem; }
+  .callout strong { color: var(--accent); }
+  .callout.warn { background: var(--orange-light); border-left-color: var(--orange); }
+  .callout.warn strong { color: var(--orange); }
+  .callout.green { background: var(--green-light); border-left-color: var(--green); }
+  .callout.green strong { color: var(--green); }
+  .diagram { background:#f8fafc; border:1px solid var(--border); border-radius:10px; padding:24px; margin-bottom:16px; font-family:"SF Mono","Fira Code",monospace; font-size:0.82rem; line-height:1.6; overflow-x:auto; white-space:pre; }
+  code { background: var(--code-bg); padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; }
+  .toc { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; margin-bottom: 32px; }
+  .toc h3 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 10px; }
+  .toc ol { padding-left: 20px; }
+  .toc li { margin-bottom: 4px; }
+  .toc a { color: var(--accent); text-decoration: none; font-size: 0.9rem; }
+  .toc a:hover { text-decoration: underline; }
+  .footer { text-align:center; padding:32px 24px; color:var(--muted); font-size:0.82rem; border-top:1px solid var(--border); }
+  .footer a { color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="container">
+    <div class="breadcrumb"><a href="/">Minkyu Jeon</a> / <a href="/projects/">Projects</a> / <a href="/projects/ordering/">Ordering</a></div>
+    <h1>New Plan: Latent Planning for Ideal Token Ordering</h1>
+    <p class="subtitle">
+      A LlamaGen-first roadmap for training an OrderHead planner that selects context-rich, extrapolative
+      token orderings through latent reasoning. The central target is not confidence or ease, but the next
+      block that best improves prediction of the still-unseen rest of the image.
+    </p>
+    <div class="meta">
+      <span>Minkyu Jeon</span>
+      <span>Princeton University</span>
+      <span>April 2026</span>
+      <span><span class="tag tag-green">New Plan</span></span>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+<div class="toc">
+  <h3>Contents</h3>
+  <ol>
+    <li><a href="#goal">Goal</a></li>
+    <li><a href="#insight">Core Insight: What "Ideal" Means</a></li>
+    <li><a href="#why-llamagen">Why LlamaGen First</a></li>
+    <li><a href="#papers">How the Four Papers Fit Together</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#oracle">Oracle Target and Loss</a></li>
+    <li><a href="#algorithms">Algorithms</a></li>
+    <li><a href="#curriculum">Training Curriculum</a></li>
+    <li><a href="#eval">Evaluation Plan</a></li>
+  </ol>
+</div>
+
+<div class="section" id="goal">
+  <h2>1. Goal</h2>
+  <p>
+    The objective is to train an <strong>ideal OrderHead</strong> for autoregressive image generation in
+    <strong>LlamaGen</strong>. The goal is not to learn a prettier saliency map or an easier decoding heuristic.
+    The goal is to learn the <strong>best next context choice</strong> for predicting the still-unknown rest of the image.
+  </p>
+  <div class="callout">
+    <p><strong>Thesis:</strong> Raster is only one fixed autoregressive factorization. For images, there may exist a better ordering if the model can learn which regions should become context first.</p>
+  </div>
+</div>
+
+<div class="section" id="insight">
+  <h2>2. Core Insight: What "Ideal" Means</h2>
+  <p>
+    The planner should not rank tokens by confidence, ease, or raw classifier saliency. Those can all produce
+    shortcuts. Instead, the planner should rank the next token or block by how much it helps the model predict
+    the <em>other still-unseen tokens</em>.
+  </p>
+
+  <div class="card">
+    <h3>Ideal Standard</h3>
+    <p>
+      Let <code>S</code> be the current visible/generated context and let <code>a</code> be a candidate next block. The
+      ideal next choice is the one with the highest <strong>future-context value</strong>:
+    </p>
+    <div class="diagram">u(a | S) = L_rest(S) - L_rest(S ∪ {a})</div>
+    <p>
+      where <code>L_rest</code> is the autoregressive loss on the remaining unseen tokens. A good next block is one
+      whose revelation makes the rest of the image easier to predict.
+    </p>
+  </div>
+
+  <div class="callout warn">
+    <p><strong>Important distinction:</strong> "important-first" is correct only if "important" means "useful as future context for the rest of the image," not "easy," not "confident," and not merely "class-discriminative in isolation."</p>
+  </div>
+
+  <div class="card">
+    <h3>True Extrapolation, Not Interpolation</h3>
+    <p>
+      To avoid local interpolation shortcuts, the improved target should emphasize gains on <strong>other</strong> unseen
+      tokens, especially nonlocal ones. A stricter version is:
+    </p>
+    <div class="diagram">u_extrap(a | S) =
+sum over j in rest \ a of w(j, a) * [l_j(S) - l_j(S ∪ {a})]</div>
+    <p>
+      where <code>w(j, a)</code> can downweight immediate neighbors and upweight far-away or global structure tokens.
+    </p>
+  </div>
+</div>
+
+<div class="section" id="why-llamagen">
+  <h2>3. Why LlamaGen First</h2>
+  <div class="card-grid">
+    <div class="card">
+      <h3><span class="tag tag-purple">LlamaGen</span> Primary Platform</h3>
+      <p>
+        LlamaGen is strict next-token autoregression. Raster is the exact native baseline, so a learned ordering
+        is directly comparable. Changing the order changes the actual autoregressive factorization.
+      </p>
+    </div>
+    <div class="card">
+      <h3><span class="tag tag-blue">MAR</span> Secondary Reference</h3>
+      <p>
+        MAR remains useful as a side reference, but bidirectional attention makes it less clean as the primary
+        platform for proving "better-than-raster" next-token generation.
+      </p>
+    </div>
+  </div>
+
+  <div class="callout green">
+    <p><strong>Main claim:</strong> If the scientific question is whether a learned order can beat raster for strict autoregressive image generation, LlamaGen is the cleaner and stronger testbed.</p>
+  </div>
+</div>
+
+<div class="section" id="papers">
+  <h2>4. How the Four Papers Fit Together</h2>
+
+  <div class="table-wrap">
+    <table>
+      <tr><th>Paper</th><th>Role in This Plan</th><th>Why It Matters</th></tr>
+      <tr>
+        <td><strong>Path Planning</strong></td>
+        <td>Main framework</td>
+        <td>Separates planner from generator and gives the cleanest starting point for "which position should be generated next?"</td>
+      </tr>
+      <tr>
+        <td><strong>THINK WHILE YOU GENERATE</strong></td>
+        <td>Secondary extension</td>
+        <td>Useful later for adaptive refinement, replanning, and robustness to early mistakes.</td>
+      </tr>
+      <tr>
+        <td><strong>InfoTok</strong></td>
+        <td>Adaptive budget</td>
+        <td>Motivates choosing a variable number of next blocks instead of a fixed <code>k</code>.</td>
+      </tr>
+      <tr>
+        <td><strong>Continuous Latent Reasoning</strong></td>
+        <td>Planner architecture</td>
+        <td>Motivates a small internal continuous scratchpad so the planner can evaluate multiple futures before acting.</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3>Why Path Planning Over THINK WHILE YOU GENERATE</h3>
+  <p>
+    <strong>Path Planning</strong> is the main conceptual base because it more directly answers the first bottleneck in
+    this project: how to train a separate planner to choose <em>what should come next</em>. It is a cleaner match for
+    OrderHead because it emphasizes planner-generator separation and direct supervision on update decisions.
+  </p>
+  <p>
+    <strong>THINK WHILE YOU GENERATE</strong> is still important, but mainly for later stages: adaptive refinement,
+    error correction, and variable compute during generation. Those are valuable once the basic planner target
+    is already defined correctly.
+  </p>
+</div>
+
+<div class="section" id="architecture">
+  <h2>5. Architecture</h2>
+  <p>
+    Start with <strong>block-level planning</strong>, not full free token-level permutations. The planner chooses the next
+    spatial block, and tokens inside the selected block are decoded in raster order. This preserves local causal
+    structure while still allowing a learned non-raster autoregressive order.
+  </p>
+
+  <div class="card-grid">
+    <div class="card">
+      <h3>Order-Robust Backbone</h3>
+      <p>
+        Use a LlamaGen backbone trained with a <strong>block-RAR</strong> style curriculum: randomize order over blocks,
+        keep raster inside each block, and save checkpoints during the random phase rather than only after annealing.
+      </p>
+    </div>
+    <div class="card">
+      <h3>OrderHead as Planner</h3>
+      <p>
+        Input: GPT hidden states, visible/generated block mask, and spatial positions. Output: next-block logits,
+        and later optionally an adaptive reveal budget.
+      </p>
+    </div>
+    <div class="card">
+      <h3>Latent Planner Core</h3>
+      <p>
+        Before emitting logits, the planner runs a few internal continuous reasoning steps. This is the latent
+        scratchpad inspired by Chain of Continuous Thought.
+      </p>
+    </div>
+  </div>
+
+  <div class="diagram">Image prefix / visible blocks
+        |
+        v
++---------------------------+
+| LlamaGen Backbone         |
+| order-robust AR model     |
++---------------------------+
+        |
+        v
+  hidden states H_t
+        |
+        v
++---------------------------+
+| Latent Planner Core       |
+| z0 -> z1 -> ... -> zR     |
++---------------------------+
+        |
+        v
++---------------------------+
+| OrderHead / Planner       |
+| next-block logits         |
++---------------------------+
+        |
+        v
+select next block
+        |
+        v
+decode tokens inside block
+in raster order</div>
+</div>
+
+<div class="section" id="oracle">
+  <h2>6. Oracle Target and Loss</h2>
+  <p>
+    Keep the training objective simple:
+  </p>
+  <div class="diagram">L = L_AR + λ * L_OH</div>
+  <p>
+    where <code>L_AR</code> is the standard autoregressive next-token loss and <code>L_OH</code> is the planner loss.
+    The important part is not adding many loss terms. The important part is defining <code>L_OH</code> correctly.
+  </p>
+
+  <div class="card">
+    <h3>Recommended First Version of L_OH</h3>
+    <p>
+      Build an oracle next-block label from future AR loss reduction, then train OrderHead with cross-entropy:
+    </p>
+    <div class="diagram">L_OH = CE(predicted_next_block, oracle_best_next_block)</div>
+    <p>
+      This makes the planner answer a clear question: <em>which next block best improves prediction of the remaining unseen image?</em>
+    </p>
+  </div>
+</div>
+
+<div class="section" id="algorithms">
+  <h2>7. Algorithms</h2>
+
+  <h3>Algorithm 1: Oracle Next-Block Label</h3>
+  <div class="diagram">Input:
+  GT token grid x
+  current visible state S
+  candidate block set C
+  frozen order-robust backbone G
+
+1. Compute baseline future loss:
+   L0 = AR loss on all remaining unseen tokens given S
+
+2. For each candidate block a in C:
+   a. Reveal GT block a:
+      S_a = S ∪ {a}
+   b. Compute future loss on remaining unseen tokens:
+      La = AR loss on remaining tokens given S_a
+   c. Define utility:
+      u(a | S) = L0 - La
+
+3. Select oracle best next block:
+   a* = argmax_a u(a | S)
+
+4. Return a*</div>
+
+  <h3>Algorithm 2: Extrapolative Utility</h3>
+  <div class="diagram">Input:
+  GT token grid x
+  current visible state S
+  candidate block a
+  remaining unseen tokens R
+  distance weighting w(j, a)
+
+1. Compute tokenwise losses on remaining tokens:
+   l_j(S) for j in R
+
+2. Reveal GT block a:
+   S_a = S ∪ {a}
+
+3. Recompute tokenwise losses:
+   l_j(S_a) for j in R \ a
+
+4. Compute extrapolative utility:
+   u_extrap(a | S) =
+     sum over j in R \ a of
+     w(j, a) * [l_j(S) - l_j(S_a)]
+
+5. Choose block with highest u_extrap</div>
+
+  <h3>Algorithm 3: Latent Planner Inference</h3>
+  <div class="diagram">Input:
+  generated prefix
+  current block mask m_t
+  backbone hidden states H_t
+
+1. Pool planner state:
+   z0 = Pool(H_t, m_t, positions)
+
+2. Run latent planner reasoning:
+   for r = 1 to R:
+       z_r = PlannerCore(z_{r-1}, H_t, m_t)
+
+3. Predict next-block logits:
+   q_t = OrderHead(z_R, H_t, m_t)
+
+4. Select next block:
+   a_t = argmax q_t over ungenerated blocks
+
+5. Decode tokens inside a_t in raster order
+
+6. Update prefix and repeat</div>
+
+  <h3>Algorithm 4: Adaptive Budget Extension</h3>
+  <div class="diagram">Input:
+  latent planner state z_R
+  hidden states H_t
+
+1. Predict budget logits:
+   b_t = Router(z_R, H_t)
+
+2. Select budget k_t in {1, 2, 4}
+
+3. Predict block utilities:
+   q_t = OrderHead(z_R, H_t)
+
+4. Select top-k_t blocks
+
+5. Decode chosen blocks in order</div>
+  <p>
+    This adaptive budget stage should come later, after one-block planning is already stable. It is the direct
+    place where the InfoTok intuition enters the pipeline.
+  </p>
+</div>
+
+<div class="section" id="curriculum">
+  <h2>8. Training Curriculum</h2>
+
+  <div class="card">
+    <h3>Stage 1: Prepare an Order-Robust Backbone</h3>
+    <p>
+      Train or prepare a block-RAR LlamaGen backbone. Randomize order over blocks, keep raster inside blocks,
+      and save checkpoints during the random phase. The backbone must tolerate multiple block orders.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>Stage 2: Build the Oracle Dataset</h3>
+    <p>
+      Sample partial contexts, evaluate candidate blocks with future-loss reduction, and store oracle next-block
+      labels. This creates a direct supervised planning dataset.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>Stage 3: Pretrain OrderHead</h3>
+    <p>
+      Freeze the backbone and train OrderHead to predict the oracle best next block. Use the simple objective
+      <code>L = L_AR + λ * L_OH</code>, or only <code>L_OH</code> if the backbone is fully frozen.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>Stage 4: Add Latent Planner Reasoning</h3>
+    <p>
+      Increase planner reasoning depth gradually: <code>R=0</code>, then <code>R=1</code>, then <code>R=2</code>, and
+      optionally <code>R=4</code>. Keep the same simple loss; the latent reasoning changes the architecture, not the target.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>Stage 5: Limited Joint Tuning</h3>
+    <p>
+      Unfreeze the planner and only a few top GPT blocks. Keep the same objective. This stage lets the generator
+      adapt slightly to the planner without drifting into the instability seen in earlier OrderHead attempts.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>Stage 6: Add Adaptive Budget</h3>
+    <p>
+      After one-block planning works, let the planner choose whether to reveal 1, 2, or 4 blocks based on the
+      current state. This is the later-stage extension, not the first experiment.
+    </p>
+  </div>
+</div>
+
+<div class="section" id="eval">
+  <h2>9. Evaluation Plan</h2>
+  <p>
+    The primary comparison is still against raster. The planner should be evaluated both on final image quality
+    and on whether it truly chooses context-rich extrapolative regions rather than shortcut local patches.
+  </p>
+
+  <div class="table-wrap">
+    <table>
+      <tr><th>Setting</th><th>Purpose</th></tr>
+      <tr><td>Raster baseline</td><td>Native autoregressive baseline</td></tr>
+      <tr><td>Block-random-order backbone</td><td>Check whether order robustness alone helps</td></tr>
+      <tr><td>Backbone + one-shot planner (R=0)</td><td>Direct test of supervised planning</td></tr>
+      <tr><td>Backbone + latent planner (R=1,2,4)</td><td>Test latent reasoning benefit</td></tr>
+      <tr><td>Backbone + adaptive budget</td><td>Test InfoTok-style dynamic reveal size</td></tr>
+    </table>
+  </div>
+
+  <h3>Main Metrics</h3>
+  <ul>
+    <li><strong>FID / sFID / IS:</strong> final sample quality</li>
+    <li><strong>Progressive recognizability:</strong> whether the chosen order makes the image become meaningful earlier</li>
+    <li><strong>Future-loss reduction:</strong> direct test of the planning objective</li>
+    <li><strong>Far-context gain:</strong> how much the selected block helps far unseen tokens rather than only local neighbors</li>
+    <li><strong>Planner calibration:</strong> agreement with oracle rankings</li>
+  </ul>
+
+  <div class="callout green">
+    <p><strong>Key message for presentation:</strong> this project is no longer about learning a saliency map. It is about learning a planner that chooses the next context block which maximally improves prediction of the unseen rest of the image.</p>
+  </div>
+</div>
+
+</div>
+
+<div class="footer">
+  <p>Minkyu Jeon &middot; <a href="/">minkyujeon.github.io</a> &middot; <a href="/projects/ordering/">Back to Ordering Project</a></p>
+</div>
+
+</body>
+</html>
