@@ -396,7 +396,8 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     33 SLURM jobs across 11 protein targets and 3 configurations.
     We selected 11 of the paper&rsquo;s 19 main protein targets: 7 easy (PD1, PDL1, IFNAR2, TrkA, DerF7, CrSAS6, Claudin1)
     and 4 hard (CD45, HER2_AAV, BetV1, SpCas9). The remaining 8 targets (BHRF1, BBF14, DerF21, Insulin, IL7RA, VEGFA, SC2RBD, CbAgo)
-    were not included in our Phase 0 sweep but could be added if needed.
+    were not included in our Phase 0 sweep; they were added later through the Phase 2 diagnosis expansion
+    and hard-target follow-up batches.
     All beam search configs use AF2 multimer iPAE as the sole reward signal during TTO.
     A parallel <strong>Autoresearch sweep</strong> (collaboration with Jinyeop Song) additionally tested
     5 beam search configs across 10 targets (50 experiments, all complete).
@@ -404,10 +405,15 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
 
   <div class="stat-row">
     <div class="stat"><div class="num">11</div><div class="label">Protein Targets</div></div>
-    <div class="stat green"><div class="num">89/95</div><div class="label">Jobs Complete</div></div>
-    <div class="stat orange"><div class="num">6</div><div class="label">Jobs Running (halluc replicas)</div></div>
-    <div class="stat purple"><div class="num">36</div><div class="label">Total Experiments</div></div>
+    <div class="stat green"><div class="num">33</div><div class="label">Phase 0 Sweep Jobs</div></div>
+    <div class="stat orange"><div class="num">50</div><div class="label">Autoresearch Jobs</div></div>
+    <div class="stat purple"><div class="num">8</div><div class="label">Later Packaged Targets Added</div></div>
   </div>
+  <p class="note">
+    In the summary tables immediately below, the color-coded difficulty tags are <strong>local empirical bins</strong>
+    for this 11-target sweep. When the page refers to the paper&rsquo;s official target classes, it says so explicitly
+    as <strong>paper classification</strong> or <strong>paper difficulty</strong>.
+  </p>
 
   <h3>Configurations</h3>
   <div class="table-wrap">
