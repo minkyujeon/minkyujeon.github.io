@@ -1224,7 +1224,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     return "try_both"             # Ambiguous → run noise AND halluc,
                                   # pick whichever works better</code></pre>
     <p style="font-size:0.88rem; color:var(--muted); margin-top:8px;">
-      <strong>Validated on 4 targets: 3/4 correct.</strong> SpCas9 and CrSAS6 validation experiments are now in progress (Exp 15a-d), and the broader diagnosis batch for BHRF1, SC2RBD, and VEGFA has completed (Exp 16a-i).
+      <strong>Validated on 4 targets: 3/4 correct.</strong> SpCas9 and CrSAS6 validation runs (Exp 15a-d) are now complete, and the broader diagnosis batch for BHRF1, SC2RBD, and VEGFA also completed in Exp 16a-i.
     </p>
   </div>
 
@@ -1237,18 +1237,18 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     </p>
     <div class="diagram" style="font-size:0.8rem;">Round 1: Diagnostic (N=32 deep beam, default config)
    │ Read: self_rate, mpnn_rate, per-criterion pass rates
-   │ Route: decide intervention
+   │ Build diagnostic sidecar
+   │ Route: choose next operator
    ▼
-Round 2: Apply intervention (noise=0.20 OR +halluc)
-   │ Read: did self_rate improve? did MPNN recover?
-   │ If noise helped self but killed MPNN → try halluc on these backbones
-   │ If halluc helped → scale up (more samples with same config)
-   │ If nothing helped → try different reward signal (iPAE+pLDDT combo)
+Round 2: Apply routed operator
+   │ geometry-limited → stochastic beam
+   │ if still zero-hit → diverse beam → MCTS
+   │ sequence-limited → hallucination / local refinement
+   │ saturated/default-favored → scale default
    ▼
-Round 3+: Iterate with refined strategy
-   │ Adjust noise level (0.15 vs 0.20 vs 0.25)
-   │ Try different beam search depth (wider vs deeper)
-   │ Combine: noise-generated backbones + halluc on top
+Round 3+: Re-diagnose after the intervention
+   │ Read improvement trace: diagnosis → action → outcome
+   │ Escalate only when the prior operator fails to unlock geometry or redesignability
    ▼
 Terminate: when unique success count plateaus
    │ Cluster all successes (FoldSeek), report diversity</div>
@@ -1278,12 +1278,13 @@ Terminate: when unique success count plateaus
   </div>
 
   <div class="card" style="border-left: 4px solid var(--orange);">
-    <h4 style="font-size:1rem; margin-bottom:8px;">Ongoing Validation: SpCas9 + CrSAS6 (Exp 15a-d, In Progress)</h4>
+    <h4 style="font-size:1rem; margin-bottom:8px;">Routing Validation: SpCas9 + CrSAS6 (Exp 15a-d, Completed)</h4>
     <p style="font-size:0.88rem; color:var(--muted);">
       The routing tree predicts &ldquo;try both&rdquo; for SpCas9 (both iPAE=50% and pLDDT=50% at boundary)
-      and &ldquo;default or noise&rdquo; for CrSAS6 (iPAE=75%, mild bottleneck). As of April 7, 2026 local logs show
-      SpCas9+noise and CrSAS6+noise completed, while SpCas9+halluc and CrSAS6+halluc are still running.
-      Full results will extend validation from 4 to 6 tested targets.
+      and &ldquo;default or noise&rdquo; for CrSAS6 (iPAE=75%, mild bottleneck). All four runs are now complete:
+      SpCas9 favors hallucination over noise (18/32 self and MPNN vs 11/32 self, 8/32 MPNN), while CrSAS6
+      remains strong under both interventions with a split outcome (noise: 32/32 self, 24/32 MPNN; hallucination:
+      24/32 self, 28/32 MPNN). These runs extend routing validation beyond the original 4 targets.
     </p>
   </div>
 
@@ -1440,9 +1441,9 @@ Terminate: when unique success count plateaus
     <tr style="background:#fef3c7">
       <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
       <td><strong>Exp 15a-d: Routing Validation (SpCas9 + CrSAS6)</strong><br><span style="font-size:0.82rem;color:var(--muted)">noise=0.20 and +halluc for 2 targets with ambiguous diagnostic predictions</span></td>
-      <td>2/4</td>
-      <td><span class="tag tag-orange">In Progress</span></td>
-      <td style="font-size:0.82rem">As of April 7, 2026 local logs show exp15a SpCas9+noise and exp15c CrSAS6+noise completed, while exp15b SpCas9+halluc and exp15d CrSAS6+halluc are still running. SpCas9: "try both" (iPAE=50%, pLDDT=50%). CrSAS6: "default or noise" (iPAE=75%).</td>
+      <td>4/4</td>
+      <td><span class="tag tag-green">Done</span></td>
+      <td style="font-size:0.82rem"><strong>Both targets now resolved.</strong> SpCas9 favors hallucination (18/32 self and MPNN) over noise (11/32 self, 8/32 MPNN). CrSAS6 is strong under both: noise gives 32/32 self and 24/32 MPNN; hallucination gives 24/32 self and 28/32 MPNN.</td>
     </tr>
     <tr style="background:#ede9fe">
       <td colspan="5" style="font-size:0.8rem; font-weight:600; color:#5b21b6; padding:6px 12px;">
@@ -1465,8 +1466,22 @@ Terminate: when unique success count plateaus
       <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
       <td><strong>Exp 17a-x: Remaining Packaged Targets Comprehensive Diagnosis</strong><br><span style="font-size:0.82rem;color:var(--muted)">BBF14, DerF21, CbAgo, IL7RA, Insulin, H1, IL17A, TNFalpha &times; {baseline, noise=0.20, +hallucination}</span></td>
       <td>24/24</td>
+      <td><span class="tag tag-orange">Partially Resolved</span></td>
+      <td style="font-size:0.82rem"><strong>21/24 finished; 3 hallucination jobs hit the 8h walltime.</strong> BBF14 is default/noise-favored (24/32 self, halluc worse). DerF21 prefers default (24/32 self, 29/32 MPNN). IL7RA splits by metric (default best self 27/32, noise best MPNN 28/32). Insulin is weak/flat across configs. IL17A stays 0/32 across all completed runs. CbAgo, H1, and TNF&alpha; remain unresolved because the hallucination branch timed out.</td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
+      <td><strong>Exp 18a-b: Long-Walltime Hallucination Reruns</strong><br><span style="font-size:0.82rem;color:var(--muted)">CbAgo and H1 hallucination reruns at 36h after Exp 17 timeouts</span></td>
+      <td>2/2</td>
       <td><span class="tag tag-orange">In Progress</span></td>
-      <td style="font-size:0.82rem">SLURM jobs 6691813&ndash;6691836 submitted on April 7, 2026. Queue snapshot: BBF14 base/noise/halluc are running; the remaining 21 jobs are pending. This batch completes the first uniform config matrix over the untouched easy, hard, and very-hard packaged targets.</td>
+      <td style="font-size:0.82rem">SLURM <code>6712732</code> and <code>6712733</code> are running now for the two unresolved hallucination outliers. A TNF&alpha; hallucination rerun script is prepared but not submitted yet.</td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
+      <td><strong>Exp 20: New Beam Methods on Zero-Hit Targets</strong><br><span style="font-size:0.82rem;color:var(--muted)">SC2RBD, CbAgo, H1, IL17A, TNFalpha with beam baseline vs stochastic beam vs diverse beam</span></td>
+      <td>35/35</td>
+      <td><span class="tag tag-orange">Submitted</span></td>
+      <td style="font-size:0.82rem">This is the first broad queue using the newly implemented <code>stochastic-beam-search</code> and <code>diverse-beam-search</code> modules. The sweep is mostly still pending in SLURM, so there are no interpretable target-level results yet.</td>
     </tr>
     <tr style="background:#fef3c7">
       <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
@@ -1480,7 +1495,7 @@ Terminate: when unique success count plateaus
       <td><strong>Diagnostic Signal Extraction</strong><br><span style="font-size:0.82rem;color:var(--muted)">Per-criterion bottleneck analysis of all 11 targets from Phase 0 deep beam data</span></td>
       <td>--</td>
       <td><span class="tag tag-green">Done</span></td>
-      <td style="font-size:0.82rem"><strong>Routing rule: 3/4 correct.</strong> Self/MPNN gap + iPAE/pLDDT pass rates are sufficient diagnostic signals. See Section 5b.</td>
+      <td style="font-size:0.82rem"><strong>Routing rule: 3/4 correct.</strong> Self/MPNN gap + iPAE/pLDDT pass rates are sufficient diagnostic signals. This analysis now also feeds the implemented sidecar and rule-based router.</td>
     </tr>
     <tr>
       <td style="text-align:center; font-size:1.1rem; color:#ccc">&#9744;</td>
@@ -2246,21 +2261,21 @@ Terminate: when unique success count plateaus
       <td>Phase 2a</td>
       <td>Config matrix &amp; scale-up to N=96</td>
       <td>Exp 10&ndash;15 (24 jobs)</td>
-      <td><span class="tag tag-orange">In Progress (19 done, 2 running, 3 failed)</span></td>
+      <td><span class="tag tag-green">Done (24/24)</span></td>
       <td>April 2026</td>
     </tr>
     <tr>
       <td>Phase 2b</td>
       <td>Diagnostic routing &amp; validation</td>
       <td>Bottleneck analysis + routing tree + Exp 15 (SpCas9/CrSAS6) + Exp 16 (BHRF1/SC2RBD/VEGFA) + Exp 17 (remaining 8 targets)</td>
-      <td><span class="tag tag-orange">In Progress (3/4 validated; Exp 16 complete, Exp 17 running on remaining 8 targets)</span></td>
+      <td><span class="tag tag-orange">In Progress (Exp 15 complete; Exp 16 complete; Exp 17 mostly resolved with reruns still running)</span></td>
       <td>April 2026</td>
     </tr>
     <tr>
       <td>Phase 2c</td>
       <td>Multi-round adaptive loop demo</td>
       <td>First narrow demo on SC2RBD (Exp 21), then extend to 2&ndash;3 targets &times; 3 rounds</td>
-      <td><span class="tag tag-orange">In Progress (Exp 21 submitted for SC2RBD)</span></td>
+      <td><span class="tag tag-orange">In Progress (Exp 21 submitted; sidecar/router implemented)</span></td>
       <td>April&ndash;May 2026</td>
     </tr>
     <tr>
@@ -2303,7 +2318,7 @@ Terminate: when unique success count plateaus
     (11) <del>Is bb noise alone sufficient (bb=0.2, lat=0.1)?</del> <strong>Answered (Exp 12b): No.</strong> bb=0.2, lat=0.1 gives 3/32 (9.4%), worse than default.<br>
     (12) <del>Does the noise+halluc negative interaction replicate on other targets?</del> <strong>Answered (Exp 13a/13b): Not universally.</strong> HER2_AAV combo gives 14/32 self and 19/32 MPNN; BetV1 combo gives 11/32 self and 3/32 MPNN.<br>
     (13) <del>Do hallucination and baseline effects replicate at N=96?</del> <strong>Answered (Exp 11a-j): Yes.</strong> Baseline replicas reproduced exactly and HER2/BetV1 hallucination replicas also completed.<br>
-    (14) <strong>Core agentic question:</strong> No single config is optimal for all targets. Can a diagnostic round (cheap N=32) identify which config to use? (Phase 2b, planned.)
+    (14) <strong>Core agentic question:</strong> No single config is optimal for all targets. Can a diagnostic round (cheap N=32) identify which config to use? <strong>Now active:</strong> the first narrow SC2RBD agentic follow-up is running as Exp 21.
     </p>
   </div>
 </div>
@@ -2344,7 +2359,7 @@ Terminate: when unique success count plateaus
       <li><strong>Multi-round feedback</strong>: After applying an intervention, read the new diagnostic signals and adjust.
       For example, if a target remains interface-limited after one round, allocate the next round to more structural exploration; if sequence quality becomes the bottleneck, switch to sequence-focused refinement.</li>
       <li><strong>Broader target validation</strong>: Currently validated on 4 targets (PDL1, CD45, HER2, BetV1).
-      Exp 15a-d will extend to SpCas9 and CrSAS6, Exp 16a-i has completed base/noise/hallucination diagnosis for BHRF1, SC2RBD, and VEGFA, and Exp 17a-x is now running the same matrix on the remaining 8 packaged targets. BHRF1 behaves like an easy saturated control, SC2RBD remains a genuinely hard failure case, and VEGFA already prefers default over both interventions.</li>
+      Exp 15a-d is now complete for SpCas9 and CrSAS6, Exp 16a-i completed base/noise/hallucination diagnosis for BHRF1, SC2RBD, and VEGFA, and Exp 17a-x resolved most of the remaining 8 packaged targets with only the hardest hallucination branches still in long-walltime reruns. BHRF1 behaves like an easy saturated control, SC2RBD remains a genuinely hard failure case, and VEGFA already prefers default over both interventions.</li>
       <li><strong>Scaling curve as the key figure</strong>: Compare unique successes vs GPU-hours for the adaptive agent
       against fixed Beam Search, fixed Best-of-N, and fixed hallucination baselines.</li>
     </ul>
@@ -2448,8 +2463,10 @@ Terminate: when unique success count plateaus
   </table>
   </div>
   <p class="note">
-    This schema is implemented additively in the local codebase as a sidecar and builder script.
-    It does not replace the current search logic; it sits next to it and reads existing evaluation outputs.
+    This schema is implemented additively in the local codebase as
+    <code>diagnostic_sidecar.py</code>, <code>routing_policy.py</code>, and
+    <code>build_diagnostic_sidecar.py</code>. It does not replace the current search logic;
+    it sits next to it and reads existing evaluation outputs.
   </p>
 
   <h3>Operator Routing Policy (v1)</h3>
@@ -2509,7 +2526,7 @@ Terminate: when unique success count plateaus
   <h3>Packaged Targets Not Yet Run Locally</h3>
   <p class="note">All 11 targets below are packaged in <code>configs/targets/targets_dict.yaml</code> with PDB files,
   hotspot residues, and binder length ranges, but have zero local evaluation results. They can be run immediately.</p>
-  <p class="note">As of April 7, 2026, Exp 16a-i has completed for BHRF1, SC2RBD, and VEGFA, and Exp 17a-x is running on the remaining 8 packaged targets. This will give the first full base/noise/hallucination matrix across the untouched target set.</p>
+  <p class="note">As of April 8, 2026, Exp 16a-i is complete for BHRF1, SC2RBD, and VEGFA. Exp 17a-x resolved most of the remaining packaged targets, with only the longest hallucination branches on CbAgo and H1 still in rerun status.</p>
   <div class="table-wrap">
   <table>
     <tr><th>ID</th><th>Target</th><th>Paper Difficulty</th><th>Notes</th><th>Recommended Priority</th></tr>
