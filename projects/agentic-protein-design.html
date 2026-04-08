@@ -1229,9 +1229,11 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
   </div>
 
   <div class="card" style="border-left: 4px solid var(--purple);">
-    <h4 style="font-size:1rem; margin-bottom:8px;">Step 2: Multi-Round Adaptive Loop (Planned)</h4>
+    <h4 style="font-size:1rem; margin-bottom:8px;">Step 2: Multi-Round Adaptive Loop (Narrow v1 Active)</h4>
     <p style="font-size:0.88rem; color:var(--muted); margin-bottom:10px;">
-      The full agentic system runs multiple rounds, re-diagnosing after each intervention:
+      The full agentic system runs multiple rounds, re-diagnosing after each intervention. The first narrow v1
+      demo is now active on <code>SC2RBD</code>: reuse the completed Exp 16 baseline diagnosis as Round 1,
+      build the diagnostic sidecar, route with the rule-based policy, and run exactly one follow-up operator in Round 2.
     </p>
     <div class="diagram" style="font-size:0.8rem;">Round 1: Diagnostic (N=32 deep beam, default config)
    │ Read: self_rate, mpnn_rate, per-criterion pass rates
@@ -1260,6 +1262,18 @@ Terminate: when unique success count plateaus
       in 30 GPU-hours on hard targets using a fixed strategy. An adaptive agent that spends 6h diagnosing, then 24h
       on the right intervention, should achieve more unique successes than 30h of blind beam search &mdash;
       because it avoids wasting compute on configs that produce 0% for that specific target.
+    </p>
+  </div>
+
+  <div class="card" style="border-left: 4px solid var(--green);">
+    <h4 style="font-size:1rem; margin-bottom:8px;">First Narrow Agentic Demo: SC2RBD Round 1 &rarr; Round 2 (Exp 21, Submitted)</h4>
+    <p style="font-size:0.88rem; color:var(--muted);">
+      We are starting with the smallest defensible agentic loop rather than a full autonomous system.
+      Round 1 is the completed Exp 16 baseline diagnosis for <code>30_SC2RBD</code>. The local
+      <code>diagnostic-sidecar-v1</code> builder summarizes that run as
+      <code>geometry_limited_zero_hit</code> and the rule-based router selects
+      <code>stochastic-beam-search</code> with <code>diverse-beam-search</code> as fallback.
+      That routed Round 2 follow-up is now submitted as <strong>Exp 21</strong> (SLURM <code>6718310</code>).
     </p>
   </div>
 
@@ -1441,6 +1455,25 @@ Terminate: when unique success count plateaus
       <td>9/9</td>
       <td><span class="tag tag-green">Done</span></td>
       <td style="font-size:0.82rem"><strong>Three distinct outcomes:</strong> BHRF1 is saturated (base/noise 32/32 self and MPNN; halluc 30/32). SC2RBD stays at 0/32 self across all configs, with only hallucination recovering 1/32 MPNN. VEGFA strongly prefers default (21/32 self and MPNN), while hallucination is weaker (18/32 self, 17/32 MPNN) and noise is strongly harmful (8/32 self, 2/32 MPNN).</td>
+    </tr>
+    <tr style="background:#ede9fe">
+      <td colspan="5" style="font-size:0.8rem; font-weight:600; color:#5b21b6; padding:6px 12px;">
+        &#9654; Phase 2b: Remaining Untouched Target Matrix &mdash; 24 jobs launched 2026-04-07
+      </td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
+      <td><strong>Exp 17a-x: Remaining Packaged Targets Comprehensive Diagnosis</strong><br><span style="font-size:0.82rem;color:var(--muted)">BBF14, DerF21, CbAgo, IL7RA, Insulin, H1, IL17A, TNFalpha &times; {baseline, noise=0.20, +hallucination}</span></td>
+      <td>24/24</td>
+      <td><span class="tag tag-orange">In Progress</span></td>
+      <td style="font-size:0.82rem">SLURM jobs 6691813&ndash;6691836 submitted on April 7, 2026. Queue snapshot: BBF14 base/noise/halluc are running; the remaining 21 jobs are pending. This batch completes the first uniform config matrix over the untouched easy, hard, and very-hard packaged targets.</td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
+      <td><strong>Exp 21: First Narrow Agentic Follow-Up</strong><br><span style="font-size:0.82rem;color:var(--muted)">SC2RBD only: Exp 16 baseline diagnosis &rarr; diagnostic sidecar &rarr; rule-based routing &rarr; one routed Round 2 job</span></td>
+      <td>1/1</td>
+      <td><span class="tag tag-orange">Submitted</span></td>
+      <td style="font-size:0.82rem">Round 1 evidence comes from Exp 16 base SC2RBD (0/32 self, 0/32 MPNN, zero useful interface geometry). The sidecar labels this <code>geometry_limited_zero_hit</code> and routes to <code>stochastic-beam-search</code>; fallback is <code>diverse-beam-search</code>. Round 2 submitted as SLURM <code>6718310</code>.</td>
     </tr>
     <tr style="background:#d1fae5">
       <td style="text-align:center; font-size:1.1rem">&#9745;</td>
@@ -2219,15 +2252,15 @@ Terminate: when unique success count plateaus
     <tr>
       <td>Phase 2b</td>
       <td>Diagnostic routing &amp; validation</td>
-      <td>Bottleneck analysis + routing tree + Exp 15 (SpCas9/CrSAS6) + Exp 16 (BHRF1/SC2RBD/VEGFA)</td>
-      <td><span class="tag tag-orange">In Progress (3/4 validated; Exp 16 complete on 3 additional targets)</span></td>
+      <td>Bottleneck analysis + routing tree + Exp 15 (SpCas9/CrSAS6) + Exp 16 (BHRF1/SC2RBD/VEGFA) + Exp 17 (remaining 8 targets)</td>
+      <td><span class="tag tag-orange">In Progress (3/4 validated; Exp 16 complete, Exp 17 running on remaining 8 targets)</span></td>
       <td>April 2026</td>
     </tr>
     <tr>
       <td>Phase 2c</td>
       <td>Multi-round adaptive loop demo</td>
-      <td>2&ndash;3 targets &times; 3 rounds, agent vs fixed baselines</td>
-      <td><span class="tag tag-purple">Planned</span></td>
+      <td>First narrow demo on SC2RBD (Exp 21), then extend to 2&ndash;3 targets &times; 3 rounds</td>
+      <td><span class="tag tag-orange">In Progress (Exp 21 submitted for SC2RBD)</span></td>
       <td>April&ndash;May 2026</td>
     </tr>
     <tr>
@@ -2311,16 +2344,172 @@ Terminate: when unique success count plateaus
       <li><strong>Multi-round feedback</strong>: After applying an intervention, read the new diagnostic signals and adjust.
       For example, if a target remains interface-limited after one round, allocate the next round to more structural exploration; if sequence quality becomes the bottleneck, switch to sequence-focused refinement.</li>
       <li><strong>Broader target validation</strong>: Currently validated on 4 targets (PDL1, CD45, HER2, BetV1).
-      Exp 15a-d will extend to SpCas9 and CrSAS6, and Exp 16a-i has now completed base/noise/hallucination diagnosis for BHRF1, SC2RBD, and VEGFA. BHRF1 behaves like an easy saturated control, SC2RBD remains a genuinely hard failure case, and VEGFA already prefers default over both interventions. The remaining unrun targets below provide further test cases.</li>
+      Exp 15a-d will extend to SpCas9 and CrSAS6, Exp 16a-i has completed base/noise/hallucination diagnosis for BHRF1, SC2RBD, and VEGFA, and Exp 17a-x is now running the same matrix on the remaining 8 packaged targets. BHRF1 behaves like an easy saturated control, SC2RBD remains a genuinely hard failure case, and VEGFA already prefers default over both interventions.</li>
       <li><strong>Scaling curve as the key figure</strong>: Compare unique successes vs GPU-hours for the adaptive agent
       against fixed Beam Search, fixed Best-of-N, and fixed hallucination baselines.</li>
     </ul>
   </div>
 
+  <h3>Failure Decomposition &rarr; Intervention Selection &rarr; Improvement Trace Accumulation</h3>
+  <div class="card" style="border-left: 4px solid var(--purple);">
+    <p style="font-size:0.88rem; color:var(--muted); margin-bottom:10px;">
+      The next research step is not to throw away the current routing work. It is to make it more
+      <strong>agentic</strong> by replacing a single scalar interpretation of failure with an
+      <strong>intervention-grounded diagnostic layer</strong>.
+    </p>
+    <p style="font-size:0.88rem; color:var(--muted); margin-bottom:10px;">
+      In the current system, test-time optimization is still dominated by structural confidence proxies
+      such as interface confidence and backbone consistency. Those signals are useful, but they are not
+      the same thing as binding thermodynamics. A structure predictor can believe a pose is plausible
+      while the interface is still poorly packed, electrostatically mismatched, or thermodynamically weak.
+    </p>
+    <p style="font-size:0.88rem; color:var(--muted);">
+      Our Phase 2 controller therefore shifts from <strong>&ldquo;maximize one reward&rdquo;</strong> to
+      <strong>&ldquo;diagnose why this target is failing, choose the next intervention, and remember which intervention actually improved it&rdquo;</strong>.
+      This is closer to actionable counterfactual feedback than to a strict causal model, but it is a better fit
+      for a fixed generator plus inference-time search.
+    </p>
+  </div>
+
+  <h3>Two-Stage Control Loop</h3>
+  <div class="table-wrap">
+  <table>
+    <tr><th style="width:20%">Stage</th><th style="width:35%">What Is Computed</th><th style="width:45%">Role in the Controller</th></tr>
+    <tr>
+      <td><strong>Stage 1</strong><br>Cheap structural screening</td>
+      <td>
+        <code>pLDDT</code>, <code>i_pAE</code>, binder <code>scRMSD_ca</code>, and the
+        <strong>Self vs MPNN gap</strong> from the current evaluation stack.
+      </td>
+      <td>
+        Detect whether a target is geometry-limited, sequence-limited, saturated, or still ambiguous.
+        This is the fast diagnostic round that drives operator choice.
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Stage 2</strong><br>Physics-aware sidecar</td>
+      <td>
+        Top-K-only diagnostics such as <code>TMOL</code> interface energies,
+        interface bioinformatics metrics, and later local <code>&Delta;&Delta;G</code>-style oracles.
+      </td>
+      <td>
+        Do not replace the main search reward at first. Instead, rescore plausible candidates,
+        identify packing / electrostatics / local-edit bottlenecks, and guide the next refinement step.
+      </td>
+    </tr>
+  </table>
+  </div>
+  <p class="note">
+    This two-stage design is deliberate: absolute affinity prediction is still too noisy and too domain-shifted
+    to become the primary online search reward for de novo minibinders. It is safer as a later reranker than
+    as the first-line controller signal.
+  </p>
+
+  <h3>Complexa Diagnostic Sidecar Schema (v1)</h3>
+  <div class="table-wrap">
+  <table>
+    <tr><th style="width:22%">Layer</th><th style="width:33%">Fields</th><th style="width:45%">Purpose</th></tr>
+    <tr>
+      <td><strong>Candidate-level sidecar</strong></td>
+      <td>
+        Raw metrics per sequence family (<code>self</code>, <code>mpnn</code>):<br>
+        <code>pLDDT</code>, <code>i_pAE</code>, binder <code>scRMSD_ca</code>, optional monomer stability,
+        optional <code>TMOL</code> / bioinformatics / physics heads.
+      </td>
+      <td>
+        Convert one design into a small diagnostic vector:
+        <strong>foldability</strong>, <strong>interface geometry</strong>,
+        <strong>interface physics</strong>, and <strong>local editability</strong>.
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Target summary</strong></td>
+      <td>
+        Pass rates for <code>self</code> and <code>mpnn</code>, per-criterion pass rates,
+        best geometry pass rate, best physics pass rate, and <code>mpnn - self</code> success gap.
+      </td>
+      <td>
+        Collapse dozens of candidates into a single target-level diagnosis:
+        <code>geometry_limited_zero_hit</code>, <code>sequence_or_local_edit_limited</code>,
+        <code>interface_physics_limited</code>, <code>saturated_or_default_favored</code>, or <code>mixed</code>.
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Routing decision</strong></td>
+      <td>
+        <code>next_operator</code>, <code>fallback_operator</code>, confidence score,
+        evidence payload, and textual rationale.
+      </td>
+      <td>
+        Keep the controller explicit and auditable. The first version is rule-based on purpose:
+        no RL, no opaque policy head, no invasive refactor of the search stack.
+      </td>
+    </tr>
+  </table>
+  </div>
+  <p class="note">
+    This schema is implemented additively in the local codebase as a sidecar and builder script.
+    It does not replace the current search logic; it sits next to it and reads existing evaluation outputs.
+  </p>
+
+  <h3>Operator Routing Policy (v1)</h3>
+  <div class="table-wrap">
+  <table>
+    <tr><th style="width:34%">Observed Signal Pattern</th><th style="width:26%">Diagnosis</th><th style="width:40%">Next Action</th></tr>
+    <tr>
+      <td><strong>High pass rate already</strong> under default generation</td>
+      <td><code>saturated_or_default_favored</code></td>
+      <td>Do not intervene yet. <strong>Scale the default search</strong> and only add physics-aware reranking if top candidates disagree on interface quality.</td>
+    </tr>
+    <tr>
+      <td><strong><code>self &lt;&lt; mpnn</code></strong> while geometry passes often enough</td>
+      <td><code>sequence_or_local_edit_limited</code></td>
+      <td>Use <strong>sequence hallucination / local refinement</strong>. The backbone is already promising; the main failure is sequence quality or local packing.</td>
+    </tr>
+    <tr>
+      <td><strong>Zero hits</strong> and poor interface geometry across both sequence families</td>
+      <td><code>geometry_limited_zero_hit</code></td>
+      <td>Widen structural exploration in stages:
+      <strong>stochastic beam &rarr; diverse beam &rarr; MCTS</strong>. Do not spend compute on sequence edits before a plausible interface exists.</td>
+    </tr>
+    <tr>
+      <td>Geometry exists, but physics-sidecar signals remain weak</td>
+      <td><code>interface_physics_limited</code></td>
+      <td>Apply <strong>physics-aware reranking</strong> and local interface edits before another broad search round.</td>
+    </tr>
+    <tr>
+      <td>Signals are mixed or still too noisy</td>
+      <td><code>mixed_or_ambiguous</code></td>
+      <td>Default hedge: <strong>diverse beam search</strong>, then escalate to <strong>MCTS</strong> only if diversity alone still does not unlock geometry.</td>
+    </tr>
+  </table>
+  </div>
+
+  <div class="callout">
+    <p><strong>Implementation choice:</strong> Phase 2 starts with an interpretable rule-based router, not a learned controller.
+    The agent first needs good traces of <em>diagnosis &rarr; intervention &rarr; outcome</em>. Only after those traces exist
+    does it make sense to learn a policy.</p>
+  </div>
+
+  <h3>Why PPB-Affinity Is Deferred</h3>
+  <div class="card" style="border-left: 4px solid var(--orange);">
+    <p style="font-size:0.88rem; color:var(--muted); margin-bottom:10px;">
+      Absolute affinity modeling is still important, but it is <strong>not</strong> the right first benchmark
+      for the full agentic design system. We will keep <strong>PPB-Affinity</strong> as a later auxiliary benchmark
+      for an absolute <code>&Delta;G<sub>bind</sub></code> reranker rather than use it as the primary de novo design benchmark.
+    </p>
+    <p style="font-size:0.88rem; color:var(--muted);">
+      The primary benchmark for the agent remains the actual hard design targets
+      (<code>SC2RBD</code>, <code>CbAgo</code>, <code>H1</code>, <code>IL17A</code>, <code>TNF&alpha;</code>),
+      where the question is whether diagnostic-driven search and targeted intervention unlock designs that the
+      current fixed search stack misses.
+    </p>
+  </div>
+
   <h3>Packaged Targets Not Yet Run Locally</h3>
   <p class="note">All 11 targets below are packaged in <code>configs/targets/targets_dict.yaml</code> with PDB files,
   hotspot residues, and binder length ranges, but have zero local evaluation results. They can be run immediately.</p>
-  <p class="note">As of April 7, 2026, Exp 16a-i has completed for the three highest-priority cases (BHRF1, SC2RBD, VEGFA). BHRF1 is saturated, SC2RBD remains unresolved, and VEGFA prefers the default deep setting.</p>
+  <p class="note">As of April 7, 2026, Exp 16a-i has completed for BHRF1, SC2RBD, and VEGFA, and Exp 17a-x is running on the remaining 8 packaged targets. This will give the first full base/noise/hallucination matrix across the untouched target set.</p>
   <div class="table-wrap">
   <table>
     <tr><th>ID</th><th>Target</th><th>Paper Difficulty</th><th>Notes</th><th>Recommended Priority</th></tr>
@@ -2427,6 +2616,13 @@ Terminate: when unique success count plateaus
       only after state-bank evidence, memory, and surrogate stages are established.</td>
       <td><span class="tag tag-purple">Proposed (last priority)</span>. Planning doc explicitly says &ldquo;no early denoiser finetuning before state-bank evidence.&rdquo;</td>
     </tr>
+    <tr>
+      <td><strong>Absolute affinity reranker (PPB-Affinity)</strong></td>
+      <td>Train a later-stage absolute affinity head on PPB-Affinity and use it only to rerank top candidates.
+      This is useful for an auxiliary <code>&Delta;G<sub>bind</sub></code> benchmark, but it is not the main benchmark
+      for de novo target-conditioned binder generation.</td>
+      <td><span class="tag tag-purple">Proposed (later phase)</span>. Deferred until the diagnostic sidecar and local <code>&Delta;&Delta;G</code>-style refinement stages are established.</td>
+    </tr>
   </table>
   </div>
 
@@ -2450,11 +2646,6 @@ Terminate: when unique success count plateaus
       <td><strong>BindCraft</strong> (Nature 2025)</td>
       <td>AF2-based binder hallucination: iterative sequence optimization starting from random initialization. Strong single-state baseline.</td>
       <td>Our hallucination experiments use BindCraft&rsquo;s optimization stages. Key comparison baseline.</td>
-    </tr>
-    <tr>
-      <td><strong>SwitchCraft</strong> (under review, ICML)</td>
-      <td>Programmatic framework for designing state-switching proteins via backpropagation through compositional design constraints parameterized by structure prediction models. Multistate objective language.</td>
-      <td>Conceptual influence for future state-aware design objectives. Not yet integrated.</td>
     </tr>
     <tr>
       <td><strong>Meta-Harness</strong> (Lee et al. 2026)</td>
