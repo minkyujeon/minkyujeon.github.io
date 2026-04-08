@@ -880,7 +880,8 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     <h3>6. Reliability Audit &mdash; Publication Status (Updated)</h3>
     <p style="font-size:0.88rem; color:var(--muted); margin-bottom:10px;">
       Full review in <code>docs/EXPERIMENT_RELIABILITY_REVIEW.md</code>. Phase 1b complete (all 9/9 jobs).
-      All confirmed with <code>num_redesign_seqs=8</code>. Phase 2 (24 jobs) launched on April 7, 2026 for scale-up and matrix completion.
+      All confirmed with <code>num_redesign_seqs=8</code>. Phase 2a (24 jobs) launched on April 7, 2026 for scale-up and matrix completion;
+      Phase 2b diagnosis expansion (Exp 16a-i, 9 jobs) was also submitted the same day for BHRF1, SC2RBD, and VEGFA.
     </p>
     <table style="font-size:0.82rem; width:100%;">
       <tr>
@@ -1223,7 +1224,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     return "try_both"             # Ambiguous → run noise AND halluc,
                                   # pick whichever works better</code></pre>
     <p style="font-size:0.88rem; color:var(--muted); margin-top:8px;">
-      <strong>Validated on 4 targets: 3/4 correct.</strong> SpCas9 and CrSAS6 validation experiments are now in progress (Exp 15a-d).
+      <strong>Validated on 4 targets: 3/4 correct.</strong> SpCas9 and CrSAS6 validation experiments are now in progress (Exp 15a-d), and the broader diagnosis batch for BHRF1, SC2RBD, and VEGFA has completed (Exp 16a-i).
     </p>
   </div>
 
@@ -1269,6 +1270,16 @@ Terminate: when unique success count plateaus
       and &ldquo;default or noise&rdquo; for CrSAS6 (iPAE=75%, mild bottleneck). As of April 7, 2026 local logs show
       SpCas9+noise and CrSAS6+noise completed, while SpCas9+halluc and CrSAS6+halluc are still running.
       Full results will extend validation from 4 to 6 tested targets.
+    </p>
+  </div>
+
+  <div class="card" style="border-left: 4px solid var(--accent);">
+    <h4 style="font-size:1rem; margin-bottom:8px;">New Diagnosis Batch: BHRF1 + SC2RBD + VEGFA (Exp 16a-i, Completed)</h4>
+    <p style="font-size:0.88rem; color:var(--muted);">
+      All 9 diagnosis jobs (SLURM 6677190&ndash;6677198) completed successfully. Results are sharply target-specific:
+      BHRF1 is saturated under all configs (base 32/32 self, noise 32/32, halluc 30/32), SC2RBD remains essentially unsolved
+      (base 0/32 self and MPNN, noise 0/32, halluc 0/32 self with 1/32 MPNN), and VEGFA strongly prefers default
+      (base 21/32 self and MPNN, halluc 18/32 self and 17/32 MPNN, noise 8/32 self and 2/32 MPNN).
     </p>
   </div>
 
@@ -1418,6 +1429,18 @@ Terminate: when unique success count plateaus
       <td>2/4</td>
       <td><span class="tag tag-orange">In Progress</span></td>
       <td style="font-size:0.82rem">As of April 7, 2026 local logs show exp15a SpCas9+noise and exp15c CrSAS6+noise completed, while exp15b SpCas9+halluc and exp15d CrSAS6+halluc are still running. SpCas9: "try both" (iPAE=50%, pLDDT=50%). CrSAS6: "default or noise" (iPAE=75%).</td>
+    </tr>
+    <tr style="background:#ede9fe">
+      <td colspan="5" style="font-size:0.8rem; font-weight:600; color:#5b21b6; padding:6px 12px;">
+        &#9654; Phase 2b: Comprehensive Diagnosis Expansion &mdash; 9 jobs completed 2026-04-07
+      </td>
+    </tr>
+    <tr style="background:#d1fae5">
+      <td style="text-align:center; font-size:1.1rem">&#9745;</td>
+      <td><strong>Exp 16a-i: BHRF1 + SC2RBD + VEGFA Comprehensive Diagnosis</strong><br><span style="font-size:0.82rem;color:var(--muted)">3 targets &times; {baseline, noise=0.20, +hallucination} using deep beam diagnostics</span></td>
+      <td>9/9</td>
+      <td><span class="tag tag-green">Done</span></td>
+      <td style="font-size:0.82rem"><strong>Three distinct outcomes:</strong> BHRF1 is saturated (base/noise 32/32 self and MPNN; halluc 30/32). SC2RBD stays at 0/32 self across all configs, with only hallucination recovering 1/32 MPNN. VEGFA strongly prefers default (21/32 self and MPNN), while hallucination is weaker (18/32 self, 17/32 MPNN) and noise is strongly harmful (8/32 self, 2/32 MPNN).</td>
     </tr>
     <tr style="background:#d1fae5">
       <td style="text-align:center; font-size:1.1rem">&#9745;</td>
@@ -2196,8 +2219,8 @@ Terminate: when unique success count plateaus
     <tr>
       <td>Phase 2b</td>
       <td>Diagnostic routing &amp; validation</td>
-      <td>Bottleneck analysis + routing tree + SpCas9/CrSAS6 validation</td>
-      <td><span class="tag tag-orange">In Progress (3/4 validated; 2 additional targets in progress)</span></td>
+      <td>Bottleneck analysis + routing tree + Exp 15 (SpCas9/CrSAS6) + Exp 16 (BHRF1/SC2RBD/VEGFA)</td>
+      <td><span class="tag tag-orange">In Progress (3/4 validated; Exp 16 complete on 3 additional targets)</span></td>
       <td>April 2026</td>
     </tr>
     <tr>
@@ -2288,7 +2311,7 @@ Terminate: when unique success count plateaus
       <li><strong>Multi-round feedback</strong>: After applying an intervention, read the new diagnostic signals and adjust.
       For example, if a target remains interface-limited after one round, allocate the next round to more structural exploration; if sequence quality becomes the bottleneck, switch to sequence-focused refinement.</li>
       <li><strong>Broader target validation</strong>: Currently validated on 4 targets (PDL1, CD45, HER2, BetV1).
-      Exp 15a-d will extend to SpCas9 and CrSAS6. The unrun targets below provide further test cases.</li>
+      Exp 15a-d will extend to SpCas9 and CrSAS6, and Exp 16a-i has now completed base/noise/hallucination diagnosis for BHRF1, SC2RBD, and VEGFA. BHRF1 behaves like an easy saturated control, SC2RBD remains a genuinely hard failure case, and VEGFA already prefers default over both interventions. The remaining unrun targets below provide further test cases.</li>
       <li><strong>Scaling curve as the key figure</strong>: Compare unique successes vs GPU-hours for the adaptive agent
       against fixed Beam Search, fixed Best-of-N, and fixed hallucination baselines.</li>
     </ul>
@@ -2297,6 +2320,7 @@ Terminate: when unique success count plateaus
   <h3>Packaged Targets Not Yet Run Locally</h3>
   <p class="note">All 11 targets below are packaged in <code>configs/targets/targets_dict.yaml</code> with PDB files,
   hotspot residues, and binder length ranges, but have zero local evaluation results. They can be run immediately.</p>
+  <p class="note">As of April 7, 2026, Exp 16a-i has completed for the three highest-priority cases (BHRF1, SC2RBD, VEGFA). BHRF1 is saturated, SC2RBD remains unresolved, and VEGFA prefers the default deep setting.</p>
   <div class="table-wrap">
   <table>
     <tr><th>ID</th><th>Target</th><th>Paper Difficulty</th><th>Notes</th><th>Recommended Priority</th></tr>
