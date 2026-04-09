@@ -1579,6 +1579,18 @@ Terminate: when unique success count plateaus
       <td><span class="tag tag-purple">Submitted</span></td>
       <td style="font-size:0.82rem"><strong>Goal:</strong> optimize local sequence refinement where geometry already exists or the target shows a redesign tradeoff. <strong>Assumption:</strong> the current hallucination schedule is not yet calibrated and may be leaving gains on the table. <strong>What is queued:</strong> greedy-only <code>2%</code> and <code>5%</code> mutation schedules, plus soft+greedy short and long schedules and a more aggressive <code>10%</code> variant. Targets were chosen because prior runs already showed non-zero geometry or a strong self/MPNN tradeoff.</td>
     </tr>
+    <tr style="background:#ede9fe">
+      <td colspan="5" style="font-size:0.8rem; font-weight:600; color:#5b21b6; padding:6px 12px;">
+        &#9654; Priority Experiments &mdash; 4 jobs submitted 2026-04-09
+      </td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
+      <td><strong>Exp 28: Paper Recipe Baseline (Sec I.4)</strong><br><span style="font-size:0.82rem;color:var(--muted)">H1, TNFalpha, IL17A, SC2RBD with the ICLR paper&rsquo;s exact very-hard-target recipe: MCTS N<sub>sim</sub>=20, &epsilon;=0.5, C=1.0, iPAE+pLDDT(0.5) reward, G&amp;H soft+greedy 5%</span></td>
+      <td>4/4</td>
+      <td><span class="tag tag-orange">Submitted</span></td>
+      <td style="font-size:0.82rem"><strong>Goal:</strong> establish the missing baseline &mdash; does the paper&rsquo;s own recipe crack zero-hit targets at 8h? <strong>SLURM:</strong> 6746023&ndash;6746026. <strong>Key difference from Exp 25/26:</strong> paper&rsquo;s exact N<sub>sim</sub>=20, &epsilon;=0.5, C=1.0 with combined iPAE+pLDDT+G&amp;H as one pipeline, not decomposed.</td>
+    </tr>
     <tr style="background:#d1fae5">
       <td style="text-align:center; font-size:1.1rem">&#9745;</td>
       <td><strong>Diagnostic Signal Extraction</strong><br><span style="font-size:0.82rem;color:var(--muted)">Per-criterion bottleneck analysis of all 11 targets from Phase 0 deep beam data</span></td>
@@ -2034,10 +2046,42 @@ Terminate: when unique success count plateaus
     </div>
   </div>
 
+  <div class="card" style="border-left: 4px solid var(--purple); margin-top:16px;">
+    <h3>Recent Additions to the Plan (April 9, 2026)</h3>
+    <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
+      <li><strong>Structured Failure Analysis:</strong> a graphify-inspired knowledge graph that converts 100+ experimental results
+      into typed nodes (targets, interventions, bottleneck types) and confidence-labeled edges (improves, hurts, interacts_negatively).
+      Agents query this graph rather than re-reading raw evaluation logs. Full schema and implementation plan included.</li>
+      <li><strong>Task Decomposition for Subagents:</strong> the design loop is decomposed into 5 subagent roles (diagnostic, strategy,
+      comparison, archivist, escalation), each with structured JSON inputs/outputs, mirroring the component-focused search pattern
+      from MLE-STAR and MARS.</li>
+      <li><strong>7 Immediate Priorities with full experimental detail:</strong>
+        <ol style="padding-left:16px; margin-top:4px;">
+          <li><strong>Exp 28 &mdash; Paper recipe baseline:</strong> Run the ICLR Sec I.4 exact recipe (MCTS N<sub>sim</sub>=20, &epsilon;=0.5, C=1.0, iPAE+pLDDT reward, G&amp;H 5% mutation) on H1, TNF&alpha;, IL17A, SC2RBD. Full Hydra commands, verification criteria, and assumptions included.</li>
+          <li><strong>Exp 29 &mdash; Adaptive vs. fixed allocation:</strong> 5-arm comparison (fixed-default, fixed-best, fixed-wrong, adaptive-rule, portfolio) at matched 30 GPU-hours on CD45, SpCas9, HER2_AAV. Round-by-round protocol, decision logic, FoldSeek clustering metrics, and success criteria specified.</li>
+          <li><strong>BindCraft portfolio arm:</strong> Run BindCraft on SC2RBD (PDB 6m0j) to test model-family selection as a portfolio action.</li>
+          <li><strong>Diagnostic knowledge graph:</strong> NetworkX graph with typed nodes/edges, confidence labels, Leiden clustering. Full JSON schema and 5-step implementation plan.</li>
+          <li><strong>Portfolio composition:</strong> Diversity-over-count argument &mdash; 10h&times;3 operators vs 30h&times;1, measured by FoldSeek cluster count at TM-score 0.5 and 0.7.</li>
+          <li><strong>LLM integration roadmap:</strong> Decision table for when rules vs. LLM, structured prompt template for the v2 strategy agent, leave-one-out evaluation design.</li>
+          <li><strong>Zero-hit failure analysis:</strong> 5-part protocol (trajectory inspection, reward correlation, structural comparison, cross-method comparison, interface geometry) to characterize why SC2RBD/CbAgo/H1/IL17A/TNF&alpha; fail.</li>
+        </ol>
+      </li>
+      <li><strong>Refined thesis:</strong> the model already covers the correct fold space for hard targets (H1: 7 successes in 604 GPU-hours).
+      The contribution is reducing search cost through intelligent allocation, not increasing model capability.</li>
+    </ul>
+    <p style="font-size:0.88rem; color:var(--muted); margin-top:8px;">
+      See the companion page for full details:
+      <a href="/projects/agentic-protein-design-plan.html#structured-analysis">Structured Failure Analysis</a> |
+      <a href="/projects/agentic-protein-design-plan.html#immediate-priorities">Immediate Priorities (7 priorities with Hydra commands)</a>
+    </p>
+  </div>
+
   <div class="page-nav">
     <a href="/projects/agentic-protein-design.html" class="active">Results &amp; Experiment Log</a>
     <a href="/projects/agentic-protein-design-plan.html">Open Research Plan &amp; Architecture</a>
   </div>
+</div>
+
 </div>
 
 <div class="footer">

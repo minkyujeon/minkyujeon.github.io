@@ -162,7 +162,12 @@
     <li><a href="#evaluation">Rigorous Plan Evaluation</a></li>
     <li><a href="#experiments">Experimental Plan</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#phase2-vision">Phase 2 Vision &amp; Finalized Working Plan</a></li>
+    <li><a href="#phase2-vision">Phase 2 Vision &amp; Finalized Working Plan</a>
+      <ul style="list-style: disc; padding-left: 20px; margin-top: 4px;">
+        <li><a href="#structured-analysis" style="font-size:0.85rem">Structured Failure Analysis &amp; Task Decomposition</a> <span class="tag tag-purple" style="font-size:0.65rem">New</span></li>
+        <li><a href="#immediate-priorities" style="font-size:0.85rem">Immediate Priorities</a> <span class="tag tag-purple" style="font-size:0.65rem">New</span></li>
+      </ul>
+    </li>
   </ol>
 </div>
 
@@ -930,6 +935,14 @@
       <td>Allocate budget across stages and decide when to stop, escalate, or switch model family.</td>
       <td><span class="tag tag-purple">Planned</span>. This is where MARS- and AI-Scientist-style budget-aware planning enters.</td>
     </tr>
+    <tr>
+      <td><strong>Diagnostic knowledge graph</strong></td>
+      <td>Structured representation of all experimental knowledge: targets, interventions, bottleneck types,
+      outcomes, and causal edges. Agents query this graph rather than re-reading raw evaluation logs.</td>
+      <td><span class="tag tag-purple">Planned</span>. Inspired by <a href="https://github.com/safishamsi/graphify">graphify</a>&rsquo;s
+      approach of converting raw data into a queryable knowledge graph (71x fewer tokens per query vs. raw files).
+      See &ldquo;Structured Failure Analysis&rdquo; section below.</td>
+    </tr>
   </table>
   </div>
 
@@ -968,6 +981,537 @@
       <td>Phase 2 portfolio expansion. The paper motivates this because different methods dominate on different target classes.</td>
     </tr>
   </table>
+  </div>
+
+  <h3 id="structured-analysis">Structured Failure Analysis &amp; Task Decomposition</h3>
+  <div class="callout">
+    <p><strong>Core insight:</strong> the model <em>can</em> find binders for the hardest targets &mdash;
+    H1 yields 7 successes in 604 GPU-hours, TNF&alpha; yields 15 in 475 GPU-hours. The problem is not model
+    capability but <strong>search efficiency</strong>: ~86 GPU-hours per hit via blind fixed-strategy search.
+    The agentic contribution is reducing this cost by making smarter allocation decisions at each round,
+    informed by structured analysis of intermediate results.</p>
+  </div>
+
+  <h4>From Raw Metrics to Queryable Knowledge Graph</h4>
+  <div class="card" style="border-left: 4px solid var(--purple);">
+    <p style="font-size:0.88rem; color:var(--muted); margin-bottom:10px;">
+      The current diagnostic pipeline reads raw evaluation JSONs and computes scalar summaries (pass rates, gaps).
+      The next step is to build a <strong>structured knowledge graph</strong> of experimental results, inspired by
+      <a href="https://github.com/safishamsi/graphify" style="color:var(--accent)">graphify</a>&rsquo;s approach of converting
+      raw data (code, papers, images) into a queryable graph with typed nodes, confidence-labeled edges, and community structure.
+    </p>
+    <p style="font-size:0.88rem; color:var(--muted); margin-bottom:10px;">
+      The graphify pipeline &mdash; <code>detect &rarr; extract &rarr; build_graph &rarr; cluster &rarr; analyze &rarr; report</code>
+      &mdash; maps directly to our experimental analysis:
+    </p>
+    <div class="table-wrap">
+    <table>
+      <tr><th style="width:22%">graphify Stage</th><th style="width:35%">Protein Design Analogue</th><th style="width:43%">What It Produces</th></tr>
+      <tr>
+        <td><strong>detect</strong></td>
+        <td>Collect completed evaluation JSONs from all runs</td>
+        <td>File manifest of available experimental data</td>
+      </tr>
+      <tr>
+        <td><strong>extract</strong></td>
+        <td><code>diagnostic_sidecar.py</code> extracts per-design metrics, per-target summaries, bottleneck labels</td>
+        <td>Typed nodes: <code>Target</code>, <code>Intervention</code>, <code>BottleneckType</code>, <code>Outcome</code><br>
+        Typed edges: <code>improves</code>, <code>hurts</code>, <code>neutral</code>, <code>interacts_negatively_with</code></td>
+      </tr>
+      <tr>
+        <td><strong>build_graph</strong></td>
+        <td>Merge all extractions into one NetworkX graph with confidence labels</td>
+        <td><code>EXTRACTED</code> = directly measured (e.g., noise=0.20 &rarr; improves &rarr; CD45, p=0.003)<br>
+        <code>INFERRED</code> = cross-target transfer (e.g., &ldquo;SC2RBD diagnostic resembles CD45&rdquo;)<br>
+        <code>AMBIGUOUS</code> = inconclusive (e.g., BetV1 + hallucination, p=0.76)</td>
+      </tr>
+      <tr>
+        <td><strong>cluster</strong></td>
+        <td>Community detection over targets by bottleneck similarity</td>
+        <td>The 4 empirical classes (saturated, sequence-limited, geometry-limited, zero-hit) emerge from graph topology, not manual labels</td>
+      </tr>
+      <tr>
+        <td><strong>analyze</strong></td>
+        <td>Identify god nodes (most-connected interventions), surprising connections (cross-cluster effects), knowledge gaps</td>
+        <td>&ldquo;noise=0.20 is the god node for geometry-limited targets&rdquo;<br>
+        &ldquo;Surprising: hallucination hurts CD45 but not HER2_AAV at same noise level&rdquo;<br>
+        &ldquo;Gap: no data on MCTS + modified reward for SC2RBD&rdquo;</td>
+      </tr>
+      <tr>
+        <td><strong>report</strong></td>
+        <td>Structured diagnostic summary that agents can query</td>
+        <td>Agents see a compact, structured view of 100+ experiments instead of raw logs &mdash;
+        analogous to graphify&rsquo;s 71x token reduction</td>
+      </tr>
+    </table>
+    </div>
+    <p style="font-size:0.88rem; color:var(--muted);">
+      This is the <strong>MARS &ldquo;comparative reflective memory&rdquo;</strong> concept implemented as a graph:
+      instead of storing flat text lessons, we store typed relationships with confidence scores,
+      enabling agents to reason about causal structure rather than pattern-match on summaries.
+    </p>
+  </div>
+
+  <h4>Task Decomposition for Subagents</h4>
+  <p style="font-size:0.88rem; color:var(--muted); margin-bottom:10px;">
+    The key to effective agentic control is decomposing the design loop into well-defined subtasks,
+    each with structured inputs and outputs. This mirrors how MLE-STAR decomposes ML pipelines into
+    ablation-identifiable components, and how Meta-Harness gives each proposer iteration
+    a filesystem of prior traces rather than a monolithic prompt.
+  </p>
+  <div class="table-wrap">
+  <table>
+    <tr><th style="width:20%">Subagent</th><th style="width:30%">Input (Structured)</th><th style="width:25%">Output (Structured)</th><th style="width:25%">Agent Paper Analogue</th></tr>
+    <tr>
+      <td><strong>Diagnostic agent</strong></td>
+      <td>Raw evaluation JSONs for one round: per-design iPAE, pLDDT, scRMSD, Self/MPNN labels</td>
+      <td>Target-level diagnosis: bottleneck type, per-criterion pass rates, Self/MPNN gap, confidence</td>
+      <td>MLE-STAR ablation: identify which component is the limiting factor</td>
+    </tr>
+    <tr>
+      <td><strong>Strategy agent</strong></td>
+      <td>Current diagnosis + knowledge graph query (what worked on similar targets?) + remaining budget</td>
+      <td>Next operator config (algorithm, noise, refinement, reward weights), fallback operator, budget split</td>
+      <td>MARS budget-aware MCTS: select action balancing explore/exploit under cost constraints</td>
+    </tr>
+    <tr>
+      <td><strong>Comparison agent</strong></td>
+      <td>Pre-intervention and post-intervention diagnostics for the same target</td>
+      <td>Causal analysis: what improved, what degraded, was the intervention effective (with p-value), new edges for knowledge graph</td>
+      <td>MARS comparative reflection: diff two solutions to isolate causal factors</td>
+    </tr>
+    <tr>
+      <td><strong>Archivist agent</strong></td>
+      <td>New diagnosis &rarr; action &rarr; outcome tuples from completed rounds</td>
+      <td>Updated knowledge graph with new nodes/edges, updated community structure, flagged knowledge gaps</td>
+      <td>Meta-Harness filesystem: accumulate traces so future iterations have full history</td>
+    </tr>
+    <tr>
+      <td><strong>Escalation agent</strong></td>
+      <td>Knowledge graph showing persistent zero-hit status despite multiple interventions</td>
+      <td>Escalation decision: switch to paper recipe (MCTS+G&amp;H), switch model family (BindCraft), or characterize as &ldquo;beyond current action set&rdquo;</td>
+      <td>AI Scientist-v2 structured stages: recognize when to shift from tuning to fundamentally different hypothesis</td>
+    </tr>
+  </table>
+  </div>
+  <p class="note">
+    Each subagent can be rule-based (current v1) or LLM-powered (future v2). The key is that inputs and outputs are
+    structured JSON, not free text. The knowledge graph provides the shared state that all subagents read from and write to.
+    An LLM becomes useful at the Strategy and Escalation stages, where the decision space is too complex for simple threshold rules.
+  </p>
+
+  <h3 id="immediate-priorities">Immediate Priorities (Confirmed April 2026)</h3>
+
+  <!-- ═══ PRIORITY 1 ═══ -->
+  <div class="exp-card" style="border-left: 4px solid var(--red);">
+    <h4><span class="tag tag-red">Priority 1 / Exp 28</span> Run the Paper&rsquo;s Exact Very-Hard-Target Recipe</h4>
+
+    <p><strong>Motivation:</strong> 604 GPU-hours yielding 7 successes on H1 means the generative prior <em>covers</em>
+    the correct fold space. The cost is ~86 GPU-hours per hit via blind fixed-strategy search. But our Exp 20
+    (beam variants) and Exp 25 (novel MCTS) do <strong>not</strong> replicate the paper&rsquo;s exact Sec I.4 recipe.
+    Exp 25 uses different MCTS hyperparameters (40&ndash;80 sims, varied exploration) without the paper&rsquo;s specific
+    modified reward (iPAE/31 + pLDDT) and without the paper&rsquo;s G&amp;H mutation schedule. This is the single
+    most informative missing experiment because it separates &ldquo;recipe discovery problem&rdquo; from
+    &ldquo;model capability problem.&rdquo;</p>
+
+    <p><strong>Hypothesis:</strong> The paper&rsquo;s recipe at 30 GPU-hours will produce &ge;1 success on at least
+    one zero-hit target (H1 or TNF&alpha;), because H1&rsquo;s first hit in the paper appears around hour 50&ndash;100
+    (Fig 19), and our higher simulation counts or denser checkpoints may accelerate discovery.</p>
+
+    <p><strong>Setup (4 targets &times; 1 config each = 4 jobs):</strong></p>
+    <div class="table-wrap">
+    <table>
+      <tr><th>Target</th><th>MCTS Params (from Sec I.4)</th><th>Reward</th><th>Refinement</th><th>Budget Cap</th></tr>
+      <tr>
+        <td><code>35_H1</code></td>
+        <td>N<sub>sim</sub>=20, &epsilon;=0.5, C=1.0, checkpoints=[0,50,...,400]</td>
+        <td>iPAE=-1.0, pLDDT=0.5</td>
+        <td>G&amp;H soft+greedy, greedy_pct=5</td>
+        <td>8h walltime</td>
+      </tr>
+      <tr>
+        <td><code>38_TNFalpha</code></td>
+        <td>N<sub>sim</sub>=20, &epsilon;=0.5, C=1.0, checkpoints=[0,50,...,400]</td>
+        <td>iPAE=-1.0, pLDDT=0.5</td>
+        <td>G&amp;H soft+greedy, greedy_pct=5</td>
+        <td>8h walltime</td>
+      </tr>
+      <tr>
+        <td><code>37_IL17A</code></td>
+        <td>N<sub>sim</sub>=20, &epsilon;=0.5, C=1.0, checkpoints=[0,100,200,300,400] (sparse, deeper tree)</td>
+        <td>iPAE=-1.0, pLDDT=0.5</td>
+        <td>G&amp;H soft+greedy, greedy_pct=5</td>
+        <td>8h walltime</td>
+      </tr>
+      <tr>
+        <td><code>30_SC2RBD</code></td>
+        <td>N<sub>sim</sub>=20, &epsilon;=0.5, C=1.0, checkpoints=[0,50,...,400]</td>
+        <td>iPAE=-1.0, pLDDT=0.5</td>
+        <td>G&amp;H soft+greedy, greedy_pct=5</td>
+        <td>8h walltime</td>
+      </tr>
+    </table>
+    </div>
+
+    <p><strong>Hydra overrides (H1 example):</strong></p>
+    <pre><code>complexa design configs/search_binder_local_pipeline.yaml \
+  ++run_name="exp28_h1_paper_recipe" \
+  ++generation.task_name="35_H1" \
+  ++generation.search.algorithm=mcts \
+  ++generation.search.step_checkpoints="[0,50,100,150,200,250,300,350,400]" \
+  ++generation.search.mcts.n_simulations=20 \
+  ++generation.search.mcts.exploration_prob=0.5 \
+  ++generation.search.mcts.exploration_constant=1.0 \
+  ++generation.reward_model.reward_models.af2folding.reward_weights.i_pae=-1.0 \
+  ++generation.reward_model.reward_models.af2folding.reward_weights.plddt=0.5 \
+  ++generation.refinement.algorithm=sequence_hallucination \
+  ++generation.refinement.enable_soft_optimization=true \
+  ++generation.refinement.enable_greedy_optimization=true \
+  ++generation.refinement.greedy_percentage=5 \
+  ++generation.dataloader.dataset.nres.nsamples=4</code></pre>
+
+    <p><strong>Key differences from Exp 25/26:</strong></p>
+    <ul>
+      <li>Exp 25 uses N<sub>sim</sub>=40&ndash;80 with exploration_prob=0.2&ndash;0.5 &mdash; we use paper&rsquo;s exact N<sub>sim</sub>=20, &epsilon;=0.5</li>
+      <li>Exp 26 tests pLDDT weights 0.25/0.50/0.75 separately &mdash; we use the paper&rsquo;s 0.5 with iPAE normalized by /31 implicitly via weight balance</li>
+      <li>This experiment includes full G&amp;H (soft+greedy) with 5% mutation rate &mdash; Exp 25 tests greedy-only and soft+greedy separately</li>
+      <li>We run the <strong>complete pipeline as one unit</strong>, not decomposed &mdash; this is the paper&rsquo;s actual recipe</li>
+    </ul>
+
+    <p><strong>Verification criteria:</strong></p>
+    <ul>
+      <li><strong>If &ge;1 success on any target:</strong> Zero-hit problem was a recipe-discovery problem. The agent&rsquo;s value is discovering this recipe automatically from diagnostic signals. Record GPU-hours-to-first-hit and compare against paper&rsquo;s Fig 19 scaling curve.</li>
+      <li><strong>If 0 successes on all 4 targets at 8h:</strong> The minimum budget threshold is higher than 8h. Check whether any designs are &ldquo;near-miss&rdquo; (iPAE*31 &lt; 10 and pLDDT &gt; 0.85). If near-misses exist, longer runs would likely succeed. If no near-misses, the target may need even more compute or a different model family.</li>
+    </ul>
+
+    <p><strong>Assumptions to verify:</strong></p>
+    <ul>
+      <li>The codebase&rsquo;s MCTS does not implement a &ldquo;K&rdquo; branching factor &mdash; each simulation creates a new child node (unlimited branching). The paper&rsquo;s K=100 likely refers to checkpoint count, not MCTS-specific branching.</li>
+      <li>AF2 reward does not explicitly divide iPAE by 31 (unlike RF3). The weight balance iPAE=-1.0 + pLDDT=0.5 achieves a similar effect since iPAE is on [0,1] scale and pLDDT is on [0,1].</li>
+    </ul>
+
+    <p><strong>Cost:</strong> ~32 GPU-hours (4 targets &times; 8h walltime). <strong>Status:</strong> <span class="tag tag-orange">Submitted</span> (SLURM 6746023&ndash;6746026, April 9 2026)</p>
+  </div>
+
+  <!-- ═══ PRIORITY 2 ═══ -->
+  <div class="exp-card" style="border-left: 4px solid var(--green);">
+    <h4><span class="tag tag-green">Priority 2 / Exp 29</span> Adaptive vs. Fixed Allocation Demo on Medium-Hard Targets</h4>
+
+    <p><strong>Motivation:</strong> The core claim of this project is that adaptive allocation beats fixed allocation at matched compute.
+    CD45, SpCas9, and HER2_AAV have rich, validated intervention responses (noise=0.20 doubles CD45, halluc rescues HER2, SpCas9 favors halluc).
+    A fixed strategy must commit to one config for 30h; the adaptive strategy can diagnose and switch.</p>
+
+    <p><strong>Hypothesis:</strong> The adaptive agent produces more unique successes (FoldSeek-clustered) than any single fixed strategy
+    at 30 GPU-hours, because: (a) it avoids wasting compute on configs that produce 0% for the specific target,
+    and (b) it can compose complementary operators across rounds to increase structural diversity.</p>
+
+    <p><strong>Experimental design (3 targets &times; 5 strategies = 15 comparison arms):</strong></p>
+    <div class="table-wrap">
+    <table>
+      <tr><th>Strategy</th><th>Protocol</th><th>Budget</th><th>What It Tests</th></tr>
+      <tr>
+        <td><strong>Fixed-default</strong></td>
+        <td>Deep beam, default noise=0.10, no halluc, N=128 (4 seeds &times; 32)</td>
+        <td>30h</td>
+        <td>Baseline: what you get by just running more of the same</td>
+      </tr>
+      <tr>
+        <td><strong>Fixed-best</strong></td>
+        <td>Best-known single config per target (noise=0.20 for CD45, halluc for HER2/SpCas9)</td>
+        <td>30h</td>
+        <td>Oracle single-config: upper bound for non-adaptive</td>
+      </tr>
+      <tr>
+        <td><strong>Fixed-wrong</strong></td>
+        <td>Worst-known config per target (halluc for CD45, noise=0.20 for HER2)</td>
+        <td>30h</td>
+        <td>Lower bound: what happens when you pick wrong</td>
+      </tr>
+      <tr>
+        <td><strong>Adaptive-rule</strong></td>
+        <td>Round 0: N=32 diagnostic (6h) &rarr; routing tree &rarr; Round 1 (8h) &rarr; re-diagnose &rarr; Round 2 (8h) &rarr; Round 3 (8h)</td>
+        <td>30h</td>
+        <td><strong>Main test:</strong> does the rule-based router match or beat fixed-best?</td>
+      </tr>
+      <tr>
+        <td><strong>Portfolio</strong></td>
+        <td>10h default + 10h noise=0.20 + 10h halluc, pool all successes</td>
+        <td>30h</td>
+        <td>Does diversifying operators increase FoldSeek cluster count?</td>
+      </tr>
+    </table>
+    </div>
+
+    <p><strong>Round-by-round protocol for Adaptive-rule:</strong></p>
+    <ul>
+      <li><strong>Round 0 (6h):</strong> Run N=32 deep beam with default config. Extract: self_rate, mpnn_rate, per-criterion pass rates (iPAE%, pLDDT%, scRMSD%), Self/MPNN gap. Build diagnostic sidecar JSON.</li>
+      <li><strong>Round 1 (8h):</strong> Routing tree reads sidecar &rarr; selects operator. E.g., for CD45: iPAE=25%, pLDDT=94%, gap=-9pp &rarr; route to noise=0.20. Run N=32 with routed config.</li>
+      <li><strong>Round 2 (8h):</strong> Re-diagnose after Round 1. Read new self_rate, compare to Round 0. <strong>Decision logic:</strong>
+        (a) If self_rate improved &gt;10pp &rarr; continue same operator with different seed.
+        (b) If self_rate unchanged &rarr; try the complementary operator (e.g., if noise was used, try halluc on the best self-passing backbones).
+        (c) If self_rate dropped &rarr; revert to default and scale up.</li>
+      <li><strong>Round 3 (8h):</strong> Final allocation to the highest-yielding operator from Rounds 1-2. Or, if both operators produced successes, split budget for diversity.</li>
+    </ul>
+
+    <p><strong>Metrics:</strong></p>
+    <ul>
+      <li><strong>Primary:</strong> Total unique successes (iPAE*31 &le; 7.0, pLDDT &ge; 0.9, scRMSD &lt; 1.5&Aring;) after FoldSeek clustering at TM-score 0.5</li>
+      <li><strong>Secondary:</strong> FoldSeek cluster count (structural diversity), GPU-hours-to-first-success, pass rate trajectory across rounds</li>
+    </ul>
+
+    <p><strong>Success criteria:</strong></p>
+    <ul>
+      <li>Adaptive-rule &ge; Fixed-best on at least 2/3 targets (total unique successes)</li>
+      <li>Portfolio strategy produces &ge; 1.5x the FoldSeek clusters of Fixed-best on at least 1 target</li>
+      <li>Adaptive-rule &gt; Fixed-wrong on all 3 targets (proves routing avoids catastrophic picks)</li>
+    </ul>
+
+    <p><strong>Key figure for the paper:</strong> Plot unique successes vs. GPU-hours (0, 6, 14, 22, 30h marks) for all 5 strategies, per target. The adaptive curve should separate from fixed curves at the 14&ndash;22h mark where the routing advantage kicks in.</p>
+
+    <p><strong>Assumptions:</strong></p>
+    <ul>
+      <li>Phase 1 intervention effects are reproducible at higher N (confirmed by N=96 replication for CD45 noise=0.20 and HER2 halluc)</li>
+      <li>Round 0 diagnostic is cheap enough (6h) to be worth the initial cost &mdash; confirmed: N=32 deep beam takes ~1h generation + ~5h AF2 evaluation</li>
+      <li>The routing tree generalizes beyond the 4 targets it was validated on (this experiment tests it on SpCas9, which has a nuanced profile)</li>
+    </ul>
+
+    <p><strong>Dependencies:</strong> Requires all Phase 1 intervention results to be finalized (done) and the diagnostic sidecar + routing policy to be implemented (done).</p>
+    <p><strong>Cost:</strong> ~150 GPU-hours (3 targets &times; 5 strategies &times; 30h, minus overlap from reusing Round 0 data). <strong>Status:</strong> <span class="tag tag-purple">After Exp 28</span></p>
+  </div>
+
+  <!-- ═══ PRIORITY 3 ═══ -->
+  <div class="exp-card" style="border-left: 4px solid var(--accent);">
+    <h4><span class="tag tag-blue">Priority 3</span> BindCraft as a Portfolio Arm for SC2RBD</h4>
+
+    <p><strong>Motivation:</strong> SC2RBD (PDB 6m0j, SARS-CoV-2 RBD) is our most visible zero-hit failure.
+    Complexa produces 0/32 self and 0/32 MPNN across all tested configs (default, noise=0.20, halluc, beam variants).
+    The ICLR paper&rsquo;s Table 10 also shows 0 Complexa successes for SC2RBD.
+    However, BindCraft (Nature 2025) successfully designed binders for RBD-class targets, and the Latent Generative Search
+    companion paper explicitly notes that different methods dominate on different targets.</p>
+
+    <p><strong>Hypothesis:</strong> BindCraft will produce &ge;1 success on SC2RBD where Complexa produces 0, because
+    BindCraft&rsquo;s AF2-based hallucination approach may better handle the RBD interface geometry that Complexa&rsquo;s
+    learned prior does not cover well.</p>
+
+    <p><strong>Setup:</strong></p>
+    <ul>
+      <li><strong>Target:</strong> SC2RBD (PDB 6m0j, chain E residues 333-526, hotspots E485/E489/E494/E500/E505, binder length 80-120)</li>
+      <li><strong>Method:</strong> BindCraft hallucination pipeline with AF2 Multimer scoring</li>
+      <li><strong>Source:</strong> <a href="https://github.com/martinpacesa/BindCraft" style="color:var(--accent)">github.com/martinpacesa/BindCraft</a>
+      or <a href="https://github.com/cytokineking/FreeBindCraft" style="color:var(--accent)">FreeBindCraft</a> (PyRosetta-free variant, already referenced in our README)</li>
+      <li><strong>N designs:</strong> 100 (BindCraft is cheaper per design than Complexa+TTO)</li>
+      <li><strong>Evaluation:</strong> Same criteria as Complexa: AF2 Multimer refold, iPAE*31 &le; 7.0, pLDDT &ge; 0.9, scRMSD &lt; 1.5&Aring;</li>
+    </ul>
+
+    <p><strong>Engineering required:</strong></p>
+    <ul>
+      <li>Install BindCraft/FreeBindCraft in a separate conda environment (~2h setup)</li>
+      <li>Adapt target PDB from our <code>assets/target_data/alpha_proteo_targets/6m0j_cropped.pdb</code></li>
+      <li>Run BindCraft with default parameters &mdash; no tuning, just the out-of-box pipeline</li>
+      <li>Evaluate outputs using our existing AF2 evaluation pipeline for fair comparison</li>
+    </ul>
+
+    <p><strong>Implication for the paper:</strong> If BindCraft produces &ge;1 success on SC2RBD:</p>
+    <ul>
+      <li>The agent&rsquo;s portfolio should include model-family selection, not just config tuning within Complexa</li>
+      <li>The escalation agent&rsquo;s decision tree gains a &ldquo;switch model family&rdquo; branch for persistent geometry-limited targets</li>
+      <li>The portfolio composition figure (Priority 5) can show that Complexa + BindCraft covers more targets than either alone</li>
+    </ul>
+    <p>If BindCraft also fails, SC2RBD is genuinely beyond current methods at this budget &mdash; itself a useful finding.</p>
+
+    <p><strong>Cost:</strong> ~10 GPU-hours + ~2h engineering. <strong>Status:</strong> <span class="tag tag-purple">Parallel with Exp 28</span></p>
+  </div>
+
+  <!-- ═══ PRIORITY 4 ═══ -->
+  <div class="exp-card" style="border-left: 4px solid var(--purple);">
+    <h4><span class="tag tag-purple">Priority 4</span> Build the Diagnostic Knowledge Graph</h4>
+
+    <p><strong>Motivation:</strong> 100+ completed experiments produce thousands of per-design metric values.
+    Currently, diagnostics are flat JSON files per target. The strategy and comparison agents need a structured,
+    queryable representation to (a) find similar targets for cross-target transfer, (b) identify knowledge gaps,
+    (c) track non-additive interactions, and (d) accumulate lessons across rounds.</p>
+
+    <p><strong>Schema (graphify-inspired):</strong></p>
+    <pre><code>{
+  "nodes": [
+    {"id": "target:CD45",        "type": "Target",        "difficulty": "hard", "source": "bindcraft_targets"},
+    {"id": "target:SC2RBD",      "type": "Target",        "difficulty": "zero_hit", "source": "alpha_proteo_targets"},
+    {"id": "intervention:noise_0.20", "type": "Intervention", "category": "denoising"},
+    {"id": "intervention:halluc",     "type": "Intervention", "category": "refinement"},
+    {"id": "bottleneck:ipae_limited", "type": "BottleneckType"},
+    {"id": "bottleneck:plddt_limited","type": "BottleneckType"},
+    {"id": "outcome:cd45_noise020",   "type": "Outcome",  "self_rate": 0.469, "mpnn_rate": 0.016, "p_value": 0.003}
+  ],
+  "edges": [
+    {"source": "target:CD45",       "target": "bottleneck:ipae_limited", "relation": "has_bottleneck", "confidence": "EXTRACTED", "evidence": "iPAE_pass=25%, pLDDT_pass=94%"},
+    {"source": "intervention:noise_0.20", "target": "outcome:cd45_noise020", "relation": "produces", "confidence": "EXTRACTED"},
+    {"source": "intervention:noise_0.20", "target": "target:CD45", "relation": "improves", "confidence": "EXTRACTED", "effect_size": "+21.9pp", "p_value": 0.003},
+    {"source": "intervention:halluc",     "target": "target:CD45", "relation": "hurts",    "confidence": "EXTRACTED", "effect_size": "-25.0pp", "p_value": 0.005},
+    {"source": "intervention:noise_0.20", "target": "intervention:halluc", "relation": "interacts_negatively", "confidence": "EXTRACTED", "context": "CD45", "p_value": 0.032},
+    {"source": "target:SC2RBD",     "target": "target:CD45", "relation": "similar_bottleneck", "confidence": "INFERRED", "reason": "both geometry_limited_zero_hit"}
+  ]
+}</code></pre>
+
+    <p><strong>Implementation steps:</strong></p>
+    <ul>
+      <li><strong>Step 1:</strong> Write <code>experiment_graph_extractor.py</code> that reads all evaluation_results/ directories and emits nodes + edges in the schema above</li>
+      <li><strong>Step 2:</strong> Use NetworkX <code>build_from_json()</code> (following graphify&rsquo;s pattern) to construct the graph</li>
+      <li><strong>Step 3:</strong> Run Leiden community detection (via graspologic) to cluster targets by bottleneck similarity</li>
+      <li><strong>Step 4:</strong> Write <code>graph_analyzer.py</code> to identify god nodes (most-connected interventions), knowledge gaps (missing edges), and surprising connections</li>
+      <li><strong>Step 5:</strong> Generate a <code>GRAPH_REPORT.md</code> that agents can read as structured context before making routing decisions</li>
+    </ul>
+
+    <p><strong>Verification:</strong> The knowledge graph should reproduce our manually-derived target taxonomy
+    (saturated, sequence-limited, geometry-limited, zero-hit) from graph topology alone. If the communities don&rsquo;t
+    match, the edge types or confidence labels need refinement.</p>
+
+    <p><strong>Cost:</strong> ~1-2 days engineering, no GPU. <strong>Status:</strong> <span class="tag tag-purple">Parallel with Exp 28</span></p>
+  </div>
+
+  <!-- ═══ PRIORITY 5 ═══ -->
+  <div class="exp-card" style="border-left: 4px solid var(--orange);">
+    <h4><span class="tag tag-orange">Priority 5</span> Portfolio Composition Strategy</h4>
+
+    <p><strong>Motivation:</strong> In drug discovery, <strong>diversity of successful binders matters more than count</strong>.
+    10 successes from 3 distinct FoldSeek clusters are more valuable than 15 successes from 1 cluster, because different
+    structural topologies have different developability, immunogenicity, and epitope coverage profiles. The current fixed
+    strategies produce homogeneous successes because beam search converges to a single mode.</p>
+
+    <p><strong>Hypothesis:</strong> Running 3 complementary operators for 10h each produces <em>fewer total successes</em>
+    but <em>more structurally diverse successes</em> (higher FoldSeek cluster count) than running 1 operator for 30h.</p>
+
+    <p><strong>Design (included in Priority 2 as the &ldquo;Portfolio&rdquo; arm):</strong></p>
+    <div class="table-wrap">
+    <table>
+      <tr><th>Allocation</th><th>CD45 Example</th><th>HER2_AAV Example</th><th>SpCas9 Example</th></tr>
+      <tr>
+        <td><strong>Fixed 30h</strong></td>
+        <td>30h noise=0.20 deep beam</td>
+        <td>30h halluc deep beam</td>
+        <td>30h halluc deep beam</td>
+      </tr>
+      <tr>
+        <td><strong>Portfolio 10+10+10h</strong></td>
+        <td>10h default + 10h noise=0.20 + 10h MCTS</td>
+        <td>10h default + 10h halluc + 10h noise=0.20+halluc</td>
+        <td>10h default + 10h halluc + 10h noise=0.20</td>
+      </tr>
+    </table>
+    </div>
+
+    <p><strong>Why this is a distinct contribution:</strong> Meta-Harness optimizes a single harness to be the best.
+    Portfolio composition instead asks: <em>which combination of harnesses covers the most distinct modes?</em>
+    This is the protein-design analogue of ensemble diversity in ML &mdash; ensembles of diverse weak learners
+    outperform a single strong learner.</p>
+
+    <p><strong>Metric:</strong> FoldSeek structural clustering at TM-score thresholds 0.5 and 0.7. Report both
+    total unique successes and cluster count. The portfolio wins if cluster_count(portfolio) &gt; cluster_count(fixed)
+    even when total_successes(portfolio) &le; total_successes(fixed).</p>
+
+    <p><strong>Cost:</strong> Included in Priority 2&rsquo;s compute budget. <strong>Status:</strong> <span class="tag tag-purple">Part of Exp 29</span></p>
+  </div>
+
+  <!-- ═══ PRIORITY 6 ═══ -->
+  <div class="exp-card" style="border-left: 4px solid var(--accent);">
+    <h4><span class="tag tag-blue">Priority 6</span> LLM Integration Roadmap</h4>
+
+    <p><strong>When to use rules vs. LLM:</strong></p>
+    <div class="table-wrap">
+    <table>
+      <tr><th style="width:20%">Decision Point</th><th style="width:30%">Rule-Based (v1, current)</th><th style="width:30%">LLM-Powered (v2, future)</th><th style="width:20%">When to Switch</th></tr>
+      <tr>
+        <td><strong>Round 0 &rarr; 1 routing</strong></td>
+        <td>Decision tree: 3 questions on self_rate, gap, iPAE_pass, pLDDT_pass</td>
+        <td>LLM reads diagnostic JSON + target metadata + knowledge graph summary</td>
+        <td>When &gt;5 distinct bottleneck patterns exist and the tree can&rsquo;t handle mixed cases</td>
+      </tr>
+      <tr>
+        <td><strong>Round 1 &rarr; 2 adjustment</strong></td>
+        <td>If improved &gt;10pp &rarr; continue. If unchanged &rarr; switch. If dropped &rarr; revert.</td>
+        <td>LLM reads pre/post diagnostics + knowledge graph edges for similar targets + composes a novel config</td>
+        <td>When the adjustment requires reasoning about multi-dimensional tradeoffs (e.g., self improved but MPNN collapsed)</td>
+      </tr>
+      <tr>
+        <td><strong>Escalation</strong></td>
+        <td>If &ge;2 rounds of zero-hit &rarr; switch to paper recipe &rarr; switch model family</td>
+        <td>LLM reads full trace history, proposes novel escalation strategy or characterizes the failure frontier</td>
+        <td>When the escalation path is exhausted and creative hypothesis generation is needed</td>
+      </tr>
+      <tr>
+        <td><strong>Cross-target transfer</strong></td>
+        <td>Knowledge graph community membership + nearest-neighbor by bottleneck vector</td>
+        <td>LLM reads target metadata (chain count, interface type, hotspot geometry) + graph context and reasons about biological similarity</td>
+        <td>When new targets are unlike any in the graph and biological reasoning adds value</td>
+      </tr>
+    </table>
+    </div>
+
+    <p><strong>LLM prompt structure (v2 strategy agent):</strong></p>
+    <pre><code>You are a protein design strategy agent. Given:
+1. Target diagnostic: {diagnostic_sidecar_json}
+2. Knowledge graph context: {relevant_subgraph_json}
+3. Remaining budget: {gpu_hours_remaining}
+4. Prior rounds for this target: {trace_history_json}
+
+Recommend:
+- next_operator: {algorithm, noise, refinement, reward_weights}
+- fallback_operator: {if next_operator fails}
+- budget_split: {hours for next vs reserved for fallback}
+- reasoning: {why this operator, what evidence from the graph}
+- stop_condition: {when to terminate and report}</code></pre>
+
+    <p><strong>Evaluation (Exp 30, future):</strong> Leave-one-out on 19 targets: train LLM routing on 18, predict 19th.
+    Compare accuracy vs. rule-based tree vs. random selection. The LLM adds value only if it
+    correctly routes targets that the tree gets wrong (currently: BetV1 and mixed-profile targets).</p>
+
+    <p><strong>Cost:</strong> API calls only for routing; GPU cost same as Exp 29 for execution. <strong>Status:</strong> <span class="tag tag-purple">After Exp 29</span></p>
+  </div>
+
+  <!-- ═══ PRIORITY 7 ═══ -->
+  <div class="exp-card" style="border-left: 4px solid var(--red);">
+    <h4><span class="tag tag-red">Priority 7</span> Zero-Hit Failure Analysis Protocol</h4>
+
+    <p><strong>Motivation:</strong> Five targets (SC2RBD, CbAgo, H1, IL17A, TNF&alpha;) remain at 0% across every tested
+    configuration. Even if the agent cannot solve them, <em>characterizing where and why they fail</em> is a publishable
+    contribution. The failure analysis should identify whether the problem is (a) early topology selection, (b) late
+    interface refinement, (c) reward misguiding, or (d) fundamental prior limitation.</p>
+
+    <p><strong>Analysis protocol (no additional GPU, uses existing Exp 20/25/26 outputs):</strong></p>
+    <div class="table-wrap">
+    <table>
+      <tr><th style="width:25%">Analysis</th><th style="width:35%">Method</th><th style="width:40%">What It Reveals</th></tr>
+      <tr>
+        <td><strong>Trajectory-level inspection</strong></td>
+        <td>Extract intermediate iPAE/pLDDT at each checkpoint (t=0, 50, 100, ..., 400) from MCTS logs</td>
+        <td>Does the model find promising intermediates that get pruned? Or does it never produce good intermediates at all? If promising intermediates exist at t=200 but disappear by t=400, the reward function is misguiding late refinement.</td>
+      </tr>
+      <tr>
+        <td><strong>Reward-trajectory correlation</strong></td>
+        <td>Plot reward value at each checkpoint vs. final success for all designs across all targets (successful and failed)</td>
+        <td>Does the reward function predict success? If high-reward intermediates on zero-hit targets have different metric profiles than high-reward intermediates on solvable targets, the reward is domain-shifted.</td>
+      </tr>
+      <tr>
+        <td><strong>Structural comparison</strong></td>
+        <td>Run FoldSeek on the best (lowest iPAE) designs from zero-hit targets vs. successful designs from solvable targets</td>
+        <td>Are zero-hit backbones topologically similar to or different from successful backbones? If similar but with worse iPAE, the interface is the problem. If topologically different, the prior doesn&rsquo;t cover the right fold space.</td>
+      </tr>
+      <tr>
+        <td><strong>Cross-method comparison</strong></td>
+        <td>Compare Complexa&rsquo;s best designs on SC2RBD with BindCraft&rsquo;s designs (Priority 3). Structural alignment + interface analysis.</td>
+        <td>What does BindCraft get right that Complexa doesn&rsquo;t? Does it find a different binding mode, a different fold topology, or the same topology with better interface packing?</td>
+      </tr>
+      <tr>
+        <td><strong>Interface geometry analysis</strong></td>
+        <td>Compute interface shape complementarity, H-bond count, and buried surface area for near-miss designs (iPAE &lt; 10, pLDDT &lt; 0.9)</td>
+        <td>Is the failure about interface geometry (wrong shape) or interface chemistry (right shape, wrong residues)? This determines whether the fix is structural (more exploration) or sequence-level (better hallucination).</td>
+      </tr>
+    </table>
+    </div>
+
+    <p><strong>Deliverable:</strong> A per-target failure report answering: &ldquo;This target fails because [topology/interface/reward/prior] is the bottleneck,
+    and the evidence is [specific metric/structural analysis]. The recommended next step is [specific action or &lsquo;beyond current methods&rsquo;].&rdquo;</p>
+
+    <p><strong>Cost:</strong> Analysis only, no GPU. ~1-2 days. <strong>Status:</strong> <span class="tag tag-purple">After Exp 28 results</span></p>
   </div>
 
   <h3>Execution Roadmap</h3>
@@ -1066,9 +1610,19 @@
   <h3>What This Project Is and Is Not</h3>
   <div class="callout">
     <p>
-      <strong>It is:</strong> a budget-aware, target-conditional, trace-improving controller for de novo binder design.<br>
-      <strong>It is not:</strong> a generic hyperparameter sweep, a single best-config search, an ESM replacement for AF2-Multimer, or a many-agent roleplay system.<br>
-      <strong>Working thesis:</strong> the biggest gains will come from <em>choosing the right operator and refinement policy for the current target state</em>, then improving that choice from accumulated traces.
+      <strong>It is:</strong> a budget-aware, target-conditional, trace-improving controller for de novo binder design.
+      It decomposes the design problem into diagnosable subtasks, routes each to the right operator, and improves
+      from structured experimental traces &mdash; the same diagnose &rarr; select &rarr; execute &rarr; reflect
+      pattern that Meta-Harness, MARS, and MLE-STAR use for ML engineering, adapted to protein design where the
+      &ldquo;harness&rdquo; is the inference-time configuration around a frozen generative model.<br>
+      <strong>It is not:</strong> a generic hyperparameter sweep, a single best-config search, an ESM replacement
+      for AF2-Multimer, or a many-agent roleplay system. The decision-maker can be rule-based (current v1) or
+      LLM-powered (future v2) &mdash; the contribution is the framework and the empirical demonstration that
+      adaptive allocation beats fixed allocation, not the specific decision-making mechanism.<br>
+      <strong>Working thesis:</strong> the model already covers the correct fold space for hard targets
+      (H1: 7 successes in 604 GPU-hours proves this). The biggest gains come from <em>reducing the search cost</em>
+      by choosing the right operator for the current target state, composing complementary operators as a portfolio,
+      and feeding back intermediate results for iterative refinement.
     </p>
   </div>
 
@@ -1192,31 +1746,65 @@
   </table>
   </div>
 
-  <h3>Conceptual Influences</h3>
-  <p class="note">Papers in the local repo (<code>papers/</code>) that inform the research direction.
-  These are conceptual references, not direct evidence that our system has these capabilities.</p>
+  <h3>Conceptual Influences &amp; Concrete Adaptations</h3>
+  <p class="note">Papers and tools in the local repo that inform the research direction.
+  The &ldquo;What We Adapt&rdquo; column specifies the concrete technique borrowed, not just the analogy.</p>
   <div class="table-wrap">
   <table>
-    <tr><th>Paper</th><th>Key Idea</th><th>Relevance to This Project</th></tr>
+    <tr><th style="width:18%">Paper / Tool</th><th style="width:28%">Key Idea</th><th style="width:28%">Relevance</th><th style="width:26%">What We Concretely Adapt</th></tr>
     <tr>
       <td><strong>Proteina-Complexa</strong> (ICLR 2026)</td>
-      <td>Learned latent prior + inference-time search (beam search, FK steering, MCTS) for atomistic binder design.</td>
+      <td>Learned latent prior + inference-time search (beam, FK, MCTS) for atomistic binder design.</td>
       <td>Our base model. All experiments use this.</td>
+      <td>The model itself. Sec I.4&rsquo;s very-hard-target recipe (MCTS + iPAE/31+pLDDT reward + G&amp;H) becomes our Priority 1 baseline.</td>
     </tr>
     <tr>
-      <td><strong>Latent Generative Search</strong> (companion paper)</td>
-      <td>1M+ binders screened against 127 targets via multiplexed phage display. Multi-objective rewards. Experimental validation.</td>
-      <td>Provides the experimental ground truth and the noise temperature ablation (Table 2).</td>
+      <td><strong>Latent Generative Search</strong> (companion)</td>
+      <td>1M+ binders screened via multiplexed phage display. Multi-objective rewards.</td>
+      <td>Experimental ground truth and noise ablation (Table 2).</td>
+      <td>Multi-objective reward composition informs our Exp 26 reward-shaping batch.</td>
     </tr>
     <tr>
       <td><strong>BindCraft</strong> (Nature 2025)</td>
-      <td>AF2-based binder hallucination: iterative sequence optimization starting from random initialization. Strong single-state baseline.</td>
-      <td>Our hallucination experiments use BindCraft&rsquo;s optimization stages. Key comparison baseline.</td>
+      <td>AF2-based binder hallucination. Strong single-state baseline.</td>
+      <td>Key comparison baseline and portfolio arm.</td>
+      <td>BindCraft as an external model-family arm for SC2RBD (where it outperforms Complexa). Hallucination stages used in our sequence refinement experiments.</td>
     </tr>
     <tr>
       <td><strong>Meta-Harness</strong> (Lee et al. 2026)</td>
-      <td>Outer-loop system that optimizes LLM harness code by accessing source code, scores, and execution traces of prior candidates through a filesystem.</td>
-      <td>Conceptual analogy for agentic outer-loop optimization of the design pipeline. The idea of optimizing the harness around a fixed model parallels optimizing inference-time config around a fixed Proteina-Complexa.</td>
+      <td>Outer-loop system optimizing harness code via full execution traces (10M tokens/iter).</td>
+      <td>Optimizing the &ldquo;harness&rdquo; around a fixed model parallels optimizing inference config around frozen Complexa.</td>
+      <td><strong>Trace-based improvement:</strong> our diagnostic knowledge graph stores full diagnosis &rarr; action &rarr; outcome traces, enabling the archivist agent to identify which earlier choices caused downstream failures. The filesystem-as-memory pattern becomes graph-as-memory.</td>
+    </tr>
+    <tr>
+      <td><strong>MLE-STAR</strong> (Nam et al. 2026)</td>
+      <td>Ablation-driven component selection: identify which code block has greatest impact, then refine it.</td>
+      <td>Our Phase 1 ablation study <em>is</em> this: identify which pipeline component (noise, search, reward, hallucination) matters most per target.</td>
+      <td><strong>Component-focused search:</strong> the diagnostic agent identifies the limiting component; the strategy agent refines only that component rather than sweeping the full config space. Ablation-driven prioritization replaces grid search.</td>
+    </tr>
+    <tr>
+      <td><strong>MARS</strong> (Chen et al. 2026)</td>
+      <td>Budget-aware MCTS with comparative reflective memory for automated research.</td>
+      <td>Budget-aware operator selection under compute constraints.</td>
+      <td><strong>Comparative reflection:</strong> the comparison agent diffs pre- and post-intervention diagnostics to isolate causal factors (e.g., &ldquo;noise=0.20 improved iPAE pass rate but degraded MPNN designability&rdquo;). <strong>Budget-aware planning:</strong> the strategy agent allocates remaining GPU-hours based on expected marginal value of each operator.</td>
+    </tr>
+    <tr>
+      <td><strong>AI Scientist-v2</strong> (Yamada et al. 2026)</td>
+      <td>Structured 4-stage experimentation: feasibility &rarr; tuning &rarr; core hypothesis &rarr; ablation.</td>
+      <td>Structured experimental stages map to our phased approach.</td>
+      <td><strong>Staged escalation:</strong> the escalation agent recognizes when parameter tuning (Stage 2) is insufficient and shifts to a fundamentally different hypothesis (Stage 3: switch model family, or characterize failure frontier). Replication nodes with different seeds map to our N=96 reproducibility protocol.</td>
+    </tr>
+    <tr>
+      <td><strong>SwitchCraft</strong> (2026)</td>
+      <td>Multi-state protein design via backpropagation through structure predictors with annealing schedules.</td>
+      <td>Multi-state optimization framework relevant for future target-state banks.</td>
+      <td>Annealing schedule design (soft &rarr; hard discretization) may inform trajectory recycling warm-start noise schedules.</td>
+    </tr>
+    <tr>
+      <td><strong>graphify</strong> (tool)</td>
+      <td>Converts raw files into a queryable knowledge graph: detect &rarr; extract &rarr; build &rarr; cluster &rarr; analyze &rarr; report.</td>
+      <td>Model for structuring experimental knowledge so agents can query it efficiently.</td>
+      <td><strong>Directly adapted:</strong> the diagnostic knowledge graph follows graphify&rsquo;s pipeline and schema (typed nodes, confidence-labeled edges, community detection). Agents query the graph instead of re-reading raw evaluation logs &mdash; analogous to graphify&rsquo;s 71x token reduction for codebase understanding.</td>
     </tr>
   </table>
   </div>
@@ -1227,7 +1815,13 @@
       <strong>No disruptive refactor of Proteina-Complexa.</strong> All changes are additive modules, not invasive edits to the base model.<br>
       <strong>No broad knob sweep as the main story.</strong> Phase 1 already showed that blind sweeps are wasteful &mdash; CD45&rsquo;s hallucination result (0%) proves that wrong interventions actively harm. The story is target-aware routing, not parameter search.<br>
       <strong>No early denoiser finetuning.</strong> LoRA/PEFT comes after state-bank evidence, campaign memory, and surrogate learning are established (per planning doc guidance).<br>
-      <strong>No full pretraining from scratch.</strong> Compute budget is inference-time optimization only (up to 32 H100 GPUs).
+      <strong>No full pretraining from scratch.</strong> Compute budget is inference-time optimization only (up to 32 H100 GPUs).<br>
+      <strong>No paper recipe avoidance.</strong> The ICLR paper&rsquo;s Sec I.4 very-hard-target recipe (MCTS + modified reward + G&amp;H) must be
+      run as a baseline before claiming the agent improves over it. If the recipe works at 30h, the agent&rsquo;s contribution is
+      <em>discovering</em> that recipe automatically; if it doesn&rsquo;t, the agent&rsquo;s contribution is knowing when to escalate budget.<br>
+      <strong>No zero-hit overclaiming.</strong> If the zero-hit frontier (SC2RBD, CbAgo, H1, IL17A, TNF&alpha;) remains unsolved
+      at 30 GPU-hours, the paper should frame this honestly as a characterized failure frontier, not as targets the agent
+      is expected to solve. A failure analysis of <em>where</em> in the pipeline these targets break is a contribution itself.
     </p>
   </div>
 </div>
