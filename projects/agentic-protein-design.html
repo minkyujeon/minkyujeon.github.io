@@ -1272,14 +1272,34 @@ Terminate: when unique success count plateaus
   </div>
 
   <div class="card" style="border-left: 4px solid var(--green);">
-    <h4 style="font-size:1rem; margin-bottom:8px;">First Narrow Agentic Demo: SC2RBD Round 1 &rarr; Round 2 (Exp 21, Submitted)</h4>
+    <h4 style="font-size:1rem; margin-bottom:8px;">First Narrow Agentic Demo: SC2RBD Round 1 &rarr; Round 2 (Exp 21, Completed)</h4>
     <p style="font-size:0.88rem; color:var(--muted);">
       We are starting with the smallest defensible agentic loop rather than a full autonomous system.
       Round 1 is the completed Exp 16 baseline diagnosis for <code>30_SC2RBD</code>. The local
       <code>diagnostic-sidecar-v1</code> builder summarizes that run as
       <code>geometry_limited_zero_hit</code> and the rule-based router selects
       <code>stochastic-beam-search</code> with <code>diverse-beam-search</code> as fallback.
-      That routed Round 2 follow-up is now submitted as <strong>Exp 21</strong> (SLURM <code>6718310</code>).
+      That routed Round 2 follow-up completed as <strong>Exp 21</strong> (SLURM <code>6718310</code>) and remained
+      at <strong>0/16 self, 0/16 MPNN</strong>. The value of this first narrow demo is therefore diagnostic rather than
+      positive: a correct geometry-limited diagnosis plus a stochastic-beam follow-up was still insufficient to unlock
+      any usable interface geometry on SC2RBD under a low-budget setting.
+    </p>
+  </div>
+
+  <div class="card" style="border-left: 4px solid var(--red);">
+    <h4 style="font-size:1rem; margin-bottom:8px;">New Search Methods on Zero-Hit Targets (Exp 20, Completed)</h4>
+    <p style="font-size:0.88rem; color:var(--muted);">
+      Exp 20 is now complete for all 35 jobs across <code>SC2RBD</code>, <code>CbAgo</code>, <code>H1</code>,
+      <code>IL17A</code>, and <code>TNF&alpha;</code>, comparing one matched <code>beam-search</code> baseline,
+      three <code>stochastic-beam-search</code> temperatures (<code>0.25 / 1.0 / 2.0</code>), and three
+      <code>diverse-beam-search</code> diversity weights (<code>0.10 / 0.25 / 0.50</code>). Every completed run ended at
+      <strong>0/16 self and 0/16 MPNN successes</strong>.
+    </p>
+    <p style="font-size:0.88rem; color:var(--muted);">
+      The negative result is still informative. On these zero-hit targets, the new beam variants often preserved
+      binder RMSD, but they did <strong>not</strong> recover useful AF2-Multimer confidence: pLDDT and interface iPAE
+      pass rates stayed effectively at zero. This means that diversity-preserving search alone is not enough to rescue
+      the current hardest targets within a small compute budget.
     </p>
   </div>
 
@@ -1480,21 +1500,21 @@ Terminate: when unique success count plateaus
       <td><strong>Exp 18a-b: Long-Walltime Hallucination Reruns</strong><br><span style="font-size:0.82rem;color:var(--muted)">CbAgo and H1 hallucination reruns at 36h after Exp 17 timeouts</span></td>
       <td>2/2</td>
       <td><span class="tag tag-orange">In Progress</span></td>
-      <td style="font-size:0.82rem">SLURM <code>6712732</code> and <code>6712733</code> are running now for the two unresolved hallucination outliers. A TNF&alpha; hallucination rerun script is prepared but not submitted yet.</td>
+      <td style="font-size:0.82rem"><strong>CbAgo rerun completed at 0/32 self and 0/32 MPNN.</strong> H1 rerun (<code>6712733</code>) is still running. A TNF&alpha; hallucination rerun script is prepared but not submitted yet.</td>
     </tr>
-    <tr style="background:#fef3c7">
-      <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
+    <tr style="background:#fee2e2">
+      <td style="text-align:center; font-size:1.1rem">&#9746;</td>
       <td><strong>Exp 20: New Beam Methods on Zero-Hit Targets</strong><br><span style="font-size:0.82rem;color:var(--muted)">SC2RBD, CbAgo, H1, IL17A, TNFalpha with beam baseline vs stochastic beam vs diverse beam</span></td>
       <td>35/35</td>
-      <td><span class="tag tag-orange">Submitted</span></td>
-      <td style="font-size:0.82rem">This is the first broad queue using the newly implemented <code>stochastic-beam-search</code> and <code>diverse-beam-search</code> modules. The sweep is mostly still pending in SLURM, so there are no interpretable target-level results yet.</td>
+      <td><span class="tag tag-red">Negative</span></td>
+      <td style="font-size:0.82rem"><strong>All 35 jobs completed with 0/16 self and 0/16 MPNN.</strong> This includes all beam, stochastic beam, and diverse beam variants. The sweep shows that diversity-preserving beam search alone does not unlock the current zero-hit targets.</td>
     </tr>
-    <tr style="background:#fef3c7">
-      <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
+    <tr style="background:#fee2e2">
+      <td style="text-align:center; font-size:1.1rem">&#9746;</td>
       <td><strong>Exp 21: First Narrow Agentic Follow-Up</strong><br><span style="font-size:0.82rem;color:var(--muted)">SC2RBD only: Exp 16 baseline diagnosis &rarr; diagnostic sidecar &rarr; rule-based routing &rarr; one routed Round 2 job</span></td>
       <td>1/1</td>
-      <td><span class="tag tag-orange">Submitted</span></td>
-      <td style="font-size:0.82rem">Round 1 evidence comes from Exp 16 base SC2RBD (0/32 self, 0/32 MPNN, zero useful interface geometry). The sidecar labels this <code>geometry_limited_zero_hit</code> and routes to <code>stochastic-beam-search</code>; fallback is <code>diverse-beam-search</code>. Round 2 submitted as SLURM <code>6718310</code>.</td>
+      <td><span class="tag tag-red">Completed (No Gain)</span></td>
+      <td style="font-size:0.82rem">Round 1 evidence came from Exp 16 base SC2RBD (0/32 self, 0/32 MPNN). The sidecar labeled this <code>geometry_limited_zero_hit</code> and routed to <code>stochastic-beam-search</code>. Round 2 completed as SLURM <code>6718310</code> and also finished at <strong>0/16 self and 0/16 MPNN</strong>.</td>
     </tr>
     <tr style="background:#d1fae5">
       <td style="text-align:center; font-size:1.1rem">&#9745;</td>
@@ -2274,14 +2294,14 @@ Terminate: when unique success count plateaus
       <td>Phase 2b</td>
       <td>Diagnostic routing &amp; validation</td>
       <td>Bottleneck analysis + routing tree + Exp 15 (SpCas9/CrSAS6) + Exp 16 (BHRF1/SC2RBD/VEGFA) + Exp 17 (remaining 8 targets)</td>
-      <td><span class="tag tag-orange">In Progress (Exp 15 complete; Exp 16 complete; Exp 17 mostly resolved with reruns still running)</span></td>
+      <td><span class="tag tag-orange">In Progress (diagnosis complete; only the longest H1 hallucination rerun is still running)</span></td>
       <td>April 2026</td>
     </tr>
     <tr>
       <td>Phase 2c</td>
       <td>Multi-round adaptive loop demo</td>
       <td>First narrow demo on SC2RBD (Exp 21), then extend to 2&ndash;3 targets &times; 3 rounds</td>
-      <td><span class="tag tag-orange">In Progress (Exp 21 submitted; sidecar/router implemented)</span></td>
+      <td><span class="tag tag-orange">In Progress (first SC2RBD demo completed with no gain; controller and trace path verified)</span></td>
       <td>April&ndash;May 2026</td>
     </tr>
     <tr>
@@ -2324,7 +2344,8 @@ Terminate: when unique success count plateaus
     (11) <del>Is bb noise alone sufficient (bb=0.2, lat=0.1)?</del> <strong>Answered (Exp 12b): No.</strong> bb=0.2, lat=0.1 gives 3/32 (9.4%), worse than default.<br>
     (12) <del>Does the noise+halluc negative interaction replicate on other targets?</del> <strong>Answered (Exp 13a/13b): Not universally.</strong> HER2_AAV combo gives 14/32 self and 19/32 MPNN; BetV1 combo gives 11/32 self and 3/32 MPNN.<br>
     (13) <del>Do hallucination and baseline effects replicate at N=96?</del> <strong>Answered (Exp 11a-j): Yes.</strong> Baseline replicas reproduced exactly and HER2/BetV1 hallucination replicas also completed.<br>
-    (14) <strong>Core agentic question:</strong> No single config is optimal for all targets. Can a diagnostic round (cheap N=32) identify which config to use? <strong>Now active:</strong> the first narrow SC2RBD agentic follow-up is running as Exp 21.
+    (14) <strong>Core agentic question:</strong> No single config is optimal for all targets. Can a diagnostic round (cheap N=32) identify which config to use? <strong>Current status:</strong> the first narrow SC2RBD agentic follow-up (Exp 21) completed and confirmed that correct diagnosis plus a routed stochastic-beam step is still not sufficient on the hardest zero-hit target.<br>
+    (15) <strong>Do diversity-preserving beam variants rescue zero-hit targets within a small budget?</strong> <strong>Answered (Exp 20): No.</strong> Across SC2RBD, CbAgo, H1, IL17A, and TNF&alpha;, beam, stochastic beam, and diverse beam all remained at 0/16 self and 0/16 MPNN per run.
     </p>
   </div>
 </div>
@@ -2365,7 +2386,7 @@ Terminate: when unique success count plateaus
       <li><strong>Multi-round feedback</strong>: After applying an intervention, read the new diagnostic signals and adjust.
       For example, if a target remains interface-limited after one round, allocate the next round to more structural exploration; if sequence quality becomes the bottleneck, switch to sequence-focused refinement.</li>
       <li><strong>Broader target validation</strong>: Currently validated on 4 targets (PDL1, CD45, HER2, BetV1).
-      Exp 15a-d is now complete for SpCas9 and CrSAS6, Exp 16a-i completed base/noise/hallucination diagnosis for BHRF1, SC2RBD, and VEGFA, and Exp 17a-x resolved most of the remaining 8 packaged targets with only the hardest hallucination branches still in long-walltime reruns. BHRF1 behaves like an easy saturated control, SC2RBD remains a genuinely hard failure case, and VEGFA already prefers default over both interventions.</li>
+      Exp 15a-d is now complete for SpCas9 and CrSAS6, Exp 16a-i completed base/noise/hallucination diagnosis for BHRF1, SC2RBD, and VEGFA, and Exp 17a-x resolved most of the remaining 8 packaged targets with only the longest H1 hallucination rerun still active. Exp 20 then tested beam, stochastic beam, and diverse beam on the zero-hit frontier, and all stayed at 0/16 self and 0/16 MPNN. BHRF1 behaves like an easy saturated control, VEGFA prefers default over both interventions, and SC2RBD/CbAgo/H1/IL17A/TNF&alpha; remain hard failure cases under the current low-budget search family.</li>
       <li><strong>Scaling curve as the key figure</strong>: Compare unique successes vs GPU-hours for the adaptive agent
       against fixed Beam Search, fixed Best-of-N, and fixed hallucination baselines.</li>
     </ul>
@@ -2529,10 +2550,10 @@ Terminate: when unique success count plateaus
     </p>
   </div>
 
-  <h3>Packaged Targets Not Yet Run Locally</h3>
+  <h3>Packaged Target Coverage Snapshot</h3>
   <p class="note">All 11 targets below are packaged in <code>configs/targets/targets_dict.yaml</code> with PDB files,
-  hotspot residues, and binder length ranges, but have zero local evaluation results. They can be run immediately.</p>
-  <p class="note">As of April 8, 2026, Exp 16a-i is complete for BHRF1, SC2RBD, and VEGFA. Exp 17a-x resolved most of the remaining packaged targets, with only the longest hallucination branches on CbAgo and H1 still in rerun status.</p>
+  hotspot residues, and binder length ranges. They were initially unrun locally; as of April 8, 2026, all 11 now have at least one local diagnostic run, and most also have intervention follow-ups.</p>
+  <p class="note">Exp 16a-i covered BHRF1, SC2RBD, and VEGFA. Exp 17a-x covered BBF14, DerF21, CbAgo, IL7RA, Insulin, H1, IL17A, and TNF&alpha;. Exp 20 added beam / stochastic beam / diverse beam tests on the five zero-hit targets. The longest H1 hallucination rerun remains active; a TNF&alpha; rerun script is prepared but not submitted.</p>
   <div class="table-wrap">
   <table>
     <tr><th>ID</th><th>Target</th><th>Paper Difficulty</th><th>Notes</th><th>Recommended Priority</th></tr>
