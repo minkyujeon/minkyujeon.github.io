@@ -1318,6 +1318,26 @@ Terminate: when unique success count plateaus
   </div>
 
   <div class="card" style="border-left: 4px solid var(--orange);">
+    <h4 style="font-size:1rem; margin-bottom:8px;">Active Run Program (April 9, 2026)</h4>
+    <p style="font-size:0.88rem; color:var(--muted); margin-bottom:10px;">
+      The current in-flight batches are designed to test <strong>three different hypotheses</strong> rather than repeat
+      one search family. As of the April 9 queue snapshot, the narrow agentic trio is running, the first novel MCTS
+      jobs from Exp 25 are running, and the larger Exp 26 / Exp 27 sweeps are queued behind them.
+    </p>
+    <ul style="font-size:0.88rem; color:var(--muted);">
+      <li><strong>Exp 24:</strong> test whether a narrow rule-based controller helps when target classes differ strongly.</li>
+      <li><strong>Exp 25:</strong> test whether the zero-hit frontier is limited by insufficient tree search / backtracking rather than by reward shaping alone.</li>
+      <li><strong>Exp 26:</strong> test whether the missing signal is reward composition, especially whether adding <code>pLDDT</code> weight helps hard targets that fail AF2 confidence.</li>
+      <li><strong>Exp 27:</strong> test whether the current Generate &amp; Hallucinate schedule is suboptimal on targets where geometry already exists.</li>
+    </ul>
+    <p style="font-size:0.88rem; color:var(--muted); margin-bottom:0;">
+      This split is deliberate: <strong>Exp 25 = search hypothesis</strong>, <strong>Exp 26 = reward hypothesis</strong>,
+      and <strong>Exp 27 = local optimization hypothesis</strong>. Together they cover the main unresolved explanations
+      for why the current system stalls on the hardest targets.
+    </p>
+  </div>
+
+  <div class="card" style="border-left: 4px solid var(--orange);">
     <h4 style="font-size:1rem; margin-bottom:8px;">Routing Validation: SpCas9 + CrSAS6 (Exp 15a-d, Completed)</h4>
     <p style="font-size:0.88rem; color:var(--muted);">
       The routing tree predicts &ldquo;try both&rdquo; for SpCas9 (both iPAE=50% and pLDDT=50% at boundary)
@@ -1344,6 +1364,7 @@ Terminate: when unique success count plateaus
 <div class="section" id="tracker">
   <h2>6. Experiment Tracker</h2>
   <p>Live status of all experiments. Updated as jobs complete.</p>
+  <p class="note">Queue snapshot for the new batches is dated April 9, 2026: Exp 24 is running, the first Exp 25 jobs are running while the rest of Exp 25 is queued, and Exp 26 / Exp 27 are submitted and waiting by scheduler priority.</p>
 
   <div class="table-wrap">
   <table>
@@ -1509,12 +1530,12 @@ Terminate: when unique success count plateaus
       <td><span class="tag tag-orange">Partially Resolved</span></td>
       <td style="font-size:0.82rem"><strong>21/24 finished; 3 hallucination jobs hit the 8h walltime.</strong> BBF14 is default/noise-favored (24/32 self, halluc worse). DerF21 prefers default (24/32 self, 29/32 MPNN). IL7RA splits by metric (default best self 27/32, noise best MPNN 28/32). Insulin is weak/flat across configs. IL17A stays 0/32 across all completed runs. CbAgo, H1, and TNF&alpha; remain unresolved because the hallucination branch timed out.</td>
     </tr>
-    <tr style="background:#fef3c7">
-      <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
+    <tr style="background:#fee2e2">
+      <td style="text-align:center; font-size:1.1rem">&#9711;</td>
       <td><strong>Exp 18a-b: Long-Walltime Hallucination Reruns</strong><br><span style="font-size:0.82rem;color:var(--muted)">CbAgo and H1 hallucination reruns at 36h after Exp 17 timeouts</span></td>
       <td>2/2</td>
-      <td><span class="tag tag-orange">In Progress</span></td>
-      <td style="font-size:0.82rem"><strong>CbAgo rerun completed at 0/32 self and 0/32 MPNN.</strong> H1 rerun (<code>6712733</code>) is still running. A TNF&alpha; hallucination rerun script is prepared but not submitted yet.</td>
+      <td><span class="tag tag-red">Superseded</span></td>
+      <td style="font-size:0.82rem"><strong>CbAgo rerun completed at 0/32 self and 0/32 MPNN.</strong> The H1 rerun (<code>6712733</code>) was later canceled when the project moved away from paper-like reruns toward the new Exp 24&ndash;27 program. A TNF&alpha; rerun script exists locally but was intentionally not submitted.</td>
     </tr>
     <tr style="background:#fee2e2">
       <td style="text-align:center; font-size:1.1rem">&#9746;</td>
@@ -1529,6 +1550,34 @@ Terminate: when unique success count plateaus
       <td>1/1</td>
       <td><span class="tag tag-red">Completed (No Gain)</span></td>
       <td style="font-size:0.82rem">Round 1 evidence came from Exp 16 base SC2RBD (0/32 self, 0/32 MPNN). The sidecar labeled this <code>geometry_limited_zero_hit</code> and routed to <code>stochastic-beam-search</code>. Round 2 completed as SLURM <code>6718310</code> and also finished at <strong>0/16 self and 0/16 MPNN</strong>.</td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
+      <td><strong>Exp 24: Narrow Agentic Trio</strong><br><span style="font-size:0.82rem;color:var(--muted)">VEGFA, IL7RA, SC2RBD with one routed follow-up each from the implemented diagnostic sidecar + routing policy</span></td>
+      <td>3/3</td>
+      <td><span class="tag tag-orange">Running</span></td>
+      <td style="font-size:0.82rem"><strong>Goal:</strong> test whether the first rule-based controller helps across three qualitatively different target classes. <strong>Assumption:</strong> <code>VEGFA</code> and <code>IL7RA</code> should reward conservative scaling of the default deep search, while <code>SC2RBD</code> needs escalation to a more exploratory operator. <strong>What is running:</strong> VEGFA and IL7RA route to <code>scale-default</code> (implemented as scaled deep beam search); SC2RBD routes to <code>diverse-beam-search</code> after the Exp 21 stochastic-beam failure.</td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
+      <td><strong>Exp 25: Novel Hard-Target Search Sweep</strong><br><span style="font-size:0.82rem;color:var(--muted)">SC2RBD, CbAgo, H1, IL17A, TNF&alpha; with new MCTS hyperparameters and two non-paper local-refinement variants</span></td>
+      <td>25/25</td>
+      <td><span class="tag tag-orange">Running / Queued</span></td>
+      <td style="font-size:0.82rem"><strong>Goal:</strong> test whether the zero-hit frontier is limited by search depth, checkpoint density, and backtracking rather than by beam diversity alone. <strong>Assumption:</strong> earlier failures may come from pruning good partial trajectories too early. <strong>What is running:</strong> dense-checkpoint MCTS (<code>[0,50,...,400]</code>) with <code>n_simulations=40</code>, a denser/wider variant with <code>n_simulations=80</code>, a sparse/high-simulation variant with <code>n_simulations=60</code>, plus <code>MCTS + greedy-only</code> and <code>MCTS + soft+greedy</code> local refinement at <code>greedy_percentage=5</code>. These are intentionally different from both the paper recipe and Exp 20.</td>
+    </tr>
+    <tr style="background:#ede9fe">
+      <td style="text-align:center; font-size:1.1rem; color:#7c3aed">&#9679;</td>
+      <td><strong>Exp 26: Reward-Shaped Hard-Target Sweep</strong><br><span style="font-size:0.82rem;color:var(--muted)">same five zero-hit targets with fixed dense MCTS base, varying AF2 reward mix and two stronger hallucination settings</span></td>
+      <td>25/25</td>
+      <td><span class="tag tag-purple">Submitted</span></td>
+      <td style="font-size:0.82rem"><strong>Goal:</strong> separate the reward hypothesis from the search hypothesis. <strong>Assumption:</strong> the current reward is too narrow and underweights foldability on hard targets that produce low-confidence AF2-Multimer predictions. <strong>What is queued:</strong> fixed dense MCTS with <code>plddt</code> weights <code>0.25 / 0.50 / 0.75</code> while keeping <code>i_pae=-1.0</code>, plus two soft+greedy refinement variants with <code>greedy_percentage=5</code> and <code>10</code>. This is not the paper's exact very-hard-target recipe.</td>
+    </tr>
+    <tr style="background:#ede9fe">
+      <td style="text-align:center; font-size:1.1rem; color:#7c3aed">&#9679;</td>
+      <td><strong>Exp 27: Sequence-Refinement Hyperparameter Sweep</strong><br><span style="font-size:0.82rem;color:var(--muted)">SpCas9, HER2_AAV, IL7RA, CrSAS6, Insulin with greedy-only and soft+greedy hallucination schedule variants</span></td>
+      <td>25/25</td>
+      <td><span class="tag tag-purple">Submitted</span></td>
+      <td style="font-size:0.82rem"><strong>Goal:</strong> optimize local sequence refinement where geometry already exists or the target shows a redesign tradeoff. <strong>Assumption:</strong> the current hallucination schedule is not yet calibrated and may be leaving gains on the table. <strong>What is queued:</strong> greedy-only <code>2%</code> and <code>5%</code> mutation schedules, plus soft+greedy short and long schedules and a more aggressive <code>10%</code> variant. Targets were chosen because prior runs already showed non-zero geometry or a strong self/MPNN tradeoff.</td>
     </tr>
     <tr style="background:#d1fae5">
       <td style="text-align:center; font-size:1.1rem">&#9745;</td>

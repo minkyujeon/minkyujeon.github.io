@@ -1007,6 +1007,51 @@
   </table>
   </div>
 
+  <h3>Active Experiment Program (April 9, 2026)</h3>
+  <p style="font-size:0.88rem; color:var(--muted); margin-bottom:10px;">
+    The current run program is deliberately split across <strong>controller</strong>, <strong>search</strong>,
+    <strong>reward</strong>, and <strong>local refinement</strong> questions. This avoids spending large GPU budgets
+    on a single explanation for the zero-hit frontier.
+  </p>
+  <div class="table-wrap">
+  <table>
+    <tr><th style="width:15%">Batch</th><th style="width:20%">Targets</th><th style="width:27%">Why this batch exists</th><th style="width:23%">What it is actually testing</th><th style="width:15%">Status</th></tr>
+    <tr>
+      <td><strong>Exp 24</strong></td>
+      <td><code>VEGFA</code>, <code>IL7RA</code>, <code>SC2RBD</code></td>
+      <td>First narrow agentic benchmark across three distinct empirical classes: default-favored, tradeoff, and zero-hit.</td>
+      <td>Whether the implemented diagnostic sidecar + rule-based router chooses the right next action better than a single fixed policy.</td>
+      <td><span class="tag tag-orange">Running</span></td>
+    </tr>
+    <tr>
+      <td><strong>Exp 25</strong></td>
+      <td><code>SC2RBD</code>, <code>CbAgo</code>, <code>H1</code>, <code>IL17A</code>, <code>TNF&alpha;</code></td>
+      <td>Search-hypothesis batch for the zero-hit frontier.</td>
+      <td>Whether denser checkpoints, larger MCTS simulation counts, altered exploration constants, and non-paper local-refinement variants rescue geometry where beam-family diversity failed.</td>
+      <td><span class="tag tag-orange">Running / Queued</span></td>
+    </tr>
+    <tr>
+      <td><strong>Exp 26</strong></td>
+      <td><code>SC2RBD</code>, <code>CbAgo</code>, <code>H1</code>, <code>IL17A</code>, <code>TNF&alpha;</code></td>
+      <td>Reward-hypothesis batch for the zero-hit frontier.</td>
+      <td>Whether the current AF2-guided reward is too narrow and whether adding more <code>pLDDT</code> weight changes the search trajectory before any external physics model is introduced.</td>
+      <td><span class="tag tag-purple">Submitted</span></td>
+    </tr>
+    <tr>
+      <td><strong>Exp 27</strong></td>
+      <td><code>SpCas9</code>, <code>HER2_AAV</code>, <code>IL7RA</code>, <code>CrSAS6</code>, <code>Insulin</code></td>
+      <td>Local-optimization batch on targets that already show geometry or redesign sensitivity.</td>
+      <td>Whether Generate &amp; Hallucinate performance is limited by schedule choice rather than by the refinement idea itself.</td>
+      <td><span class="tag tag-purple">Submitted</span></td>
+    </tr>
+  </table>
+  </div>
+  <p class="note">
+    Read this as a factorial research program rather than a monolithic sweep:
+    <strong>Exp 24 = controller</strong>, <strong>Exp 25 = search</strong>, <strong>Exp 26 = reward</strong>,
+    and <strong>Exp 27 = local optimization</strong>.
+  </p>
+
   <h3>Ablations Required for the Paper</h3>
   <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.9;">
     <li><strong>No diagnosis:</strong> fixed global arm only.</li>
@@ -1030,7 +1075,7 @@
   <h3>Packaged Target Coverage Snapshot</h3>
   <p class="note">All 11 targets below are packaged in <code>configs/targets/targets_dict.yaml</code> with PDB files,
   hotspot residues, and binder length ranges. They were initially unrun locally; as of April 8, 2026, all 11 now have at least one local diagnostic run, and most also have intervention follow-ups.</p>
-  <p class="note">Exp 16a-i covered BHRF1, SC2RBD, and VEGFA. Exp 17a-x covered BBF14, DerF21, CbAgo, IL7RA, Insulin, H1, IL17A, and TNF&alpha;. Exp 20 added beam / stochastic beam / diverse beam tests on the five zero-hit targets. The longest H1 hallucination rerun remains active; a TNF&alpha; rerun script is prepared but not submitted.</p>
+  <p class="note">Exp 16a-i covered BHRF1, SC2RBD, and VEGFA. Exp 17a-x covered BBF14, DerF21, CbAgo, IL7RA, Insulin, H1, IL17A, and TNF&alpha;. Exp 20 added beam / stochastic beam / diverse beam tests on the five zero-hit targets. As of April 9, 2026, the active follow-up program is Exp 24 (narrow agentic trio), Exp 25 (novel hard-target MCTS sweep), Exp 26 (reward-shaped hard-target sweep), and Exp 27 (sequence-refinement sweep).</p>
   <div class="table-wrap">
   <table>
     <tr><th>ID</th><th>Target</th><th>Paper Difficulty</th><th>Notes</th><th>Recommended Priority</th></tr>
