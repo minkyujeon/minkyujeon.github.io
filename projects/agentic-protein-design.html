@@ -575,7 +575,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     </tr>
     <tr>
       <td>PDL1</td><td><span class="tag tag-green">Easy</span></td>
-      <td>7.5%</td><td>10.5%</td>
+      <td>7.5%</td><td>10.0%</td>
       <td class="best">100%</td><td>37.5%</td>
       <td class="best">100%</td><td class="best">81.3%</td>
     </tr>
@@ -1414,7 +1414,7 @@ Terminate: when unique success count plateaus
 
   <p class="note"><strong>Data integrity:</strong> All numbers in this section are verified directly against the pipeline&rsquo;s
   <code>binder_results_*.csv</code> files on April 10, 2026. Pass criteria: iPAE*31 &le; 7.0 AND pLDDT &ge; 0.9 AND scRMSD &lt; 1.5&Aring;.
-  Total experiments to date: <strong>257 fully completed evaluation directories</strong> across all batches.</p>
+  Total experiments to date: <strong>295+ completed evaluation directories</strong> across all batches (and growing as Exp 29 scaling runs accumulate).</p>
 
   <div class="callout">
     <p><strong>Major status change (April 10, 2026):</strong> MCTS + Generate &amp; Hallucinate cracks 3 of 5 previously
@@ -1504,11 +1504,11 @@ Terminate: when unique success count plateaus
       <tr style="background:#d1fae5"><td>4</td><td>5.83</td><td>0.916</td><td>0.144</td><td class="best">PASS</td><td class="fail">FAIL</td></tr>
       <tr><td>5</td><td>9.61</td><td>0.803</td><td>0.283</td><td class="fail">FAIL</td><td class="fail">FAIL</td></tr>
       <tr style="background:#d1fae5"><td>6</td><td class="best">5.33</td><td class="best">0.928</td><td>0.096</td><td class="best">PASS</td><td class="fail">FAIL</td></tr>
-      <tr style="background:#d1fae5"><td>7</td><td>5.36</td><td>0.907</td><td>0.093</td><td class="best">PASS</td><td class="best">PASS</td></tr>
+      <tr style="background:#d1fae5"><td>7</td><td>5.36</td><td>0.907</td><td>0.093</td><td class="best">PASS</td><td class="fail">FAIL</td></tr>
       <tr style="background:#d1fae5"><td>8</td><td>6.45</td><td>0.912</td><td>0.097</td><td class="best">PASS</td><td class="fail">FAIL</td></tr>
     </table>
     <p style="font-size:0.88rem; color:var(--muted); margin-top:8px;">
-      <strong>Result: 5/8 self (62.5%), 2/8 MPNN (25.0%).</strong>
+      <strong>Result: 5/8 self (62.5%), 1/8 MPNN (12.5%).</strong>
       The paper&rsquo;s Table 10 reports <strong>0 Complexa successes</strong> on SC2RBD across all methods.
       We solve this target in 3.1 GPU-hours. The pLDDT reward weight likely prevents MCTS from discarding
       high-confidence trajectories that have suboptimal iPAE but rescuable interface geometry.
@@ -1661,7 +1661,7 @@ Terminate: when unique success count plateaus
     <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
       <li><strong>CbAgo msg5:</strong> iPAE*31=7.35 (missed by 0.35), pLDDT=0.929, scRMSD=0.10 &mdash; barely failed</li>
       <li><strong>SC2RBD msg5 MPNN:</strong> iPAE*31=6.01, pLDDT=0.891 (missed pLDDT by 0.009) &mdash; MPNN nearly passed</li>
-      <li><strong>IL17A md40:</strong> iPAE*31=7.07 (missed by 0.07), pLDDT=0.923 &mdash; within noise of success</li>
+      <li><strong>IL17A md40:</strong> iPAE*31=7.07 (missed by 0.07), pLDDT=0.834 &mdash; iPAE near-miss but pLDDT far from threshold</li>
     </ul>
   </div>
 
@@ -1750,7 +1750,7 @@ Terminate: when unique success count plateaus
       <li><strong>Both strategies scale perfectly linearly.</strong> noise=0.20 produces exactly 15/32 self passes per iteration
       (every single one). Default produces exactly 8/32 (every single one). The pipeline is fully deterministic at the
       beam-search level &mdash; each run with different nsamples draws different binder lengths but the pass rate is identical.</li>
-      <li><strong>noise=0.20 produces 2.1&times; more self successes</strong> (120 vs 56 at 7h) but
+      <li><strong>noise=0.20 produces 1.9&times; more self successes</strong> (105 vs 56 at 7h) but
       <strong>default produces 7.4&times; more MPNN successes</strong> (52 vs 7). This is the noise/MPNN tradeoff
       we discovered in Phase 1 &mdash; scaling confirms it holds at large N.</li>
       <li><strong>For the paper figure:</strong> Slope = 15 self/hour (noise) vs 8 self/hour (default).

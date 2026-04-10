@@ -204,8 +204,8 @@
     </tr>
     <tr>
       <td><strong>Main technical risk</strong></td>
-      <td><span class="tag tag-red">High</span></td>
-      <td>Exp 20 and Exp 21 show that low-budget diversity-preserving search alone does not rescue the zero-hit frontier. The current action set is still too weak for the hardest targets.</td>
+      <td><span class="tag tag-orange">Moderate</span></td>
+      <td>Exp 25/26 cracked 3/5 zero-hit targets via MCTS+G&amp;H (SC2RBD 62.5%, TNF&alpha; 50%, H1 12.5%). Risk reduced from &ldquo;High&rdquo;. Remaining risk: CbAgo and IL17A are still 0% &mdash; the Meta-Harness agent (Phase 3) targets these.</td>
     </tr>
     <tr>
       <td><strong>Benchmark quality</strong></td>
@@ -584,15 +584,15 @@
       <td>Phase 2b</td>
       <td>Diagnostic routing &amp; validation</td>
       <td>Bottleneck analysis + routing tree + Exp 15 (SpCas9/CrSAS6) + Exp 16 (BHRF1/SC2RBD/VEGFA) + Exp 17 (remaining 8 targets)</td>
-      <td><span class="tag tag-orange">In Progress (diagnosis complete; only the longest H1 hallucination rerun is still running)</span></td>
+      <td><span class="tag tag-green">Done</span> All Exp 15-17 complete. Superseded by Exp 24-27.</td>
       <td>April 2026</td>
     </tr>
     <tr>
       <td>Phase 2c</td>
       <td>Multi-round adaptive loop demo</td>
-      <td>First narrow demo on SC2RBD (Exp 21), then extend to 2&ndash;3 targets &times; 3 rounds</td>
-      <td><span class="tag tag-orange">In Progress (first SC2RBD demo completed with no gain; controller and trace path verified)</span></td>
-      <td>April&ndash;May 2026</td>
+      <td>Exp 21 (SC2RBD, no gain) &rarr; Exp 24 (trio) &rarr; Exp 25/26 (MCTS+G&amp;H breakthrough) &rarr; Exp 29 (scaling curves, running)</td>
+      <td><span class="tag tag-orange">In Progress &mdash; Exp 29 scaling running; MCTS+G&amp;H breakthrough confirmed</span></td>
+      <td>April 2026</td>
     </tr>
     <tr>
       <td>Phase 3</td>
@@ -801,8 +801,9 @@
     <tr>
       <td><strong>Zero hits</strong> and poor interface geometry across both sequence families</td>
       <td><code>geometry_limited_zero_hit</code></td>
-      <td>Widen structural exploration in stages:
-      <strong>stochastic beam &rarr; diverse beam &rarr; MCTS</strong>. Do not spend compute on sequence edits before a plausible interface exists.</td>
+      <td><strong>Escalate to MCTS + soft+greedy G&amp;H</strong> (Exp 25 msg5 config: N<sub>sim</sub>=40, exploration_prob=0.3, C=0.5).
+      If still zero, add pLDDT reward shaping (Exp 26 e26_04 config). Pure MCTS without G&amp;H is ineffective (~0%).
+      Beam variants (stochastic, diverse) also produce 0% on these targets (Exp 20).</td>
     </tr>
     <tr>
       <td>Geometry exists, but physics-sidecar signals remain weak</td>
@@ -900,10 +901,15 @@
       <td><code>Insulin</code></td>
       <td>Use hedge policies and avoid overcommitting to any one operator without more evidence.</td>
     </tr>
-    <tr>
-      <td><strong>Zero-hit geometry frontier</strong></td>
-      <td><code>SC2RBD</code>, <code>CbAgo</code>, <code>H1</code>, <code>IL17A</code>, <code>TNF&alpha;</code></td>
-      <td>Search diversity alone is not enough. These targets need stronger structural search, reward shaping, and later local refinement.</td>
+    <tr style="background:#d1fae5">
+      <td><strong>Zero-hit &rarr; cracked via MCTS+G&amp;H</strong></td>
+      <td><code>SC2RBD</code> (62.5%), <code>TNF&alpha;</code> (50%), <code>H1</code> (12.5%)</td>
+      <td>MCTS + soft+greedy G&amp;H is the proven escalation. Beam search variants alone produce 0%. (Exp 25/26, April 10)</td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td><strong>Remaining zero-hit</strong></td>
+      <td><code>CbAgo</code> (near-miss iPAE*31=7.35), <code>IL17A</code> (0% self, 1 MPNN-only)</td>
+      <td>Need more budget, novel reward functions, or model-family portfolio arm (BindCraft). Meta-Harness target for Exp 30.</td>
     </tr>
   </table>
   </div>
@@ -990,7 +996,7 @@
     <p><strong>Core insight (confirmed April 10, 2026):</strong> the model <em>can</em> find binders for the hardest targets,
     and <strong>our configs are more efficient than the paper&rsquo;s</strong>.
     SC2RBD: 62.5% self in 3.1h (paper: 0%). TNF&alpha;: 4 hits in 16.2h vs paper&rsquo;s 31.7h/hit (~8&times; speedup).
-    H1: first hit in 19.4h vs paper&rsquo;s ~100-200h (~5-10&times;).
+    H1: first hit in 19.4h vs paper&rsquo;s 86.3h/hit (~4.5&times;).
     The agentic contribution is a <strong>rule-based controller</strong> that diagnoses target difficulty from a single
     cheap round and routes to the right operator &mdash; no LLM needed for the current 5-pattern decision space.</p>
   </div>
@@ -1191,7 +1197,9 @@
       <li>AF2 reward does not explicitly divide iPAE by 31 (unlike RF3). The weight balance iPAE=-1.0 + pLDDT=0.5 achieves a similar effect since iPAE is on [0,1] scale and pLDDT is on [0,1].</li>
     </ul>
 
-    <p><strong>Cost:</strong> ~32 GPU-hours (4 targets &times; 8h walltime). <strong>Status:</strong> <span class="tag tag-orange">Submitted</span> (SLURM 6746023&ndash;6746026, April 9 2026)</p>
+    <p><strong>Cost:</strong> ~32 GPU-hours (4 targets &times; 8h walltime). <strong>Status:</strong> <span class="tag tag-green">Partial</span>
+    IL17A complete: <strong>0/324 self, 0/324 MPNN</strong> (best iPAE*31=8.3, pLDDT=0.890 &mdash; consistent with paper&rsquo;s 1 success in 387h).
+    H1, TNF&alpha;, SC2RBD: <strong>timed out at 8h</strong> (644 designs generated but AF2 eval not run). Eval-only reruns submitted (SLURM 6813585&ndash;6813587).</p>
   </div>
 
   <!-- ═══ PRIORITY 2 ═══ -->
@@ -1321,7 +1329,9 @@
       <li>The escalation agent&rsquo;s decision tree gains a &ldquo;switch model family&rdquo; branch for persistent geometry-limited targets</li>
       <li>The portfolio composition figure (Priority 5) can show that Complexa + BindCraft covers more targets than either alone</li>
     </ul>
-    <p>If BindCraft also fails, SC2RBD is genuinely beyond current methods at this budget &mdash; itself a useful finding.</p>
+    <p>SC2RBD is now cracked by Complexa via MCTS+G&amp;H. BindCraft is motivated as an additional portfolio arm
+    for the remaining zero-hit targets (CbAgo, IL17A) and for structural diversity on targets where both
+    methods may find different binding modes.</p>
 
     <p><strong>Cost:</strong> ~10 GPU-hours + ~2h engineering. <strong>Status:</strong> <span class="tag tag-purple">Parallel with Exp 28</span></p>
   </div>
@@ -1827,7 +1837,7 @@ Propose a new harness configuration. Explain:
       (though rules are the starting point). The full system aims to show that an <strong>agent-discovered configuration
       outperforms any manually designed one</strong> by reasoning about <em>why</em> the pipeline fails at the trajectory level.<br>
       <strong>Working thesis (confirmed by Exp 25/26):</strong> the model covers the correct fold space &mdash;
-      H1 yields hits in 19.4h (paper: ~100-200h), TNF&alpha; in 16.2h (paper: ~50-100h),
+      H1 yields hits in 19.4h (paper: 86.3h/hit), TNF&alpha; in 16.2h (paper: 31.7h/hit),
       SC2RBD is cracked at 62.5% (paper: 0%). Phase 2 proves this via rule-based routing.
       Phase 3 proves that intermediate backbone diagnostics + LLM reasoning can discover configurations
       that no hand-designed rule would find &mdash; the Meta-Harness thesis applied to protein design.
@@ -1848,8 +1858,8 @@ Propose a new harness configuration. Explain:
     </tr>
     <tr style="background:#fef3c7">
       <td>30</td><td>SC2RBD</td><td><span class="tag tag-red">Hard</span></td>
-      <td>SARS-CoV-2 receptor binding domain. 0 Complexa successes in Table 10. Elsewhere the paper notes fewer unique successes than BindCraft on this target.</td>
-      <td><strong>High</strong> &mdash; hard target where Complexa struggles</td>
+      <td>SARS-CoV-2 receptor binding domain. Paper Table 10: 0 Complexa successes. <strong>We achieve 62.5% self via MCTS+G&amp;H (Exp 26_04).</strong></td>
+      <td><strong>Cracked</strong> &mdash; MCTS+G&amp;H+pLDDT reward</td>
     </tr>
     <tr style="background:#fef3c7">
       <td>36</td><td>VEGFA</td><td><span class="tag tag-red">Hard</span></td>
@@ -1883,8 +1893,8 @@ Propose a new harness configuration. Explain:
     </tr>
     <tr style="background:#fee2e2">
       <td>35</td><td>H1</td><td><span class="tag tag-red">Very Hard</span></td>
-      <td>Multi-chain. Paper used MCTS + modified reward (iPAE/31+pLDDT) followed by Generate and Hallucinate, NOT standard beam search. 7 unique successes in 604 GPU-hours.</td>
-      <td>Low &mdash; requires MCTS + modified reward + Generate and Hallucinate, not compatible with our current beam search config</td>
+      <td>Multi-chain. Paper: 7 successes in 604 GPUh. <strong>We achieve 1/8 self in 19.4h via MCTS+G&amp;H msg5 (~4.5&times; speedup).</strong></td>
+      <td><strong>Cracked</strong> &mdash; MCTS+G&amp;H msg5</td>
     </tr>
     <tr style="background:#fee2e2">
       <td>37</td><td>IL17A</td><td><span class="tag tag-red">Very Hard</span></td>
@@ -1893,8 +1903,8 @@ Propose a new harness configuration. Explain:
     </tr>
     <tr style="background:#fee2e2">
       <td>38</td><td>TNF&alpha;</td><td><span class="tag tag-red">Very Hard</span></td>
-      <td>Three-chain target. Paper used MCTS + G&amp;H with 0.05&times; binder length mutations. 15 successes in 475 GPU-hours.</td>
-      <td>Low &mdash; requires MCTS + modified reward + hallucination</td>
+      <td>Three-chain. Paper: 15 successes in 475 GPUh (31.7h/hit). <strong>We achieve 4/8 self in 16.2h via MCTS+G&amp;H msg5 (~8&times; speedup).</strong></td>
+      <td><strong>Cracked</strong> &mdash; MCTS+G&amp;H msg5</td>
     </tr>
   </table>
   </div>
@@ -2027,9 +2037,10 @@ Propose a new harness configuration. Explain:
       <strong>No paper recipe avoidance.</strong> The ICLR paper&rsquo;s Sec I.4 very-hard-target recipe (MCTS + modified reward + G&amp;H) must be
       run as a baseline before claiming the agent improves over it. If the recipe works at 30h, the agent&rsquo;s contribution is
       <em>discovering</em> that recipe automatically; if it doesn&rsquo;t, the agent&rsquo;s contribution is knowing when to escalate budget.<br>
-      <strong>No zero-hit overclaiming.</strong> If the zero-hit frontier (SC2RBD, CbAgo, H1, IL17A, TNF&alpha;) remains unsolved
-      at 30 GPU-hours, the paper should frame this honestly as a characterized failure frontier, not as targets the agent
-      is expected to solve. A failure analysis of <em>where</em> in the pipeline these targets break is a contribution itself.
+      <strong>No zero-hit overclaiming.</strong> SC2RBD, TNF&alpha;, and H1 are now cracked by Exp 25/26 via MCTS+G&amp;H.
+      The remaining zero-hit targets (CbAgo, IL17A) should be framed honestly as characterized failure cases
+      requiring the Meta-Harness agent (Priority 7) or model-family portfolio arm (BindCraft) to crack.
+      A failure analysis of <em>where</em> in the pipeline these two targets break is itself a contribution.
     </p>
   </div>
 </div>
