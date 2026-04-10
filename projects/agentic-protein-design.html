@@ -1410,7 +1410,11 @@ Terminate: when unique success count plateaus
 
 <!-- ─── 5c. BREAKTHROUGH RESULTS ─── -->
 <div class="section" id="breakthrough">
-  <h2>5c. Exp 25/26 Breakthrough: Zero-Hit Frontier Cracked</h2>
+  <h2>5c. Exp 25/26/27 Results: Zero-Hit Frontier Cracked &amp; Paper Comparison</h2>
+
+  <p class="note"><strong>Data integrity:</strong> All numbers in this section are verified directly against the pipeline&rsquo;s
+  <code>binder_results_*.csv</code> files on April 10, 2026. Pass criteria: iPAE*31 &le; 7.0 AND pLDDT &ge; 0.9 AND scRMSD &lt; 1.5&Aring;.
+  Total experiments to date: <strong>257 fully completed evaluation directories</strong> across all batches.</p>
 
   <div class="callout">
     <p><strong>Major status change (April 10, 2026):</strong> MCTS + Generate &amp; Hallucinate cracks 3 of 5 previously
@@ -1420,10 +1424,15 @@ Terminate: when unique success count plateaus
     pure MCTS without hallucination is near-useless on these targets.</p>
   </div>
 
-  <h3>Exp 25: Novel MCTS Search (25/25 jobs complete, all verified)</h3>
-  <p class="note">5 MCTS configs &times; 5 zero-hit targets. N=8 designs per run.
-  md40/md80/ms60 = pure MCTS (no refinement). mg05 = MCTS + greedy-only G&amp;H 5%. msg5 = MCTS + soft+greedy G&amp;H 5%.
-  All numbers verified against pipeline evaluation CSVs on April 10, 2026.</p>
+  <h3>Exp 25: Novel MCTS Search (25/25 jobs complete)</h3>
+  <p class="note">5 MCTS configs &times; 5 zero-hit targets = 25 jobs. N=8 designs per run (nsamples=8, 1 design per sample via MCTS tree).
+  <strong>Configs:</strong> md40 = MCTS N<sub>sim</sub>=40, dense checkpoints, exploration_prob=0.3, C=0.5.
+  md80 = N<sub>sim</sub>=80, exploration_prob=0.2, C=1.5.
+  ms60 = N<sub>sim</sub>=60, sparse checkpoints, exploration_prob=0.5, C=0.7.
+  mg05 = md40 + greedy-only G&amp;H (5% mutation rate).
+  msg5 = md40 + soft+greedy G&amp;H (30 softmax + 5 one-hot + 15 greedy iters, 5% mutation rate).
+  All configs use iPAE-only reward (no pLDDT). md40/md80/ms60 have no hallucination.
+  <strong>All numbers verified against <code>binder_results_*.csv</code> on April 10, 2026.</strong></p>
 
   <h4>Self Pass Rates (iPAE*31 &le; 7.0 AND pLDDT &ge; 0.9 AND scRMSD &lt; 1.5&Aring;)</h4>
   <div class="table-wrap">
@@ -1516,28 +1525,52 @@ Terminate: when unique success count plateaus
   <p class="note">5 hallucination schedules on targets with existing geometry. CrSAS6 jobs failed due to target ID mismatch
   (<code>33_CrSAS6</code> in script vs <code>14_CrSAS6</code> in config). N=16 designs per run.</p>
 
+  <h4>Self Pass Rates (N=16 per run)</h4>
   <div class="table-wrap">
   <table>
     <tr><th>Target</th><th>greedy 2%</th><th>greedy 5%</th><th>soft+greedy short</th><th>soft+greedy long</th><th>aggressive 10%</th></tr>
     <tr>
-      <td><strong>SpCas9</strong></td><td>62.5%</td><td>81.2%</td><td class="best">100.0%</td><td>81.2%</td><td>87.5%</td>
+      <td><strong>SpCas9</strong></td><td>10/16 (62.5%)</td><td>13/16 (81.2%)</td><td class="best">16/16 (100%)</td><td>13/16 (81.2%)</td><td>14/16 (87.5%)</td>
     </tr>
     <tr>
-      <td><strong>HER2_AAV</strong></td><td class="best">100.0%</td><td class="best">100.0%</td><td>93.8%</td><td class="best">100.0%</td><td>93.8%</td>
+      <td><strong>HER2_AAV</strong></td><td class="best">16/16 (100%)</td><td class="best">16/16 (100%)</td><td>15/16 (93.8%)</td><td class="best">16/16 (100%)</td><td>15/16 (93.8%)</td>
     </tr>
     <tr>
-      <td><strong>IL7RA</strong></td><td>81.2%</td><td>93.8%</td><td class="best">100.0%</td><td>93.8%</td><td>87.5%</td>
+      <td><strong>IL7RA</strong></td><td>13/16 (81.2%)</td><td>15/16 (93.8%)</td><td class="best">16/16 (100%)</td><td>15/16 (93.8%)</td><td>14/16 (87.5%)</td>
     </tr>
     <tr>
-      <td><strong>Insulin</strong></td><td class="best">100.0%</td><td class="best">100.0%</td><td class="best">100.0%</td><td class="best">100.0%</td><td>&mdash;</td>
+      <td><strong>Insulin</strong></td><td class="best">16/16 (100%)</td><td class="best">16/16 (100%)</td><td class="best">16/16 (100%)</td><td class="best">16/16 (100%)</td><td>&mdash;</td>
     </tr>
   </table>
   </div>
-  <p class="note">
-    <strong>greedy 5%</strong> is the best balanced schedule: high self AND high MPNN across all targets.
-    <strong>soft+greedy short</strong> gives highest self pass rates (100% on SpCas9, IL7RA) but sometimes lower MPNN.
-    <strong>aggressive 10%</strong> produces best absolute metrics (lowest iPAE, highest pLDDT) but slightly lower pass rates.
-  </p>
+
+  <h4>MPNN Pass Rates (N=16 per run)</h4>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Target</th><th>greedy 2%</th><th>greedy 5%</th><th>soft+greedy short</th><th>soft+greedy long</th><th>aggressive 10%</th></tr>
+    <tr>
+      <td><strong>SpCas9</strong></td><td>8/16 (50%)</td><td class="best">12/16 (75%)</td><td>8/16 (50%)</td><td>9/16 (56.2%)</td><td class="best">12/16 (75%)</td>
+    </tr>
+    <tr>
+      <td><strong>HER2_AAV</strong></td><td class="best">16/16 (100%)</td><td class="best">16/16 (100%)</td><td>14/16 (87.5%)</td><td>14/16 (87.5%)</td><td>15/16 (93.8%)</td>
+    </tr>
+    <tr>
+      <td><strong>IL7RA</strong></td><td>14/16 (87.5%)</td><td>14/16 (87.5%)</td><td class="best">15/16 (93.8%)</td><td>12/16 (75%)</td><td class="best">15/16 (93.8%)</td>
+    </tr>
+    <tr>
+      <td><strong>Insulin</strong></td><td>15/16 (93.8%)</td><td class="best">16/16 (100%)</td><td class="best">16/16 (100%)</td><td>15/16 (93.8%)</td><td>&mdash;</td>
+    </tr>
+  </table>
+  </div>
+  <div class="card" style="border-left: 4px solid var(--green);">
+    <h4 style="font-size:0.95rem; margin-bottom:6px;">Hallucination Schedule Ranking</h4>
+    <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
+      <li><strong>greedy 5%</strong> is the best balanced schedule: high self (81-100%) AND high MPNN (75-100%) across all targets. Recommended as the default hallucination config.</li>
+      <li><strong>soft+greedy short</strong> gives highest self pass rates (100% on SpCas9, IL7RA) but lower MPNN (50% on SpCas9) &mdash; the soft optimization stage improves the model&rsquo;s own sequence but may move it away from MPNN-designable regions.</li>
+      <li><strong>aggressive 10%</strong> produces best absolute iPAE and pLDDT values but slightly lower self pass rates. Useful when you want the single best design rather than the most designs.</li>
+      <li><strong>CrSAS6:</strong> All 5 jobs failed due to target ID mismatch (<code>33_CrSAS6</code> in script vs <code>14_CrSAS6</code> in config). Resubmitted with fix (SLURM 6795983-6795987).</li>
+    </ul>
+  </div>
 
   <h3>Exp 24: Agentic Trio (3/3 complete)</h3>
   <div class="table-wrap">
@@ -1670,22 +1703,48 @@ Terminate: when unique success count plateaus
   </div>
 
   <div class="callout">
-    <p><strong>The agent now has a validated action for every target class.</strong> The updated routing tree:</p>
+    <p><strong>The agent now has a validated action for every target class.</strong> The updated routing tree
+    (implemented in <code>script_utils/agentic_loop.py</code>):</p>
     <pre><code>def route_v2(diagnostic):
     if diagnostic.self_rate >= 80:
-        return "scale_default"
+        return "scale_default"              # Exp 24: VEGFA 75%, IL7RA 72%
 
     if diagnostic.mpnn_self_gap > 10:
-        return "hallucination_greedy5"
+        return "hallucination_greedy5"      # Exp 27: HER2 100%, SpCas9 81%
 
     if diagnostic.ipae_pass < 50 and diagnostic.plddt_pass > 50:
-        return "noise_0.20"
+        return "noise_0.20"                 # Exp 2/5: CD45 47%
 
     if diagnostic.self_rate == 0 and diagnostic.mpnn_rate == 0:
-        return "mcts_softgreedy5"        # NEW: Exp 25 breakthrough
-        # fallback: add pLDDT reward     # NEW: Exp 26 breakthrough
+        return "mcts_softgreedy5"           # Exp 25: SC2RBD 50%, TNFa 50%
+        # fallback: + pLDDT reward          # Exp 26: SC2RBD 62.5%
 
     return "try_both"</code></pre>
+  </div>
+
+  <h3>Scaling Validation (Exp 29, Running)</h3>
+  <div class="card" style="border-left: 4px solid var(--orange);">
+    <p style="font-size:0.88rem; color:var(--muted); margin-bottom:10px;">
+      <strong>Status:</strong> 6 long-running scaling curve jobs submitted (48h walltime each, SLURM 6796171-6796176).
+      Each job loops continuously: generate &rarr; evaluate &rarr; log <code>(gpu_hours, cumulative_successes)</code> &rarr; repeat.
+      Output is written to <code>scaling_curves/*_scaling.tsv</code> with one row per iteration.
+    </p>
+    <div class="table-wrap">
+    <table>
+      <tr><th>Job</th><th>Target</th><th>Strategy</th><th>~Time/iter</th><th>~Iters in 48h</th></tr>
+      <tr><td>cd45_noise020</td><td>CD45 (HARD)</td><td>noise=0.20 deep beam (ours)</td><td>~1.2h</td><td>~40</td></tr>
+      <tr><td>cd45_default</td><td>CD45 (HARD)</td><td>default deep beam (baseline)</td><td>~1.2h</td><td>~40</td></tr>
+      <tr><td>sc2rbd_msg5</td><td>SC2RBD (VERY HARD)</td><td>MCTS + G&amp;H soft+greedy (ours)</td><td>~3.1h</td><td>~15</td></tr>
+      <tr><td>sc2rbd_e26</td><td>SC2RBD (VERY HARD)</td><td>MCTS + pLDDT + G&amp;H (e26 recipe)</td><td>~3.1h</td><td>~15</td></tr>
+      <tr><td>tnf_msg5</td><td>TNF&alpha; (VERY HARD)</td><td>MCTS + G&amp;H soft+greedy (ours)</td><td>~16h</td><td>~3</td></tr>
+      <tr><td>tnf_paper</td><td>TNF&alpha; (VERY HARD)</td><td>Paper Sec I.4 recipe (N<sub>sim</sub>=20, &epsilon;=0.5)</td><td>~16h</td><td>~3</td></tr>
+    </table>
+    </div>
+    <p style="font-size:0.88rem; color:var(--muted);">
+      <strong>Purpose:</strong> Prove that success count scales with compute (not just a lucky one-shot hit).
+      Plot cumulative unique successes vs GPU-hours, like Figure 19 in the paper.
+      The TNF&alpha; tnf_paper job also serves as a direct comparison with the paper&rsquo;s own recipe at matched walltime.
+    </p>
   </div>
 
 </div>
