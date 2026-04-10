@@ -81,6 +81,58 @@
   .tag-blue { background: var(--accent-light); color: var(--accent); }
   .tag-purple { background: var(--purple-light); color: var(--purple); }
   .table-wrap { overflow-x: auto; margin-bottom: 16px; }
+  .figure-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 14px;
+    margin: 12px 0 18px;
+  }
+  .figure-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+  }
+  .figure-card h4 {
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+  }
+  .figure-card p {
+    font-size: 0.84rem;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .mini-chart { display: grid; gap: 8px; }
+  .bar-row {
+    display: grid;
+    grid-template-columns: 120px 1fr 52px;
+    gap: 8px;
+    align-items: center;
+    font-size: 0.82rem;
+  }
+  .bar-label { color: var(--text); font-weight: 600; }
+  .bar-track {
+    position: relative;
+    height: 11px;
+    background: #e5e7eb;
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 999px;
+  }
+  .bar-fill.blue { background: linear-gradient(90deg, #60a5fa 0%, #2563eb 100%); }
+  .bar-fill.green { background: linear-gradient(90deg, #34d399 0%, #059669 100%); }
+  .bar-fill.orange { background: linear-gradient(90deg, #fbbf24 0%, #d97706 100%); }
+  .bar-fill.red { background: linear-gradient(90deg, #f87171 0%, #dc2626 100%); }
+  .bar-fill.purple { background: linear-gradient(90deg, #c084fc 0%, #7c3aed 100%); }
+  .bar-val { text-align: right; color: var(--muted); font-size: 0.8rem; }
+  .figure-caption {
+    font-size: 0.8rem;
+    color: #6b7280;
+    margin-top: 8px;
+  }
   table {
     width: 100%; border-collapse: collapse; font-size: 0.85rem;
     background: var(--card); border: 1px solid var(--border); border-radius: 8px;
@@ -626,6 +678,29 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     </tr>
   </table>
   </div>
+  <div class="figure-grid">
+    <div class="figure-card">
+      <h4>Companion Figure: Baseline Winners by Target</h4>
+      <p>Quick visual summary of which search family wins on the 11-target baseline panel.</p>
+      <div class="mini-chart">
+        <div class="bar-row"><div class="bar-label">Deep wins</div><div class="bar-track"><div class="bar-fill blue" style="width:55%"></div></div><div class="bar-val">6/11</div></div>
+        <div class="bar-row"><div class="bar-label">Wide wins</div><div class="bar-track"><div class="bar-fill green" style="width:45%"></div></div><div class="bar-val">5/11</div></div>
+        <div class="bar-row"><div class="bar-label">notto wins</div><div class="bar-track"><div class="bar-fill red" style="width:0%"></div></div><div class="bar-val">0/11</div></div>
+      </div>
+      <div class="figure-caption">Interpretation: the first real decision is usually deep vs wide beam, not beam vs no-TTO.</div>
+    </div>
+    <div class="figure-card">
+      <h4>Companion Figure: Hard Targets Need TTO</h4>
+      <p>Representative self pass rates on the 3 hardest Phase 0 targets.</p>
+      <div class="mini-chart">
+        <div class="bar-row"><div class="bar-label">CD45 deep</div><div class="bar-track"><div class="bar-fill blue" style="width:25%"></div></div><div class="bar-val">25.0%</div></div>
+        <div class="bar-row"><div class="bar-label">HER2 deep</div><div class="bar-track"><div class="bar-fill green" style="width:3.1%"></div></div><div class="bar-val">3.1%</div></div>
+        <div class="bar-row"><div class="bar-label">BetV1 deep</div><div class="bar-track"><div class="bar-fill orange" style="width:18.8%"></div></div><div class="bar-val">18.8%</div></div>
+        <div class="bar-row"><div class="bar-label">all notto</div><div class="bar-track"><div class="bar-fill red" style="width:0%"></div></div><div class="bar-val">0%</div></div>
+      </div>
+      <div class="figure-caption">Interpretation: hard targets are not solved by larger random pools; they need targeted inference-time control.</div>
+    </div>
+  </div>
   <p class="note">
     HER2_AAV-deep shows an anomaly: mpnn pass rate (31.3%) greatly exceeds self pass rate (3.1%).
     This means ProteinMPNN redesigns succeed on backbones where the model's own sequence fails &mdash;
@@ -899,6 +974,30 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
       <li><strong>Baseline pass rates are deterministic.</strong> 3 independent runs for each target: CD45 always 8/32, HER2 always 1/32, BetV1 always 6/32. Zero run-to-run variance.</li>
       <li><strong>Conclusion:</strong> An agentic system that dynamically selects the right config per target will outperform any fixed config. The matrix is now complete &mdash; ready to build the router.</li>
     </ul>
+  </div>
+  <div class="figure-grid">
+    <div class="figure-card">
+      <h4>Companion Figure: Best Config by Target</h4>
+      <p>Same table, reduced to the single winning intervention per representative target.</p>
+      <div class="mini-chart">
+        <div class="bar-row"><div class="bar-label">CD45 noise</div><div class="bar-track"><div class="bar-fill green" style="width:46.9%"></div></div><div class="bar-val">46.9%</div></div>
+        <div class="bar-row"><div class="bar-label">PDL1 default</div><div class="bar-track"><div class="bar-fill blue" style="width:100%"></div></div><div class="bar-val">100%</div></div>
+        <div class="bar-row"><div class="bar-label">HER2 halluc</div><div class="bar-track"><div class="bar-fill purple" style="width:65.6%"></div></div><div class="bar-val">65.6%</div></div>
+        <div class="bar-row"><div class="bar-label">BetV1 n+h</div><div class="bar-track"><div class="bar-fill orange" style="width:34.4%"></div></div><div class="bar-val">34.4%</div></div>
+      </div>
+      <div class="figure-caption">Interpretation: the winning action changes by target, which is exactly why a fixed global policy is weak.</div>
+    </div>
+    <div class="figure-card">
+      <h4>Companion Figure: Non-Additivity</h4>
+      <p>The same intervention bundle can help one target and hurt another.</p>
+      <div class="mini-chart">
+        <div class="bar-row"><div class="bar-label">CD45 noise+h</div><div class="bar-track"><div class="bar-fill red" style="width:18.8%"></div></div><div class="bar-val">18.8%</div></div>
+        <div class="bar-row"><div class="bar-label">CD45 noise</div><div class="bar-track"><div class="bar-fill green" style="width:46.9%"></div></div><div class="bar-val">46.9%</div></div>
+        <div class="bar-row"><div class="bar-label">HER2 noise+h</div><div class="bar-track"><div class="bar-fill orange" style="width:43.8%"></div></div><div class="bar-val">43.8%</div></div>
+        <div class="bar-row"><div class="bar-label">HER2 noise</div><div class="bar-track"><div class="bar-fill red" style="width:0%"></div></div><div class="bar-val">0%</div></div>
+      </div>
+      <div class="figure-caption">Interpretation: interventions are not compositional by default; the controller needs target-specific bundles.</div>
+    </div>
   </div>
 
   <div class="card" style="border-left: 4px solid var(--purple);">
@@ -1248,6 +1347,108 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
   SpCas9: balanced at ~50% for both &rarr; already decent, explore further.</p>
   <img src="agentic-figures/fig10_bottleneck_decomposition.png" alt="Bottleneck decomposition" style="width:100%; max-width:850px; border:1px solid var(--border); border-radius:8px; margin-bottom:16px;">
 
+  <h4 style="margin:20px 0 8px;">Figure K: Hard-Target Unlock Depends on the Full Operator Bundle</h4>
+  <p class="note">Updated with Exp 25/26. The important comparison is not “more search” vs “less search,” but pure MCTS vs MCTS + local refinement vs reward-shaped MCTS + refinement.</p>
+  <div class="figure-grid">
+    <div class="figure-card">
+      <h4>SC2RBD</h4>
+      <div class="mini-chart">
+        <div class="bar-row"><div class="bar-label">Exp 20 beam family</div><div class="bar-track"><div class="bar-fill red" style="width:0%"></div></div><div class="bar-val">0/16</div></div>
+        <div class="bar-row"><div class="bar-label">Exp 25 pure MCTS</div><div class="bar-track"><div class="bar-fill red" style="width:0%"></div></div><div class="bar-val">0/8</div></div>
+        <div class="bar-row"><div class="bar-label">Exp 25 msg5</div><div class="bar-track"><div class="bar-fill green" style="width:50%"></div></div><div class="bar-val">4/8</div></div>
+        <div class="bar-row"><div class="bar-label">Exp 26 rw50+s5</div><div class="bar-track"><div class="bar-fill purple" style="width:62.5%"></div></div><div class="bar-val">5/8</div></div>
+      </div>
+    </div>
+    <div class="figure-card">
+      <h4>TNF&alpha;</h4>
+      <div class="mini-chart">
+        <div class="bar-row"><div class="bar-label">Exp 20 beam family</div><div class="bar-track"><div class="bar-fill red" style="width:0%"></div></div><div class="bar-val">0/16</div></div>
+        <div class="bar-row"><div class="bar-label">Exp 25 pure MCTS</div><div class="bar-track"><div class="bar-fill red" style="width:0%"></div></div><div class="bar-val">0/8</div></div>
+        <div class="bar-row"><div class="bar-label">Exp 25 msg5</div><div class="bar-track"><div class="bar-fill green" style="width:50%"></div></div><div class="bar-val">4/8</div></div>
+        <div class="bar-row"><div class="bar-label">Exp 26 rws5</div><div class="bar-track"><div class="bar-fill orange" style="width:25%"></div></div><div class="bar-val">2/8</div></div>
+      </div>
+    </div>
+    <div class="figure-card">
+      <h4>H1 / IL17A / CbAgo</h4>
+      <div class="mini-chart">
+        <div class="bar-row"><div class="bar-label">H1 best</div><div class="bar-track"><div class="bar-fill blue" style="width:12.5%"></div></div><div class="bar-val">1/8</div></div>
+        <div class="bar-row"><div class="bar-label">IL17A best self</div><div class="bar-track"><div class="bar-fill red" style="width:0%"></div></div><div class="bar-val">0/8</div></div>
+        <div class="bar-row"><div class="bar-label">CbAgo best self</div><div class="bar-track"><div class="bar-fill red" style="width:0%"></div></div><div class="bar-val">0/8</div></div>
+      </div>
+      <div class="figure-caption">Interpretation: the frontier is no longer uniform. SC2RBD and TNF&alpha; are cracked; CbAgo remains the clean unresolved target.</div>
+    </div>
+  </div>
+
+  <h4 style="margin:20px 0 8px;">Figure L: Reward Shaping Is Selective, Not Monotonic</h4>
+  <p class="note">Updated with Exp 26. Reward shaping alone stays near zero; moderate pLDDT weighting only helps when paired with the right refinement bundle.</p>
+  <div class="figure-grid">
+    <div class="figure-card">
+      <h4>SC2RBD Exp 26</h4>
+      <div class="mini-chart">
+        <div class="bar-row"><div class="bar-label">rw25 only</div><div class="bar-track"><div class="bar-fill red" style="width:0%"></div></div><div class="bar-val">0/8</div></div>
+        <div class="bar-row"><div class="bar-label">rw50 only</div><div class="bar-track"><div class="bar-fill red" style="width:0%"></div></div><div class="bar-val">0/8</div></div>
+        <div class="bar-row"><div class="bar-label">rw75 only</div><div class="bar-track"><div class="bar-fill red" style="width:0%"></div></div><div class="bar-val">0/8</div></div>
+        <div class="bar-row"><div class="bar-label">rw50 + softg5</div><div class="bar-track"><div class="bar-fill purple" style="width:62.5%"></div></div><div class="bar-val">5/8</div></div>
+      </div>
+    </div>
+    <div class="figure-card">
+      <h4>Cross-target pattern</h4>
+      <div class="mini-chart">
+        <div class="bar-row"><div class="bar-label">SC2RBD best</div><div class="bar-track"><div class="bar-fill purple" style="width:62.5%"></div></div><div class="bar-val">5/8</div></div>
+        <div class="bar-row"><div class="bar-label">TNF rw-only</div><div class="bar-track"><div class="bar-fill red" style="width:0%"></div></div><div class="bar-val">0/8</div></div>
+        <div class="bar-row"><div class="bar-label">TNF rws5</div><div class="bar-track"><div class="bar-fill orange" style="width:25%"></div></div><div class="bar-val">2/8</div></div>
+        <div class="bar-row"><div class="bar-label">H1 rws5</div><div class="bar-track"><div class="bar-fill blue" style="width:12.5%"></div></div><div class="bar-val">1/8</div></div>
+      </div>
+      <div class="figure-caption">Interpretation: “more metrics” is not the right rule. Stage-specific, target-specific weighting is the real lesson.</div>
+    </div>
+  </div>
+
+  <h4 style="margin:20px 0 8px;">Figure M: Short Refinement Schedules Are Often the Best Default</h4>
+  <p class="note">Updated with Exp 27. The main decision is now which local refinement schedule to use once geometry already exists.</p>
+  <div class="figure-grid">
+    <div class="figure-card">
+      <h4>Best self pass by target</h4>
+      <div class="mini-chart">
+        <div class="bar-row"><div class="bar-label">SpCas9 softg5_short</div><div class="bar-track"><div class="bar-fill green" style="width:100%"></div></div><div class="bar-val">16/16</div></div>
+        <div class="bar-row"><div class="bar-label">HER2 greedy2/5</div><div class="bar-track"><div class="bar-fill blue" style="width:100%"></div></div><div class="bar-val">16/16</div></div>
+        <div class="bar-row"><div class="bar-label">IL7RA softg5_short</div><div class="bar-track"><div class="bar-fill purple" style="width:100%"></div></div><div class="bar-val">16/16</div></div>
+        <div class="bar-row"><div class="bar-label">Insulin best</div><div class="bar-track"><div class="bar-fill orange" style="width:100%"></div></div><div class="bar-val">16/16</div></div>
+      </div>
+    </div>
+    <div class="figure-card">
+      <h4>Balanced MPNN-friendly schedules</h4>
+      <div class="mini-chart">
+        <div class="bar-row"><div class="bar-label">SpCas9 greedy5</div><div class="bar-track"><div class="bar-fill green" style="width:75%"></div></div><div class="bar-val">12/16</div></div>
+        <div class="bar-row"><div class="bar-label">HER2 greedy5</div><div class="bar-track"><div class="bar-fill blue" style="width:100%"></div></div><div class="bar-val">16/16</div></div>
+        <div class="bar-row"><div class="bar-label">IL7RA softg5_short</div><div class="bar-track"><div class="bar-fill purple" style="width:93.8%"></div></div><div class="bar-val">15/16</div></div>
+        <div class="bar-row"><div class="bar-label">Insulin greedy5</div><div class="bar-track"><div class="bar-fill orange" style="width:100%"></div></div><div class="bar-val">16/16</div></div>
+      </div>
+      <div class="figure-caption">Interpretation: once geometry is present, schedule choice is first-class and often easier than inventing a new search method.</div>
+    </div>
+  </div>
+
+  <h4 style="margin:20px 0 8px;">Figure N: New Unseen-Target Benchmark Layout (Exp 30&ndash;32)</h4>
+  <p class="note">The next benchmark asks whether our diagnosis-and-routing logic transfers to fresh tasks rather than just explaining completed ones.</p>
+  <div class="figure-grid">
+    <div class="figure-card">
+      <h4>Coverage</h4>
+      <div class="mini-chart">
+        <div class="bar-row"><div class="bar-label">Exp 30 diagnostics</div><div class="bar-track"><div class="bar-fill blue" style="width:100%"></div></div><div class="bar-val">14 entries</div></div>
+        <div class="bar-row"><div class="bar-label">Exp 31 default</div><div class="bar-track"><div class="bar-fill green" style="width:57%"></div></div><div class="bar-val">8 entries</div></div>
+        <div class="bar-row"><div class="bar-label">Exp 32 agentic</div><div class="bar-track"><div class="bar-fill purple" style="width:57%"></div></div><div class="bar-val">8 entries</div></div>
+      </div>
+    </div>
+    <div class="figure-card">
+      <h4>Benchmark logic</h4>
+      <div class="mini-chart">
+        <div class="bar-row"><div class="bar-label">Round 0 diagnostic</div><div class="bar-track"><div class="bar-fill blue" style="width:100%"></div></div><div class="bar-val">N=32</div></div>
+        <div class="bar-row"><div class="bar-label">Default control</div><div class="bar-track"><div class="bar-fill green" style="width:100%"></div></div><div class="bar-val">30h</div></div>
+        <div class="bar-row"><div class="bar-label">Agentic follow-up</div><div class="bar-track"><div class="bar-fill purple" style="width:100%"></div></div><div class="bar-val">30h</div></div>
+      </div>
+      <div class="figure-caption">Interpretation: this is the first direct test of whether the agentic analysis saves compute on unseen targets.</div>
+    </div>
+  </div>
+
   <div class="card" style="border-left: 4px solid var(--accent);">
     <h4 style="font-size:1rem; margin-bottom:8px;">Diagnostic Routing Validation Summary</h4>
     <table style="font-size:0.85rem; width:100%;">
@@ -1263,6 +1464,17 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
       neither intervention works strongly (halluc gives +6pp, n.s.). <strong>The Self/MPNN gap and per-criterion pass rates
       are sufficient diagnostic signals for routing.</strong>
     </p>
+  </div>
+  <div class="figure-grid">
+    <div class="figure-card">
+      <h4>Companion Figure: Exp 25 Self Unlock</h4>
+      <p>Across the five zero-hit targets, only refinement-coupled MCTS consistently breaks zero.</p>
+      <div class="mini-chart">
+        <div class="bar-row"><div class="bar-label">pure MCTS total</div><div class="bar-track"><div class="bar-fill red" style="width:2.5%"></div></div><div class="bar-val">1/120</div></div>
+        <div class="bar-row"><div class="bar-label">greedy-only total</div><div class="bar-track"><div class="bar-fill orange" style="width:7.5%"></div></div><div class="bar-val">3/40</div></div>
+        <div class="bar-row"><div class="bar-label">soft+greedy total</div><div class="bar-track"><div class="bar-fill green" style="width:22.5%"></div></div><div class="bar-val">9/40</div></div>
+      </div>
+    </div>
   </div>
 
   <h3>Next: Building the Agentic Router</h3>
@@ -1456,6 +1668,18 @@ Terminate: when unique success count plateaus
       (base 21/32 self and MPNN, halluc 18/32 self and 17/32 MPNN, noise 8/32 self and 2/32 MPNN).
     </p>
   </div>
+  <div class="figure-grid">
+    <div class="figure-card">
+      <h4>Companion Figure: Exp 26 SC2RBD Sweet Spot</h4>
+      <p>Moderate pLDDT shaping plus moderate refinement wins; reward-only stays at zero.</p>
+      <div class="mini-chart">
+        <div class="bar-row"><div class="bar-label">rw25 only</div><div class="bar-track"><div class="bar-fill red" style="width:0%"></div></div><div class="bar-val">0/8</div></div>
+        <div class="bar-row"><div class="bar-label">rw50 only</div><div class="bar-track"><div class="bar-fill red" style="width:0%"></div></div><div class="bar-val">0/8</div></div>
+        <div class="bar-row"><div class="bar-label">rw75 only</div><div class="bar-track"><div class="bar-fill red" style="width:0%"></div></div><div class="bar-val">0/8</div></div>
+        <div class="bar-row"><div class="bar-label">rw50 + softg5</div><div class="bar-track"><div class="bar-fill purple" style="width:62.5%"></div></div><div class="bar-val">5/8</div></div>
+      </div>
+    </div>
+  </div>
 
 </div>
 
@@ -1541,6 +1765,18 @@ Terminate: when unique success count plateaus
       pure MCTS cannot refine on its own. This matches the paper&rsquo;s Sec I.4 design decision of always pairing
       MCTS with Generate &amp; Hallucinate for very hard targets.
     </p>
+  </div>
+  <div class="figure-grid">
+    <div class="figure-card">
+      <h4>Companion Figure: Exp 27 Schedule Ranking</h4>
+      <p>Short and moderate schedules dominate long or overly aggressive ones on sequence-sensitive targets.</p>
+      <div class="mini-chart">
+        <div class="bar-row"><div class="bar-label">SpCas9 best self</div><div class="bar-track"><div class="bar-fill green" style="width:100%"></div></div><div class="bar-val">softg5_short</div></div>
+        <div class="bar-row"><div class="bar-label">HER2 best balanced</div><div class="bar-track"><div class="bar-fill blue" style="width:100%"></div></div><div class="bar-val">greedy5</div></div>
+        <div class="bar-row"><div class="bar-label">IL7RA best</div><div class="bar-track"><div class="bar-fill purple" style="width:100%"></div></div><div class="bar-val">softg5_short</div></div>
+        <div class="bar-row"><div class="bar-label">Insulin best</div><div class="bar-track"><div class="bar-fill orange" style="width:100%"></div></div><div class="bar-val">greedy5 / softg5</div></div>
+      </div>
+    </div>
   </div>
 
   <h3>Exp 26: Reward Shaping + G&amp;H (23/25 complete; 2 refinement runs still running)</h3>
