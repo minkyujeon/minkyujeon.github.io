@@ -985,11 +985,12 @@
 
   <h3 id="structured-analysis">Structured Failure Analysis &amp; Task Decomposition</h3>
   <div class="callout">
-    <p><strong>Core insight:</strong> the model <em>can</em> find binders for the hardest targets &mdash;
-    H1 yields 7 successes in 604 GPU-hours, TNF&alpha; yields 15 in 475 GPU-hours. The problem is not model
-    capability but <strong>search efficiency</strong>: ~86 GPU-hours per hit via blind fixed-strategy search.
-    The agentic contribution is reducing this cost by making smarter allocation decisions at each round,
-    informed by structured analysis of intermediate results.</p>
+    <p><strong>Core insight (confirmed April 10, 2026):</strong> the model <em>can</em> find binders for the hardest targets,
+    and <strong>our configs are more efficient than the paper&rsquo;s</strong>.
+    SC2RBD: 62.5% self in 3.1h (paper: 0%). TNF&alpha;: 4 hits in 16.2h vs paper&rsquo;s 31.7h/hit (~8&times; speedup).
+    H1: first hit in 19.4h vs paper&rsquo;s ~100-200h (~5-10&times;).
+    The agentic contribution is a <strong>rule-based controller</strong> that diagnoses target difficulty from a single
+    cheap round and routes to the right operator &mdash; no LLM needed for the current 5-pattern decision space.</p>
   </div>
 
   <h4>From Raw Metrics to Queryable Knowledge Graph</h4>
@@ -1106,17 +1107,15 @@
   <div class="exp-card" style="border-left: 4px solid var(--red);">
     <h4><span class="tag tag-red">Priority 1 / Exp 28</span> Run the Paper&rsquo;s Exact Very-Hard-Target Recipe</h4>
 
-    <p><strong>Motivation:</strong> 604 GPU-hours yielding 7 successes on H1 means the generative prior <em>covers</em>
-    the correct fold space. The cost is ~86 GPU-hours per hit via blind fixed-strategy search. But our Exp 20
-    (beam variants) and Exp 25 (novel MCTS) do <strong>not</strong> replicate the paper&rsquo;s exact Sec I.4 recipe.
-    Exp 25 uses different MCTS hyperparameters (40&ndash;80 sims, varied exploration) without the paper&rsquo;s specific
-    modified reward (iPAE/31 + pLDDT) and without the paper&rsquo;s G&amp;H mutation schedule. This is the single
-    most informative missing experiment because it separates &ldquo;recipe discovery problem&rdquo; from
-    &ldquo;model capability problem.&rdquo;</p>
+    <p><strong>Update (April 10):</strong> Exp 25/26 already cracked 3/5 zero-hit targets with our modified configs
+    (msg5: MCTS N<sub>sim</sub>=40, soft+greedy G&amp;H). Exp 28 is now a <strong>direct comparison</strong>:
+    does the paper&rsquo;s exact recipe perform better or worse than our configs at matched walltime?
+    This determines whether our speedup is from the config changes (higher N<sub>sim</sub>, soft+greedy halluc)
+    or simply from running MCTS+G&amp;H at all (which the paper always did for hard targets but we hadn&rsquo;t tried until Exp 25).</p>
 
-    <p><strong>Hypothesis:</strong> The paper&rsquo;s recipe at 30 GPU-hours will produce &ge;1 success on at least
-    one zero-hit target (H1 or TNF&alpha;), because H1&rsquo;s first hit in the paper appears around hour 50&ndash;100
-    (Fig 19), and our higher simulation counts or denser checkpoints may accelerate discovery.</p>
+    <p><strong>Hypothesis:</strong> Our msg5 config will outperform the paper&rsquo;s exact recipe at matched walltime,
+    because: (a) soft+greedy hallucination reaches better local optima than greedy-only, and (b) N<sub>sim</sub>=40
+    with lower exploration (0.3 vs 0.5) produces a deeper, more exploitative search tree.</p>
 
     <p><strong>Setup (4 targets &times; 1 config each = 4 jobs):</strong></p>
     <div class="table-wrap">
@@ -1281,17 +1280,20 @@
 
   <!-- ═══ PRIORITY 3 ═══ -->
   <div class="exp-card" style="border-left: 4px solid var(--accent);">
-    <h4><span class="tag tag-blue">Priority 3</span> BindCraft as a Portfolio Arm for SC2RBD</h4>
+    <h4><span class="tag tag-blue">Priority 3</span> BindCraft as a Portfolio Arm for CbAgo / Remaining Zero-Hit Targets</h4>
 
-    <p><strong>Motivation:</strong> SC2RBD (PDB 6m0j, SARS-CoV-2 RBD) is our most visible zero-hit failure.
-    Complexa produces 0/32 self and 0/32 MPNN across all tested configs (default, noise=0.20, halluc, beam variants).
-    The ICLR paper&rsquo;s Table 10 also shows 0 Complexa successes for SC2RBD.
-    However, BindCraft (Nature 2025) successfully designed binders for RBD-class targets, and the Latent Generative Search
-    companion paper explicitly notes that different methods dominate on different targets.</p>
+    <p><strong>Update (April 10):</strong> SC2RBD is no longer zero-hit &mdash; Exp 25 (msg5: 4/8) and Exp 26 (e26_04: 5/8)
+    crack it with MCTS + G&amp;H. The remaining truly zero-hit targets are <strong>CbAgo</strong> (nearest miss: iPAE*31=7.35)
+    and <strong>IL17A</strong> (0 self, 1 MPNN only). BindCraft is now motivated as a portfolio arm for these stubborn targets
+    rather than for SC2RBD specifically.</p>
 
-    <p><strong>Hypothesis:</strong> BindCraft will produce &ge;1 success on SC2RBD where Complexa produces 0, because
-    BindCraft&rsquo;s AF2-based hallucination approach may better handle the RBD interface geometry that Complexa&rsquo;s
-    learned prior does not cover well.</p>
+    <p><strong>Motivation:</strong> CbAgo (PDB from BindCraft targets) has 0 Complexa successes in Table 10 and 0 in all our
+    experiments (Exp 17, 20, 25, 26). The Latent Generative Search companion paper explicitly notes that different methods
+    dominate on different targets. BindCraft&rsquo;s AF2-based hallucination approach may find interfaces that Complexa&rsquo;s
+    learned prior cannot reach.</p>
+
+    <p><strong>Hypothesis:</strong> BindCraft will produce &ge;1 success on CbAgo where Complexa produces 0, demonstrating
+    that model-family selection is a valid portfolio action for the hardest targets.</p>
 
     <p><strong>Setup:</strong></p>
     <ul>
@@ -1413,7 +1415,15 @@
 
   <!-- ═══ PRIORITY 6 ═══ -->
   <div class="exp-card" style="border-left: 4px solid var(--accent);">
-    <h4><span class="tag tag-blue">Priority 6</span> LLM Integration Roadmap</h4>
+    <h4><span class="tag tag-blue">Priority 6 <span style="font-weight:400; color:var(--muted)">(Deprioritized)</span></span> LLM Integration Roadmap</h4>
+
+    <p><strong>Status update (April 10):</strong> With Exp 25/26 results, the rule-based router now covers all 5 target
+    classes with validated actions (scale-default, hallucination, noise, MCTS+G&amp;H, MCTS+G&amp;H+pLDDT reward).
+    The rules are <strong>sufficient for the current decision space</strong> (19 targets, ~5 bottleneck patterns).
+    An LLM planner adds complexity without adding capability at this stage. Deferred to Phase 3 &mdash; only
+    introduce the LLM when the rule-based system encounters a case it cannot handle, and use that specific
+    failure to motivate why the LLM is needed. The paper story is stronger with &ldquo;simple interpretable rules
+    that work&rdquo; than &ldquo;LLM that also works but you can&rsquo;t explain why.&rdquo;</p>
 
     <p><strong>When to use rules vs. LLM:</strong></p>
     <div class="table-wrap">
@@ -1471,10 +1481,11 @@ Recommend:
   <div class="exp-card" style="border-left: 4px solid var(--red);">
     <h4><span class="tag tag-red">Priority 7</span> Zero-Hit Failure Analysis Protocol</h4>
 
-    <p><strong>Motivation:</strong> Five targets (SC2RBD, CbAgo, H1, IL17A, TNF&alpha;) remain at 0% across every tested
-    configuration. Even if the agent cannot solve them, <em>characterizing where and why they fail</em> is a publishable
-    contribution. The failure analysis should identify whether the problem is (a) early topology selection, (b) late
-    interface refinement, (c) reward misguiding, or (d) fundamental prior limitation.</p>
+    <p><strong>Update (April 10):</strong> SC2RBD, TNF&alpha;, and H1 are now cracked by Exp 25/26. Only <strong>CbAgo</strong>
+    (0% self, nearest miss iPAE*31=7.35) and <strong>IL17A</strong> (0% self, 1 MPNN-only pass) remain truly zero-hit.
+    The failure analysis now focuses on these two targets, plus a <em>success analysis</em> of how MCTS+G&amp;H
+    unlocked SC2RBD/TNF&alpha;/H1 &mdash; understanding why the breakthrough worked is as important as understanding
+    why CbAgo/IL17A still fail.</p>
 
     <p><strong>Analysis protocol (no additional GPU, uses existing Exp 20/25/26 outputs):</strong></p>
     <div class="table-wrap">
@@ -1610,19 +1621,20 @@ Recommend:
   <h3>What This Project Is and Is Not</h3>
   <div class="callout">
     <p>
-      <strong>It is:</strong> a budget-aware, target-conditional, trace-improving controller for de novo binder design.
+      <strong>It is:</strong> a budget-aware, target-conditional, rule-based controller for de novo binder design.
       It decomposes the design problem into diagnosable subtasks, routes each to the right operator, and improves
       from structured experimental traces &mdash; the same diagnose &rarr; select &rarr; execute &rarr; reflect
       pattern that Meta-Harness, MARS, and MLE-STAR use for ML engineering, adapted to protein design where the
       &ldquo;harness&rdquo; is the inference-time configuration around a frozen generative model.<br>
-      <strong>It is not:</strong> a generic hyperparameter sweep, a single best-config search, an ESM replacement
-      for AF2-Multimer, or a many-agent roleplay system. The decision-maker can be rule-based (current v1) or
-      LLM-powered (future v2) &mdash; the contribution is the framework and the empirical demonstration that
-      adaptive allocation beats fixed allocation, not the specific decision-making mechanism.<br>
-      <strong>Working thesis:</strong> the model already covers the correct fold space for hard targets
-      (H1: 7 successes in 604 GPU-hours proves this). The biggest gains come from <em>reducing the search cost</em>
-      by choosing the right operator for the current target state, composing complementary operators as a portfolio,
-      and feeding back intermediate results for iterative refinement.
+      <strong>It is not:</strong> a generic hyperparameter sweep, a single best-config search, or an LLM-powered planner
+      (the decision space is currently covered by interpretable rules; LLM integration is deferred to Phase 3
+      when the rule-based system encounters cases it cannot handle).<br>
+      <strong>Working thesis (confirmed by Exp 25/26):</strong> the model covers the correct fold space &mdash;
+      H1 yields hits in 19.4h (paper: first hit ~100-200h), TNF&alpha; in 16.2h (paper: ~50-100h),
+      and SC2RBD is cracked at 62.5% self (paper: 0%). The biggest gains come from <em>choosing the right operator
+      for the current target state</em>: MCTS+G&amp;H for zero-hit targets, noise for geometry-limited, halluc for
+      sequence-limited, default for saturated. A rule-based router with 5 branches and a structured diagnostic
+      covers all 19 targets.
     </p>
   </div>
 

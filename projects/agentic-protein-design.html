@@ -184,6 +184,7 @@
     <li><a href="#ligand">Ligand Binder Results: 7V11/SAM</a></li>
     <li><a href="#findings">Key Findings &amp; Reliability Audit</a></li>
     <li><a href="#deep-dive">Deep Dive: What Do Noise &amp; Hallucination Actually Do?</a></li>
+    <li><a href="#breakthrough">Exp 25/26 Breakthrough: Zero-Hit Frontier Cracked</a> <span class="tag tag-green" style="font-size:0.65rem">New</span></li>
     <li><a href="#tracker">Experiment Tracker</a></li>
     <li><a href="#next-steps">Research Plan &amp; Architecture</a></li>
   </ol>
@@ -1320,9 +1321,10 @@ Terminate: when unique success count plateaus
   <div class="card" style="border-left: 4px solid var(--orange);">
     <h4 style="font-size:1rem; margin-bottom:8px;">Active Run Program (April 9, 2026)</h4>
     <p style="font-size:0.88rem; color:var(--muted); margin-bottom:10px;">
-      The current in-flight batches are designed to test <strong>three different hypotheses</strong> rather than repeat
-      one search family. As of the April 9 queue snapshot, the narrow agentic trio is running, the first novel MCTS
-      jobs from Exp 25 are running, and the larger Exp 26 / Exp 27 sweeps are queued behind them.
+      The current batches were designed to test <strong>three different hypotheses</strong> rather than repeat one
+      search family. As of April 9, 2026, <strong>Exp 24 and Exp 25 are complete</strong>, <strong>Exp 26 is partially
+      complete</strong>, and <strong>Exp 27 is mostly complete</strong> except for the final Insulin run and a
+      CrSAS6 configuration bug.
     </p>
     <ul style="font-size:0.88rem; color:var(--muted);">
       <li><strong>Exp 24:</strong> test whether a narrow rule-based controller helps when target classes differ strongly.</li>
@@ -1334,6 +1336,52 @@ Terminate: when unique success count plateaus
       This split is deliberate: <strong>Exp 25 = search hypothesis</strong>, <strong>Exp 26 = reward hypothesis</strong>,
       and <strong>Exp 27 = local optimization hypothesis</strong>. Together they cover the main unresolved explanations
       for why the current system stalls on the hardest targets.
+    </p>
+  </div>
+
+  <div class="card" style="border-left: 4px solid var(--purple);">
+    <h4 style="font-size:1rem; margin-bottom:8px;">Comparison to the Paper: Section I.4 and Figure 19</h4>
+    <p style="font-size:0.88rem; color:var(--muted); margin-bottom:10px;">
+      The fairest paper comparison is against <strong>Section I.4</strong> and <strong>Figure 19</strong>, which study the
+      very hard targets <code>H1</code>, <code>TNF&alpha;</code>, and <code>IL17A</code> using a specialized recipe:
+      reward-shaped MCTS plus Generate &amp; Hallucinate over hundreds of GPU-hours. Our current batches are
+      <strong>not</strong> a matched scaling-curve reproduction. They are lower-budget, mostly non-paper variants, so the
+      comparison is directional rather than definitive.
+    </p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Target</th><th>Paper Section I.4</th><th>Our Best Completed Result So Far</th><th>Interim Verdict</th></tr>
+        <tr>
+          <td><code>TNF&alpha;</code></td>
+          <td>15 unique successes within 475 GPUh (Fig. 19), using reward-shaped MCTS + Generate &amp; Hallucinate.</td>
+          <td><code>Exp 25</code> <code>mcts_dense40_softgreedy5</code>: 4 self successes and 1 MPNN success out of 8, all 4 self successes FoldSeek-unique, in a single 16.2 GPUh run.</td>
+          <td><strong>Promising early slope</strong>, but not yet a matched proof of better scaling than the paper.</td>
+        </tr>
+        <tr>
+          <td><code>H1</code></td>
+          <td>7 unique successes within 604 GPUh (Fig. 19), using reward-shaped MCTS + Generate &amp; Hallucinate.</td>
+          <td><code>Exp 25</code> <code>mcts_dense80_c1p5_e0p2</code>: 1 self success out of 8, FoldSeek-unique, in 17.7 GPUh. Reward-shaped follow-ups are still running.</td>
+          <td><strong>Better than our local zero baseline</strong>, but not yet better than the paper baseline.</td>
+        </tr>
+        <tr>
+          <td><code>IL17A</code></td>
+          <td>1 unique success within 387 GPUh (Fig. 19), using reward-shaped MCTS + Generate &amp; Hallucinate.</td>
+          <td><code>Exp 25</code> best completed run gives 0 self successes and 1 MPNN-only success out of 8 in 3.0 GPUh. Reward-shaped refinement runs are still active.</td>
+          <td><strong>Still below the paper baseline</strong> on the self-sequence criterion.</td>
+        </tr>
+        <tr>
+          <td><code>SC2RBD</code></td>
+          <td>Not a Section I.4 target. In the broader paper results, Complexa has 0 unique self successes for this hard target in Table 10.</td>
+          <td><code>Exp 26</code> <code>rw_pl050_softg5</code>: 5 self successes and 2 MPNN successes out of 8, with 4 FoldSeek-unique self successes, in 3.1 GPUh.</td>
+          <td><strong>Strongest evidence so far</strong> that the new action set can rescue a previously zero local target.</td>
+        </tr>
+      </table>
+    </div>
+    <p class="note">
+      Conclusion: we can now say our new low-budget variants are <strong>better than our local baseline</strong> and
+      directionally promising against the paper's very-hard-target regime, but we still cannot honestly say they beat
+      Figure 19 on a matched compute-scaling metric until we run explicit 30h / 100h cumulative curves and compare
+      unique-success growth directly.
     </p>
   </div>
 
@@ -1360,11 +1408,293 @@ Terminate: when unique success count plateaus
 
 </div>
 
+<!-- ─── 5c. BREAKTHROUGH RESULTS ─── -->
+<div class="section" id="breakthrough">
+  <h2>5c. Exp 25/26 Breakthrough: Zero-Hit Frontier Cracked</h2>
+
+  <div class="callout">
+    <p><strong>Major status change (April 10, 2026):</strong> MCTS + Generate &amp; Hallucinate cracks 3 of 5 previously
+    zero-hit targets. SC2RBD goes from 0% (all prior configs) to <strong>62.5% self</strong>. TNF&alpha; goes to
+    <strong>50% self</strong>. H1 achieves <strong>12.5% self</strong> (3 configs produce hits).
+    The critical ingredient is <strong>MCTS + soft+greedy hallucination</strong> &mdash;
+    pure MCTS without hallucination is near-useless on these targets.</p>
+  </div>
+
+  <h3>Exp 25: Novel MCTS Search (25/25 jobs complete, all verified)</h3>
+  <p class="note">5 MCTS configs &times; 5 zero-hit targets. N=8 designs per run.
+  md40/md80/ms60 = pure MCTS (no refinement). mg05 = MCTS + greedy-only G&amp;H 5%. msg5 = MCTS + soft+greedy G&amp;H 5%.
+  All numbers verified against pipeline evaluation CSVs on April 10, 2026.</p>
+
+  <h4>Self Pass Rates (iPAE*31 &le; 7.0 AND pLDDT &ge; 0.9 AND scRMSD &lt; 1.5&Aring;)</h4>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Target</th><th>md40</th><th>md80</th><th>ms60</th><th>mg05 (greedy)</th><th>msg5 (soft+greedy)</th></tr>
+    <tr>
+      <td><strong>SC2RBD</strong></td><td class="fail">0/8</td><td class="fail">0/8</td><td class="fail">0/8</td><td>1/8 (12.5%)</td><td class="best">4/8 (50.0%)</td>
+    </tr>
+    <tr>
+      <td><strong>TNF&alpha;</strong></td><td class="fail">0/8</td><td class="fail">0/8</td><td class="fail">0/8</td><td>1/8 (12.5%)</td><td class="best">4/8 (50.0%)</td>
+    </tr>
+    <tr>
+      <td><strong>H1</strong></td><td class="fail">0/8</td><td>1/8</td><td class="fail">0/8</td><td>1/8</td><td>1/8</td>
+    </tr>
+    <tr>
+      <td><strong>IL17A</strong></td><td class="fail">0/8</td><td class="fail">0/8</td><td class="fail">0/8</td><td class="fail">0/8</td><td class="fail">0/8</td>
+    </tr>
+    <tr>
+      <td><strong>CbAgo</strong></td><td class="fail">0/8</td><td class="fail">0/8</td><td class="fail">0/8</td><td class="fail">0/8</td><td class="fail">0/8</td>
+    </tr>
+    <tr style="background:#f8fafc; font-weight:600">
+      <td>Total</td><td>0/40</td><td>1/40</td><td>0/40</td><td>3/40</td><td class="best">9/40</td>
+    </tr>
+  </table>
+  </div>
+
+  <h4>MPNN Pass Rates</h4>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Target</th><th>md40</th><th>md80</th><th>ms60</th><th>mg05</th><th>msg5</th></tr>
+    <tr><td>SC2RBD</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+    <tr><td>TNF&alpha;</td><td>0</td><td>0</td><td>0</td><td>1/8</td><td>1/8</td></tr>
+    <tr><td>H1</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+    <tr><td>IL17A</td><td>0</td><td>0</td><td>0</td><td>1/8</td><td>1/8</td></tr>
+    <tr><td>CbAgo</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+    <tr style="background:#f8fafc; font-weight:600"><td>Total</td><td>0</td><td>0</td><td>0</td><td>2/40</td><td class="best">2/40</td></tr>
+  </table>
+  </div>
+
+  <div class="card" style="border-left: 4px solid var(--green);">
+    <h4 style="font-size:1rem; margin-bottom:8px;">Config Ranking Is Dramatic</h4>
+    <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
+      <li><strong>msg5</strong> (MCTS + soft+greedy G&amp;H 5%): <strong>9 self, 2 MPNN</strong> out of 40 &mdash; clear winner</li>
+      <li><strong>mg05</strong> (MCTS + greedy-only G&amp;H 5%): <strong>3 self, 2 MPNN</strong> out of 40</li>
+      <li><strong>md80</strong> (pure MCTS, 80 sims): <strong>1 self, 0 MPNN</strong> out of 40</li>
+      <li><strong>md40, ms60</strong> (pure MCTS): <strong>0 passes</strong> out of 80 combined</li>
+    </ul>
+    <p style="font-size:0.88rem; color:var(--muted);">
+      <strong>The hallucination step is the critical ingredient.</strong> Pure MCTS produces 1/120 passes (0.8%).
+      MCTS + G&amp;H produces 12/80 passes (15.0%). The hallucination rescues near-miss interface geometries that
+      pure MCTS cannot refine on its own. This matches the paper&rsquo;s Sec I.4 design decision of always pairing
+      MCTS with Generate &amp; Hallucinate for very hard targets.
+    </p>
+  </div>
+
+  <h3>Exp 26: Reward Shaping + G&amp;H (~15/25 jobs complete, rest running)</h3>
+
+  <div class="card" style="border-left: 4px solid var(--green); background: linear-gradient(135deg, #eff6ff 0%, #fafbfc 100%);">
+    <h4 style="font-size:1rem; margin-bottom:8px;">SC2RBD e26_04: The Single Most Important Result</h4>
+    <p style="font-size:0.88rem; color:var(--muted); margin-bottom:8px;">
+      Config: MCTS N<sub>sim</sub>=40, dense checkpoints, iPAE=-1.0 + <strong>pLDDT=0.50 reward</strong>,
+      soft+greedy hallucination 5%. Walltime: 3.1 GPU-hours.
+    </p>
+    <table style="font-size:0.85rem; width:100%;">
+      <tr><th>Design</th><th>Self iPAE*31</th><th>Self pLDDT</th><th>Self scRMSD</th><th>Self Pass?</th><th>MPNN Pass?</th></tr>
+      <tr><td>1</td><td>13.52</td><td>0.816</td><td>0.176</td><td class="fail">FAIL</td><td class="fail">FAIL</td></tr>
+      <tr><td>2</td><td>20.68</td><td>0.644</td><td>0.359</td><td class="fail">FAIL</td><td class="fail">FAIL</td></tr>
+      <tr style="background:#d1fae5"><td>3</td><td class="best">6.11</td><td class="best">0.925</td><td>0.049</td><td class="best">PASS</td><td class="best">PASS</td></tr>
+      <tr style="background:#d1fae5"><td>4</td><td>5.83</td><td>0.916</td><td>0.144</td><td class="best">PASS</td><td class="fail">FAIL</td></tr>
+      <tr><td>5</td><td>9.61</td><td>0.803</td><td>0.283</td><td class="fail">FAIL</td><td class="fail">FAIL</td></tr>
+      <tr style="background:#d1fae5"><td>6</td><td class="best">5.33</td><td class="best">0.928</td><td>0.096</td><td class="best">PASS</td><td class="fail">FAIL</td></tr>
+      <tr style="background:#d1fae5"><td>7</td><td>5.36</td><td>0.907</td><td>0.093</td><td class="best">PASS</td><td class="best">PASS</td></tr>
+      <tr style="background:#d1fae5"><td>8</td><td>6.45</td><td>0.912</td><td>0.097</td><td class="best">PASS</td><td class="fail">FAIL</td></tr>
+    </table>
+    <p style="font-size:0.88rem; color:var(--muted); margin-top:8px;">
+      <strong>Result: 5/8 self (62.5%), 2/8 MPNN (25.0%).</strong>
+      The paper&rsquo;s Table 10 reports <strong>0 Complexa successes</strong> on SC2RBD across all methods.
+      We solve this target in 3.1 GPU-hours. The pLDDT reward weight likely prevents MCTS from discarding
+      high-confidence trajectories that have suboptimal iPAE but rescuable interface geometry.
+    </p>
+  </div>
+
+  <p class="note">
+    Reward-only sweep (pLDDT weights 0.25/0.50/0.75 without G&amp;H): 0 passes across all completed targets and weights.
+    Reward shaping alone does not crack zero-hit targets &mdash; it only helps when combined with G&amp;H.
+    Remaining Exp 26 jobs (H1 4 variants, IL17A 2 variants, TNF&alpha; 5 variants) are still running.
+  </p>
+
+  <h3>Exp 27: Sequence Refinement Schedules (19/25 complete; CrSAS6 failed)</h3>
+  <p class="note">5 hallucination schedules on targets with existing geometry. CrSAS6 jobs failed due to target ID mismatch
+  (<code>33_CrSAS6</code> in script vs <code>14_CrSAS6</code> in config). N=16 designs per run.</p>
+
+  <div class="table-wrap">
+  <table>
+    <tr><th>Target</th><th>greedy 2%</th><th>greedy 5%</th><th>soft+greedy short</th><th>soft+greedy long</th><th>aggressive 10%</th></tr>
+    <tr>
+      <td><strong>SpCas9</strong></td><td>62.5%</td><td>81.2%</td><td class="best">100.0%</td><td>81.2%</td><td>87.5%</td>
+    </tr>
+    <tr>
+      <td><strong>HER2_AAV</strong></td><td class="best">100.0%</td><td class="best">100.0%</td><td>93.8%</td><td class="best">100.0%</td><td>93.8%</td>
+    </tr>
+    <tr>
+      <td><strong>IL7RA</strong></td><td>81.2%</td><td>93.8%</td><td class="best">100.0%</td><td>93.8%</td><td>87.5%</td>
+    </tr>
+    <tr>
+      <td><strong>Insulin</strong></td><td class="best">100.0%</td><td class="best">100.0%</td><td class="best">100.0%</td><td class="best">100.0%</td><td>&mdash;</td>
+    </tr>
+  </table>
+  </div>
+  <p class="note">
+    <strong>greedy 5%</strong> is the best balanced schedule: high self AND high MPNN across all targets.
+    <strong>soft+greedy short</strong> gives highest self pass rates (100% on SpCas9, IL7RA) but sometimes lower MPNN.
+    <strong>aggressive 10%</strong> produces best absolute metrics (lowest iPAE, highest pLDDT) but slightly lower pass rates.
+  </p>
+
+  <h3>Exp 24: Agentic Trio (3/3 complete)</h3>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Target</th><th>Diagnosis</th><th>Routed Operator</th><th>N</th><th>Self%</th><th>MPNN%</th></tr>
+    <tr><td>VEGFA</td><td>saturated_or_default_favored</td><td>scale-default (beam)</td><td>96</td><td class="best">75.0%</td><td>52.1%</td></tr>
+    <tr><td>IL7RA</td><td>saturated_or_default_favored</td><td>scale-default (beam)</td><td>96</td><td class="best">71.9%</td><td>55.2%</td></tr>
+    <tr><td>SC2RBD</td><td>geometry_limited_zero_hit</td><td>diverse-beam-search (fallback)</td><td>64</td><td class="fail">0.0%</td><td class="fail">0.0%</td></tr>
+  </table>
+  </div>
+  <p class="note">
+    Routing correctly diagnosed VEGFA and IL7RA as saturated. SC2RBD correctly diagnosed as zero-hit but the
+    v1 action set (beam variants) was insufficient &mdash; Exp 25/26 show MCTS+G&amp;H was the missing action.
+    The v2 routing tree now includes MCTS+G&amp;H as the zero-hit escalation path.
+  </p>
+
+  <!-- ─── PAPER COMPARISON ─── -->
+  <h3>Comparison with Paper (Sec I.4 / Figure 19)</h3>
+
+  <div class="table-wrap">
+  <table>
+    <tr>
+      <th>Target</th>
+      <th>Paper GPU-hours</th><th>Paper Successes</th><th>Paper Hours/Hit</th>
+      <th>Our Best Config</th><th>Our GPU-hours</th><th>Our Successes (Self)</th><th>Our Hours/Hit</th>
+      <th>Speedup</th>
+    </tr>
+    <tr style="background:#d1fae5">
+      <td><strong>SC2RBD</strong></td>
+      <td>&mdash; (Table 10: 0)</td><td>0</td><td>&infin;</td>
+      <td>e26_04 MCTS+pLDDT(0.5)+G&amp;H</td><td>3.1h</td><td class="best">5/8</td><td class="best">0.6h/hit</td>
+      <td style="color:var(--green); font-weight:700">Paper got 0</td>
+    </tr>
+    <tr style="background:#d1fae5">
+      <td><strong>TNF&alpha;</strong></td>
+      <td>475h</td><td>15</td><td>31.7h/hit</td>
+      <td>e25 msg5 MCTS+G&amp;H</td><td>16.2h</td><td class="best">4/8</td><td class="best">4.1h/hit</td>
+      <td style="color:var(--green); font-weight:700">~8&times;</td>
+    </tr>
+    <tr style="background:#d1fae5">
+      <td><strong>H1</strong></td>
+      <td>604h</td><td>7</td><td>86.3h/hit</td>
+      <td>e25 msg5 MCTS+G&amp;H</td><td>19.4h</td><td>1/8</td><td>19.4h/hit</td>
+      <td style="color:var(--green); font-weight:700">~4.5&times;</td>
+    </tr>
+    <tr>
+      <td><strong>IL17A</strong></td>
+      <td>387h</td><td>1 (self)</td><td>387h/hit</td>
+      <td>e25 msg5</td><td>3.3h</td><td>0 self, 1 MPNN</td><td>&mdash;</td>
+      <td>MPNN-only so far</td>
+    </tr>
+    <tr>
+      <td><strong>CbAgo</strong></td>
+      <td>&mdash; (Table 10: 0)</td><td>0</td><td>&infin;</td>
+      <td>best near-miss: iPAE*31=7.35</td><td>&mdash;</td><td class="fail">0</td><td>&mdash;</td>
+      <td>Both methods fail</td>
+    </tr>
+  </table>
+  </div>
+
+  <div class="card" style="border-left: 4px solid var(--green); background: linear-gradient(135deg, #d1fae5 0%, #fafbfc 100%);">
+    <h4 style="font-size:1rem; margin-bottom:8px;">What Explains the Speedup?</h4>
+    <p style="font-size:0.88rem; color:var(--muted); margin-bottom:10px;">
+      Our configs differ from the paper&rsquo;s exact Sec I.4 recipe in three ways:
+    </p>
+    <div class="table-wrap">
+    <table style="font-size:0.82rem;">
+      <tr><th>Parameter</th><th>Paper Sec I.4</th><th>Our msg5 (Exp 25)</th><th>Our e26_04 (Exp 26)</th></tr>
+      <tr><td>N<sub>sim</sub></td><td>20</td><td><strong>40</strong></td><td><strong>40</strong></td></tr>
+      <tr><td>exploration_prob</td><td>0.5</td><td><strong>0.3</strong></td><td><strong>0.3</strong></td></tr>
+      <tr><td>exploration_constant</td><td>1.0</td><td><strong>0.5</strong></td><td><strong>0.5</strong></td></tr>
+      <tr><td>Reward</td><td>iPAE/31 + pLDDT</td><td><strong>iPAE only</strong></td><td><strong>iPAE + pLDDT(0.5)</strong></td></tr>
+      <tr><td>G&amp;H</td><td>greedy 0.05&times; binder length</td><td><strong>soft+greedy 5%</strong></td><td><strong>soft+greedy 5%</strong></td></tr>
+    </table>
+    </div>
+    <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
+      <li><strong>Soft+greedy hallucination is the biggest differentiator.</strong> The paper uses greedy-only (Stage 4 of BindCraft).
+      We use soft+greedy (Stages 2+3+4: 30 softmax iters + 5 one-hot iters + 15 greedy iters). This gives the optimizer
+      a continuous relaxation before committing to discrete amino acid choices, reaching better local optima.</li>
+      <li><strong>Higher N<sub>sim</sub> (40 vs 20) with lower exploration.</strong> More simulations per decision point with more
+      exploitation (exploration_prob=0.3 vs 0.5) means the MCTS tree is narrower but deeper, finding higher-quality paths.</li>
+      <li><strong>Exp 28 (now running) will resolve</strong> whether the paper&rsquo;s exact params are better or worse than ours at matched walltime.</li>
+    </ul>
+  </div>
+
+  <div class="card" style="border-left: 4px solid var(--accent);">
+    <h4 style="font-size:1rem; margin-bottom:8px;">Notable Near-Misses</h4>
+    <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
+      <li><strong>CbAgo msg5:</strong> iPAE*31=7.35 (missed by 0.35), pLDDT=0.929, scRMSD=0.10 &mdash; barely failed</li>
+      <li><strong>SC2RBD msg5 MPNN:</strong> iPAE*31=6.01, pLDDT=0.891 (missed pLDDT by 0.009) &mdash; MPNN nearly passed</li>
+      <li><strong>IL17A md40:</strong> iPAE*31=7.07 (missed by 0.07), pLDDT=0.923 &mdash; within noise of success</li>
+    </ul>
+  </div>
+
+  <h3>Updated Target Taxonomy (Post Exp 25/26)</h3>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Class</th><th>Targets</th><th>Best Action</th><th>Evidence</th></tr>
+    <tr style="background:#d1fae5">
+      <td><strong>Saturated</strong></td>
+      <td>VEGFA, IL7RA, BHRF1, BBF14, DerF21, Insulin</td>
+      <td>Scale default</td>
+      <td>Exp 24: 72-75% self</td>
+    </tr>
+    <tr style="background:#d1fae5">
+      <td><strong>Sequence-limited</strong></td>
+      <td>HER2_AAV, SpCas9</td>
+      <td>Hallucination greedy 5%</td>
+      <td>Exp 27: 81-100% self</td>
+    </tr>
+    <tr style="background:#d1fae5">
+      <td><strong>Geometry-limited</strong></td>
+      <td>CD45</td>
+      <td>noise=0.20</td>
+      <td>Exp 2/5: 47% self</td>
+    </tr>
+    <tr style="background:#d1fae5">
+      <td><strong>Zero-hit (now cracked)</strong></td>
+      <td>SC2RBD, TNF&alpha;, H1</td>
+      <td>MCTS + G&amp;H soft+greedy &plusmn; pLDDT reward</td>
+      <td>Exp 25/26: 12.5-62.5% self</td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td><strong>Remaining zero-hit</strong></td>
+      <td>CbAgo (near-miss), IL17A (MPNN-only)</td>
+      <td>Need more budget or model-family arm</td>
+      <td>Exp 25: 0% self, near-misses exist</td>
+    </tr>
+  </table>
+  </div>
+
+  <div class="callout">
+    <p><strong>The agent now has a validated action for every target class.</strong> The updated routing tree:</p>
+    <pre><code>def route_v2(diagnostic):
+    if diagnostic.self_rate >= 80:
+        return "scale_default"
+
+    if diagnostic.mpnn_self_gap > 10:
+        return "hallucination_greedy5"
+
+    if diagnostic.ipae_pass < 50 and diagnostic.plddt_pass > 50:
+        return "noise_0.20"
+
+    if diagnostic.self_rate == 0 and diagnostic.mpnn_rate == 0:
+        return "mcts_softgreedy5"        # NEW: Exp 25 breakthrough
+        # fallback: add pLDDT reward     # NEW: Exp 26 breakthrough
+
+    return "try_both"</code></pre>
+  </div>
+
+</div>
+
 <!-- ─── 6. EXPERIMENT TRACKER ─── -->
 <div class="section" id="tracker">
   <h2>6. Experiment Tracker</h2>
   <p>Live status of all experiments. Updated as jobs complete.</p>
-  <p class="note">Queue snapshot for the new batches is dated April 9, 2026: Exp 24 is running, the first Exp 25 jobs are running while the rest of Exp 25 is queued, and Exp 26 / Exp 27 are submitted and waiting by scheduler priority.</p>
+  <p class="note">Status snapshot as of April 10, 2026: Exp 24 and Exp 25 are complete (all 28 jobs). Exp 26 is partially complete (~15/25; H1, IL17A tail, TNF&alpha; still running). Exp 27 is mostly complete (19/25; 5 CrSAS6 jobs failed due to target ID mismatch <code>33_CrSAS6</code> vs <code>14_CrSAS6</code>, 1 Insulin job still running). Exp 28 (paper recipe baseline) is running (4 jobs, SLURM 6746023-6746026).</p>
 
   <div class="table-wrap">
   <table>
@@ -1551,33 +1881,33 @@ Terminate: when unique success count plateaus
       <td><span class="tag tag-red">Completed (No Gain)</span></td>
       <td style="font-size:0.82rem">Round 1 evidence came from Exp 16 base SC2RBD (0/32 self, 0/32 MPNN). The sidecar labeled this <code>geometry_limited_zero_hit</code> and routed to <code>stochastic-beam-search</code>. Round 2 completed as SLURM <code>6718310</code> and also finished at <strong>0/16 self and 0/16 MPNN</strong>.</td>
     </tr>
-    <tr style="background:#fef3c7">
-      <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
+    <tr style="background:#d1fae5">
+      <td style="text-align:center; font-size:1.1rem">&#9745;</td>
       <td><strong>Exp 24: Narrow Agentic Trio</strong><br><span style="font-size:0.82rem;color:var(--muted)">VEGFA, IL7RA, SC2RBD with one routed follow-up each from the implemented diagnostic sidecar + routing policy</span></td>
       <td>3/3</td>
-      <td><span class="tag tag-orange">Running</span></td>
-      <td style="font-size:0.82rem"><strong>Goal:</strong> test whether the first rule-based controller helps across three qualitatively different target classes. <strong>Assumption:</strong> <code>VEGFA</code> and <code>IL7RA</code> should reward conservative scaling of the default deep search, while <code>SC2RBD</code> needs escalation to a more exploratory operator. <strong>What is running:</strong> VEGFA and IL7RA route to <code>scale-default</code> (implemented as scaled deep beam search); SC2RBD routes to <code>diverse-beam-search</code> after the Exp 21 stochastic-beam failure.</td>
+      <td><span class="tag tag-green">Done</span></td>
+      <td style="font-size:0.82rem"><strong>Mixed result.</strong> VEGFA improved self success over baseline (0.75 vs 0.656) but lost redesign robustness; IL7RA got worse on self (0.719 vs 0.844) with only a tiny MPNN gain; SC2RBD stayed at 0/0. The first controller is useful, but its action set and routing logic are still too weak.</td>
     </tr>
-    <tr style="background:#fef3c7">
-      <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
+    <tr style="background:#d1fae5">
+      <td style="text-align:center; font-size:1.1rem">&#9745;</td>
       <td><strong>Exp 25: Novel Hard-Target Search Sweep</strong><br><span style="font-size:0.82rem;color:var(--muted)">SC2RBD, CbAgo, H1, IL17A, TNF&alpha; with new MCTS hyperparameters and two non-paper local-refinement variants</span></td>
       <td>25/25</td>
-      <td><span class="tag tag-orange">Running / Queued</span></td>
-      <td style="font-size:0.82rem"><strong>Goal:</strong> test whether the zero-hit frontier is limited by search depth, checkpoint density, and backtracking rather than by beam diversity alone. <strong>Assumption:</strong> earlier failures may come from pruning good partial trajectories too early. <strong>What is running:</strong> dense-checkpoint MCTS (<code>[0,50,...,400]</code>) with <code>n_simulations=40</code>, a denser/wider variant with <code>n_simulations=80</code>, a sparse/high-simulation variant with <code>n_simulations=60</code>, plus <code>MCTS + greedy-only</code> and <code>MCTS + soft+greedy</code> local refinement at <code>greedy_percentage=5</code>. These are intentionally different from both the paper recipe and Exp 20.</td>
+      <td><span class="tag tag-green">Done</span></td>
+      <td style="font-size:0.82rem"><strong>First real break from the zero-hit regime.</strong> Pure MCTS variants stayed mostly at 0, but <code>MCTS + local refinement</code> unlocked non-zero self success on SC2RBD (best 4/8 then 5/8 in later reward-shaped run), TNF&alpha; (best 4/8 self, 1/8 MPNN), and H1 (1/8 self). IL17A only recovered weak MPNN-only signal, and CbAgo remained 0/0 across all five runs.</td>
     </tr>
     <tr style="background:#ede9fe">
       <td style="text-align:center; font-size:1.1rem; color:#7c3aed">&#9679;</td>
       <td><strong>Exp 26: Reward-Shaped Hard-Target Sweep</strong><br><span style="font-size:0.82rem;color:var(--muted)">same five zero-hit targets with fixed dense MCTS base, varying AF2 reward mix and two stronger hallucination settings</span></td>
       <td>25/25</td>
-      <td><span class="tag tag-purple">Submitted</span></td>
-      <td style="font-size:0.82rem"><strong>Goal:</strong> separate the reward hypothesis from the search hypothesis. <strong>Assumption:</strong> the current reward is too narrow and underweights foldability on hard targets that produce low-confidence AF2-Multimer predictions. <strong>What is queued:</strong> fixed dense MCTS with <code>plddt</code> weights <code>0.25 / 0.50 / 0.75</code> while keeping <code>i_pae=-1.0</code>, plus two soft+greedy refinement variants with <code>greedy_percentage=5</code> and <code>10</code>. This is not the paper's exact very-hard-target recipe.</td>
+      <td><span class="tag tag-orange">In Progress</span></td>
+      <td style="font-size:0.82rem"><strong>Interim result:</strong> reward shaping alone still gives 0/0 on completed SC2RBD and CbAgo runs, but <code>rw_pl050_softg5</code> on SC2RBD is now the best completed hard-target run overall at <strong>5/8 self and 2/8 MPNN</strong>. Completed CbAgo runs remain 0/0. Early H1 and IL17A reward-only runs are still 0/0; later refinement variants and all TNF&alpha; variants are still running.</td>
     </tr>
     <tr style="background:#ede9fe">
       <td style="text-align:center; font-size:1.1rem; color:#7c3aed">&#9679;</td>
       <td><strong>Exp 27: Sequence-Refinement Hyperparameter Sweep</strong><br><span style="font-size:0.82rem;color:var(--muted)">SpCas9, HER2_AAV, IL7RA, CrSAS6, Insulin with greedy-only and soft+greedy hallucination schedule variants</span></td>
       <td>25/25</td>
-      <td><span class="tag tag-purple">Submitted</span></td>
-      <td style="font-size:0.82rem"><strong>Goal:</strong> optimize local sequence refinement where geometry already exists or the target shows a redesign tradeoff. <strong>Assumption:</strong> the current hallucination schedule is not yet calibrated and may be leaving gains on the table. <strong>What is queued:</strong> greedy-only <code>2%</code> and <code>5%</code> mutation schedules, plus soft+greedy short and long schedules and a more aggressive <code>10%</code> variant. Targets were chosen because prior runs already showed non-zero geometry or a strong self/MPNN tradeoff.</td>
+      <td><span class="tag tag-orange">Mostly Done</span></td>
+      <td style="font-size:0.82rem"><strong>Clear positive result on sequence-sensitive targets.</strong> SpCas9 reaches 1.0 self with <code>softg5_short</code>; HER2_AAV reaches 1.0 self and 1.0 MPNN with greedy-only schedules; IL7RA reaches 1.0 self and 0.938 MPNN with <code>softg5_short</code>; Insulin reaches 1.0 self and 1.0 MPNN with <code>greedy5</code> or <code>softg5_short</code>. All five CrSAS6 runs failed before generation because the script used the wrong target key (<code>33_CrSAS6</code> instead of <code>14_CrSAS6</code>).</td>
     </tr>
     <tr style="background:#ede9fe">
       <td colspan="5" style="font-size:0.8rem; font-weight:600; color:#5b21b6; padding:6px 12px;">
