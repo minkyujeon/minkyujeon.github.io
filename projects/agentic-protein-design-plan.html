@@ -159,8 +159,9 @@
 <div class="toc">
   <h3>Contents</h3>
   <ol>
+    <li><a href="#plan-map">Structured Reading Map</a></li>
     <li><a href="#evaluation">Rigorous Plan Evaluation</a></li>
-    <li><a href="#experiments">Experimental Plan</a></li>
+    <li><a href="#experiments">Historical Experimental Plan Snapshot</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#phase2-vision">Phase 2 Vision &amp; Finalized Working Plan</a>
       <ul style="list-style: disc; padding-left: 20px; margin-top: 4px;">
@@ -176,6 +177,106 @@
 <div class="page-nav">
   <a href="/projects/agentic-protein-design.html">Results &amp; Experiment Log</a>
   <a href="/projects/agentic-protein-design-plan.html" class="active">Research Plan &amp; Architecture</a>
+</div>
+
+<div class="section" id="plan-map">
+  <h2>0. Structured Reading Map</h2>
+  <p>
+    This page contains both <strong>historical planning artifacts</strong> and the <strong>current working plan</strong>.
+    It is easiest to read by cluster rather than strictly top to bottom.
+  </p>
+
+  <div class="table-wrap">
+  <table>
+    <tr><th style="width:22%">Cluster</th><th style="width:24%">Main Sections</th><th style="width:26%">What It Contains</th><th style="width:28%">How To Read It</th></tr>
+    <tr style="background:#f8fafc">
+      <td><strong>A. Feasibility and scope correction</strong></td>
+      <td>Section 1</td>
+      <td>Whether the project is actually impactful and doable, and what must be narrowed or deferred.</td>
+      <td>Read first to understand what the project now claims and what it explicitly does not claim.</td>
+    </tr>
+    <tr style="background:#f8fafc">
+      <td><strong>B. Historical experimental plan snapshot</strong></td>
+      <td>Section 2</td>
+      <td>The earlier experiment proposals, preserved for provenance even though many were later executed, revised, or superseded.</td>
+      <td>Read as an archived planning record, not as the live source of truth for current status.</td>
+    </tr>
+    <tr style="background:#f8fafc">
+      <td><strong>C. Current working plan and architecture</strong></td>
+      <td>Sections 3-4, target taxonomy, system architecture, failure analysis</td>
+      <td>The live project framing: operator bundles, target classes, sidecar/router logic, and trace-based agent design.</td>
+      <td>This is the main design document for the current project direction.</td>
+    </tr>
+    <tr style="background:#f8fafc">
+      <td><strong>D. Active execution program</strong></td>
+      <td>Immediate priorities, execution roadmap, active experiment program, ablations</td>
+      <td>The near-term benchmark and implementation agenda that follows from the latest completed results.</td>
+      <td>Use this cluster to decide what to build or run next.</td>
+    </tr>
+    <tr style="background:#f8fafc">
+      <td><strong>E. Deferred extensions</strong></td>
+      <td>Future directions, conceptual influences, what we will not do first</td>
+      <td>Ideas worth keeping, but deliberately separated from the validated core plan.</td>
+      <td>Read last, so these do not get confused with the current, benchmarked agenda.</td>
+    </tr>
+  </table>
+  </div>
+
+  <div class="card" style="border-left: 4px solid var(--accent);">
+    <h3 style="font-size:1rem; margin-bottom:8px;">Recommended Reading Order</h3>
+    <ol style="font-size:0.88rem; color:var(--muted); padding-left:18px; line-height:1.8; margin-bottom:0;">
+      <li><strong>Start with Cluster A:</strong> confirm the narrowed thesis and feasibility constraints.</li>
+      <li><strong>Then skim Cluster B:</strong> use it as provenance for how the project originally decomposed the search space.</li>
+      <li><strong>Read Cluster C carefully:</strong> this is the live architecture and current scientific framing.</li>
+      <li><strong>Then go to Cluster D:</strong> this is the actionable benchmark and build plan.</li>
+      <li><strong>Finish with Cluster E:</strong> these are future extensions, not current claims.</li>
+    </ol>
+  </div>
+
+  <div class="card" style="margin-top:14px; border-left: 4px solid var(--accent);">
+    <h3 style="font-size:1rem; margin-bottom:8px;">Cluster A Takeaway</h3>
+    <p style="font-size:0.88rem; color:var(--muted); margin-bottom:0;">
+      The plan is high-value only in its narrowed form: a budget-aware portfolio controller over search and refinement
+      operators, not generic hyperparameter tuning, not early denoiser finetuning, and not a broad autonomous-research
+      claim from the start.
+    </p>
+  </div>
+
+  <div class="card" style="margin-top:12px; border-left: 4px solid var(--orange);">
+    <h3 style="font-size:1rem; margin-bottom:8px;">Cluster B Takeaway</h3>
+    <p style="font-size:0.88rem; color:var(--muted); margin-bottom:0;">
+      The older experimental plan is still useful because it records which knobs originally looked important, but it
+      should now be read as historical context. Many of those items have been executed, invalidated, or folded into
+      stronger operator-bundle experiments.
+    </p>
+  </div>
+
+  <div class="card" style="margin-top:12px; border-left: 4px solid var(--green);">
+    <h3 style="font-size:1rem; margin-bottom:8px;">Cluster C Takeaway</h3>
+    <p style="font-size:0.88rem; color:var(--muted); margin-bottom:0;">
+      The current working plan is built around target taxonomy, diagnostic sidecars, and operator bundles. This is the
+      part of the page that should guide actual system design: search, refinement, routing, budget allocation, and trace
+      storage are all treated as coordinated components rather than isolated knobs.
+    </p>
+  </div>
+
+  <div class="card" style="margin-top:12px; border-left: 4px solid var(--purple);">
+    <h3 style="font-size:1rem; margin-bottom:8px;">Cluster D Takeaway</h3>
+    <p style="font-size:0.88rem; color:var(--muted); margin-bottom:0;">
+      The actionable part of the plan is the benchmark and execution program. The next paper-quality claim will come
+      from matched-budget comparisons over operator bundles and controller policies, not from adding more isolated
+      metrics or more unstructured search sweeps.
+    </p>
+  </div>
+
+  <div class="card" style="margin-top:12px; border-left: 4px solid #64748b;">
+    <h3 style="font-size:1rem; margin-bottom:8px;">Cluster E Takeaway</h3>
+    <p style="font-size:0.88rem; color:var(--muted); margin-bottom:0;">
+      LLM planning, Meta-Harness-style outer loops, external model families, and affinity or physics sidecars remain
+      important, but they should be layered on top of a stable benchmark and controller core rather than mixed into the
+      first proof point.
+    </p>
+  </div>
 </div>
 
 <div class="section" id="evaluation">
@@ -244,7 +345,13 @@
 
 <!-- ─── 2. EXPERIMENTAL PLAN ─── -->
 <div class="section" id="experiments">
-  <h2>2. Experimental Plan</h2>
+  <h2>2. Historical Experimental Plan Snapshot</h2>
+  <div class="callout warn">
+    <p><strong>How to read this section:</strong> this section is preserved as the original detailed planning snapshot.
+    Many items here were later executed, revised, or superseded by the current working plan. For the live benchmark,
+    architecture, and next-step agenda, use Section 4 onward and cross-check with the
+    <a href="/projects/agentic-protein-design.html">results page</a>.</p>
+  </div>
   <p>
     Experiments are ordered by expected impact and feasibility.
     Each tests a specific hypothesis about the unexplored action space.
@@ -642,7 +749,14 @@
 
 <!-- ─── 4. PHASE 2 VISION ─── -->
 <div class="section" id="phase2-vision">
-  <h2>4. Phase 2 Vision: From Diagnostic Routing to State-Aware Inference</h2>
+<h2>4. Phase 2 Vision: From Diagnostic Routing to State-Aware Inference</h2>
+  <div class="card" style="border-left: 4px solid var(--green);">
+    <p style="font-size:0.9rem; color:var(--text); margin-bottom:0;">
+      <strong>Live-plan boundary:</strong> from this section onward, the page switches from preserved historical planning
+      context to the <strong>current working architecture and benchmark agenda</strong>. If you only read one part of the
+      plan page, this is the right starting point.
+    </p>
+  </div>
 
   <h3>Phase 1 Foundation: Diagnostic Routing Already Works</h3>
   <div class="card" style="border-left: 4px solid var(--green);">
@@ -1773,6 +1887,11 @@ Propose a new harness configuration. Explain:
   </div>
 
   <h3>Active Experiment Program (Updated April 10, 2026)</h3>
+  <p class="note">
+    This is the most operational part of the page. It should be read together with the results page: the results page
+    records what happened, while this section records why the current batches exist and what scientific uncertainty each
+    one is meant to resolve.
+  </p>
   <div class="table-wrap">
   <table>
     <tr><th style="width:12%">Batch</th><th style="width:18%">Targets</th><th style="width:25%">What it tested</th><th style="width:30%">Key result</th><th style="width:15%">Status</th></tr>
