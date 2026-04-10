@@ -1037,28 +1037,34 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
   <table>
     <tr><th style="width:22%">Cluster</th><th style="width:26%">Main Experiments</th><th style="width:26%">Main Question</th><th style="width:26%">Main Takeaway</th></tr>
     <tr style="background:#f8fafc">
-      <td><strong>A. Baselines and diagnostic signal</strong></td>
-      <td>Phase 0, Phase 0.5, bottleneck analysis, Exp 15-17</td>
-      <td>What does a cheap default diagnostic already reveal about a target?</td>
-      <td>Targets already separate into default-favored, geometry-limited, sequence-limited, and unresolved classes from a single <code>N=32</code> diagnostic run.</td>
+      <td><strong>A. Baselines and initial signal</strong></td>
+      <td>Phase 0, Phase 0.5, Exp 1-4</td>
+      <td>What do the first sweeps already say about default search quality and basic intervention sensitivity?</td>
+      <td>The initial runs already show strong target heterogeneity: default search is often good, but the first intervention hints are sharply target-dependent.</td>
     </tr>
     <tr style="background:#f8fafc">
-      <td><strong>B. Intervention mechanism and reliability</strong></td>
-      <td>Exp 1-13, Exp 4b, Exp 5a/5b, Exp 6, Exp 8, Exp 9</td>
-      <td>Why do noise and hallucination help some targets but hurt others?</td>
-      <td>Noise and hallucination are target-dependent and often non-additive. The mechanism is reproducible and not a one-off artifact.</td>
+      <td><strong>B. Mechanism and reliability</strong></td>
+      <td>Exp 4b-15, Exp 7, matrix completion, diagnostic expansion</td>
+      <td>Which early findings are actually reproducible, and what mechanism explains them?</td>
+      <td>Noise and hallucination are real but conditional effects; replication and controls show they help only in specific target/mechanism regimes.</td>
     </tr>
     <tr style="background:#f8fafc">
-      <td><strong>C. Zero-hit frontier and hard-target search</strong></td>
-      <td>Exp 20, Exp 25-29, Exp 27, paper comparison</td>
-      <td>What actually unlocks the hardest targets after beam-family search fails?</td>
-      <td><code>MCTS + local refinement</code> is the first strong unlock. Reward shaping helps selectively, not universally.</td>
+      <td><strong>C. Hard-target search and refinement</strong></td>
+      <td>Exp 16-20, Exp 25-29, paper comparison</td>
+      <td>What actually unlocks the zero-hit frontier once beam-family search fails?</td>
+      <td><code>MCTS + local refinement</code> is the first strong unlock. Reward shaping helps selectively, not universally, and paper-style baselines remain hard to match fairly.</td>
     </tr>
     <tr style="background:#f8fafc">
       <td><strong>D. Agentic routing</strong></td>
       <td>Diagnostic extraction, Exp 21, Exp 24, updated taxonomy</td>
-      <td>What should the controller act on next?</td>
-      <td>The agent should route over <strong>operator bundles</strong> and target classes, not over isolated knobs.</td>
+      <td>How should the controller convert diagnostics into the next action?</td>
+      <td>The controller should route over <strong>operator bundles</strong> and target classes, not over isolated knobs or single metrics.</td>
+    </tr>
+    <tr style="background:#f8fafc">
+      <td><strong>E. Deferred method extensions</strong></td>
+      <td>LLM planner validation, LoRA, trajectory recycling, multi-round adaptive loop, full scaling curves</td>
+      <td>Which future directions are still open but not yet part of the validated result set?</td>
+      <td>Several ideas remain promising, but they should be treated as future work until the current search/refinement/controller stack is fully benchmarked.</td>
     </tr>
   </table>
   </div>
@@ -1066,11 +1072,60 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
   <div class="card" style="border-left: 4px solid var(--accent);">
     <h3 style="font-size:1rem; margin-bottom:8px;">Recommended Reading Order</h3>
     <ol style="font-size:0.88rem; color:var(--muted); padding-left:18px; line-height:1.8; margin-bottom:0;">
-      <li><strong>Start with Cluster A:</strong> Phase 0, the evaluation pass-rate tables, and the per-target bottleneck table define the initial taxonomy.</li>
-      <li><strong>Then read Cluster B:</strong> the noise / hallucination deep dive explains the mechanism behind the routing rules and why interventions do not transfer cleanly across targets.</li>
-      <li><strong>Then read Cluster C:</strong> the hard-target section shows what changed once the project moved beyond beam-family search.</li>
-      <li><strong>Finish with Cluster D:</strong> the updated taxonomy and routing logic show how the experimental findings translate into an agentic controller.</li>
+      <li><strong>Start with Cluster A:</strong> use the baseline sweeps and first intervention probes to see the raw target heterogeneity.</li>
+      <li><strong>Then read Cluster B:</strong> the replication and mechanism experiments show which effects are real and why they happen.</li>
+      <li><strong>Then read Cluster C:</strong> the hard-target section explains what finally changed on the zero-hit frontier.</li>
+      <li><strong>Then read Cluster D:</strong> the routing section translates those findings into an agentic controller.</li>
+      <li><strong>Use Cluster E last:</strong> these are deliberately separated future ideas, not validated conclusions.</li>
     </ol>
+  </div>
+
+  <div class="card" style="margin-top:14px; border-left: 4px solid var(--accent);">
+    <h3 style="font-size:1rem; margin-bottom:8px;">Cluster A Takeaway</h3>
+    <p style="font-size:0.88rem; color:var(--muted); margin-bottom:0;">
+      The first lesson from the project is that target heterogeneity appears immediately. Even before the later
+      reliability rounds, the baseline sweeps and first intervention probes already showed that some targets are
+      default-favored, some are sensitive to backbone noise, and some are dominated by sequence redesign quality.
+      This is why the project should not be framed as one global hyperparameter search problem.
+    </p>
+  </div>
+
+  <div class="card" style="margin-top:12px; border-left: 4px solid var(--orange);">
+    <h3 style="font-size:1rem; margin-bottom:8px;">Cluster B Takeaway</h3>
+    <p style="font-size:0.88rem; color:var(--muted); margin-bottom:0;">
+      The most important reliability lesson is that interventions are real but conditional. Replication, paired
+      controls, and matrix completion show that noise and hallucination are not universally good or bad; they work
+      through different mechanisms and transfer poorly across targets. This cluster is the foundation for all later
+      routing rules and for the conclusion that more evaluation criteria do not automatically improve performance.
+    </p>
+  </div>
+
+  <div class="card" style="margin-top:12px; border-left: 4px solid var(--green);">
+    <h3 style="font-size:1rem; margin-bottom:8px;">Cluster C Takeaway</h3>
+    <p style="font-size:0.88rem; color:var(--muted); margin-bottom:0;">
+      The hard-target story is now much sharper. Beam-family diversity alone failed on the zero-hit frontier, while
+      <code>MCTS + local refinement</code> was the first combination to recover non-zero self hits on multiple targets.
+      Reward shaping can help, but only in selected settings; the robust conclusion is that search and refinement
+      must be treated as a bundle rather than as independent knobs.
+    </p>
+  </div>
+
+  <div class="card" style="margin-top:12px; border-left: 4px solid var(--purple);">
+    <h3 style="font-size:1rem; margin-bottom:8px;">Cluster D Takeaway</h3>
+    <p style="font-size:0.88rem; color:var(--muted); margin-bottom:0;">
+      The first narrow agentic runs show that diagnosis alone is not enough: the controller also needs a sufficiently
+      strong action library. The updated taxonomy therefore routes over operator bundles such as default scaling,
+      short refinement, and <code>MCTS + refinement</code>, rather than over single scalar knobs.
+    </p>
+  </div>
+
+  <div class="card" style="margin-top:12px; border-left: 4px solid #64748b;">
+    <h3 style="font-size:1rem; margin-bottom:8px;">Cluster E Takeaway</h3>
+    <p style="font-size:0.88rem; color:var(--muted); margin-bottom:0;">
+      Several future extensions remain attractive, including LLM-based planning, trajectory recycling, and
+      denoiser finetuning, but none of them should be treated as the current project bottleneck. They are kept
+      separate so the page clearly distinguishes validated results from deferred ideas.
+    </p>
   </div>
 </div>
 
@@ -1374,7 +1429,7 @@ Terminate: when unique success count plateaus
     <p style="font-size:0.88rem; color:var(--muted); margin-bottom:10px;">
       The current batches were designed to test <strong>three different hypotheses</strong> rather than repeat one
       search family. As of April 10, 2026, <strong>Exp 24 and Exp 25 are complete</strong>, <strong>Exp 26 has
-      22/25 completed with 3 refinement runs still active</strong>, and the original <strong>Exp 27 batch is fully
+      23/25 completed with 2 refinement runs still active</strong>, and the original <strong>Exp 27 batch is fully
       terminal</strong> (20 completed, 5 failed before generation due to the CrSAS6 target-key bug). The corrected
       CrSAS6 rerun is complete and summarized below.
     </p>
@@ -1544,7 +1599,7 @@ Terminate: when unique success count plateaus
     </p>
   </div>
 
-  <h3>Exp 26: Reward Shaping + G&amp;H (22/25 complete; 3 refinement runs still running)</h3>
+  <h3>Exp 26: Reward Shaping + G&amp;H (23/25 complete; 2 refinement runs still running)</h3>
 
   <div class="card" style="border-left: 4px solid var(--green); background: linear-gradient(135deg, #eff6ff 0%, #fafbfc 100%);">
     <h4 style="font-size:1rem; margin-bottom:8px;">SC2RBD e26_04: The Single Most Important Result</h4>
@@ -1826,13 +1881,15 @@ Terminate: when unique success count plateaus
     <tr><th>Target</th><th>rw25</th><th>rw50</th><th>rw75</th><th>rws5 (G&amp;H greedy)</th><th>rws10 (G&amp;H soft+greedy)</th></tr>
     <tr><td><strong>H1</strong> self</td><td class="fail">0/8</td><td class="fail">0/8</td><td class="fail">0/8</td><td>1/8</td><td><span class="tag tag-orange">Running</span></td></tr>
     <tr><td><strong>IL17A</strong> self</td><td class="fail">0/8</td><td class="fail">0/8</td><td class="fail">0/8</td><td class="fail">0/8</td><td class="fail">0/8 <span style="font-size:0.75rem">(near-miss: iPAE*31=6.9, pLDDT=0.897)</span></td></tr>
-    <tr><td><strong>TNF&alpha;</strong> self</td><td class="fail">0/8</td><td class="fail">0/8</td><td class="fail">0/8</td><td><span class="tag tag-orange">Running</span></td><td><span class="tag tag-orange">Running</span></td></tr>
+    <tr><td><strong>TNF&alpha;</strong> self</td><td class="fail">0/8</td><td class="fail">0/8</td><td class="fail">0/8</td><td>2/8</td><td><span class="tag tag-orange">Running</span></td></tr>
   </table>
   </div>
   <p class="note">
     Reward-only (pLDDT weights 0.25&ndash;0.75 without G&amp;H): <strong>0% across all completed targets and weights</strong>.
     H1 <code>rws5</code> completes at <strong>1/8</strong>, which matches the earlier non-reward-shaped best and therefore
-    does <strong>not</strong> show an H1-specific gain from reward shaping. IL17A <code>rws10</code> gets the closest:
+    does <strong>not</strong> show an H1-specific gain from reward shaping. TNF&alpha; <code>rws5</code> now completes at
+    <strong>2/8 self and 1/8 MPNN</strong>, which is better than reward-only TNF&alpha; but still below the earlier
+    non-reward-shaped <code>msg5</code> result. IL17A <code>rws10</code> gets the closest:
     iPAE*31=6.9 and pLDDT=0.897, missing both thresholds by thin margins. The current evidence supports a stricter
     statement: <strong>reward shaping is target-specific</strong>, while <strong>MCTS + local refinement</strong> is the
     more general unlock.
@@ -1870,10 +1927,10 @@ Terminate: when unique success count plateaus
   <p>Live status of all experiments. Updated as jobs complete.</p>
   <p class="note">
     This tracker is easiest to read by <strong>cluster</strong> rather than by submission time:
-    baseline/diagnostic experiments first, then mechanism and reliability experiments, then hard-target search,
-    then narrow agentic routing and paper-comparison baselines.
+    baseline/initial-signal experiments first, then mechanism and reliability experiments, then hard-target search
+    and refinement, then agentic routing, then deferred future extensions.
   </p>
-  <p class="note">Status snapshot as of April 10, 2026: Exp 24 and Exp 25 are complete (all 28 jobs). Exp 26 has 22/25 completed with only three refinement runs still active (<code>H1</code> <code>rws10</code>, <code>TNF&alpha;</code> <code>rws5</code>/<code>rws10</code>). The original Exp 27 batch is terminal (20 completed, 5 CrSAS6 pre-generation failures), and the corrected CrSAS6 rerun is complete. Exp 28 is partial (IL17A complete; H1/TNF&alpha;/SC2RBD timed out; eval-only reruns failed immediately). Exp 29 was canceled before usable evaluation outputs.</p>
+  <p class="note">Status snapshot as of April 10, 2026: Exp 24 and Exp 25 are complete (all 28 jobs). Exp 26 has 23/25 completed with only two refinement runs still active (<code>H1</code> <code>rws10</code> and <code>TNF&alpha;</code> <code>rws10</code>). The original Exp 27 batch is terminal (20 completed, 5 CrSAS6 pre-generation failures), and the corrected CrSAS6 rerun is complete. Exp 28 is partial (IL17A complete; H1/TNF&alpha;/SC2RBD timed out; eval-only reruns failed immediately). Exp 29 was canceled before usable evaluation outputs.</p>
 
   <div class="table-wrap">
   <table>
@@ -1956,6 +2013,13 @@ Terminate: when unique success count plateaus
       <td>2/2</td>
       <td><span class="tag tag-green">Done</span></td>
       <td style="font-size:0.82rem"><strong>Backbone noise drives improvement, NOT sequence noise.</strong> Exp6a (lat=0.2): 8/32 same as default. Exp6b (lat=0.4, paper best): 0/32 (p=0.005). See detail below.</td>
+    </tr>
+    <tr style="background:#fee2e2">
+      <td style="text-align:center; font-size:1.1rem">&#9746;</td>
+      <td><strong>Exp 7: CFG Guidance Scale Sweep</strong><br><span style="font-size:0.82rem;color:var(--muted)">CD45 + BetV1 deep x guidance_w = 1.0, 1.5, 2.0, 3.0</span></td>
+      <td>2/8</td>
+      <td><span class="tag tag-red">Failed</span></td>
+      <td style="font-size:0.82rem">w=1.0 controls ran. <strong>w&gt;1.0 crashed:</strong> CFG requires fold_cond=True (CATH conditioning). Not applicable to binder design. See detail below.</td>
     </tr>
     <tr style="background:#fee2e2">
       <td style="text-align:center; font-size:1.1rem">&#9746;</td>
@@ -2063,22 +2127,8 @@ Terminate: when unique success count plateaus
     </tr>
     <tr style="background:#e0f2fe">
       <td colspan="5" style="font-size:0.8rem; font-weight:600; color:#075985; padding:6px 12px;">
-        &#9654; Cluster D: Agentic Routing and Paper-Comparison Baselines
+        &#9654; Cluster C (continued): Hard-Target Search, Refinement, and Baselines
       </td>
-    </tr>
-    <tr style="background:#fee2e2">
-      <td style="text-align:center; font-size:1.1rem">&#9746;</td>
-      <td><strong>Exp 21: First Narrow Agentic Follow-Up</strong><br><span style="font-size:0.82rem;color:var(--muted)">SC2RBD only: Exp 16 baseline diagnosis &rarr; diagnostic sidecar &rarr; rule-based routing &rarr; one routed Round 2 job</span></td>
-      <td>1/1</td>
-      <td><span class="tag tag-red">Completed (No Gain)</span></td>
-      <td style="font-size:0.82rem">Round 1 evidence came from Exp 16 base SC2RBD (0/32 self, 0/32 MPNN). The sidecar labeled this <code>geometry_limited_zero_hit</code> and routed to <code>stochastic-beam-search</code>. Round 2 completed as SLURM <code>6718310</code> and also finished at <strong>0/16 self and 0/16 MPNN</strong>.</td>
-    </tr>
-    <tr style="background:#d1fae5">
-      <td style="text-align:center; font-size:1.1rem">&#9745;</td>
-      <td><strong>Exp 24: Narrow Agentic Trio</strong><br><span style="font-size:0.82rem;color:var(--muted)">VEGFA, IL7RA, SC2RBD with one routed follow-up each from the implemented diagnostic sidecar + routing policy</span></td>
-      <td>3/3</td>
-      <td><span class="tag tag-green">Done</span></td>
-      <td style="font-size:0.82rem"><strong>Mixed result.</strong> VEGFA improved self success over baseline (0.75 vs 0.656) but lost redesign robustness; IL7RA got worse on self (0.719 vs 0.844) with only a tiny MPNN gain; SC2RBD stayed at 0/0. The first controller is useful, but its action set and routing logic are still too weak.</td>
     </tr>
     <tr style="background:#d1fae5">
       <td style="text-align:center; font-size:1.1rem">&#9745;</td>
@@ -2090,9 +2140,9 @@ Terminate: when unique success count plateaus
     <tr style="background:#ede9fe">
       <td style="text-align:center; font-size:1.1rem; color:#7c3aed">&#9679;</td>
       <td><strong>Exp 26: Reward-Shaped Hard-Target Sweep</strong><br><span style="font-size:0.82rem;color:var(--muted)">same five zero-hit targets with fixed dense MCTS base, varying AF2 reward mix and two stronger hallucination settings</span></td>
-      <td>22/25 + 3 running</td>
+      <td>23/25 + 2 running</td>
       <td><span class="tag tag-orange">In Progress</span></td>
-      <td style="font-size:0.82rem"><strong>Interim result:</strong> reward shaping alone still gives 0/0 on completed SC2RBD and CbAgo runs, but <code>rw_pl050_softg5</code> on SC2RBD is now the best completed hard-target run overall at <strong>5/8 self and 2/8 MPNN</strong>. H1 <code>rws5</code> completed at 1/8 and did not beat the earlier non-reward best. All completed IL17A variants remain 0/0, all completed TNF&alpha; reward-only variants remain 0/0, and the only active jobs are H1 <code>rws10</code> and TNF&alpha; <code>rws5</code>/<code>rws10</code>.</td>
+      <td style="font-size:0.82rem"><strong>Interim result:</strong> reward shaping alone still gives 0/0 on completed SC2RBD and CbAgo runs, but <code>rw_pl050_softg5</code> on SC2RBD is now the best completed hard-target run overall at <strong>5/8 self and 2/8 MPNN</strong>. H1 <code>rws5</code> completed at 1/8 and did not beat the earlier non-reward best. TNF&alpha; <code>rws5</code> now completes at <strong>2/8 self and 1/8 MPNN</strong>. All completed IL17A variants remain 0/0, and the only active jobs are H1 <code>rws10</code> and TNF&alpha; <code>rws10</code>.</td>
     </tr>
     <tr style="background:#ede9fe">
       <td style="text-align:center; font-size:1.1rem; color:#7c3aed">&#9679;</td>
@@ -2101,10 +2151,12 @@ Terminate: when unique success count plateaus
       <td><span class="tag tag-green">Terminal</span></td>
       <td style="font-size:0.82rem"><strong>Clear positive result on sequence-sensitive targets.</strong> SpCas9 reaches 1.0 self with <code>softg5_short</code>; HER2_AAV reaches 1.0 self and 1.0 MPNN with greedy-only schedules; IL7RA reaches 1.0 self and 0.938 MPNN with <code>softg5_short</code>; Insulin reaches 1.0 self and 1.0 MPNN with <code>greedy5</code> or <code>softg5_short</code>. The original CrSAS6 jobs failed before generation because the script used the wrong target key, but the corrected rerun completed and confirmed CrSAS6 as sequence-limited.</td>
     </tr>
-    <tr style="background:#ede9fe">
-      <td colspan="5" style="font-size:0.8rem; font-weight:600; color:#5b21b6; padding:6px 12px;">
-        &#9654; Cluster D (continued): Paper-Recipe and Scaling Baselines
-      </td>
+    <tr style="background:#fee2e2">
+      <td style="text-align:center; font-size:1.1rem">&#9746;</td>
+      <td><strong>Exp 19: Existing Search Sweep Attempt</strong><br><span style="font-size:0.82rem;color:var(--muted)">initial best-of-n / beam / FK / MCTS sweep on zero-hit targets using a generated wrapper script</span></td>
+      <td>invalid batch</td>
+      <td><span class="tag tag-red">Archived</span></td>
+      <td style="font-size:0.82rem">This batch was not used as scientific evidence. A wrapper bug serialized <code>step_checkpoints</code> incorrectly for checkpointed methods, invalidating the beam/FK/MCTS jobs and triggering the later clean re-launches as Exp 20 and Exp 25.</td>
     </tr>
     <tr style="background:#fef3c7">
       <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
@@ -2120,6 +2172,11 @@ Terminate: when unique success count plateaus
       <td><span class="tag tag-red">Canceled</span></td>
       <td style="font-size:0.82rem">The first scaling batch was canceled before it produced completed <code>exp29_*</code> evaluation directories, so no scaling tables are reported from that attempt.</td>
     </tr>
+    <tr style="background:#e0f2fe">
+      <td colspan="5" style="font-size:0.8rem; font-weight:600; color:#075985; padding:6px 12px;">
+        &#9654; Cluster D: Agentic Routing
+      </td>
+    </tr>
     <tr style="background:#d1fae5">
       <td style="text-align:center; font-size:1.1rem">&#9745;</td>
       <td><strong>Diagnostic Signal Extraction</strong><br><span style="font-size:0.82rem;color:var(--muted)">Per-criterion bottleneck analysis of all 11 targets from Phase 0 deep beam data</span></td>
@@ -2127,44 +2184,56 @@ Terminate: when unique success count plateaus
       <td><span class="tag tag-green">Done</span></td>
       <td style="font-size:0.82rem"><strong>Routing rule: 3/4 correct.</strong> Self/MPNN gap + iPAE/pLDDT pass rates are sufficient diagnostic signals. This analysis now also feeds the implemented sidecar and rule-based router.</td>
     </tr>
+    <tr style="background:#fee2e2">
+      <td style="text-align:center; font-size:1.1rem">&#9746;</td>
+      <td><strong>Exp 21: First Narrow Agentic Follow-Up</strong><br><span style="font-size:0.82rem;color:var(--muted)">SC2RBD only: Exp 16 baseline diagnosis &rarr; diagnostic sidecar &rarr; rule-based routing &rarr; one routed Round 2 job</span></td>
+      <td>1/1</td>
+      <td><span class="tag tag-red">Completed (No Gain)</span></td>
+      <td style="font-size:0.82rem">Round 1 evidence came from Exp 16 base SC2RBD (0/32 self, 0/32 MPNN). The sidecar labeled this <code>geometry_limited_zero_hit</code> and routed to <code>stochastic-beam-search</code>. Round 2 completed as SLURM <code>6718310</code> and also finished at <strong>0/16 self and 0/16 MPNN</strong>.</td>
+    </tr>
+    <tr style="background:#d1fae5">
+      <td style="text-align:center; font-size:1.1rem">&#9745;</td>
+      <td><strong>Exp 24: Narrow Agentic Trio</strong><br><span style="font-size:0.82rem;color:var(--muted)">VEGFA, IL7RA, SC2RBD with one routed follow-up each from the implemented diagnostic sidecar + routing policy</span></td>
+      <td>3/3</td>
+      <td><span class="tag tag-green">Done</span></td>
+      <td style="font-size:0.82rem"><strong>Mixed result.</strong> VEGFA improved self success over baseline (0.75 vs 0.656) but lost redesign robustness; IL7RA got worse on self (0.719 vs 0.844) with only a tiny MPNN gain; SC2RBD stayed at 0/0. The first controller is useful, but its action set and routing logic are still too weak.</td>
+    </tr>
+    <tr style="background:#e0f2fe">
+      <td colspan="5" style="font-size:0.8rem; font-weight:600; color:#075985; padding:6px 12px;">
+        &#9654; Cluster E: Deferred Method Extensions
+      </td>
+    </tr>
     <tr>
       <td style="text-align:center; font-size:1.1rem; color:#ccc">&#9744;</td>
-      <td><strong>Exp 6: LLM Routing Validation</strong><br><span style="font-size:0.82rem;color:var(--muted)">LLM routes 11 targets, compare vs oracle</span></td>
+      <td><strong>Planned: LLM Routing Validation</strong><br><span style="font-size:0.82rem;color:var(--muted)">LLM routes 11 targets, compare vs oracle</span></td>
       <td>--</td>
       <td><span class="tag tag-purple">Planned</span></td>
       <td style="font-size:0.82rem">Depends on Exp 5 feature extraction.</td>
     </tr>
-    <tr style="background:#fee2e2">
-      <td style="text-align:center; font-size:1.1rem">&#9746;</td>
-      <td><strong>Exp 7: CFG Guidance Scale Sweep</strong><br><span style="font-size:0.82rem;color:var(--muted)">CD45 + BetV1 deep x guidance_w = 1.0, 1.5, 2.0, 3.0</span></td>
-      <td>2/8</td>
-      <td><span class="tag tag-red">Failed</span></td>
-      <td style="font-size:0.82rem">w=1.0 controls ran. <strong>w&gt;1.0 crashed:</strong> CFG requires fold_cond=True (CATH conditioning). Not applicable to binder design. See detail below.</td>
-    </tr>
     <tr>
       <td style="text-align:center; font-size:1.1rem; color:#ccc">&#9744;</td>
-      <td><strong>Exp 10: LoRA Finetuning on Successful Binders</strong><br><span style="font-size:0.82rem;color:var(--muted)">Finetune denoiser on ~500+ successful designs (all targets)</span></td>
+      <td><strong>Planned: LoRA Finetuning on Successful Binders</strong><br><span style="font-size:0.82rem;color:var(--muted)">Finetune denoiser on ~500+ successful designs (all targets)</span></td>
       <td>0/TBD</td>
       <td><span class="tag tag-purple">Planned</span></td>
       <td style="font-size:0.82rem">Requires training loop setup. Option A: supervised, Option B: DPO-style on (success, fail) pairs.</td>
     </tr>
     <tr>
       <td style="text-align:center; font-size:1.1rem; color:#ccc">&#9744;</td>
-      <td><strong>Exp 11: Trajectory Recycling</strong><br><span style="font-size:0.82rem;color:var(--muted)">Warm-start from successful CD45 trajectories at t=130</span></td>
+      <td><strong>Planned: Trajectory Recycling</strong><br><span style="font-size:0.82rem;color:var(--muted)">Warm-start from successful CD45 trajectories at t=130</span></td>
       <td>0/TBD</td>
       <td><span class="tag tag-purple">Planned</span></td>
       <td style="font-size:0.82rem">Requires code mod to save/load intermediate latent states. Local search in trajectory space.</td>
     </tr>
     <tr>
       <td style="text-align:center; font-size:1.1rem; color:#ccc">&#9744;</td>
-      <td><strong>Exp 8: Multi-Round Adaptive Pipeline</strong><br><span style="font-size:0.82rem;color:var(--muted)">3 targets, 3 rounds each, agent decides config</span></td>
+      <td><strong>Planned: Multi-Round Adaptive Pipeline</strong><br><span style="font-size:0.82rem;color:var(--muted)">3 targets, 3 rounds each, agent decides config</span></td>
       <td>0/~12</td>
       <td><span class="tag tag-purple">Planned</span></td>
       <td style="font-size:0.82rem">Depends on Exp 1&ndash;7 learnings. Key knobs: noise, reward, hallucination.</td>
     </tr>
     <tr>
       <td style="text-align:center; font-size:1.1rem; color:#ccc">&#9744;</td>
-      <td><strong>Exp 9: Full Scaling Curve</strong><br><span style="font-size:0.82rem;color:var(--muted)">2 targets x 5 budgets x 4+ strategies</span></td>
+      <td><strong>Planned: Full Scaling Curve</strong><br><span style="font-size:0.82rem;color:var(--muted)">2 targets x 5 budgets x 4+ strategies</span></td>
       <td>0/~40</td>
       <td><span class="tag tag-purple">Planned</span></td>
       <td style="font-size:0.82rem">The key paper figure. Depends on all prior experiments.</td>
@@ -2408,7 +2477,7 @@ Terminate: when unique success count plateaus
   </div>
 
   <!-- ─── RELIABILITY ROUND DETAIL ─── -->
-  <h3>Reliability Round: Queued Experiments (9 jobs, 2026-04-07)</h3>
+  <h3>Reliability Round: Completed Audit Experiments (9 jobs launched 2026-04-07)</h3>
 
   <div class="callout warn">
     <p><strong>Why these experiments exist:</strong> A rigorous reliability audit identified 3 critical issues with Exp 1&ndash;4:
@@ -2529,7 +2598,7 @@ Terminate: when unique success count plateaus
     <tr><th>Condition</th><th>Self k/N</th><th>Self %</th><th>95% CI</th><th>MPNN %</th><th>vs noise=0.2 only</th></tr>
     <tr><td>Deep baseline (Phase 0)</td><td>8/32</td><td>25.0%</td><td>[13.3%, 42.1%]</td><td>15.6%</td><td>anchor</td></tr>
     <tr><td>noise=0.2 only (Exp 2)</td><td class="best">15/32</td><td class="best">46.9%</td><td>[30.9%, 63.6%]</td><td>0%</td><td>anchor</td></tr>
-    <tr><td>Halluc only (Exp 10a)</td><td colspan="5" style="text-align:center; color:var(--orange)">Queued</td></tr>
+    <tr><td>Halluc only (Exp 10a)</td><td class="fail">0/32</td><td class="fail">0.0%</td><td>[0.0%, 10.7%]</td><td>3.1%</td><td class="fail">worse than noise-only</td></tr>
     <tr style="background:#fee2e2">
       <td>noise=0.2 + halluc (Exp 8)</td><td class="fail">6/32</td><td class="fail">18.8%</td><td>[8.9%, 35.3%]</td><td class="fail">0%</td><td class="fail">p=0.032 (worse)</td>
     </tr>
