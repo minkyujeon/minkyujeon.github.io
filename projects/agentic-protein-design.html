@@ -1279,6 +1279,26 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
 
   <h3>Visual Analysis: The Complete Picture</h3>
 
+  <div class="card" style="border-left: 4px solid var(--purple);">
+    <h4 style="font-size:1rem; margin-bottom:8px;">How To Read The Figures And Tables</h4>
+    <p style="font-size:0.88rem; color:var(--muted); margin-bottom:8px;">
+      This page mixes several experiment families with different denominators and operator bundles. Unless a row or caption explicitly says otherwise,
+      <strong>Phase 0/1 diagnostics use N=32 evaluated designs</strong>, <strong>Exp 25/26 hard-target ablations use N=8 final designs</strong>,
+      and <strong>Exp 27 refinement sweeps use N=16 final designs</strong>. “Self” and “MPNN” are always separate evaluation channels and should not be added together.
+    </p>
+    <ul style="font-size:0.86rem; color:var(--muted); padding-left:18px; line-height:1.7; margin:0;">
+      <li><strong>Beam family</strong>: fixed top-k pruning at each checkpoint using lookahead reward.</li>
+      <li><strong>MCTS</strong>: tree search across checkpoints with repeated simulations and reward backpropagation.</li>
+      <li><strong>Dense checkpoints</strong>: <code>[0,50,100,150,200,250,300,350,400]</code>; <strong>sparse checkpoints</strong>: <code>[0,100,200,300,400]</code>.</li>
+      <li><strong>N<sub>sim</sub></strong>: number of MCTS simulations per checkpoint stage.</li>
+      <li><strong>soft+greedy G&amp;H</strong>: sequence refinement with Stage 2 softmax optimization, Stage 3 one-hot optimization, and Stage 4 semigreedy mutation search.</li>
+      <li><strong>msg5</strong>: Exp 25 dense-checkpoint MCTS with <code>N<sub>sim</sub>=40</code> plus soft+greedy Generate-and-Hallucinate at 5% mutation rate.</li>
+      <li><strong>rw25 / rw50 / rw75</strong>: Exp 26 reward-shaped search with pLDDT weight 0.25 / 0.50 / 0.75 added to the iPAE-based search reward.</li>
+      <li><strong>rws5 / rws10</strong>: Exp 26 reward-shaped search plus refinement; <code>s5</code> is the moderate soft+greedy schedule and <code>s10</code> is the more aggressive one.</li>
+      <li><strong>Paper reference cards</strong>: the paper often reports cumulative unique self successes over hundreds of GPU-hours, which are not denominator-matched to our per-run pass rates.</li>
+    </ul>
+  </div>
+
   <h4 style="margin:16px 0 8px;">Figure A: Pass Rate Matrix &mdash; Each Target Needs a Different Config</h4>
   <p class="note">Solid bars = self-sequence pass rate. Hatched bars = MPNN redesign pass rate. N=32 designs per condition.
   Pass = iPAE*31 &le; 7.0 AND pLDDT &ge; 0.9 AND scRMSD &lt; 1.5&Aring;.</p>
@@ -1348,7 +1368,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
   <img src="agentic-figures/fig10_bottleneck_decomposition.png" alt="Bottleneck decomposition" style="width:100%; max-width:850px; border:1px solid var(--border); border-radius:8px; margin-bottom:16px;">
 
   <h4 style="margin:20px 0 8px;">Figure K: Hard-Target Unlock Depends on the Full Operator Bundle</h4>
-  <p class="note">Updated with Exp 25/26. The important comparison is not “more search” vs “less search,” but pure MCTS vs MCTS + local refinement vs reward-shaped MCTS + refinement.</p>
+  <p class="note">Updated with Exp 25/26. The important comparison is not “more search” vs “less search,” but pure MCTS vs MCTS + local refinement vs reward-shaped MCTS + refinement. In this figure, Exp 20 rows use N=16, while Exp 25/26 rows use N=8.</p>
   <div class="figure-grid">
     <div class="figure-card">
       <h4>SC2RBD</h4>
@@ -1358,7 +1378,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
         <div class="bar-row"><div class="bar-label">Exp 25 msg5</div><div class="bar-track"><div class="bar-fill green" style="width:50%"></div></div><div class="bar-val">4/8</div></div>
         <div class="bar-row"><div class="bar-label">Exp 26 rw50+s5</div><div class="bar-track"><div class="bar-fill purple" style="width:62.5%"></div></div><div class="bar-val">5/8</div></div>
       </div>
-      <div class="figure-caption">Caption: SC2RBD is the clearest example of bundle dependence. Beam-family search in Exp 20 gives 0/16 self, pure MCTS in Exp 25 stays at 0/8 self, MCTS+soft/greedy refinement reaches 4/8 self, and the reward-shaped refinement bundle reaches 5/8 self. Paper reference: SC2RBD is not a Sec I.4 target, but the broader all-target Table 10 reports Complexa(Ours) = 0 MPNN, 0 MPNN-FI, and 0 Self for SC2RBD. Interpretation: SC2RBD is not unlocked by “more search” alone; it needs search plus the right local refinement and reward stage.</div>
+      <div class="figure-caption">Caption: SC2RBD is the clearest example of bundle dependence. Exp 20 beam-family rows are low-budget beam / stochastic-beam / diverse-beam runs with N=16 final designs and all stay at 0/16 self. Exp 25 pure MCTS rows use checkpoint-tree search with N=8 final designs and still stay at 0/8 self. <code>msg5</code> means dense-checkpoint MCTS with N<sub>sim</sub>=40 followed by softmax + one-hot + semigreedy sequence hallucination at 5% mutation rate; that reaches 4/8 self. <code>rw50+s5</code> adds pLDDT weight 0.50 to the iPAE-based search reward and keeps the same moderate soft+greedy refinement bundle; that reaches 5/8 self and 2/8 MPNN. Paper reference: SC2RBD is not a Sec I.4 target, but the broader all-target Table 10 reports Complexa(Ours) = 0 MPNN, 0 MPNN-FI, and 0 Self for SC2RBD. Interpretation: SC2RBD is not unlocked by “more search” alone; it needs search plus the right local refinement and reward stage.</div>
     </div>
     <div class="figure-card">
       <h4>TNF&alpha;</h4>
@@ -1368,7 +1388,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
         <div class="bar-row"><div class="bar-label">Exp 25 msg5</div><div class="bar-track"><div class="bar-fill green" style="width:50%"></div></div><div class="bar-val">4/8</div></div>
         <div class="bar-row"><div class="bar-label">Exp 26 rws5</div><div class="bar-track"><div class="bar-fill orange" style="width:25%"></div></div><div class="bar-val">2/8</div></div>
       </div>
-      <div class="figure-caption">Caption: TNF&alpha; follows the same pattern as SC2RBD. Beam-family and pure MCTS runs stay at zero, MCTS+soft/greedy refinement reaches 4/8, and the completed reward-shaped variant improves over reward-only but remains below the non-reward best at 2/8. Paper reference: Sec I.4 / Figure 19 reports 15 unique self successes within 475 GPU-hours under a specialized reward-shaped MCTS+Generate-and-Hallucinate recipe, so our bars are best read as low-budget per-run snapshots rather than a matched scaling comparison. Interpretation: refinement is the general unlock; reward shaping is an optional modifier rather than the main driver.</div>
+      <div class="figure-caption">Caption: TNF&alpha; follows the same pattern as SC2RBD. Beam-family Exp 20 runs (N=16) and pure MCTS Exp 25 runs (N=8) stay at zero. <code>msg5</code> again means dense-checkpoint MCTS with N<sub>sim</sub>=40 plus the moderate soft+greedy Generate-and-Hallucinate bundle at 5% mutation rate, and it reaches 4/8 self and 1/8 MPNN. <code>rws5</code> means reward-shaped search plus the same moderate refinement schedule; it reaches 2/8 self and 1/8 MPNN, which is better than reward-only but worse than non-reward <code>msg5</code>. Paper reference: Sec I.4 / Figure 19 reports 15 unique self successes within 475 GPU-hours under a specialized reward-shaped MCTS+Generate-and-Hallucinate recipe, so our bars are best read as low-budget per-run snapshots rather than a matched scaling comparison. Interpretation: refinement is the general unlock; reward shaping is an optional modifier rather than the main driver.</div>
     </div>
     <div class="figure-card">
       <h4>H1 / IL17A / CbAgo</h4>
@@ -1403,7 +1423,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
         <div class="bar-row"><div class="bar-label">rw75 only</div><div class="bar-track"><div class="bar-fill red" style="width:0%"></div></div><div class="bar-val">0/8</div></div>
         <div class="bar-row"><div class="bar-label">rw50 + softg5</div><div class="bar-track"><div class="bar-fill purple" style="width:62.5%"></div></div><div class="bar-val">5/8</div></div>
       </div>
-      <div class="figure-caption">Caption: on SC2RBD, completed reward-only variants with pLDDT weights 0.25, 0.50, and 0.75 all remain at 0/8, while the moderate reward-shaped refinement bundle <code>rw_pl050_softg5</code> reaches 5/8 self successes. Paper reference: the paper uses pLDDT-weighted reward shaping only in the very-hard-target regime, not as a general default. Interpretation: adding more reward terms is not enough by itself; the gain appears only when reward shaping is paired with the right local optimizer.</div>
+      <div class="figure-caption">Caption: on SC2RBD, completed reward-only variants with pLDDT weights 0.25, 0.50, and 0.75 all remain at 0/8 self. The moderate reward-shaped refinement bundle <code>rw_pl050_softg5</code> uses dense-checkpoint MCTS with N<sub>sim</sub>=40, an iPAE weight of -1.0, a pLDDT weight of +0.50, and the moderate soft+greedy refinement schedule; it reaches 5/8 self and 2/8 MPNN, with 4 FoldSeek-unique self successes. Paper reference: the paper uses pLDDT-weighted reward shaping only in the very-hard-target regime, not as a general default. Interpretation: adding more reward terms is not enough by itself; the gain appears only when reward shaping is paired with the right local optimizer.</div>
     </div>
     <div class="figure-card">
       <h4>Cross-target pattern</h4>
@@ -1708,11 +1728,11 @@ Terminate: when unique success count plateaus
 
   <h3>Exp 25: Novel MCTS Search (25/25 jobs complete)</h3>
   <p class="note">5 MCTS configs &times; 5 zero-hit targets = 25 jobs. N=8 designs per run (nsamples=8, 1 design per sample via MCTS tree).
-  <strong>Configs:</strong> md40 = MCTS N<sub>sim</sub>=40, dense checkpoints, exploration_prob=0.3, C=0.5.
+  <strong>Configs:</strong> md40 = MCTS N<sub>sim</sub>=40, dense checkpoints <code>[0,50,100,150,200,250,300,350,400]</code>, exploration_prob=0.3, C=0.5.
   md80 = N<sub>sim</sub>=80, exploration_prob=0.2, C=1.5.
-  ms60 = N<sub>sim</sub>=60, sparse checkpoints, exploration_prob=0.5, C=0.7.
-  mg05 = md40 + greedy-only G&amp;H (5% mutation rate).
-  msg5 = md40 + soft+greedy G&amp;H (30 softmax + 5 one-hot + 15 greedy iters, 5% mutation rate).
+  ms60 = N<sub>sim</sub>=60, sparse checkpoints <code>[0,100,200,300,400]</code>, exploration_prob=0.5, C=0.7.
+  mg05 = md40 + greedy-only G&amp;H (only Stage 4 semigreedy mutation search, 5% mutation rate).
+  msg5 = md40 + soft+greedy G&amp;H (Stage 2 softmax + Stage 3 one-hot + Stage 4 semigreedy, 30 softmax + 5 one-hot + 15 greedy iters, 5% mutation rate).
   All configs use iPAE-only reward (no pLDDT). md40/md80/ms60 have no hallucination.
   <strong>All numbers verified against <code>binder_results_*.csv</code> on April 10, 2026.</strong></p>
 
@@ -1774,8 +1794,9 @@ Terminate: when unique success count plateaus
   <div class="card" style="border-left: 4px solid var(--green); background: linear-gradient(135deg, #eff6ff 0%, #fafbfc 100%);">
     <h4 style="font-size:1rem; margin-bottom:8px;">SC2RBD e26_04: The Single Most Important Result</h4>
     <p style="font-size:0.88rem; color:var(--muted); margin-bottom:8px;">
-      Config: MCTS N<sub>sim</sub>=40, dense checkpoints, iPAE=-1.0 + <strong>pLDDT=0.50 reward</strong>,
-      soft+greedy hallucination 5%. Walltime: 3.1 GPU-hours.
+      Config: MCTS N<sub>sim</sub>=40, dense checkpoints <code>[0,50,100,150,200,250,300,350,400]</code>, exploration_prob=0.3, C=0.5,
+      search reward = iPAE weight -1.0 plus <strong>pLDDT weight +0.50</strong>, followed by soft+greedy hallucination at 5% mutation rate
+      (Stage 2 softmax, Stage 3 one-hot, Stage 4 semigreedy). Walltime: 3.1 GPU-hours.
     </p>
     <table style="font-size:0.85rem; width:100%;">
       <tr><th>Design</th><th>Self iPAE*31</th><th>Self pLDDT</th><th>Self scRMSD</th><th>Self Pass?</th><th>MPNN Pass?</th></tr>
@@ -1877,7 +1898,7 @@ Terminate: when unique success count plateaus
         <div class="bar-row"><div class="bar-label">IL7RA best</div><div class="bar-track"><div class="bar-fill purple" style="width:100%"></div></div><div class="bar-val">softg5_short</div></div>
         <div class="bar-row"><div class="bar-label">Insulin best</div><div class="bar-track"><div class="bar-fill orange" style="width:100%"></div></div><div class="bar-val">greedy5 / softg5</div></div>
       </div>
-      <div class="figure-caption">Caption: using N=16 per run, Exp 27 shows that the best schedule depends on the target but almost always lies in the short-to-moderate range. SpCas9 and IL7RA prefer short soft+greedy refinement, HER2_AAV is already saturated under moderate greedy-only schedules, and Insulin saturates under several non-aggressive schedules. Paper reference: the paper includes Generate-and-Hallucinate as a method family but does not expose this schedule-level comparison. Interpretation: once geometry exists, the controller should route over schedule families rather than only over search families.</div>
+      <div class="figure-caption">Caption: using N=16 per run, Exp 27 shows that the best schedule depends on the target but almost always lies in the short-to-moderate range. Here “greedy” means only the semigreedy mutation stage is enabled, while “soft+greedy” means the refinement first optimizes sequence logits continuously and then runs the semigreedy mutation stage. SpCas9 and IL7RA prefer short soft+greedy refinement, HER2_AAV is already saturated under moderate greedy-only schedules, and Insulin saturates under several non-aggressive schedules. Paper reference: the paper includes Generate-and-Hallucinate as a method family but does not expose this schedule-level comparison. Interpretation: once geometry exists, the controller should route over schedule families rather than only over search families.</div>
     </div>
   </div>
 

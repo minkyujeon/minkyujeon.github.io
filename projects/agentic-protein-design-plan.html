@@ -980,6 +980,18 @@
     single completed runs with <code>N=8</code> final designs per target/config. Refinement sweeps like Exp 27 use <code>N=16</code>.
     Future benchmark tables should always report both the GPU budget and the denominator <code>N</code>.
   </p>
+  <div class="card" style="border-left: 4px solid var(--purple);">
+    <h4 style="font-size:1rem; margin-bottom:8px;">Plan-Page Notation Guide</h4>
+    <ul style="font-size:0.86rem; color:var(--muted); padding-left:18px; line-height:1.7; margin:0;">
+      <li><strong>Dense checkpoints</strong>: <code>[0,50,100,150,200,250,300,350,400]</code>; <strong>sparse checkpoints</strong>: <code>[0,100,200,300,400]</code>.</li>
+      <li><strong>N<sub>sim</sub></strong>: number of MCTS simulations per checkpoint stage.</li>
+      <li><strong>soft+greedy G&amp;H</strong>: Stage 2 softmax optimization + Stage 3 one-hot optimization + Stage 4 semigreedy mutation search.</li>
+      <li><strong>msg5</strong>: dense-checkpoint MCTS with N<sub>sim</sub>=40 plus moderate soft+greedy Generate-and-Hallucinate at 5% mutation rate.</li>
+      <li><strong>rw_pl050_softg5</strong>: reward-shaped search with pLDDT weight 0.50 added to the iPAE-based reward, then the same moderate soft+greedy refinement bundle.</li>
+      <li><strong>Self</strong> and <strong>MPNN</strong> are always separate evaluation channels; a run with <code>5/8 self, 2/8 MPNN</code> does not mean 7/8 total.</li>
+      <li><strong>Paper references</strong> for Table 10 and Figure 19 usually report cumulative unique self successes at much larger budgets, not denominator-matched per-run pass rates.</li>
+    </ul>
+  </div>
   <div class="table-wrap">
   <table>
     <tr><th style="width:22%">Layer</th><th style="width:38%">Question</th><th style="width:40%">Working Decision</th></tr>
