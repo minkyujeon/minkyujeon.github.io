@@ -793,6 +793,11 @@
       <td>Do not intervene yet. <strong>Scale the default search</strong> and only add physics-aware reranking if top candidates disagree on interface quality.</td>
     </tr>
     <tr>
+      <td><strong>Geometry already exists</strong>, but short local edits improve outcomes strongly over default</td>
+      <td><code>hybrid_refinement_sensitive</code></td>
+      <td>Use <strong>short local refinement</strong> as the next step rather than treating the target as saturated. This is the updated interpretation for IL7RA and Insulin after Exp 27.</td>
+    </tr>
+    <tr>
       <td><strong><code>self &lt;&lt; mpnn</code></strong> while geometry passes often enough</td>
       <td><code>sequence_or_local_edit_limited</code></td>
       <td>Use <strong>sequence hallucination / local refinement</strong>. The backbone is already promising; the main failure is sequence quality or local packing.</td>
@@ -821,6 +826,10 @@
     <p><strong>Implementation choice:</strong> Phase 2 starts with an interpretable rule-based router, not a learned controller.
     The agent first needs good traces of <em>diagnosis &rarr; intervention &rarr; outcome</em>. Only after those traces exist
     does it make sense to learn a policy.</p>
+    <p><strong>Updated planning implication (April 10):</strong> the controller should route over <strong>operator bundles</strong>,
+    not isolated knobs. The right action unit is now things like <code>MCTS + soft+greedy G&amp;H</code> or
+    <code>reward-shaped MCTS + refinement</code>, because the experiments show that search alone, reward alone,
+    and refinement alone behave very differently.</p>
   </div>
 
   <h3>Why PPB-Affinity Is Deferred</h3>
@@ -892,13 +901,13 @@
     </tr>
     <tr>
       <td><strong>Sequence / redesign sensitive</strong></td>
-      <td><code>SpCas9</code>, <code>HER2_AAV</code>, partly <code>IL7RA</code>, <code>BetV1</code>, <code>CrSAS6</code></td>
+      <td><code>SpCas9</code>, <code>HER2_AAV</code>, <code>CrSAS6</code></td>
       <td>Use hallucination or local refinement only after geometry is present. Sequence-focused operators matter here.</td>
     </tr>
     <tr>
-      <td><strong>Weak / ambiguous</strong></td>
-      <td><code>Insulin</code></td>
-      <td>Use hedge policies and avoid overcommitting to any one operator without more evidence.</td>
+      <td><strong>Hybrid / refinement-sensitive</strong></td>
+      <td><code>IL7RA</code>, <code>Insulin</code>, partly <code>BetV1</code></td>
+      <td>Default generation is good enough to expose geometry, but the best next step is short local refinement rather than more default scaling.</td>
     </tr>
     <tr style="background:#d1fae5">
       <td><strong>Zero-hit &rarr; cracked via MCTS+G&amp;H</strong></td>
@@ -1718,7 +1727,7 @@ Propose a new harness configuration. Explain:
     <tr style="background:#fef3c7">
       <td><strong>2c</strong></td>
       <td>Rule-based multi-round loop demo</td>
-      <td>Exp 21 and Exp 24 established the first narrow loop; the next step is a stronger controller benchmark that routes among default, MCTS+refinement, and reward-shaped variants. Implemented infrastructure lives in <code>agentic_loop.py</code>.</td>
+      <td>Exp 21 and Exp 24 established the first narrow loop; the next step is a stronger controller benchmark that routes among default, short refinement, MCTS+refinement, and reward-shaped variants. Implemented infrastructure lives in <code>agentic_loop.py</code>.</td>
       <td><span class="tag tag-orange">Ready for next run</span></td>
       <td>Next</td>
     </tr>
@@ -1779,8 +1788,8 @@ Propose a new harness configuration. Explain:
       <td><strong>Exp 26</strong></td>
       <td>5 zero-hit targets</td>
       <td>Reward shaping + G&amp;H combos</td>
-      <td>SC2RBD e26_04: <strong>5/8 self (62.5%), 2/8 MPNN</strong> with pLDDT=0.5 reward. Reward-only (no G&amp;H): 0%. Only H1/TNF&alpha; <code>rws5</code>/<code>rws10</code> are still running.</td>
-      <td><span class="tag tag-orange">21/25 done + 4 running</span></td>
+      <td>SC2RBD e26_04: <strong>5/8 self (62.5%), 2/8 MPNN</strong> with pLDDT=0.5 reward. Reward-only (no G&amp;H): 0%. H1 <code>rws5</code> completed at 1/8 and did not exceed the non-reward best. Only H1 <code>rws10</code> and TNF&alpha; <code>rws5</code>/<code>rws10</code> are still running.</td>
+      <td><span class="tag tag-orange">22/25 done + 3 running</span></td>
     </tr>
     <tr style="background:#d1fae5">
       <td><strong>Exp 27</strong></td>
@@ -1818,6 +1827,16 @@ Propose a new harness configuration. Explain:
     <strong>Exp 29</strong> = canceled first scaling attempt; a fresh scaling benchmark is still needed.
     <strong>Exp 30</strong> = Meta-Harness agent demonstration.
   </p>
+
+  <div class="callout">
+    <p><strong>Planning update from the full audit:</strong> the next controller should no longer treat IL7RA as simply default-favored,
+    and it should not treat reward shaping as a generic upgrade. The supported next-step policy is:
+    <strong>default scaling for truly default-favored targets, short local refinement for hybrid/refinement-sensitive targets,
+    MCTS + local refinement for cracked hard targets, and reward-shaped MCTS only as a target-specific escalation.</strong></p>
+    <p><strong>LLM role:</strong> keep the LLM in the outer loop first, as a trace reader / planner / reflector in the
+    Meta-Harness style. The inner-loop controller should remain interpretable and bundle-based until we accumulate
+    more <em>diagnosis &rarr; action &rarr; outcome</em> traces.</p>
+  </div>
 
   <h3>Ablations Required for the Paper</h3>
   <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.9;">
