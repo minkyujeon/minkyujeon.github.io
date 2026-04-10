@@ -1358,7 +1358,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
         <div class="bar-row"><div class="bar-label">Exp 25 msg5</div><div class="bar-track"><div class="bar-fill green" style="width:50%"></div></div><div class="bar-val">4/8</div></div>
         <div class="bar-row"><div class="bar-label">Exp 26 rw50+s5</div><div class="bar-track"><div class="bar-fill purple" style="width:62.5%"></div></div><div class="bar-val">5/8</div></div>
       </div>
-      <div class="figure-caption">Caption: SC2RBD is the clearest example of bundle dependence. Beam-family search in Exp 20 gives 0/16, pure MCTS in Exp 25 stays at 0/8, MCTS+soft/greedy refinement reaches 4/8, and the reward-shaped refinement bundle reaches 5/8. Paper reference: SC2RBD is not a Sec I.4 target, but Table 10 reports 0 Complexa self successes on this target, so any non-zero local result is already stronger than our prior local and paper-reported baseline status. Interpretation: SC2RBD is not unlocked by “more search” alone; it needs search plus the right local refinement and reward stage.</div>
+      <div class="figure-caption">Caption: SC2RBD is the clearest example of bundle dependence. Beam-family search in Exp 20 gives 0/16 self, pure MCTS in Exp 25 stays at 0/8 self, MCTS+soft/greedy refinement reaches 4/8 self, and the reward-shaped refinement bundle reaches 5/8 self. Paper reference: SC2RBD is not a Sec I.4 target, but the broader all-target Table 10 reports Complexa(Ours) = 0 MPNN, 0 MPNN-FI, and 0 Self for SC2RBD. Interpretation: SC2RBD is not unlocked by “more search” alone; it needs search plus the right local refinement and reward stage.</div>
     </div>
     <div class="figure-card">
       <h4>TNF&alpha;</h4>
@@ -1383,7 +1383,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
       <h4>Paper Reference (Different Scale)</h4>
       <p>These paper numbers are cumulative unique self successes over hundreds of GPU-hours, so they should not be plotted on the same axis as our per-run pass rates.</p>
       <ul style="font-size:0.84rem; color:var(--muted); padding-left:18px; line-height:1.8; margin:0;">
-        <li><strong>SC2RBD:</strong> not a Sec I.4 target; Table 10 reports 0 Complexa self successes.</li>
+        <li><strong>SC2RBD:</strong> not a Sec I.4 target; the broader all-target Table 10 reports Complexa(Ours) = 0 MPNN, 0 MPNN-FI, and 0 Self.</li>
         <li><strong>TNF&alpha;:</strong> Sec I.4 / Fig. 19 reports 15 unique self successes within 475 GPU-hours.</li>
         <li><strong>H1:</strong> Sec I.4 / Fig. 19 reports 7 unique self successes within 604 GPU-hours.</li>
         <li><strong>IL17A:</strong> Sec I.4 / Fig. 19 reports 1 unique self success within 387 GPU-hours.</li>
@@ -1789,9 +1789,9 @@ Terminate: when unique success count plateaus
       <tr style="background:#d1fae5"><td>8</td><td>6.45</td><td>0.912</td><td>0.097</td><td class="best">PASS</td><td class="fail">FAIL</td></tr>
     </table>
     <p style="font-size:0.88rem; color:var(--muted); margin-top:8px;">
-      <strong>Result: 5/8 self (62.5%), 2/8 MPNN (25.0%).</strong>
-      The paper&rsquo;s Table 10 reports <strong>0 Complexa successes</strong> on SC2RBD across all methods.
-      We solve this target in 3.1 GPU-hours. The pLDDT reward weight likely prevents MCTS from discarding
+      <strong>Result: 5/8 self (62.5%) and 2/8 MPNN (25.0%), with 4 FoldSeek-unique self successes and 2 FoldSeek-unique MPNN successes.</strong>
+      The paper&rsquo;s broader all-target Table 10 reports <strong>0 Complexa MPNN, 0 Complexa MPNN-FI, and 0 Complexa Self</strong> on SC2RBD.
+      We reach this local SC2RBD result in 3.1 GPU-hours. The pLDDT reward weight likely prevents MCTS from discarding
       high-confidence trajectories that have suboptimal iPAE but rescuable interface geometry.
     </p>
   </div>
@@ -1812,7 +1812,7 @@ Terminate: when unique success count plateaus
         <div class="bar-row"><div class="bar-label">rw75 only</div><div class="bar-track"><div class="bar-fill red" style="width:0%"></div></div><div class="bar-val">0/8</div></div>
         <div class="bar-row"><div class="bar-label">rw50 + softg5</div><div class="bar-track"><div class="bar-fill purple" style="width:62.5%"></div></div><div class="bar-val">5/8</div></div>
       </div>
-      <div class="figure-caption">Caption: this panel isolates the completed SC2RBD Exp 26 runs. All reward-only settings remain at 0/8, while the moderate reward-shaped refinement bundle reaches 5/8. Paper reference: the paper does not report this SC2RBD-specific reward-schedule sweep; its SC2RBD table entry remains 0 Complexa self successes. Interpretation: the useful lesson is not “add pLDDT to the reward,” but “apply moderate reward shaping only inside the right refinement-coupled operator bundle.”</div>
+      <div class="figure-caption">Caption: this panel isolates the completed SC2RBD Exp 26 runs. All reward-only settings remain at 0/8 self, while the moderate reward-shaped refinement bundle reaches 5/8 self and 2/8 MPNN; the same run yields 4 FoldSeek-unique self successes. Paper reference: the paper does not report this SC2RBD-specific reward-schedule sweep; its broader Table 10 SC2RBD entry remains 0 for Complexa MPNN, MPNN-FI, and Self. Interpretation: the useful lesson is not “add pLDDT to the reward,” but “apply moderate reward shaping only inside the right refinement-coupled operator bundle.”</div>
     </div>
   </div>
 
@@ -1919,7 +1919,7 @@ Terminate: when unique success count plateaus
     </tr>
     <tr style="background:#d1fae5">
       <td><strong>SC2RBD</strong></td>
-      <td>Not a Sec I.4 target. Table 10 reports 0 Complexa self successes.</td>
+      <td>Not a Sec I.4 target. The broader all-target Table 10 reports Complexa(Ours) = 0 MPNN, 0 MPNN-FI, and 0 Self.</td>
       <td><code>Exp 26</code> <code>rw_pl050_softg5</code>: <strong>5/8 self</strong>, <strong>2/8 MPNN</strong>, with 4 FoldSeek-unique self successes, in 3.1 GPUh.</td>
       <td><strong>Stronger than our prior local baseline</strong> and stronger than the paper&rsquo;s reported Complexa table entry on this target.</td>
     </tr>
@@ -1943,7 +1943,7 @@ Terminate: when unique success count plateaus
     </tr>
     <tr>
       <td><strong>CbAgo</strong></td>
-      <td>Not a Sec I.4 target. Table 10 reports 0 Complexa self successes.</td>
+      <td>Not a Sec I.4 target. The broader all-target Table 10 reports Complexa(Ours) = 0 MPNN, 0 MPNN-FI, and 0 Self.</td>
       <td>All completed local runs remain <strong>0 self / 0 MPNN</strong>. Best observed near-miss is <code>iPAE*31=7.35</code>.</td>
       <td><strong>Still unresolved</strong>.</td>
     </tr>
