@@ -164,8 +164,10 @@
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#phase2-vision">Phase 2 Vision &amp; Finalized Working Plan</a>
       <ul style="list-style: disc; padding-left: 20px; margin-top: 4px;">
-        <li><a href="#structured-analysis" style="font-size:0.85rem">Structured Failure Analysis &amp; Task Decomposition</a> <span class="tag tag-purple" style="font-size:0.65rem">New</span></li>
-        <li><a href="#immediate-priorities" style="font-size:0.85rem">Immediate Priorities</a> <span class="tag tag-purple" style="font-size:0.65rem">New</span></li>
+        <li><a href="#structured-analysis" style="font-size:0.85rem">Structured Failure Analysis &amp; Task Decomposition</a></li>
+        <li><a href="#immediate-priorities" style="font-size:0.85rem">Priorities 1&ndash;5: Scaling &amp; Rule-Based Routing</a></li>
+        <li><a href="#immediate-priorities" style="font-size:0.85rem">Priority 6: Intermediate Backbone Diagnostic Pipeline</a> <span class="tag tag-red" style="font-size:0.65rem">Revised</span></li>
+        <li><a href="#immediate-priorities" style="font-size:0.85rem">Priority 7: Meta-Harness Agent</a> <span class="tag tag-red" style="font-size:0.65rem">Revised</span></li>
       </ul>
     </li>
   </ol>
@@ -1414,197 +1416,392 @@
   </div>
 
   <!-- ═══ PRIORITY 6 ═══ -->
-  <div class="exp-card" style="border-left: 4px solid var(--accent);">
-    <h4><span class="tag tag-blue">Priority 6 <span style="font-weight:400; color:var(--muted)">(Deprioritized)</span></span> LLM Integration Roadmap</h4>
+  <div class="exp-card" style="border-left: 4px solid var(--red);">
+    <h4><span class="tag tag-red">Priority 6</span> Intermediate Backbone Diagnostic Pipeline</h4>
 
-    <p><strong>Status update (April 10):</strong> With Exp 25/26 results, the rule-based router now covers all 5 target
-    classes with validated actions (scale-default, hallucination, noise, MCTS+G&amp;H, MCTS+G&amp;H+pLDDT reward).
-    The rules are <strong>sufficient for the current decision space</strong> (19 targets, ~5 bottleneck patterns).
-    An LLM planner adds complexity without adding capability at this stage. Deferred to Phase 3 &mdash; only
-    introduce the LLM when the rule-based system encounters a case it cannot handle, and use that specific
-    failure to motivate why the LLM is needed. The paper story is stronger with &ldquo;simple interpretable rules
-    that work&rdquo; than &ldquo;LLM that also works but you can&rsquo;t explain why.&rdquo;</p>
+    <p><strong>Motivation:</strong> Current diagnostics only see the <strong>final</strong> structure. But the MCTS tree stores
+    <strong>intermediate backbone structures</strong> at every checkpoint (<code>MCTSState.x_t</code> and <code>x_1_pred</code>
+    in <code>proteinfoundation/utils/mcts_utils.py</code>). A design can have a good backbone at t=200 that gets corrupted
+    by t=400 &mdash; or a good interface at t=150 that the reward function prunes away. Without intermediate diagnostics,
+    we cannot distinguish &ldquo;the model never generates good intermediates&rdquo; from &ldquo;the model generates good
+    intermediates but the search destroys them.&rdquo; This is the key enabling technology for both failure analysis
+    (Priority 7) and Meta-Harness-style agent optimization (Phase 3).</p>
 
-    <p><strong>When to use rules vs. LLM:</strong></p>
+    <p><strong>What <code>MCTSState</code> already stores (verified from source):</strong></p>
+    <pre><code>@dataclass
+class MCTSState:
+    current_step: int                      # checkpoint timestep (0, 50, 100, ...)
+    x_t: dict[str, torch.Tensor]           # intermediate latent state (backbone + sequence)
+    x_1_pred: dict[str, torch.Tensor]      # predicted clean sample (denoised backbone)
+    visits: int                            # MCTS visit count
+    cumulative_reward: float               # backpropagated reward sum
+    parent: Optional["MCTSState"]          # parent in the tree
+    children: list["MCTSState"]            # child states
+    sample_idx: int                        # batch index
+    branch_idx: int                        # branch index</code></pre>
+
+    <p><strong>Signals to extract at each checkpoint:</strong></p>
     <div class="table-wrap">
     <table>
-      <tr><th style="width:20%">Decision Point</th><th style="width:30%">Rule-Based (v1, current)</th><th style="width:30%">LLM-Powered (v2, future)</th><th style="width:20%">When to Switch</th></tr>
+      <tr><th style="width:25%">Signal</th><th style="width:20%">When</th><th style="width:35%">What It Reveals</th><th style="width:20%">Cost</th></tr>
       <tr>
-        <td><strong>Round 0 &rarr; 1 routing</strong></td>
-        <td>Decision tree: 3 questions on self_rate, gap, iPAE_pass, pLDDT_pass</td>
-        <td>LLM reads diagnostic JSON + target metadata + knowledge graph summary</td>
-        <td>When &gt;5 distinct bottleneck patterns exist and the tree can&rsquo;t handle mixed cases</td>
+        <td><strong>Backbone C&alpha; contacts to target hotspots</strong></td>
+        <td>Every checkpoint</td>
+        <td>Is the binder approaching the correct binding site? How many interface contacts form and when?
+        A trajectory where contacts form at t=200 then drop at t=300 indicates reward misguiding.</td>
+        <td>Free (geometric computation on <code>x_1_pred</code> coordinates)</td>
       </tr>
       <tr>
-        <td><strong>Round 1 &rarr; 2 adjustment</strong></td>
-        <td>If improved &gt;10pp &rarr; continue. If unchanged &rarr; switch. If dropped &rarr; revert.</td>
-        <td>LLM reads pre/post diagnostics + knowledge graph edges for similar targets + composes a novel config</td>
-        <td>When the adjustment requires reasoning about multi-dimensional tradeoffs (e.g., self improved but MPNN collapsed)</td>
+        <td><strong>Interface contact count</strong></td>
+        <td>t=100+ (after rough fold)</td>
+        <td>Number of binder-target C&alpha; pairs within 8&Aring;. Monotonic increase = good trajectory.
+        Decrease = the search is abandoning a promising interface.</td>
+        <td>Free</td>
       </tr>
       <tr>
-        <td><strong>Escalation</strong></td>
-        <td>If &ge;2 rounds of zero-hit &rarr; switch to paper recipe &rarr; switch model family</td>
-        <td>LLM reads full trace history, proposes novel escalation strategy or characterizes the failure frontier</td>
-        <td>When the escalation path is exhausted and creative hypothesis generation is needed</td>
+        <td><strong>Backbone radius of gyration</strong></td>
+        <td>Every checkpoint</td>
+        <td>Is the binder forming a compact fold or staying extended? Compact early = the topology is locking in.
+        Useful for detecting &ldquo;the binder never folds&rdquo; failure mode.</td>
+        <td>Free</td>
       </tr>
       <tr>
-        <td><strong>Cross-target transfer</strong></td>
-        <td>Knowledge graph community membership + nearest-neighbor by bottleneck vector</td>
-        <td>LLM reads target metadata (chain count, interface type, hotspot geometry) + graph context and reasons about biological similarity</td>
-        <td>When new targets are unlike any in the graph and biological reasoning adds value</td>
+        <td><strong>ESMFold pLDDT (fast proxy)</strong></td>
+        <td>Every N checkpoints (e.g., t=0, 100, 200, 300, 400)</td>
+        <td>Quick structural confidence without full AF2 Multimer. Identifies whether the sequence
+        is confident about the intermediate backbone &mdash; separates backbone quality from sequence quality.</td>
+        <td>Cheap (~2s per structure via ESMFold)</td>
+      </tr>
+      <tr>
+        <td><strong>Self vs MPNN designability at intermediate backbone</strong></td>
+        <td>1-2 key checkpoints (e.g., t=200, t=400)</td>
+        <td>If MPNN can design a good sequence for the t=200 backbone but not the t=400 backbone,
+        the late denoising steps are corrupting a designable structure. This is the strongest signal
+        for &ldquo;backbone was good, late refinement broke it.&rdquo;</td>
+        <td>Expensive (MPNN + AF2 refold; use sparingly)</td>
+      </tr>
+      <tr>
+        <td><strong>Reward trajectory</strong></td>
+        <td>Every checkpoint</td>
+        <td>The reward value at each MCTS decision point. Already computed by the MCTS search
+        (stored in <code>cumulative_reward</code>). Monotonic increase = reward guides correctly.
+        Spike-then-drop = reward is misleading the search.</td>
+        <td>Free (already computed)</td>
       </tr>
     </table>
     </div>
 
-    <p><strong>LLM prompt structure (v2 strategy agent):</strong></p>
-    <pre><code>You are a protein design strategy agent. Given:
-1. Target diagnostic: {diagnostic_sidecar_json}
-2. Knowledge graph context: {relevant_subgraph_json}
-3. Remaining budget: {gpu_hours_remaining}
-4. Prior rounds for this target: {trace_history_json}
+    <p><strong>Output format (per-design trajectory diagnostic JSON):</strong></p>
+    <pre><code>{
+  "target": "30_SC2RBD",
+  "design_id": "job_0_n_297_id_0",
+  "config": "exp25_05_msg5",
+  "final_pass": true,
+  "checkpoints": [
+    {"t": 0,   "reward": 0.0,   "n_contacts": 0,  "rg": 45.2, "esmfold_plddt": null},
+    {"t": 50,  "reward": -0.82, "n_contacts": 2,  "rg": 32.1, "esmfold_plddt": null},
+    {"t": 100, "reward": -0.65, "n_contacts": 5,  "rg": 18.4, "esmfold_plddt": 0.42},
+    {"t": 150, "reward": -0.51, "n_contacts": 8,  "rg": 15.2, "esmfold_plddt": null},
+    {"t": 200, "reward": -0.38, "n_contacts": 12, "rg": 14.1, "esmfold_plddt": 0.65},
+    {"t": 250, "reward": -0.29, "n_contacts": 10, "rg": 13.8, "esmfold_plddt": null},
+    {"t": 300, "reward": -0.22, "n_contacts": 14, "rg": 13.5, "esmfold_plddt": 0.78},
+    {"t": 350, "reward": -0.19, "n_contacts": 15, "rg": 13.2, "esmfold_plddt": null},
+    {"t": 400, "reward": -0.18, "n_contacts": 16, "rg": 13.0, "esmfold_plddt": 0.93}
+  ],
+  "trajectory_diagnosis": "monotonic_improvement",
+  "contact_trend": "increasing",
+  "reward_trend": "monotonic_increase"
+}</code></pre>
 
-Recommend:
-- next_operator: {algorithm, noise, refinement, reward_weights}
-- fallback_operator: {if next_operator fails}
-- budget_split: {hours for next vs reserved for fallback}
-- reasoning: {why this operator, what evidence from the graph}
-- stop_condition: {when to terminate and report}</code></pre>
+    <p><strong>Implementation plan (for tomorrow):</strong></p>
+    <ol style="font-size:0.88rem; color:var(--muted); padding-left:20px; line-height:1.8;">
+      <li><strong>Step 1: Modify MCTS to save intermediate structures.</strong>
+      In <code>mcts_search.py</code>, after <code>_mcts_partial_simulation_batch()</code> (line ~142), decode
+      <code>x_1_pred</code> via <code>sample_formatting()</code> and save the C&alpha; coordinates for the chosen branch.
+      Minimal change: add a <code>save_trajectory=True</code> flag that writes per-checkpoint backbone PDBs to a
+      <code>trajectory/</code> subdirectory alongside the final design PDB.
+      <strong>Estimated: ~50 lines of code in <code>mcts_search.py</code>.</strong></li>
 
-    <p><strong>Evaluation (Exp 30, future):</strong> Leave-one-out on 19 targets: train LLM routing on 18, predict 19th.
-    Compare accuracy vs. rule-based tree vs. random selection. The LLM adds value only if it
-    correctly routes targets that the tree gets wrong (currently: BetV1 and mixed-profile targets).</p>
+      <li><strong>Step 2: Build <code>trajectory_diagnostics.py</code>.</strong>
+      A standalone script that reads saved trajectory PDBs and computes the 6 signals above:
+      <code>compute_contacts(backbone_pdb, target_pdb, hotspot_residues)</code>,
+      <code>compute_rg(backbone_pdb)</code>,
+      <code>compute_esmfold_plddt(sequence)</code> (optional, expensive).
+      Outputs the JSON schema above.
+      <strong>Estimated: ~150 lines of Python.</strong></li>
 
-    <p><strong>Cost:</strong> API calls only for routing; GPU cost same as Exp 29 for execution. <strong>Status:</strong> <span class="tag tag-purple">After Exp 29</span></p>
+      <li><strong>Step 3: Run on existing Exp 25/26 data.</strong>
+      The MCTS tree structure is not saved to disk after the job completes (only final designs are saved).
+      For existing runs, we can only extract reward trajectory from MCTS logs (if verbose logging was enabled).
+      For new runs (Exp 29 scaling), enable <code>save_trajectory=True</code> to capture full intermediate backbones.
+      <strong>Estimated: resubmit 2-3 scaling runs with trajectory saving enabled.</strong></li>
+
+      <li><strong>Step 4: Visualize and analyze.</strong>
+      Plot per-checkpoint signals for successful vs. failed designs on SC2RBD and CbAgo.
+      Identify the checkpoint where successful and failed trajectories diverge.
+      This is the key diagnostic for the Meta-Harness agent.
+      <strong>Estimated: ~100 lines matplotlib plotting code.</strong></li>
+    </ol>
+
+    <p><strong>Cost:</strong> ~1 day engineering + 2-3 resubmitted runs (~10 GPU-hours). <strong>Status:</strong> <span class="tag tag-purple">Next (tomorrow)</span></p>
   </div>
 
   <!-- ═══ PRIORITY 7 ═══ -->
-  <div class="exp-card" style="border-left: 4px solid var(--red);">
-    <h4><span class="tag tag-red">Priority 7</span> Zero-Hit Failure Analysis Protocol</h4>
+  <div class="exp-card" style="border-left: 4px solid var(--accent);">
+    <h4><span class="tag tag-blue">Priority 7</span> Meta-Harness Agent: LLM-Driven Harness Optimization</h4>
 
-    <p><strong>Update (April 10):</strong> SC2RBD, TNF&alpha;, and H1 are now cracked by Exp 25/26. Only <strong>CbAgo</strong>
-    (0% self, nearest miss iPAE*31=7.35) and <strong>IL17A</strong> (0% self, 1 MPNN-only pass) remain truly zero-hit.
-    The failure analysis now focuses on these two targets, plus a <em>success analysis</em> of how MCTS+G&amp;H
-    unlocked SC2RBD/TNF&alpha;/H1 &mdash; understanding why the breakthrough worked is as important as understanding
-    why CbAgo/IL17A still fail.</p>
+    <p><strong>Revised vision (April 10):</strong> The rule-based router (v1) selects from a fixed menu of 5 operators.
+    This is sufficient for known patterns but cannot discover <em>novel</em> configurations. The Meta-Harness pattern
+    goes further: an LLM agent reads <strong>full execution traces</strong> (intermediate backbone structures, per-checkpoint
+    rewards, structural quality trajectories) and proposes <strong>structural modifications</strong> to the inference pipeline.
+    It doesn&rsquo;t select from a menu &mdash; it writes new configurations by reasoning about <em>why</em> the previous
+    one failed at the trajectory level.</p>
 
-    <p><strong>Analysis protocol (no additional GPU, uses existing Exp 20/25/26 outputs):</strong></p>
+    <p><strong>What makes this different from rule-based routing:</strong></p>
     <div class="table-wrap">
     <table>
-      <tr><th style="width:25%">Analysis</th><th style="width:35%">Method</th><th style="width:40%">What It Reveals</th></tr>
+      <tr><th style="width:22%">Capability</th><th style="width:35%">Rule-Based Router (Phase 2)</th><th style="width:43%">Meta-Harness Agent (Phase 3)</th></tr>
       <tr>
-        <td><strong>Trajectory-level inspection</strong></td>
-        <td>Extract intermediate iPAE/pLDDT at each checkpoint (t=0, 50, 100, ..., 400) from MCTS logs</td>
-        <td>Does the model find promising intermediates that get pruned? Or does it never produce good intermediates at all? If promising intermediates exist at t=200 but disappear by t=400, the reward function is misguiding late refinement.</td>
+        <td><strong>Action space</strong></td>
+        <td>Fixed menu: {default, noise, halluc, MCTS+G&amp;H, MCTS+G&amp;H+pLDDT}</td>
+        <td>Open-ended: any valid Hydra override combination, including novel reward functions, checkpoint schedules, and refinement parameters</td>
       </tr>
       <tr>
-        <td><strong>Reward-trajectory correlation</strong></td>
-        <td>Plot reward value at each checkpoint vs. final success for all designs across all targets (successful and failed)</td>
-        <td>Does the reward function predict success? If high-reward intermediates on zero-hit targets have different metric profiles than high-reward intermediates on solvable targets, the reward is domain-shifted.</td>
+        <td><strong>Input signal</strong></td>
+        <td>5 scalars: self_rate, mpnn_rate, iPAE_pass%, pLDDT_pass%, gap</td>
+        <td>Full trajectory diagnostic: per-checkpoint backbone structures, contact trajectories, reward curves, ESMFold pLDDT at intermediates, final evaluation + all prior traces</td>
       </tr>
       <tr>
-        <td><strong>Structural comparison</strong></td>
-        <td>Run FoldSeek on the best (lowest iPAE) designs from zero-hit targets vs. successful designs from solvable targets</td>
-        <td>Are zero-hit backbones topologically similar to or different from successful backbones? If similar but with worse iPAE, the interface is the problem. If topologically different, the prior doesn&rsquo;t cover the right fold space.</td>
+        <td><strong>Failure reasoning</strong></td>
+        <td>&ldquo;self_rate=0 &rarr; zero-hit &rarr; try MCTS+G&amp;H&rdquo;</td>
+        <td>&ldquo;Interface contacts form at t=200 (12 contacts) but drop to 5 by t=300. The reward function prunes
+        good intermediates during late refinement. Proposed fix: add contact_preservation=0.3 to reward after t=200,
+        reduce exploration_prob from 0.3 to 0.1 in late checkpoints.&rdquo;</td>
       </tr>
       <tr>
-        <td><strong>Cross-method comparison</strong></td>
-        <td>Compare Complexa&rsquo;s best designs on SC2RBD with BindCraft&rsquo;s designs (Priority 3). Structural alignment + interface analysis.</td>
-        <td>What does BindCraft get right that Complexa doesn&rsquo;t? Does it find a different binding mode, a different fold topology, or the same topology with better interface packing?</td>
-      </tr>
-      <tr>
-        <td><strong>Interface geometry analysis</strong></td>
-        <td>Compute interface shape complementarity, H-bond count, and buried surface area for near-miss designs (iPAE &lt; 10, pLDDT &lt; 0.9)</td>
-        <td>Is the failure about interface geometry (wrong shape) or interface chemistry (right shape, wrong residues)? This determines whether the fix is structural (more exploration) or sequence-level (better hallucination).</td>
+        <td><strong>Discovery potential</strong></td>
+        <td>None &mdash; can only select what we already know works</td>
+        <td>Can discover interventions we haven&rsquo;t manually tested (e.g., checkpoint-specific reward weights, novel noise schedules)</td>
       </tr>
     </table>
     </div>
 
-    <p><strong>Deliverable:</strong> A per-target failure report answering: &ldquo;This target fails because [topology/interface/reward/prior] is the bottleneck,
-    and the evidence is [specific metric/structural analysis]. The recommended next step is [specific action or &lsquo;beyond current methods&rsquo;].&rdquo;</p>
+    <p><strong>Architecture (Meta-Harness adapted to protein design):</strong></p>
+    <pre><code># Meta-Harness outer loop
+for iteration in range(max_iterations):
+    # 1. Agent reads full execution traces
+    traces = load_all_traces(target, filesystem="trajectory_diagnostics/")
+    prior_configs = load_prior_harness_configs(target)
+    prior_scores = load_prior_scores(target)
 
-    <p><strong>Cost:</strong> Analysis only, no GPU. ~1-2 days. <strong>Status:</strong> <span class="tag tag-purple">After Exp 28 results</span></p>
+    # 2. Agent forms hypothesis about why the last harness failed
+    #    (reads intermediate backbone structures, reward trajectories, etc.)
+    # 3. Agent proposes a new harness config (Hydra overrides)
+    new_config = llm_propose_harness(
+        target_diagnostic=current_diagnostic,
+        trajectory_traces=traces,           # per-checkpoint backbone diagnostics
+        prior_configs=prior_configs,         # source code of all prior harness YAMLs
+        prior_scores=prior_scores,           # self_rate, mpnn_rate for each prior
+        remaining_budget=budget_remaining,
+    )
+    # Output: a dict of Hydra overrides + reasoning
+
+    # 4. Execute the proposed harness
+    run_name = submit_complexa_job(target, new_config)
+    wait_for_completion(run_name)
+
+    # 5. Evaluate and store the full trace
+    results = evaluate_run(run_name)
+    trajectory = extract_trajectory_diagnostics(run_name)  # Priority 6 pipeline
+    save_trace(target, iteration, new_config, results, trajectory)</code></pre>
+
+    <p><strong>LLM prompt structure (reads trajectory diagnostics, not just scalars):</strong></p>
+    <pre><code>You are a protein design harness optimizer. The fixed model is Proteina-Complexa.
+Your job: propose a new inference-time configuration that improves binder design success.
+
+## Target: {target_name}
+{target_metadata: PDB, hotspot residues, binder length, chain info}
+
+## Current best harness: {best_config_yaml}
+Result: {best_self_rate}% self, {best_mpnn_rate}% MPNN in {best_gpu_hours}h
+
+## Last attempt: {last_config_yaml}
+Result: {last_self_rate}% self, {last_mpnn_rate}% MPNN
+
+## Trajectory diagnostic from last attempt:
+{per_checkpoint_backbone_analysis}
+Key observations:
+- Interface contacts: {contact_trajectory} (e.g., [0, 2, 5, 8, 12, 10, 5, 3, 2])
+- Reward trajectory: {reward_trajectory}
+- Backbone quality (ESMFold pLDDT): {plddt_trajectory}
+
+## All prior attempts (configs + scores + trajectory summaries):
+{filesystem_of_all_prior_traces}
+
+## Budget remaining: {gpu_hours_remaining}h
+
+Propose a new harness configuration. Explain:
+1. What you think went wrong in the last attempt (citing specific checkpoint data)
+2. What structural change you are making and why
+3. The exact Hydra overrides for the new config
+4. What you expect to see if the fix works</code></pre>
+
+    <p><strong>What the agent can discover that rules cannot:</strong></p>
+    <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
+      <li><strong>Checkpoint-specific reward weights:</strong> &ldquo;Add pLDDT=0.5 only after t=200 when
+      the fold topology is locked in, but use iPAE-only before t=200 to allow structural exploration.&rdquo;</li>
+      <li><strong>Adaptive exploration schedules:</strong> &ldquo;Use exploration_prob=0.5 before the first promising
+      interface is found, then drop to 0.1 to exploit the good trajectory.&rdquo;</li>
+      <li><strong>Novel refinement strategies:</strong> &ldquo;Apply greedy hallucination only to interface residues
+      (not the whole sequence) because the core fold is good but interface packing is wrong.&rdquo;</li>
+      <li><strong>Cross-target insights:</strong> &ldquo;CbAgo&rsquo;s trajectory looks like SC2RBD&rsquo;s before we added
+      pLDDT reward &mdash; try the same fix but with higher weight (0.75 instead of 0.50).&rdquo;</li>
+    </ul>
+
+    <p><strong>Demonstration plan (Exp 30):</strong></p>
+    <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
+      <li>Target: CbAgo (still zero-hit, best near-miss iPAE*31=7.35)</li>
+      <li>5 iterations of the Meta-Harness loop</li>
+      <li>Each iteration: agent reads traces &rarr; proposes config &rarr; execute ~3h &rarr; evaluate</li>
+      <li>Total: ~15-20 GPU-hours + LLM API calls</li>
+      <li><strong>Success criterion:</strong> Agent-discovered config produces &ge;1 CbAgo success where all manually designed configs produced 0.
+      Or: agent-discovered config achieves better per-GPU-hour efficiency than the best manual config on any target.</li>
+    </ul>
+
+    <p><strong>Dependencies:</strong> Priority 6 (intermediate backbone diagnostic pipeline) must be complete first.
+    The agent needs trajectory-level traces to reason about, not just final pass/fail scalars.</p>
+
+    <p><strong>Cost:</strong> ~20 GPU-hours + LLM API. <strong>Status:</strong> <span class="tag tag-purple">After Priority 6</span></p>
   </div>
 
-  <h3>Execution Roadmap</h3>
+  <h3>Execution Roadmap (Revised April 10, 2026)</h3>
   <div class="table-wrap">
   <table>
-    <tr><th style="width:15%">Phase</th><th style="width:30%">Deliverable</th><th style="width:28%">Main Experiments</th><th style="width:27%">Success Signal</th></tr>
-    <tr>
-      <td><strong>A</strong></td>
-      <td>Freeze the benchmark and trace format</td>
-      <td>Formalize 10h / 30h / 100h budgets; store diagnosis, action, budget, and outcome in one schema.</td>
-      <td>Every run becomes comparable and reusable by the controller.</td>
+    <tr><th style="width:12%">Phase</th><th style="width:28%">Deliverable</th><th style="width:30%">Main Experiments</th><th style="width:15%">Status</th><th style="width:15%">Timeline</th></tr>
+    <tr style="background:#d1fae5">
+      <td><strong>1</strong></td>
+      <td>Manual ablation &rarr; discover target-specific interventions</td>
+      <td>Exp 1&ndash;17: FK steering, noise, halluc, composite rewards, beam variants. 100+ experiments on 19 targets.</td>
+      <td><span class="tag tag-green">Done</span></td>
+      <td>April 2026</td>
+    </tr>
+    <tr style="background:#d1fae5">
+      <td><strong>2a</strong></td>
+      <td>Zero-hit frontier cracked via MCTS+G&amp;H</td>
+      <td>Exp 25/26: SC2RBD 62.5%, TNF&alpha; 50%, H1 12.5%. ~8&times; speedup vs paper on TNF&alpha;.</td>
+      <td><span class="tag tag-green">Done</span></td>
+      <td>April 2026</td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td><strong>2b</strong></td>
+      <td>Scaling curves (prove inference-time scaling, not lucky one-shot)</td>
+      <td>Exp 29: 6 long-running jobs (48h each) on CD45, SC2RBD, TNF&alpha;. Figure 19 equivalent.</td>
+      <td><span class="tag tag-orange">Running</span></td>
+      <td>April 10&ndash;12</td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td><strong>2c</strong></td>
+      <td>Rule-based multi-round loop demo</td>
+      <td>Exp 29 adaptive arm: diagnostic &rarr; route &rarr; execute &rarr; re-diagnose on 3 targets at 30h each.
+      Compare vs. fixed strategies. Implemented in <code>agentic_loop.py</code>.</td>
+      <td><span class="tag tag-orange">Ready</span></td>
+      <td>April 11&ndash;14</td>
     </tr>
     <tr>
-      <td><strong>B</strong></td>
-      <td>Strengthen the zero-hit action set</td>
-      <td>Add reward-shaped MCTS for <code>H1</code>, <code>IL17A</code>, and <code>TNF&alpha;</code>; add a cleaner local-refinement arm instead of relying only on global hallucination.</td>
-      <td>The controller has at least one stronger action beyond beam-family diversity.</td>
+      <td><strong>3a</strong></td>
+      <td><strong>Intermediate backbone diagnostic pipeline</strong></td>
+      <td>Modify MCTS to save per-checkpoint backbones. Build <code>trajectory_diagnostics.py</code> to compute
+      contact trajectories, Rg, ESMFold pLDDT at intermediates. Output: per-design trajectory JSON.</td>
+      <td><span class="tag tag-purple">Next</span></td>
+      <td>April 11</td>
     </tr>
     <tr>
-      <td><strong>C</strong></td>
-      <td>Budget-aware controller benchmark</td>
-      <td>Compare fixed best arm, static tuner baseline, rule-based controller, and later contextual selector on the hard-target set.</td>
-      <td>Higher first-hit probability or better success-vs-budget curve at matched compute.</td>
+      <td><strong>3b</strong></td>
+      <td><strong>Meta-Harness agent: LLM-driven harness optimization</strong></td>
+      <td>Exp 30: LLM reads trajectory diagnostics + prior traces &rarr; proposes novel harness configs &rarr; execute.
+      5 iterations on CbAgo. Goal: agent-discovered config beats all manually designed configs.</td>
+      <td><span class="tag tag-purple">After 3a</span></td>
+      <td>April 12&ndash;15</td>
     </tr>
     <tr>
-      <td><strong>D</strong></td>
-      <td>Physics-aware refinement stage</td>
-      <td>Add sidecar TMOL / bioinformatics features, then local <code>&Delta;&Delta;G</code>-style rescoring for top candidates.</td>
-      <td>Better reranking and more targeted refinement decisions without replacing the main generator.</td>
-    </tr>
-    <tr>
-      <td><strong>E</strong></td>
-      <td>Portfolio expansion across model families</td>
-      <td>Add external arms such as <code>BindCraft</code> under a shared evaluation and budgeting harness.</td>
-      <td>Show that model-family selection, not just config selection, matters on extreme targets.</td>
+      <td><strong>4</strong></td>
+      <td>Portfolio expansion + physics-aware refinement</td>
+      <td>BindCraft as external arm. TMOL/bioinformatics sidecar for top-candidate rescoring. &Delta;&Delta;G oracle.</td>
+      <td><span class="tag tag-purple">Future</span></td>
+      <td>Late April</td>
     </tr>
   </table>
   </div>
 
-  <h3>Active Experiment Program (April 9, 2026)</h3>
-  <p style="font-size:0.88rem; color:var(--muted); margin-bottom:10px;">
-    The current run program is deliberately split across <strong>controller</strong>, <strong>search</strong>,
-    <strong>reward</strong>, and <strong>local refinement</strong> questions. This avoids spending large GPU budgets
-    on a single explanation for the zero-hit frontier.
-  </p>
+  <div class="callout">
+    <p><strong>The key transition (Phase 2 &rarr; Phase 3):</strong> Phase 2 proves that choosing the right operator per target
+    improves success-vs-budget (rule-based routing + scaling curves). Phase 3 proves that an LLM agent reading
+    <strong>intermediate backbone trajectory diagnostics</strong> can discover <em>novel</em> operator configurations
+    that no manually designed rule would find. The intermediate backbone pipeline (Priority 6) is the bridge &mdash;
+    without it, the agent sees only final scalars (same as rules). With it, the agent can reason about
+    <em>where in the denoising trajectory</em> the design fails and propose checkpoint-specific fixes.</p>
+  </div>
+
+  <h3>Active Experiment Program (Updated April 10, 2026)</h3>
   <div class="table-wrap">
   <table>
-    <tr><th style="width:15%">Batch</th><th style="width:20%">Targets</th><th style="width:27%">Why this batch exists</th><th style="width:23%">What it is actually testing</th><th style="width:15%">Status</th></tr>
-    <tr>
+    <tr><th style="width:12%">Batch</th><th style="width:18%">Targets</th><th style="width:25%">What it tested</th><th style="width:30%">Key result</th><th style="width:15%">Status</th></tr>
+    <tr style="background:#d1fae5">
       <td><strong>Exp 24</strong></td>
-      <td><code>VEGFA</code>, <code>IL7RA</code>, <code>SC2RBD</code></td>
-      <td>First narrow agentic benchmark across three distinct empirical classes: default-favored, tradeoff, and zero-hit.</td>
-      <td>Whether the implemented diagnostic sidecar + rule-based router chooses the right next action better than a single fixed policy.</td>
-      <td><span class="tag tag-orange">Running</span></td>
+      <td>VEGFA, IL7RA, SC2RBD</td>
+      <td>Rule-based router across 3 target classes</td>
+      <td>Correctly routed VEGFA (75%) and IL7RA (72%). SC2RBD 0% &mdash; needed MCTS+G&amp;H (not in v1 action set).</td>
+      <td><span class="tag tag-green">Done</span></td>
     </tr>
-    <tr>
+    <tr style="background:#d1fae5">
       <td><strong>Exp 25</strong></td>
-      <td><code>SC2RBD</code>, <code>CbAgo</code>, <code>H1</code>, <code>IL17A</code>, <code>TNF&alpha;</code></td>
-      <td>Search-hypothesis batch for the zero-hit frontier.</td>
-      <td>Whether denser checkpoints, larger MCTS simulation counts, altered exploration constants, and non-paper local-refinement variants rescue geometry where beam-family diversity failed.</td>
-      <td><span class="tag tag-orange">Running / Queued</span></td>
+      <td>5 zero-hit targets</td>
+      <td>5 MCTS configs &times; 5 targets</td>
+      <td><strong>Breakthrough:</strong> msg5 (MCTS+G&amp;H) cracks SC2RBD (4/8), TNF&alpha; (4/8), H1 (1/8). Pure MCTS: ~0.</td>
+      <td><span class="tag tag-green">Done (25/25)</span></td>
     </tr>
-    <tr>
+    <tr style="background:#fef3c7">
       <td><strong>Exp 26</strong></td>
-      <td><code>SC2RBD</code>, <code>CbAgo</code>, <code>H1</code>, <code>IL17A</code>, <code>TNF&alpha;</code></td>
-      <td>Reward-hypothesis batch for the zero-hit frontier.</td>
-      <td>Whether the current AF2-guided reward is too narrow and whether adding more <code>pLDDT</code> weight changes the search trajectory before any external physics model is introduced.</td>
-      <td><span class="tag tag-purple">Submitted</span></td>
+      <td>5 zero-hit targets</td>
+      <td>Reward shaping + G&amp;H combos</td>
+      <td>SC2RBD e26_04: <strong>5/8 self (62.5%)</strong> with pLDDT=0.5 reward. Reward-only (no G&amp;H): 0%. H1/TNF&alpha;/IL17A tail still running.</td>
+      <td><span class="tag tag-orange">~15/25 done</span></td>
+    </tr>
+    <tr style="background:#d1fae5">
+      <td><strong>Exp 27</strong></td>
+      <td>SpCas9, HER2, IL7RA, Insulin</td>
+      <td>5 hallucination schedules</td>
+      <td>greedy 5% best balanced; soft+greedy best self. HER2: 100% across all. CrSAS6 failed (ID mismatch, resubmitted).</td>
+      <td><span class="tag tag-green">Done (19/25)</span></td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td><strong>Exp 28</strong></td>
+      <td>H1, TNF&alpha;, IL17A, SC2RBD</td>
+      <td>Paper&rsquo;s exact Sec I.4 recipe</td>
+      <td>Running. Answers: does our msg5 config outperform the paper&rsquo;s recipe at matched walltime?</td>
+      <td><span class="tag tag-orange">Running (4/4)</span></td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td><strong>Exp 29</strong></td>
+      <td>CD45, SC2RBD, TNF&alpha;</td>
+      <td>Scaling curves (Fig 19 equivalent)</td>
+      <td>6 long-running jobs (48h each). Continuous generation loop with periodic checkpointing of cumulative successes.</td>
+      <td><span class="tag tag-orange">Queued (6 jobs)</span></td>
     </tr>
     <tr>
-      <td><strong>Exp 27</strong></td>
-      <td><code>SpCas9</code>, <code>HER2_AAV</code>, <code>IL7RA</code>, <code>CrSAS6</code>, <code>Insulin</code></td>
-      <td>Local-optimization batch on targets that already show geometry or redesign sensitivity.</td>
-      <td>Whether Generate &amp; Hallucinate performance is limited by schedule choice rather than by the refinement idea itself.</td>
-      <td><span class="tag tag-purple">Submitted</span></td>
+      <td><strong>Exp 30</strong></td>
+      <td>CbAgo (target)</td>
+      <td><strong>Meta-Harness agent demo</strong></td>
+      <td>5 iterations: LLM reads trajectory diagnostics &rarr; proposes novel harness &rarr; execute. Goal: crack CbAgo (still 0%).</td>
+      <td><span class="tag tag-purple">After Priority 6</span></td>
     </tr>
   </table>
   </div>
   <p class="note">
-    Read this as a factorial research program rather than a monolithic sweep:
-    <strong>Exp 24 = controller</strong>, <strong>Exp 25 = search</strong>, <strong>Exp 26 = reward</strong>,
-    and <strong>Exp 27 = local optimization</strong>.
+    <strong>Exp 24-27</strong> = factorial ablation (controller / search / reward / refinement).
+    <strong>Exp 28</strong> = paper recipe comparison.
+    <strong>Exp 29</strong> = scaling validation.
+    <strong>Exp 30</strong> = Meta-Harness agent demonstration.
   </p>
 
   <h3>Ablations Required for the Paper</h3>
@@ -1621,20 +1818,19 @@ Recommend:
   <h3>What This Project Is and Is Not</h3>
   <div class="callout">
     <p>
-      <strong>It is:</strong> a budget-aware, target-conditional, rule-based controller for de novo binder design.
-      It decomposes the design problem into diagnosable subtasks, routes each to the right operator, and improves
-      from structured experimental traces &mdash; the same diagnose &rarr; select &rarr; execute &rarr; reflect
-      pattern that Meta-Harness, MARS, and MLE-STAR use for ML engineering, adapted to protein design where the
-      &ldquo;harness&rdquo; is the inference-time configuration around a frozen generative model.<br>
-      <strong>It is not:</strong> a generic hyperparameter sweep, a single best-config search, or an LLM-powered planner
-      (the decision space is currently covered by interpretable rules; LLM integration is deferred to Phase 3
-      when the rule-based system encounters cases it cannot handle).<br>
+      <strong>It is:</strong> a two-phase system for de novo binder design that mirrors the Meta-Harness architecture:
+      a <strong>frozen generative model</strong> (Complexa) surrounded by an <strong>optimizable inference-time harness</strong>
+      (search algorithm, reward function, refinement schedule). Phase 2 uses a rule-based router to select from
+      validated operators. Phase 3 uses an <strong>LLM agent that reads intermediate backbone trajectory diagnostics</strong>
+      and proposes novel harness configurations &mdash; going beyond menu selection to open-ended pipeline optimization.<br>
+      <strong>It is not:</strong> a generic hyperparameter sweep, a static best-config search, or a simple rule-based router
+      (though rules are the starting point). The full system aims to show that an <strong>agent-discovered configuration
+      outperforms any manually designed one</strong> by reasoning about <em>why</em> the pipeline fails at the trajectory level.<br>
       <strong>Working thesis (confirmed by Exp 25/26):</strong> the model covers the correct fold space &mdash;
-      H1 yields hits in 19.4h (paper: first hit ~100-200h), TNF&alpha; in 16.2h (paper: ~50-100h),
-      and SC2RBD is cracked at 62.5% self (paper: 0%). The biggest gains come from <em>choosing the right operator
-      for the current target state</em>: MCTS+G&amp;H for zero-hit targets, noise for geometry-limited, halluc for
-      sequence-limited, default for saturated. A rule-based router with 5 branches and a structured diagnostic
-      covers all 19 targets.
+      H1 yields hits in 19.4h (paper: ~100-200h), TNF&alpha; in 16.2h (paper: ~50-100h),
+      SC2RBD is cracked at 62.5% (paper: 0%). Phase 2 proves this via rule-based routing.
+      Phase 3 proves that intermediate backbone diagnostics + LLM reasoning can discover configurations
+      that no hand-designed rule would find &mdash; the Meta-Harness thesis applied to protein design.
     </p>
   </div>
 
