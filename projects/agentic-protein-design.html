@@ -443,7 +443,8 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     notto = 200 independent random trajectories with no reward guidance.
     wide = large beam_width (16) with fewer, widely-spaced checkpoints (3 pruning steps).
     deep = smaller beam_width (8) with more frequent checkpoints (6 pruning steps).
-    All configs produce 32 final samples for evaluation except notto (200) and deep (~12-14, limited by beam branching).
+    <strong>All beam-search configs in the Phase 0 sweep contribute 32 evaluated final samples per run</strong>;
+    only notto uses ~200 independent samples (194 for BetV1, 199 for TrkA, 200 otherwise).
   </p>
 
   <h3>Generation-Stage AF2 iPAE (Lower = Better Binding)</h3>
@@ -548,7 +549,8 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     <code>self</code> = model's co-designed sequence.
     <code>mpnn</code> = ProteinMPNN redesign of same backbone.
     Pass rate = fraction of samples meeting all three criteria simultaneously.
-    notto uses 194&ndash;200 samples; deep uses 9&ndash;14; wide uses 32 (except BetV1-wide: 2).
+    <strong>Denominators:</strong> notto uses 194&ndash;200 samples; deep uses 32; wide uses 32
+    (except BetV1-wide, which produced only 2 evaluated samples due to timeout during beam search).
     All 33 jobs fully evaluated.
   </p>
   <div class="table-wrap">
@@ -670,7 +672,8 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
   <p class="note">For each target, we decompose why designs pass or fail by checking each criterion independently.
   This reveals whether the bottleneck is binding quality (iPAE), fold confidence (pLDDT), or structural consistency (scRMSD).
   The Self/MPNN gap reveals whether the problem is the co-designed sequence (fixable by hallucination)
-  or the backbone itself (fixable by noise).</p>
+  or the backbone itself (fixable by noise).
+  <strong>Unless noted otherwise, every percentage in this table is out of N=32 deep-beam designs for that target.</strong></p>
   <div class="table-wrap">
   <table>
     <tr>
@@ -1423,7 +1426,10 @@ Terminate: when unique success count plateaus
     zero-hit targets. SC2RBD goes from 0% (all prior configs) to <strong>62.5% self</strong>. TNF&alpha; goes to
     <strong>50% self</strong>. H1 achieves <strong>12.5% self</strong> (3 configs produce hits).
     The critical ingredient is <strong>MCTS + soft+greedy hallucination</strong> &mdash;
-    pure MCTS without hallucination is near-useless on these targets.</p>
+    pure MCTS without hallucination is near-useless on these targets.
+    <strong>Reporting convention for Section 5c:</strong> Exp 25 and Exp 26 percentages are per single run with
+    <code>N=8</code> final designs unless a larger denominator is explicitly written; Exp 27 percentages are per run with
+    <code>N=16</code>; Exp 24 aggregates multiple routed runs and therefore reports the total evaluated <code>N</code> in the table.</p>
   </div>
 
   <h3>Exp 25: Novel MCTS Search (25/25 jobs complete)</h3>
@@ -1520,8 +1526,8 @@ Terminate: when unique success count plateaus
   <p class="note">
     Reward-only sweep (pLDDT weights 0.25/0.50/0.75 without G&amp;H): 0 self and 0 MPNN passes across all completed
     targets and weights. Reward shaping alone does not crack zero-hit targets &mdash; it only helps when combined
-    with local refinement. The only Exp 26 jobs still running are <code>H1</code> <code>rws5</code>/<code>rws10</code>
-    and <code>TNF&alpha;</code> <code>rws5</code>/<code>rws10</code>.
+    with local refinement. <strong>Every completed Exp 26 row here is out of N=8 final designs for that target/config.</strong>
+    The only Exp 26 jobs still running are <code>H1</code> <code>rws10</code> and <code>TNF&alpha;</code> <code>rws5</code>/<code>rws10</code>.
   </p>
 
   <h3>Exp 27: Sequence Refinement Schedules (20/25 original jobs complete; 5 CrSAS6 jobs failed before generation)</h3>
@@ -1577,6 +1583,10 @@ Terminate: when unique success count plateaus
   </div>
 
   <h3>Exp 24: Agentic Trio (3/3 complete)</h3>
+  <p class="note">
+    <strong>Denominator detail:</strong> VEGFA and IL7RA each aggregate 3 routed deep-beam runs (<code>3 &times; 32 = 96</code> total designs).
+    SC2RBD aggregates 2 routed beam-family follow-ups (<code>2 &times; 32 = 64</code> total designs).
+  </p>
   <div class="table-wrap">
   <table>
     <tr><th>Target</th><th>Diagnosis</th><th>Routed Operator</th><th>N</th><th>Self%</th><th>MPNN%</th></tr>
@@ -1594,6 +1604,11 @@ Terminate: when unique success count plateaus
 
   <!-- ─── PAPER COMPARISON ─── -->
   <h3>Comparison with the Original Paper (Sec I.4 / Figure 19)</h3>
+  <p class="note">
+    <strong>Comparison convention:</strong> our entries below are the best completed <em>single local runs</em> unless otherwise stated.
+    For SC2RBD, TNF&alpha;, H1, and IL17A this means the reported self/MPNN rates are typically out of <code>N=8</code> local designs.
+    The paper numbers are cumulative unique successes over much larger GPU-hour budgets, so the comparison is qualitative unless we run matched scaling curves.
+  </p>
 
   <div class="table-wrap">
   <table>
@@ -1656,6 +1671,12 @@ Terminate: when unique success count plateaus
   </div>
 
   <h3>Updated Target Taxonomy (Post Exp 25/26/27 Audit)</h3>
+  <p class="note">
+    <strong>How to read this table:</strong> the “Evidence” column summarizes the best completed local runs per target class.
+    Phase 0 diagnostic statements usually come from <code>N=32</code> deep-beam runs; Exp 24 evidence uses the aggregated <code>N</code>
+    shown in that section; Exp 25/26 evidence usually comes from single <code>N=8</code> hard-target runs; Exp 27 evidence comes from
+    single <code>N=16</code> refinement runs.
+  </p>
   <div class="table-wrap">
   <table>
     <tr><th>Class</th><th>Targets</th><th>Best Action</th><th>Evidence</th></tr>

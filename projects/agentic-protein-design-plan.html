@@ -860,6 +860,12 @@
   </div>
 
   <h3>Research Question and Benchmark Tiers</h3>
+  <p class="note">
+    <strong>Reporting convention for this plan page:</strong> when we say a diagnostic round, we mean a default deep-beam run with
+    <code>N=32</code> evaluated designs unless explicitly overridden. Hard-target ablations based on Exp 25/26 usually refer to
+    single completed runs with <code>N=8</code> final designs per target/config. Refinement sweeps like Exp 27 use <code>N=16</code>.
+    Future benchmark tables should always report both the GPU budget and the denominator <code>N</code>.
+  </p>
   <div class="table-wrap">
   <table>
     <tr><th style="width:22%">Layer</th><th style="width:38%">Question</th><th style="width:40%">Working Decision</th></tr>
