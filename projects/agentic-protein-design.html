@@ -183,6 +183,7 @@
     <li><a href="#results">Current Results: 11-Target Protein Binder Sweep</a></li>
     <li><a href="#ligand">Ligand Binder Results: 7V11/SAM</a></li>
     <li><a href="#findings">Key Findings &amp; Reliability Audit</a></li>
+    <li><a href="#clustered-results">Clustered Results Map</a></li>
     <li><a href="#deep-dive">Deep Dive: What Do Noise &amp; Hallucination Actually Do?</a></li>
     <li><a href="#breakthrough">Exp 25/26 Breakthrough: Zero-Hit Frontier Cracked</a> <span class="tag tag-green" style="font-size:0.65rem">New</span></li>
     <li><a href="#tracker">Experiment Tracker</a></li>
@@ -1026,6 +1027,53 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
   </div>
 </div>
 
+<!-- ─── 5a. CLUSTERED RESULTS MAP ─── -->
+<div class="section" id="clustered-results">
+  <h2>5a. Clustered Results Map</h2>
+  <p>The raw experiment history is chronological, but the scientific story is easier to read when grouped by
+  <strong>question</strong>. This map keeps the same content while clustering related experiments together.</p>
+
+  <div class="table-wrap">
+  <table>
+    <tr><th style="width:22%">Cluster</th><th style="width:26%">Main Experiments</th><th style="width:26%">Main Question</th><th style="width:26%">Main Takeaway</th></tr>
+    <tr style="background:#f8fafc">
+      <td><strong>A. Baselines and diagnostic signal</strong></td>
+      <td>Phase 0, Phase 0.5, bottleneck analysis, Exp 15-17</td>
+      <td>What does a cheap default diagnostic already reveal about a target?</td>
+      <td>Targets already separate into default-favored, geometry-limited, sequence-limited, and unresolved classes from a single <code>N=32</code> diagnostic run.</td>
+    </tr>
+    <tr style="background:#f8fafc">
+      <td><strong>B. Intervention mechanism and reliability</strong></td>
+      <td>Exp 1-13, Exp 4b, Exp 5a/5b, Exp 6, Exp 8, Exp 9</td>
+      <td>Why do noise and hallucination help some targets but hurt others?</td>
+      <td>Noise and hallucination are target-dependent and often non-additive. The mechanism is reproducible and not a one-off artifact.</td>
+    </tr>
+    <tr style="background:#f8fafc">
+      <td><strong>C. Zero-hit frontier and hard-target search</strong></td>
+      <td>Exp 20, Exp 25-29, Exp 27, paper comparison</td>
+      <td>What actually unlocks the hardest targets after beam-family search fails?</td>
+      <td><code>MCTS + local refinement</code> is the first strong unlock. Reward shaping helps selectively, not universally.</td>
+    </tr>
+    <tr style="background:#f8fafc">
+      <td><strong>D. Agentic routing</strong></td>
+      <td>Diagnostic extraction, Exp 21, Exp 24, updated taxonomy</td>
+      <td>What should the controller act on next?</td>
+      <td>The agent should route over <strong>operator bundles</strong> and target classes, not over isolated knobs.</td>
+    </tr>
+  </table>
+  </div>
+
+  <div class="card" style="border-left: 4px solid var(--accent);">
+    <h3 style="font-size:1rem; margin-bottom:8px;">Recommended Reading Order</h3>
+    <ol style="font-size:0.88rem; color:var(--muted); padding-left:18px; line-height:1.8; margin-bottom:0;">
+      <li><strong>Start with Cluster A:</strong> Phase 0, the evaluation pass-rate tables, and the per-target bottleneck table define the initial taxonomy.</li>
+      <li><strong>Then read Cluster B:</strong> the noise / hallucination deep dive explains the mechanism behind the routing rules and why interventions do not transfer cleanly across targets.</li>
+      <li><strong>Then read Cluster C:</strong> the hard-target section shows what changed once the project moved beyond beam-family search.</li>
+      <li><strong>Finish with Cluster D:</strong> the updated taxonomy and routing logic show how the experimental findings translate into an agentic controller.</li>
+    </ol>
+  </div>
+</div>
+
 <!-- ─── 5b. DEEP DIVE: NOISE & HALLUCINATION ─── -->
 <div class="section" id="deep-dive">
   <h2>5b. Deep Dive: What Do Noise &amp; Hallucination Actually Do?</h2>
@@ -1820,6 +1868,11 @@ Terminate: when unique success count plateaus
 <div class="section" id="tracker">
   <h2>6. Experiment Tracker</h2>
   <p>Live status of all experiments. Updated as jobs complete.</p>
+  <p class="note">
+    This tracker is easiest to read by <strong>cluster</strong> rather than by submission time:
+    baseline/diagnostic experiments first, then mechanism and reliability experiments, then hard-target search,
+    then narrow agentic routing and paper-comparison baselines.
+  </p>
   <p class="note">Status snapshot as of April 10, 2026: Exp 24 and Exp 25 are complete (all 28 jobs). Exp 26 has 22/25 completed with only three refinement runs still active (<code>H1</code> <code>rws10</code>, <code>TNF&alpha;</code> <code>rws5</code>/<code>rws10</code>). The original Exp 27 batch is terminal (20 completed, 5 CrSAS6 pre-generation failures), and the corrected CrSAS6 rerun is complete. Exp 28 is partial (IL17A complete; H1/TNF&alpha;/SC2RBD timed out; eval-only reruns failed immediately). Exp 29 was canceled before usable evaluation outputs.</p>
 
   <div class="table-wrap">
@@ -1830,6 +1883,11 @@ Terminate: when unique success count plateaus
       <th>Jobs</th>
       <th>Status</th>
       <th>Key Result</th>
+    </tr>
+    <tr style="background:#e0f2fe">
+      <td colspan="5" style="font-size:0.8rem; font-weight:600; color:#075985; padding:6px 12px;">
+        &#9654; Cluster A: Baselines and Diagnostic Signal
+      </td>
     </tr>
     <tr style="background:#d1fae5">
       <td style="text-align:center; font-size:1.1rem">&#9745;</td>
@@ -1873,10 +1931,9 @@ Terminate: when unique success count plateaus
       <td><span class="tag tag-green">Done</span></td>
       <td style="font-size:0.82rem"><strong>HER2_AAV: 3.1%&rarr;65.6% self pass (p&lt;10⁻⁶).</strong> PDL1 MPNN: 37.5%&rarr;78.1% (p=0.002). PDL1 self drops 100%&rarr;81.2% (p=0.024). Lacks within-run control. See detail below.</td>
     </tr>
-    <!-- ─── RELIABILITY / REPLICATION EXPERIMENTS ─── -->
     <tr style="background:#fef9c3">
       <td colspan="5" style="font-size:0.8rem; font-weight:600; color:#92400e; padding:6px 12px;">
-        &#9654; Reliability Validation Round — 9 jobs completed 2026-04-07 (all use num_redesign_seqs=8)
+        &#9654; Cluster B: Intervention Mechanism and Reliability
       </td>
     </tr>
     <tr style="background:#d1fae5">
@@ -1914,10 +1971,9 @@ Terminate: when unique success count plateaus
       <td><span class="tag tag-green">Done</span></td>
       <td style="font-size:0.82rem"><strong>Self: 8/32 (25.0%) vs 6/32 (18.8%) baseline, p=0.76 n.s.</strong> But MPNN: 0%&rarr;9.4%. Hallucination improves designability even when self gain is modest.</td>
     </tr>
-    <!-- ─── PHASE 2: AGENTIC CONFIGURATION MATRIX ─── -->
     <tr style="background:#ede9fe">
       <td colspan="5" style="font-size:0.8rem; font-weight:600; color:#5b21b6; padding:6px 12px;">
-        &#9654; Phase 2: Agentic Configuration Matrix &mdash; 24 jobs launched 2026-04-07
+        &#9654; Cluster B (continued): Matrix Completion and Reliability Extensions
       </td>
     </tr>
     <tr style="background:#fee2e2">
@@ -1962,6 +2018,11 @@ Terminate: when unique success count plateaus
       <td><span class="tag tag-green">Done</span></td>
       <td style="font-size:0.82rem"><strong>Both targets now resolved.</strong> SpCas9 favors hallucination (18/32 self and MPNN) over noise (11/32 self, 8/32 MPNN). CrSAS6 is strong under both: noise gives 32/32 self and 24/32 MPNN; hallucination gives 24/32 self and 28/32 MPNN.</td>
     </tr>
+    <tr style="background:#e0f2fe">
+      <td colspan="5" style="font-size:0.8rem; font-weight:600; color:#075985; padding:6px 12px;">
+        &#9654; Cluster C: Diagnostic Expansion and Zero-Hit Frontier Search
+      </td>
+    </tr>
     <tr style="background:#ede9fe">
       <td colspan="5" style="font-size:0.8rem; font-weight:600; color:#5b21b6; padding:6px 12px;">
         &#9654; Phase 2b: Comprehensive Diagnosis Expansion &mdash; 9 jobs completed 2026-04-07
@@ -2000,6 +2061,11 @@ Terminate: when unique success count plateaus
       <td><span class="tag tag-red">Negative</span></td>
       <td style="font-size:0.82rem"><strong>All 35 jobs completed with 0/16 self and 0/16 MPNN.</strong> This includes all beam, stochastic beam, and diverse beam variants. The sweep shows that diversity-preserving beam search alone does not unlock the current zero-hit targets.</td>
     </tr>
+    <tr style="background:#e0f2fe">
+      <td colspan="5" style="font-size:0.8rem; font-weight:600; color:#075985; padding:6px 12px;">
+        &#9654; Cluster D: Agentic Routing and Paper-Comparison Baselines
+      </td>
+    </tr>
     <tr style="background:#fee2e2">
       <td style="text-align:center; font-size:1.1rem">&#9746;</td>
       <td><strong>Exp 21: First Narrow Agentic Follow-Up</strong><br><span style="font-size:0.82rem;color:var(--muted)">SC2RBD only: Exp 16 baseline diagnosis &rarr; diagnostic sidecar &rarr; rule-based routing &rarr; one routed Round 2 job</span></td>
@@ -2037,7 +2103,7 @@ Terminate: when unique success count plateaus
     </tr>
     <tr style="background:#ede9fe">
       <td colspan="5" style="font-size:0.8rem; font-weight:600; color:#5b21b6; padding:6px 12px;">
-        &#9654; Priority Experiments &mdash; 4 jobs submitted 2026-04-09
+        &#9654; Cluster D (continued): Paper-Recipe and Scaling Baselines
       </td>
     </tr>
     <tr style="background:#fef3c7">
