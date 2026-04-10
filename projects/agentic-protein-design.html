@@ -687,7 +687,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
         <div class="bar-row"><div class="bar-label">Wide wins</div><div class="bar-track"><div class="bar-fill green" style="width:45%"></div></div><div class="bar-val">5/11</div></div>
         <div class="bar-row"><div class="bar-label">notto wins</div><div class="bar-track"><div class="bar-fill red" style="width:0%"></div></div><div class="bar-val">0/11</div></div>
       </div>
-      <div class="figure-caption">Interpretation: the first real decision is usually deep vs wide beam, not beam vs no-TTO.</div>
+      <div class="figure-caption">Caption: across 11 protein binder targets in Phase 0, deep beam is the best self-sequence baseline on 6 targets and wide beam is best on 5, while no-TTO never wins. Interpretation: the baseline problem is already target-conditional inside beam search; the first meaningful choice is usually deep vs wide beam, not beam vs random sampling.</div>
     </div>
     <div class="figure-card">
       <h4>Companion Figure: Hard Targets Need TTO</h4>
@@ -698,7 +698,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
         <div class="bar-row"><div class="bar-label">BetV1 deep</div><div class="bar-track"><div class="bar-fill orange" style="width:18.8%"></div></div><div class="bar-val">18.8%</div></div>
         <div class="bar-row"><div class="bar-label">all notto</div><div class="bar-track"><div class="bar-fill red" style="width:0%"></div></div><div class="bar-val">0%</div></div>
       </div>
-      <div class="figure-caption">Interpretation: hard targets are not solved by larger random pools; they need targeted inference-time control.</div>
+      <div class="figure-caption">Caption: each deep-beam percentage is out of N=32 evaluated self-sequence designs, while the matched no-TTO baselines are 0% on all three targets despite much larger notto pools (N=194-200 depending on target). Interpretation: on hard targets, compute has to be spent on guided search or refinement rather than on blind sampling alone.</div>
     </div>
   </div>
   <p class="note">
@@ -985,7 +985,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
         <div class="bar-row"><div class="bar-label">HER2 halluc</div><div class="bar-track"><div class="bar-fill purple" style="width:65.6%"></div></div><div class="bar-val">65.6%</div></div>
         <div class="bar-row"><div class="bar-label">BetV1 n+h</div><div class="bar-track"><div class="bar-fill orange" style="width:34.4%"></div></div><div class="bar-val">34.4%</div></div>
       </div>
-      <div class="figure-caption">Interpretation: the winning action changes by target, which is exactly why a fixed global policy is weak.</div>
+      <div class="figure-caption">Caption: these are the best verified self pass rates from the completed intervention matrix, with CD45 best at noise=0.20, PDL1 best at default, HER2_AAV best with hallucination, and BetV1 best with the combined noise+hallucination run. Interpretation: a single global intervention policy is structurally wrong because each target peaks under a different action bundle.</div>
     </div>
     <div class="figure-card">
       <h4>Companion Figure: Non-Additivity</h4>
@@ -996,7 +996,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
         <div class="bar-row"><div class="bar-label">HER2 noise+h</div><div class="bar-track"><div class="bar-fill orange" style="width:43.8%"></div></div><div class="bar-val">43.8%</div></div>
         <div class="bar-row"><div class="bar-label">HER2 noise</div><div class="bar-track"><div class="bar-fill red" style="width:0%"></div></div><div class="bar-val">0%</div></div>
       </div>
-      <div class="figure-caption">Interpretation: interventions are not compositional by default; the controller needs target-specific bundles.</div>
+      <div class="figure-caption">Caption: adding hallucination to the best CD45 noise run drops self success from 46.9% to 18.8%, whereas adding hallucination to HER2_AAV lifts the noise-only failure case from 0% to 43.8%. Interpretation: interventions are not safely compositional, so the agent should select target-specific bundles rather than blindly stacking knobs.</div>
     </div>
   </div>
 
@@ -1358,6 +1358,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
         <div class="bar-row"><div class="bar-label">Exp 25 msg5</div><div class="bar-track"><div class="bar-fill green" style="width:50%"></div></div><div class="bar-val">4/8</div></div>
         <div class="bar-row"><div class="bar-label">Exp 26 rw50+s5</div><div class="bar-track"><div class="bar-fill purple" style="width:62.5%"></div></div><div class="bar-val">5/8</div></div>
       </div>
+      <div class="figure-caption">Caption: SC2RBD is the clearest example of bundle dependence. Beam-family search in Exp 20 gives 0/16, pure MCTS in Exp 25 stays at 0/8, MCTS+soft/greedy refinement reaches 4/8, and the reward-shaped refinement bundle reaches 5/8. Interpretation: SC2RBD is not unlocked by “more search” alone; it needs search plus the right local refinement and reward stage.</div>
     </div>
     <div class="figure-card">
       <h4>TNF&alpha;</h4>
@@ -1367,6 +1368,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
         <div class="bar-row"><div class="bar-label">Exp 25 msg5</div><div class="bar-track"><div class="bar-fill green" style="width:50%"></div></div><div class="bar-val">4/8</div></div>
         <div class="bar-row"><div class="bar-label">Exp 26 rws5</div><div class="bar-track"><div class="bar-fill orange" style="width:25%"></div></div><div class="bar-val">2/8</div></div>
       </div>
+      <div class="figure-caption">Caption: TNF&alpha; follows the same pattern as SC2RBD. Beam-family and pure MCTS runs stay at zero, MCTS+soft/greedy refinement reaches 4/8, and the completed reward-shaped variant improves over reward-only but remains below the non-reward best at 2/8. Interpretation: refinement is the general unlock; reward shaping is an optional modifier rather than the main driver.</div>
     </div>
     <div class="figure-card">
       <h4>H1 / IL17A / CbAgo</h4>
@@ -1375,7 +1377,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
         <div class="bar-row"><div class="bar-label">IL17A best self</div><div class="bar-track"><div class="bar-fill red" style="width:0%"></div></div><div class="bar-val">0/8</div></div>
         <div class="bar-row"><div class="bar-label">CbAgo best self</div><div class="bar-track"><div class="bar-fill red" style="width:0%"></div></div><div class="bar-val">0/8</div></div>
       </div>
-      <div class="figure-caption">Interpretation: the frontier is no longer uniform. SC2RBD and TNF&alpha; are cracked; CbAgo remains the clean unresolved target.</div>
+      <div class="figure-caption">Caption: the remaining frontier is heterogeneous. H1 has crossed zero with a 1/8 best completed run, while IL17A and CbAgo remain at 0 self successes in all completed new-method runs. Interpretation: the “zero-hit frontier” is no longer a single class; SC2RBD and TNF&alpha; are cracked, H1 is marginally open, and CbAgo/IL17A still need either stronger actions or more budget.</div>
     </div>
   </div>
 
@@ -1390,6 +1392,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
         <div class="bar-row"><div class="bar-label">rw75 only</div><div class="bar-track"><div class="bar-fill red" style="width:0%"></div></div><div class="bar-val">0/8</div></div>
         <div class="bar-row"><div class="bar-label">rw50 + softg5</div><div class="bar-track"><div class="bar-fill purple" style="width:62.5%"></div></div><div class="bar-val">5/8</div></div>
       </div>
+      <div class="figure-caption">Caption: on SC2RBD, completed reward-only variants with pLDDT weights 0.25, 0.50, and 0.75 all remain at 0/8, while the moderate reward-shaped refinement bundle <code>rw_pl050_softg5</code> reaches 5/8 self successes. Interpretation: adding more reward terms is not enough by itself; the gain appears only when reward shaping is paired with the right local optimizer.</div>
     </div>
     <div class="figure-card">
       <h4>Cross-target pattern</h4>
@@ -1399,7 +1402,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
         <div class="bar-row"><div class="bar-label">TNF rws5</div><div class="bar-track"><div class="bar-fill orange" style="width:25%"></div></div><div class="bar-val">2/8</div></div>
         <div class="bar-row"><div class="bar-label">H1 rws5</div><div class="bar-track"><div class="bar-fill blue" style="width:12.5%"></div></div><div class="bar-val">1/8</div></div>
       </div>
-      <div class="figure-caption">Interpretation: “more metrics” is not the right rule. Stage-specific, target-specific weighting is the real lesson.</div>
+      <div class="figure-caption">Caption: SC2RBD benefits strongly from the moderate reward-shaped refinement bundle, TNF&alpha; improves only modestly once refinement is added, and H1 reaches just 1/8 under the completed reward-shaped refinement run. Interpretation: “more metrics” is not the rule; reward shaping is selective and target-specific, and should be treated as a later-stage escalation rather than a universal online objective.</div>
     </div>
   </div>
 
@@ -1414,6 +1417,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
         <div class="bar-row"><div class="bar-label">IL7RA softg5_short</div><div class="bar-track"><div class="bar-fill purple" style="width:100%"></div></div><div class="bar-val">16/16</div></div>
         <div class="bar-row"><div class="bar-label">Insulin best</div><div class="bar-track"><div class="bar-fill orange" style="width:100%"></div></div><div class="bar-val">16/16</div></div>
       </div>
+      <div class="figure-caption">Caption: best completed self-sequence runs in Exp 27 all reach 16/16 on these four sequence-sensitive targets, but they do so with different schedules: SpCas9 and IL7RA prefer short soft+greedy refinement, HER2_AAV is already saturated under short greedy-only schedules, and Insulin is easy to saturate once any competent local refinement is used. Interpretation: once geometry already exists, choosing the right refinement schedule is often more important than inventing a new search operator.</div>
     </div>
     <div class="figure-card">
       <h4>Balanced MPNN-friendly schedules</h4>
@@ -1423,7 +1427,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
         <div class="bar-row"><div class="bar-label">IL7RA softg5_short</div><div class="bar-track"><div class="bar-fill purple" style="width:93.8%"></div></div><div class="bar-val">15/16</div></div>
         <div class="bar-row"><div class="bar-label">Insulin greedy5</div><div class="bar-track"><div class="bar-fill orange" style="width:100%"></div></div><div class="bar-val">16/16</div></div>
       </div>
-      <div class="figure-caption">Interpretation: once geometry is present, schedule choice is first-class and often easier than inventing a new search method.</div>
+      <div class="figure-caption">Caption: the MPNN-friendly view is slightly different from the self-only view. SpCas9 prefers greedy5 for redesign robustness, IL7RA still prefers short soft+greedy, and HER2_AAV/Insulin are saturated under simple moderate schedules. Interpretation: the controller should not optimize self-rate only; on refinement-sensitive targets it should track both self success and redesign robustness when choosing the schedule.</div>
     </div>
   </div>
 
@@ -1437,6 +1441,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
         <div class="bar-row"><div class="bar-label">Exp 31 default</div><div class="bar-track"><div class="bar-fill green" style="width:57%"></div></div><div class="bar-val">8 entries</div></div>
         <div class="bar-row"><div class="bar-label">Exp 32 agentic</div><div class="bar-track"><div class="bar-fill purple" style="width:57%"></div></div><div class="bar-val">8 entries</div></div>
       </div>
+      <div class="figure-caption">Caption: the new benchmark expands from the original tested panel to 22 previously untested binder task entries. Exp 30 diagnoses 14 non-heldout variants, while Exp 31 and Exp 32 compare fixed-default vs agentic routing on the same 8 held-out unseen entries. Interpretation: this is a transfer benchmark, not another re-analysis of already solved targets.</div>
     </div>
     <div class="figure-card">
       <h4>Benchmark logic</h4>
@@ -1445,7 +1450,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
         <div class="bar-row"><div class="bar-label">Default control</div><div class="bar-track"><div class="bar-fill green" style="width:100%"></div></div><div class="bar-val">30h</div></div>
         <div class="bar-row"><div class="bar-label">Agentic follow-up</div><div class="bar-track"><div class="bar-fill purple" style="width:100%"></div></div><div class="bar-val">30h</div></div>
       </div>
-      <div class="figure-caption">Interpretation: this is the first direct test of whether the agentic analysis saves compute on unseen targets.</div>
+      <div class="figure-caption">Caption: every held-out target first gets a standard deep-beam scout with an expected evaluated denominator of N=32, then either a 30-hour fixed default control (Exp 31) or a diagnosis-conditioned 30-hour routed follow-up (Exp 32). Interpretation: this is the first direct head-to-head test of whether the agentic analysis can find successes faster than a matched default budget on unseen targets.</div>
     </div>
   </div>
 
@@ -1668,19 +1673,6 @@ Terminate: when unique success count plateaus
       (base 21/32 self and MPNN, halluc 18/32 self and 17/32 MPNN, noise 8/32 self and 2/32 MPNN).
     </p>
   </div>
-  <div class="figure-grid">
-    <div class="figure-card">
-      <h4>Companion Figure: Exp 26 SC2RBD Sweet Spot</h4>
-      <p>Moderate pLDDT shaping plus moderate refinement wins; reward-only stays at zero.</p>
-      <div class="mini-chart">
-        <div class="bar-row"><div class="bar-label">rw25 only</div><div class="bar-track"><div class="bar-fill red" style="width:0%"></div></div><div class="bar-val">0/8</div></div>
-        <div class="bar-row"><div class="bar-label">rw50 only</div><div class="bar-track"><div class="bar-fill red" style="width:0%"></div></div><div class="bar-val">0/8</div></div>
-        <div class="bar-row"><div class="bar-label">rw75 only</div><div class="bar-track"><div class="bar-fill red" style="width:0%"></div></div><div class="bar-val">0/8</div></div>
-        <div class="bar-row"><div class="bar-label">rw50 + softg5</div><div class="bar-track"><div class="bar-fill purple" style="width:62.5%"></div></div><div class="bar-val">5/8</div></div>
-      </div>
-    </div>
-  </div>
-
 </div>
 
 <!-- ─── 5c. BREAKTHROUGH RESULTS ─── -->
@@ -1766,19 +1758,6 @@ Terminate: when unique success count plateaus
       MCTS with Generate &amp; Hallucinate for very hard targets.
     </p>
   </div>
-  <div class="figure-grid">
-    <div class="figure-card">
-      <h4>Companion Figure: Exp 27 Schedule Ranking</h4>
-      <p>Short and moderate schedules dominate long or overly aggressive ones on sequence-sensitive targets.</p>
-      <div class="mini-chart">
-        <div class="bar-row"><div class="bar-label">SpCas9 best self</div><div class="bar-track"><div class="bar-fill green" style="width:100%"></div></div><div class="bar-val">softg5_short</div></div>
-        <div class="bar-row"><div class="bar-label">HER2 best balanced</div><div class="bar-track"><div class="bar-fill blue" style="width:100%"></div></div><div class="bar-val">greedy5</div></div>
-        <div class="bar-row"><div class="bar-label">IL7RA best</div><div class="bar-track"><div class="bar-fill purple" style="width:100%"></div></div><div class="bar-val">softg5_short</div></div>
-        <div class="bar-row"><div class="bar-label">Insulin best</div><div class="bar-track"><div class="bar-fill orange" style="width:100%"></div></div><div class="bar-val">greedy5 / softg5</div></div>
-      </div>
-    </div>
-  </div>
-
   <h3>Exp 26: Reward Shaping + G&amp;H (23/25 complete; 2 refinement runs still running)</h3>
 
   <div class="card" style="border-left: 4px solid var(--green); background: linear-gradient(135deg, #eff6ff 0%, #fafbfc 100%);">
@@ -1812,6 +1791,19 @@ Terminate: when unique success count plateaus
     with local refinement. <strong>Every completed Exp 26 row here is out of N=8 final designs for that target/config.</strong>
     The only Exp 26 jobs still running are <code>H1</code> <code>rws10</code> and <code>TNF&alpha;</code> <code>rws5</code>/<code>rws10</code>.
   </p>
+  <div class="figure-grid">
+    <div class="figure-card">
+      <h4>Companion Figure: Exp 26 SC2RBD Sweet Spot</h4>
+      <p>Moderate pLDDT shaping plus moderate refinement wins; reward-only stays at zero.</p>
+      <div class="mini-chart">
+        <div class="bar-row"><div class="bar-label">rw25 only</div><div class="bar-track"><div class="bar-fill red" style="width:0%"></div></div><div class="bar-val">0/8</div></div>
+        <div class="bar-row"><div class="bar-label">rw50 only</div><div class="bar-track"><div class="bar-fill red" style="width:0%"></div></div><div class="bar-val">0/8</div></div>
+        <div class="bar-row"><div class="bar-label">rw75 only</div><div class="bar-track"><div class="bar-fill red" style="width:0%"></div></div><div class="bar-val">0/8</div></div>
+        <div class="bar-row"><div class="bar-label">rw50 + softg5</div><div class="bar-track"><div class="bar-fill purple" style="width:62.5%"></div></div><div class="bar-val">5/8</div></div>
+      </div>
+      <div class="figure-caption">Caption: this panel isolates the completed SC2RBD Exp 26 runs. All reward-only settings remain at 0/8, while the moderate reward-shaped refinement bundle reaches 5/8. Interpretation: the useful lesson is not “add pLDDT to the reward,” but “apply moderate reward shaping only inside the right refinement-coupled operator bundle.”</div>
+    </div>
+  </div>
 
   <h3>Exp 27: Sequence Refinement Schedules (20/25 original jobs complete; 5 CrSAS6 jobs failed before generation)</h3>
   <p class="note">5 hallucination schedules on targets with existing geometry. The original CrSAS6 jobs failed due to a target
@@ -1863,6 +1855,19 @@ Terminate: when unique success count plateaus
       <li><strong>aggressive 10%</strong> produces best absolute iPAE and pLDDT values but slightly lower self pass rates. Useful when you want the single best design rather than the most designs.</li>
       <li><strong>CrSAS6:</strong> The original 5 jobs failed before generation due to the target ID mismatch (<code>33_CrSAS6</code> vs <code>14_CrSAS6</code>). The corrected rerun completed and is summarized below.</li>
     </ul>
+  </div>
+  <div class="figure-grid">
+    <div class="figure-card">
+      <h4>Companion Figure: Exp 27 Schedule Ranking</h4>
+      <p>Short and moderate schedules dominate long or overly aggressive ones on sequence-sensitive targets.</p>
+      <div class="mini-chart">
+        <div class="bar-row"><div class="bar-label">SpCas9 best self</div><div class="bar-track"><div class="bar-fill green" style="width:100%"></div></div><div class="bar-val">softg5_short</div></div>
+        <div class="bar-row"><div class="bar-label">HER2 best balanced</div><div class="bar-track"><div class="bar-fill blue" style="width:100%"></div></div><div class="bar-val">greedy5</div></div>
+        <div class="bar-row"><div class="bar-label">IL7RA best</div><div class="bar-track"><div class="bar-fill purple" style="width:100%"></div></div><div class="bar-val">softg5_short</div></div>
+        <div class="bar-row"><div class="bar-label">Insulin best</div><div class="bar-track"><div class="bar-fill orange" style="width:100%"></div></div><div class="bar-val">greedy5 / softg5</div></div>
+      </div>
+      <div class="figure-caption">Caption: using N=16 per run, Exp 27 shows that the best schedule depends on the target but almost always lies in the short-to-moderate range. SpCas9 and IL7RA prefer short soft+greedy refinement, HER2_AAV is already saturated under moderate greedy-only schedules, and Insulin saturates under several non-aggressive schedules. Interpretation: once geometry exists, the controller should route over schedule families rather than only over search families.</div>
+    </div>
   </div>
 
   <h3>Exp 24: Agentic Trio (3/3 complete)</h3>
