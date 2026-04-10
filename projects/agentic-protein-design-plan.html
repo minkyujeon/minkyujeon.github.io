@@ -1037,7 +1037,7 @@
     <tr style="background:#fef3c7">
       <td><strong>Remaining zero-hit</strong></td>
       <td><code>CbAgo</code> (near-miss iPAE*31=7.35), <code>IL17A</code> (0% self, 1 MPNN-only)</td>
-      <td>Need more budget, novel reward functions, or model-family portfolio arm (BindCraft). Meta-Harness target for Exp 30.</td>
+      <td>Need more budget, novel reward functions, or model-family portfolio arm (BindCraft). Future Meta-Harness target after the held-out benchmark.</td>
     </tr>
   </table>
   </div>
@@ -1803,7 +1803,7 @@ Propose a new harness configuration. Explain:
       pLDDT reward &mdash; try the same fix but with higher weight (0.75 instead of 0.50).&rdquo;</li>
     </ul>
 
-    <p><strong>Demonstration plan (Exp 30):</strong></p>
+    <p><strong>Future demonstration plan (Meta-Harness phase, placeholder batch after Exp 32):</strong></p>
     <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
       <li>Target: CbAgo (still zero-hit, best near-miss iPAE*31=7.35)</li>
       <li>5 iterations of the Meta-Harness loop</li>
@@ -1862,7 +1862,7 @@ Propose a new harness configuration. Explain:
     <tr>
       <td><strong>3b</strong></td>
       <td><strong>Meta-Harness agent: LLM-driven harness optimization</strong></td>
-      <td>Exp 30: LLM reads trajectory diagnostics + prior traces &rarr; proposes novel harness configs &rarr; execute.
+      <td>Future Meta-Harness phase: LLM reads trajectory diagnostics + prior traces &rarr; proposes novel harness configs &rarr; execute.
       5 iterations on CbAgo. Goal: agent-discovered config beats all manually designed configs.</td>
       <td><span class="tag tag-purple">After 3a</span></td>
       <td>April 12&ndash;15</td>
@@ -1939,10 +1939,31 @@ Propose a new harness configuration. Explain:
     </tr>
     <tr>
       <td><strong>Exp 30</strong></td>
-      <td>CbAgo (target)</td>
-      <td><strong>Meta-Harness agent demo</strong></td>
-      <td>5 iterations: LLM reads trajectory diagnostics &rarr; proposes novel harness &rarr; execute. Goal: crack CbAgo (still 0%).</td>
-      <td><span class="tag tag-purple">After Priority 6</span></td>
+      <td>14 unseen non-heldout binder entries</td>
+      <td><strong>Diagnostic-only expansion</strong></td>
+      <td>Standard deep-beam diagnosis on the remaining untested binder variants to extend the target taxonomy beyond the original 22 tested entries.</td>
+      <td><span class="tag tag-orange">Queued</span></td>
+    </tr>
+    <tr>
+      <td><strong>Exp 31</strong></td>
+      <td>8 held-out unseen binder entries</td>
+      <td><strong>Matched 30h default baseline</strong></td>
+      <td>Strong fixed baseline for the unseen-target benchmark: scaled default deep beam on the same held-out set used by the new agentic controller.</td>
+      <td><span class="tag tag-orange">Queued</span></td>
+    </tr>
+    <tr>
+      <td><strong>Exp 32</strong></td>
+      <td>Same 8 held-out entries</td>
+      <td><strong>Rule-based held-out agentic benchmark</strong></td>
+      <td>One diagnostic round plus one routed follow-up per target, using the implemented <code>agentic_loop.py</code> and a 30h follow-up budget.</td>
+      <td><span class="tag tag-orange">3 running / rest queued</span></td>
+    </tr>
+    <tr>
+      <td><strong>Future Meta-Harness demo</strong></td>
+      <td>CbAgo or strongest remaining zero-hit target</td>
+      <td><strong>LLM-driven harness optimization</strong></td>
+      <td>5 iterations: LLM reads trajectory diagnostics &rarr; proposes novel harness &rarr; execute. Goal: beat all manually designed configs on a still-unresolved target.</td>
+      <td><span class="tag tag-purple">After trajectory pipeline</span></td>
     </tr>
   </table>
   </div>
@@ -1950,7 +1971,8 @@ Propose a new harness configuration. Explain:
     <strong>Exp 24-27</strong> = factorial ablation (controller / search / reward / refinement).
     <strong>Exp 28</strong> = partial paper recipe comparison.
     <strong>Exp 29</strong> = canceled first scaling attempt; a fresh scaling benchmark is still needed.
-    <strong>Exp 30</strong> = Meta-Harness agent demonstration.
+    <strong>Exp 30-32</strong> = prospective unseen-target benchmark.
+    <strong>Future Meta-Harness demo</strong> = outer-loop LLM planner after the trajectory diagnostic pipeline exists.
   </p>
 
   <div class="callout">

@@ -1366,22 +1366,27 @@ Terminate: when unique success count plateaus
   <div class="card" style="border-left: 4px solid var(--orange);">
     <h4 style="font-size:1rem; margin-bottom:8px;">Active Run Program (April 10, 2026)</h4>
     <p style="font-size:0.88rem; color:var(--muted); margin-bottom:10px;">
-      The current batches were designed to test <strong>three different hypotheses</strong> rather than repeat one
-      search family. As of April 10, 2026, <strong>Exp 24 and Exp 25 are complete</strong>, <strong>Exp 26 has
-      23/25 completed with 2 refinement runs still active</strong>, and the original <strong>Exp 27 batch is fully
-      terminal</strong> (20 completed, 5 failed before generation due to the CrSAS6 target-key bug). The corrected
-      CrSAS6 rerun is complete and summarized below.
+      The current batches now include both the completed hard-target analysis program and a new
+      <strong>prospective unseen-target benchmark</strong>. As of April 10, 2026, <strong>Exp 24 and Exp 25 are complete</strong>,
+      <strong>Exp 26 has 23/25 completed with 2 refinement runs still active</strong>, and the original
+      <strong>Exp 27 batch is terminal</strong> (20 completed, 5 failed before generation due to the CrSAS6 target-key bug,
+      followed by a corrected rerun). In addition, <strong>Exp 30&ndash;32 have just been submitted</strong> to test whether
+      our analysis generalizes to <strong>22 previously untested binder task entries</strong>.
     </p>
     <ul style="font-size:0.88rem; color:var(--muted);">
       <li><strong>Exp 24:</strong> test whether a narrow rule-based controller helps when target classes differ strongly.</li>
       <li><strong>Exp 25:</strong> test whether the zero-hit frontier is limited by insufficient tree search / backtracking rather than by reward shaping alone.</li>
       <li><strong>Exp 26:</strong> test whether the missing signal is reward composition, especially whether adding <code>pLDDT</code> weight helps hard targets that fail AF2 confidence.</li>
       <li><strong>Exp 27:</strong> test whether the current Generate &amp; Hallucinate schedule is suboptimal on targets where geometry already exists.</li>
+      <li><strong>Exp 30:</strong> diagnostic-only expansion on 14 remaining non-heldout binder task entries that were never run before.</li>
+      <li><strong>Exp 31:</strong> matched 30-hour default baseline on 8 representative held-out unseen binder task entries.</li>
+      <li><strong>Exp 32:</strong> matched 30-hour rule-based agentic benchmark on the same 8 held-out entries: diagnostic round followed by one routed follow-up action.</li>
     </ul>
     <p style="font-size:0.88rem; color:var(--muted); margin-bottom:0;">
       This split is deliberate: <strong>Exp 25 = search hypothesis</strong>, <strong>Exp 26 = reward hypothesis</strong>,
-      and <strong>Exp 27 = local optimization hypothesis</strong>. Together they cover the main unresolved explanations
-      for why the current system stalls on the hardest targets.
+      <strong>Exp 27 = local optimization hypothesis</strong>, and <strong>Exp 30&ndash;32 = generalization / adaptive-control hypothesis</strong>.
+      Together they cover the main unresolved explanations for why the current system stalls on the hardest targets and
+      whether the learned routing logic can actually save compute on fresh targets rather than only explaining old ones.
     </p>
   </div>
 
@@ -1869,7 +1874,7 @@ Terminate: when unique success count plateaus
     baseline/initial-signal experiments first, then mechanism and reliability experiments, then hard-target search
     and refinement, then agentic routing, then deferred future extensions.
   </p>
-  <p class="note">Status snapshot as of April 10, 2026: Exp 24 and Exp 25 are complete (all 28 jobs). Exp 26 has 23/25 completed with only two refinement runs still active (<code>H1</code> <code>rws10</code> and <code>TNF&alpha;</code> <code>rws10</code>). The original Exp 27 batch is terminal (20 completed, 5 CrSAS6 pre-generation failures), and the corrected CrSAS6 rerun is complete. Exp 28 is partial (IL17A complete; H1/TNF&alpha;/SC2RBD timed out; eval-only reruns failed immediately). Exp 29 was canceled before usable evaluation outputs.</p>
+  <p class="note">Status snapshot as of April 10, 2026: Exp 24 and Exp 25 are complete (all 28 jobs). Exp 26 has 23/25 completed with only two refinement runs still active (<code>H1</code> <code>rws10</code> and <code>TNF&alpha;</code> <code>rws10</code>). The original Exp 27 batch is terminal (20 completed, 5 CrSAS6 pre-generation failures), and the corrected CrSAS6 rerun is complete. Exp 28 is partial (IL17A complete; H1/TNF&alpha;/SC2RBD timed out; eval-only reruns failed immediately). Exp 29 was canceled before usable evaluation outputs. Exp 30&ndash;32 are newly submitted: 38 jobs total, covering 22 previously untested binder task entries, with 3 diagnostic jobs already running and the rest queued.</p>
 
   <div class="table-wrap">
   <table>
@@ -2136,6 +2141,27 @@ Terminate: when unique success count plateaus
       <td>3/3</td>
       <td><span class="tag tag-green">Done</span></td>
       <td style="font-size:0.82rem"><strong>Mixed result.</strong> VEGFA improved self success over baseline (0.75 vs 0.656) but lost redesign robustness; IL7RA got worse on self (0.719 vs 0.844) with only a tiny MPNN gain; SC2RBD stayed at 0/0. The first controller is useful, but its action set and routing logic are still too weak.</td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
+      <td><strong>Exp 30: Remaining Unseen Binder Diagnostics</strong><br><span style="font-size:0.82rem;color:var(--muted)">14 previously untested non-heldout binder task entries: six CD45 hotspot variants, one DerF7 variant, three DerF21 variants, IL7RA repack, PDL1-alpha fix/repack, TNF&alpha; repack</span></td>
+      <td>14/14 submitted</td>
+      <td><span class="tag tag-orange">Queued</span></td>
+      <td style="font-size:0.82rem"><strong>Purpose:</strong> expand the diagnostic taxonomy beyond the original 22 tested protein binder entries. <strong>Assumption:</strong> the current sidecar logic should generalize across variant targets and preprocessing variants, not just across the first wave of named biological targets. Each job uses the standard deep-beam diagnostic shape with an evaluated denominator of <strong>N=32</strong>.</td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
+      <td><strong>Exp 31: Held-Out Default Baselines</strong><br><span style="font-size:0.82rem;color:var(--muted)">8 representative unseen binder task entries: <code>03_PDL1_AAV</code>, <code>16_DerF7</code>, <code>19_DerF21</code>, <code>26_CbAgo</code>, <code>28_HER2_AAV</code>, <code>31_IL7RA_FIX</code>, <code>32_PDL1_ALPHA</code>, <code>38_TNF&alpha;_FIX</code></span></td>
+      <td>8/8 submitted</td>
+      <td><span class="tag tag-orange">Queued</span></td>
+      <td style="font-size:0.82rem"><strong>Purpose:</strong> establish a matched <strong>30-hour default baseline</strong> on held-out unseen tasks before claiming any adaptive advantage. <strong>Assumption:</strong> some held-out tasks will still be default-favored, so the adaptive system must beat a strong fixed baseline rather than a weak straw-man. Each run uses scaled default deep beam with evaluated denominator <strong>N=64</strong>.</td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
+      <td><strong>Exp 32: Held-Out Agentic Benchmark</strong><br><span style="font-size:0.82rem;color:var(--muted)">same 8 held-out entries as Exp 31, but with one diagnostic round plus one routed follow-up via <code>agentic_loop.py</code></span></td>
+      <td>16/16 submitted<br><span style="font-size:0.75rem;color:var(--muted)">8 diagnostics + 8 dependency-gated controller jobs</span></td>
+      <td><span class="tag tag-orange">3 running / 13 queued</span></td>
+      <td style="font-size:0.82rem"><strong>Core question:</strong> can target-conditioned routing find a first success faster than a fixed 30-hour default strategy on truly unseen tasks? <strong>Mechanism:</strong> Round 0 diagnostic first, then one routed follow-up chosen from the current rule set (default scaling, noise, hallucination, or MCTS+refinement). The initial diagnostic round uses <strong>N=32</strong>; the follow-up job is allowed up to <strong>30h</strong>.</td>
     </tr>
     <tr style="background:#e0f2fe">
       <td colspan="5" style="font-size:0.8rem; font-weight:600; color:#075985; padding:6px 12px;">
