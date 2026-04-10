@@ -901,67 +901,6 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     </ul>
   </div>
 
-  <div class="card" style="border-left: 4px solid var(--green);">
-    <h3>6. Reliability Audit &mdash; Publication Status (Updated)</h3>
-    <p style="font-size:0.88rem; color:var(--muted); margin-bottom:10px;">
-      Full review in <code>docs/EXPERIMENT_RELIABILITY_REVIEW.md</code>. Phase 1b complete (all 9/9 jobs).
-      All confirmed with <code>num_redesign_seqs=8</code>. Phase 2a (24 jobs) launched on April 7, 2026 for scale-up and matrix completion;
-      Phase 2b diagnosis expansion (Exp 16a-i, 9 jobs) was also submitted the same day for BHRF1, SC2RBD, and VEGFA.
-    </p>
-    <table style="font-size:0.82rem; width:100%;">
-      <tr>
-        <th>Finding</th>
-        <th>Evidence</th>
-        <th>Status</th>
-      </tr>
-      <tr>
-        <td><strong>Exp 1 &mdash; FK &lt; Beam Search</strong></td>
-        <td>Claudin1: 100%&rarr;0% monotone collapse. IFNAR2: same. CD45: directional.</td>
-        <td><span class="tag tag-green">Ready</span></td>
-      </tr>
-      <tr>
-        <td><strong>Exp 2+5 &mdash; backbone noise=0.2 doubles CD45 self pass</strong></td>
-        <td>N=96: 25%&rarr;47%, p=0.003. All 3 runs gave exactly 8/32 vs 15/32.</td>
-        <td><span class="tag tag-green">Ready (N=96 confirmed)</span></td>
-      </tr>
-      <tr>
-        <td><strong>Exp 6 &mdash; backbone noise drives improvement, not sequence noise</strong></td>
-        <td>lat=0.2 alone: 0 improvement (p=1.0). lat=0.4 alone: catastrophic (0%, p=0.005).</td>
-        <td><span class="tag tag-green">Ready (new mechanistic finding)</span></td>
-      </tr>
-      <tr>
-        <td><strong>Exp 3 &mdash; iface_focus kills generation</strong></td>
-        <td>0/32 on both targets. Robust negative result.</td>
-        <td><span class="tag tag-green">Ready</span></td>
-      </tr>
-      <tr>
-        <td><strong>Exp 4+4b &mdash; hallucination rescues HER2_AAV</strong></td>
-        <td>Paired control: 1/32 (no halluc) vs 21/32 (+halluc), p&lt;10&#8315;&#8310;. Causal.</td>
-        <td><span class="tag tag-green">Ready (paired control confirmed)</span></td>
-      </tr>
-      <tr>
-        <td><strong>Exp 4 &mdash; PDL1 MPNN 37.5%&rarr;78.1%</strong></td>
-        <td>p=0.002.</td>
-        <td><span class="tag tag-green">Ready</span></td>
-      </tr>
-      <tr>
-        <td><strong>Exp 4 &mdash; PDL1 self 100%&rarr;81.2% (drop)</strong></td>
-        <td>p=0.024. Real decrease &mdash; must report.</td>
-        <td><span class="tag tag-green">Ready (must report)</span></td>
-      </tr>
-      <tr>
-        <td><strong>Exp 8 &mdash; noise=0.2 + hallucination HURTS CD45</strong></td>
-        <td>6/32 (18.8%) vs 15/32 (46.9%) without halluc, p=0.032. Hallucination degrades noise benefit.</td>
-        <td><span class="tag tag-red">Ready (negative result)</span></td>
-      </tr>
-      <tr>
-        <td><strong>Exp 9 &mdash; hallucination modest for BetV1</strong></td>
-        <td>8/32 (25.0%) vs 6/32 (18.8%) baseline, p=0.76 n.s. MPNN: 0%&rarr;9.4%.</td>
-        <td><span class="tag tag-green">Ready</span></td>
-      </tr>
-    </table>
-  </div>
-
   <div class="card" style="border-left: 4px solid var(--purple);">
     <h3>7. What the Paper Already Covered vs. What We Add</h3>
     <p style="font-size:0.88rem; color:var(--muted); margin-bottom:10px;">
@@ -2647,6 +2586,67 @@ Terminate: when unique success count plateaus
       <li><strong>Alternative:</strong> Autoguidance (ag_ratio=1.0) uses a separate &ldquo;bad model&rdquo; checkpoint instead of unconditional predictions, but requires training a degraded model. Not currently available.</li>
       <li><strong>Conclusion:</strong> CFG guidance amplification is not applicable to binder design without model modifications. The two remaining paths to improve backbone quality are: (a) sc_scale_noise tuning (Exp 2, confirmed effective), and (b) LoRA finetuning / trajectory recycling (Exp 10&ndash;11, planned).</li>
     </ul>
+  </div>
+
+  <div class="card" style="border-left: 4px solid var(--green); margin-top:20px;">
+    <h3>Publication-Ready Summary (Read After the Detailed Results)</h3>
+    <p style="font-size:0.88rem; color:var(--muted); margin-bottom:10px;">
+      This table is a <strong>summary of evidence quality</strong>, not the primary result section. The detailed result
+      tables and per-experiment interpretation appear above; this block simply says which findings are now strong enough
+      to treat as publication-ready. Full review in <code>docs/EXPERIMENT_RELIABILITY_REVIEW.md</code>.
+    </p>
+    <table style="font-size:0.82rem; width:100%;">
+      <tr>
+        <th>Finding</th>
+        <th>Evidence</th>
+        <th>Status</th>
+      </tr>
+      <tr>
+        <td><strong>Exp 1 &mdash; FK &lt; Beam Search</strong></td>
+        <td>Claudin1: 100%&rarr;0% monotone collapse. IFNAR2: same. CD45: directional.</td>
+        <td><span class="tag tag-green">Ready</span></td>
+      </tr>
+      <tr>
+        <td><strong>Exp 2+5 &mdash; backbone noise=0.2 doubles CD45 self pass</strong></td>
+        <td>N=96: 25%&rarr;47%, p=0.003. All 3 runs gave exactly 8/32 vs 15/32.</td>
+        <td><span class="tag tag-green">Ready (N=96 confirmed)</span></td>
+      </tr>
+      <tr>
+        <td><strong>Exp 6 &mdash; backbone noise drives improvement, not sequence noise</strong></td>
+        <td>lat=0.2 alone: 0 improvement (p=1.0). lat=0.4 alone: catastrophic (0%, p=0.005).</td>
+        <td><span class="tag tag-green">Ready (new mechanistic finding)</span></td>
+      </tr>
+      <tr>
+        <td><strong>Exp 3 &mdash; iface_focus kills generation</strong></td>
+        <td>0/32 on both targets. Robust negative result.</td>
+        <td><span class="tag tag-green">Ready</span></td>
+      </tr>
+      <tr>
+        <td><strong>Exp 4+4b &mdash; hallucination rescues HER2_AAV</strong></td>
+        <td>Paired control: 1/32 (no halluc) vs 21/32 (+halluc), p&lt;10&#8315;&#8310;. Causal.</td>
+        <td><span class="tag tag-green">Ready (paired control confirmed)</span></td>
+      </tr>
+      <tr>
+        <td><strong>Exp 4 &mdash; PDL1 MPNN 37.5%&rarr;78.1%</strong></td>
+        <td>p=0.002.</td>
+        <td><span class="tag tag-green">Ready</span></td>
+      </tr>
+      <tr>
+        <td><strong>Exp 4 &mdash; PDL1 self 100%&rarr;81.2% (drop)</strong></td>
+        <td>p=0.024. Real decrease &mdash; must report.</td>
+        <td><span class="tag tag-green">Ready (must report)</span></td>
+      </tr>
+      <tr>
+        <td><strong>Exp 8 &mdash; noise=0.2 + hallucination HURTS CD45</strong></td>
+        <td>6/32 (18.8%) vs 15/32 (46.9%) without halluc, p=0.032. Hallucination degrades noise benefit.</td>
+        <td><span class="tag tag-red">Ready (negative result)</span></td>
+      </tr>
+      <tr>
+        <td><strong>Exp 9 &mdash; hallucination modest for BetV1</strong></td>
+        <td>8/32 (25.0%) vs 6/32 (18.8%) baseline, p=0.76 n.s. MPNN: 0%&rarr;9.4%.</td>
+        <td><span class="tag tag-green">Ready</span></td>
+      </tr>
+    </table>
   </div>
 
 </div>
