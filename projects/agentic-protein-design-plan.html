@@ -590,15 +590,15 @@
     <tr>
       <td>Phase 2c</td>
       <td>Multi-round adaptive loop demo</td>
-      <td>Exp 21 (SC2RBD, no gain) &rarr; Exp 24 (trio) &rarr; Exp 25/26 (MCTS+G&amp;H breakthrough) &rarr; Exp 29 (scaling curves, running)</td>
-      <td><span class="tag tag-orange">In Progress &mdash; Exp 29 scaling running; MCTS+G&amp;H breakthrough confirmed</span></td>
+      <td>Exp 21 (SC2RBD, no gain) &rarr; Exp 24 (trio) &rarr; Exp 25/26 (MCTS+G&amp;H breakthrough) &rarr; Exp 28 (partial paper-recipe comparison)</td>
+      <td><span class="tag tag-orange">In Progress &mdash; MCTS+G&amp;H breakthrough confirmed; Exp 26 tail still active</span></td>
       <td>April 2026</td>
     </tr>
     <tr>
       <td>Phase 3</td>
       <td>Scaling curve comparison (key paper figure)</td>
       <td>2 targets &times; 5 budgets &times; 4 strategies</td>
-      <td><span class="tag tag-purple">Planned</span></td>
+      <td><span class="tag tag-purple">Deferred</span> First Exp 29 attempt was canceled before usable outputs.</td>
       <td>May 2026</td>
     </tr>
     <tr>
@@ -673,8 +673,7 @@
     <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
       <li><strong>Multi-round feedback</strong>: After applying an intervention, read the new diagnostic signals and adjust.
       For example, if a target remains interface-limited after one round, allocate the next round to more structural exploration; if sequence quality becomes the bottleneck, switch to sequence-focused refinement.</li>
-      <li><strong>Broader target validation</strong>: Currently validated on 4 targets (PDL1, CD45, HER2, BetV1).
-      Exp 15a-d is now complete for SpCas9 and CrSAS6, Exp 16a-i completed base/noise/hallucination diagnosis for BHRF1, SC2RBD, and VEGFA, and Exp 17a-x resolved most of the remaining 8 packaged targets with only the longest H1 hallucination rerun still active. Exp 20 then tested beam, stochastic beam, and diverse beam on the zero-hit frontier, and all stayed at 0/16 self and 0/16 MPNN. BHRF1 behaves like an easy saturated control, VEGFA prefers default over both interventions, and SC2RBD/CbAgo/H1/IL17A/TNF&alpha; remain hard failure cases under the current low-budget search family.</li>
+      <li><strong>Broader target validation</strong>: Currently validated beyond the original 4 targets. Exp 15a-d completed for SpCas9 and CrSAS6, Exp 16a-i completed diagnosis for BHRF1/SC2RBD/VEGFA, Exp 17a-x covered the remaining packaged targets, and Exp 20 then tested beam, stochastic beam, and diverse beam on the zero-hit frontier with all runs staying at 0/16 self and 0/16 MPNN. Later Exp 25/26 changed that picture: SC2RBD, TNF&alpha;, and H1 now have non-zero completed runs under MCTS + local refinement, while CbAgo remains 0/0 and IL17A remains 0 self.</li>
       <li><strong>Scaling curve as the key figure</strong>: Compare unique successes vs GPU-hours for the adaptive agent
       against fixed Beam Search, fixed Best-of-N, and fixed hallucination baselines.</li>
     </ul>
@@ -993,12 +992,13 @@
 
   <h3 id="structured-analysis">Structured Failure Analysis &amp; Task Decomposition</h3>
   <div class="callout">
-    <p><strong>Core insight (confirmed April 10, 2026):</strong> the model <em>can</em> find binders for the hardest targets,
-    and <strong>our configs are more efficient than the paper&rsquo;s</strong>.
-    SC2RBD: 62.5% self in 3.1h (paper: 0%). TNF&alpha;: 4 hits in 16.2h vs paper&rsquo;s 31.7h/hit (~8&times; speedup).
-    H1: first hit in 19.4h vs paper&rsquo;s 86.3h/hit (~4.5&times;).
-    The agentic contribution is a <strong>rule-based controller</strong> that diagnoses target difficulty from a single
-    cheap round and routes to the right operator &mdash; no LLM needed for the current 5-pattern decision space.</p>
+    <p><strong>Core insight (confirmed April 10, 2026):</strong> the model <em>can</em> find binders for several previously
+    zero-hit local targets when the action set is upgraded from beam-family search to <strong>MCTS + local refinement</strong>.
+    SC2RBD: 62.5% self in 3.1h (the paper&rsquo;s broader Complexa table reports 0). TNF&alpha;: 4/8 self in a single 16.2h run.
+    H1: 1/8 self in a completed run. These are strong local improvements, but not yet a matched proof that we beat the
+    paper&rsquo;s Figure 19 scaling curves. The agentic contribution is a <strong>rule-based controller</strong> that diagnoses
+    target difficulty from a single cheap round and routes to the right operator &mdash; no LLM needed for the current
+    5-pattern decision space.</p>
   </div>
 
   <h4>From Raw Metrics to Queryable Knowledge Graph</h4>
@@ -1113,12 +1113,12 @@
 
   <!-- ═══ PRIORITY 1 ═══ -->
   <div class="exp-card" style="border-left: 4px solid var(--red);">
-    <h4><span class="tag tag-red">Priority 1 / Exp 28</span> Run the Paper&rsquo;s Exact Very-Hard-Target Recipe</h4>
+    <h4><span class="tag tag-red">Priority 1 / Exp 28</span> Archived Baseline Check: Paper&rsquo;s Exact Very-Hard-Target Recipe</h4>
 
     <p><strong>Update (April 10):</strong> Exp 25/26 already cracked 3/5 zero-hit targets with our modified configs
     (msg5: MCTS N<sub>sim</sub>=40, soft+greedy G&amp;H). Exp 28 is now a <strong>direct comparison</strong>:
     does the paper&rsquo;s exact recipe perform better or worse than our configs at matched walltime?
-    This determines whether our speedup is from the config changes (higher N<sub>sim</sub>, soft+greedy halluc)
+    This determines whether our apparent gain is from the config changes (higher N<sub>sim</sub>, soft+greedy halluc)
     or simply from running MCTS+G&amp;H at all (which the paper always did for hard targets but we hadn&rsquo;t tried until Exp 25).</p>
 
     <p><strong>Hypothesis:</strong> Our msg5 config will outperform the paper&rsquo;s exact recipe at matched walltime,
@@ -1197,14 +1197,20 @@
       <li>AF2 reward does not explicitly divide iPAE by 31 (unlike RF3). The weight balance iPAE=-1.0 + pLDDT=0.5 achieves a similar effect since iPAE is on [0,1] scale and pLDDT is on [0,1].</li>
     </ul>
 
-    <p><strong>Cost:</strong> ~32 GPU-hours (4 targets &times; 8h walltime). <strong>Status:</strong> <span class="tag tag-green">Partial</span>
+    <p><strong>Cost:</strong> ~32 GPU-hours (4 targets &times; 8h walltime). <strong>Status:</strong> <span class="tag tag-green">Partial / Archived</span>
     IL17A complete: <strong>0/324 self, 0/324 MPNN</strong> (best iPAE*31=8.3, pLDDT=0.890 &mdash; consistent with paper&rsquo;s 1 success in 387h).
-    H1, TNF&alpha;, SC2RBD: <strong>timed out at 8h</strong> (644 designs generated but AF2 eval not run). Eval-only reruns submitted (SLURM 6813585&ndash;6813587).</p>
+    H1, TNF&alpha;, SC2RBD: <strong>timed out at 8h</strong> before full AF2 evaluation, and the later eval-only reruns
+    (SLURM 6813585&ndash;6813587) failed immediately. This batch therefore gives a clean negative result for IL17A only,
+    and only timeout evidence for the other three targets.</p>
   </div>
 
   <!-- ═══ PRIORITY 2 ═══ -->
   <div class="exp-card" style="border-left: 4px solid var(--green);">
-    <h4><span class="tag tag-green">Priority 2 / Exp 29</span> Adaptive vs. Fixed Allocation Demo on Medium-Hard Targets</h4>
+    <h4><span class="tag tag-green">Priority 2 / Exp 29</span> Archived First Attempt: Adaptive vs. Fixed Allocation Demo</h4>
+
+    <p><strong>Status update (April 10):</strong> The first Exp 29 batch was launched and later canceled before it produced
+    usable <code>exp29_*</code> evaluation outputs. The experimental design below is still the intended benchmark template,
+    but the original attempt should be treated as aborted rather than as live evidence.</p>
 
     <p><strong>Motivation:</strong> The core claim of this project is that adaptive allocation beats fixed allocation at matched compute.
     CD45, SpCas9, and HER2_AAV have rich, validated intervention responses (noise=0.20 doubles CD45, halluc rescues HER2, SpCas9 favors halluc).
@@ -1285,7 +1291,7 @@
     </ul>
 
     <p><strong>Dependencies:</strong> Requires all Phase 1 intervention results to be finalized (done) and the diagnostic sidecar + routing policy to be implemented (done).</p>
-    <p><strong>Cost:</strong> ~150 GPU-hours (3 targets &times; 5 strategies &times; 30h, minus overlap from reusing Round 0 data). <strong>Status:</strong> <span class="tag tag-purple">After Exp 28</span></p>
+    <p><strong>Cost:</strong> ~150 GPU-hours (3 targets &times; 5 strategies &times; 30h, minus overlap from reusing Round 0 data). <strong>Status:</strong> <span class="tag tag-purple">Future rerun</span> The first attempt was canceled before usable outputs.</p>
   </div>
 
   <!-- ═══ PRIORITY 3 ═══ -->
@@ -1307,7 +1313,7 @@
 
     <p><strong>Setup:</strong></p>
     <ul>
-      <li><strong>Target:</strong> SC2RBD (PDB 6m0j, chain E residues 333-526, hotspots E485/E489/E494/E500/E505, binder length 80-120)</li>
+      <li><strong>Target:</strong> start with <code>CbAgo</code> or <code>IL17A</code> as the remaining unresolved local frontier targets; optionally add SC2RBD later as a structural-diversity comparison target.</li>
       <li><strong>Method:</strong> BindCraft hallucination pipeline with AF2 Multimer scoring</li>
       <li><strong>Source:</strong> <a href="https://github.com/martinpacesa/BindCraft" style="color:var(--accent)">github.com/martinpacesa/BindCraft</a>
       or <a href="https://github.com/cytokineking/FreeBindCraft" style="color:var(--accent)">FreeBindCraft</a> (PyRosetta-free variant, already referenced in our README)</li>
@@ -1333,7 +1339,7 @@
     for the remaining zero-hit targets (CbAgo, IL17A) and for structural diversity on targets where both
     methods may find different binding modes.</p>
 
-    <p><strong>Cost:</strong> ~10 GPU-hours + ~2h engineering. <strong>Status:</strong> <span class="tag tag-purple">Parallel with Exp 28</span></p>
+    <p><strong>Cost:</strong> ~10 GPU-hours + ~2h engineering. <strong>Status:</strong> <span class="tag tag-purple">Future</span> Defer until the current Exp 26 tail finishes and the next controller benchmark is frozen.</p>
   </div>
 
   <!-- ═══ PRIORITY 4 ═══ -->
@@ -1379,7 +1385,7 @@
     (saturated, sequence-limited, geometry-limited, zero-hit) from graph topology alone. If the communities don&rsquo;t
     match, the edge types or confidence labels need refinement.</p>
 
-    <p><strong>Cost:</strong> ~1-2 days engineering, no GPU. <strong>Status:</strong> <span class="tag tag-purple">Parallel with Exp 28</span></p>
+    <p><strong>Cost:</strong> ~1-2 days engineering, no GPU. <strong>Status:</strong> <span class="tag tag-purple">Next infrastructure task</span></p>
   </div>
 
   <!-- ═══ PRIORITY 5 ═══ -->
@@ -1422,7 +1428,7 @@
     total unique successes and cluster count. The portfolio wins if cluster_count(portfolio) &gt; cluster_count(fixed)
     even when total_successes(portfolio) &le; total_successes(fixed).</p>
 
-    <p><strong>Cost:</strong> Included in Priority 2&rsquo;s compute budget. <strong>Status:</strong> <span class="tag tag-purple">Part of Exp 29</span></p>
+    <p><strong>Cost:</strong> Included in the future scaling-benchmark compute budget. <strong>Status:</strong> <span class="tag tag-purple">Future</span></p>
   </div>
 
   <!-- ═══ PRIORITY 6 ═══ -->
@@ -1543,8 +1549,8 @@ class MCTSState:
       <li><strong>Step 3: Run on existing Exp 25/26 data.</strong>
       The MCTS tree structure is not saved to disk after the job completes (only final designs are saved).
       For existing runs, we can only extract reward trajectory from MCTS logs (if verbose logging was enabled).
-      For new runs (Exp 29 scaling), enable <code>save_trajectory=True</code> to capture full intermediate backbones.
-      <strong>Estimated: resubmit 2-3 scaling runs with trajectory saving enabled.</strong></li>
+      For new scaling or controller reruns, enable <code>save_trajectory=True</code> to capture full intermediate backbones.
+      <strong>Estimated: relaunch 2-3 targeted runs with trajectory saving enabled.</strong></li>
 
       <li><strong>Step 4: Visualize and analyze.</strong>
       Plot per-checkpoint signals for successful vs. failed designs on SC2RBD and CbAgo.
@@ -1698,24 +1704,23 @@ Propose a new harness configuration. Explain:
     <tr style="background:#d1fae5">
       <td><strong>2a</strong></td>
       <td>Zero-hit frontier cracked via MCTS+G&amp;H</td>
-      <td>Exp 25/26: SC2RBD 62.5%, TNF&alpha; 50%, H1 12.5%. ~8&times; speedup vs paper on TNF&alpha;.</td>
+      <td>Exp 25/26: SC2RBD 62.5%, TNF&alpha; 50%, H1 12.5% in completed single runs. Matched scaling-vs-paper claim not yet established.</td>
       <td><span class="tag tag-green">Done</span></td>
       <td>April 2026</td>
     </tr>
     <tr style="background:#fef3c7">
       <td><strong>2b</strong></td>
       <td>Scaling curves (prove inference-time scaling, not lucky one-shot)</td>
-      <td>Exp 29: 6 long-running jobs (48h each) on CD45, SC2RBD, TNF&alpha;. Figure 19 equivalent.</td>
-      <td><span class="tag tag-orange">Running</span></td>
-      <td>April 10&ndash;12</td>
+      <td>Fresh scaling benchmark still needed. The first Exp 29 attempt was canceled before usable evaluation outputs.</td>
+      <td><span class="tag tag-purple">Deferred</span></td>
+      <td>TBD</td>
     </tr>
     <tr style="background:#fef3c7">
       <td><strong>2c</strong></td>
       <td>Rule-based multi-round loop demo</td>
-      <td>Exp 29 adaptive arm: diagnostic &rarr; route &rarr; execute &rarr; re-diagnose on 3 targets at 30h each.
-      Compare vs. fixed strategies. Implemented in <code>agentic_loop.py</code>.</td>
-      <td><span class="tag tag-orange">Ready</span></td>
-      <td>April 11&ndash;14</td>
+      <td>Exp 21 and Exp 24 established the first narrow loop; the next step is a stronger controller benchmark that routes among default, MCTS+refinement, and reward-shaped variants. Implemented infrastructure lives in <code>agentic_loop.py</code>.</td>
+      <td><span class="tag tag-orange">Ready for next run</span></td>
+      <td>Next</td>
     </tr>
     <tr>
       <td><strong>3a</strong></td>
@@ -1774,29 +1779,29 @@ Propose a new harness configuration. Explain:
       <td><strong>Exp 26</strong></td>
       <td>5 zero-hit targets</td>
       <td>Reward shaping + G&amp;H combos</td>
-      <td>SC2RBD e26_04: <strong>5/8 self (62.5%)</strong> with pLDDT=0.5 reward. Reward-only (no G&amp;H): 0%. H1/TNF&alpha;/IL17A tail still running.</td>
-      <td><span class="tag tag-orange">~15/25 done</span></td>
+      <td>SC2RBD e26_04: <strong>5/8 self (62.5%), 2/8 MPNN</strong> with pLDDT=0.5 reward. Reward-only (no G&amp;H): 0%. Only H1/TNF&alpha; <code>rws5</code>/<code>rws10</code> are still running.</td>
+      <td><span class="tag tag-orange">21/25 done + 4 running</span></td>
     </tr>
     <tr style="background:#d1fae5">
       <td><strong>Exp 27</strong></td>
       <td>SpCas9, HER2, IL7RA, Insulin</td>
       <td>5 hallucination schedules</td>
-      <td>greedy 5% best balanced; soft+greedy best self. HER2: 100% across all. CrSAS6 failed (ID mismatch, resubmitted).</td>
-      <td><span class="tag tag-green">Done (19/25)</span></td>
+      <td>greedy 5% best balanced; soft+greedy best self. HER2: 100% across all. Original CrSAS6 batch failed on target-key mismatch, but the corrected rerun completed and confirmed CrSAS6 as sequence-limited.</td>
+      <td><span class="tag tag-green">Terminal</span></td>
     </tr>
     <tr style="background:#fef3c7">
       <td><strong>Exp 28</strong></td>
       <td>H1, TNF&alpha;, IL17A, SC2RBD</td>
       <td>Paper&rsquo;s exact Sec I.4 recipe</td>
-      <td>Running. Answers: does our msg5 config outperform the paper&rsquo;s recipe at matched walltime?</td>
-      <td><span class="tag tag-orange">Running (4/4)</span></td>
+      <td>IL17A completed at 0/324. H1, TNF&alpha;, and SC2RBD timed out before full AF2 evaluation; eval-only reruns failed immediately, so the comparison is only partial.</td>
+      <td><span class="tag tag-orange">Partial / Terminal</span></td>
     </tr>
-    <tr style="background:#fef3c7">
+    <tr style="background:#fee2e2">
       <td><strong>Exp 29</strong></td>
       <td>CD45, SC2RBD, TNF&alpha;</td>
       <td>Scaling curves (Fig 19 equivalent)</td>
-      <td>6 long-running jobs (48h each). Continuous generation loop with periodic checkpointing of cumulative successes.</td>
-      <td><span class="tag tag-orange">Queued (6 jobs)</span></td>
+      <td>The first scaling attempt was canceled before it produced completed <code>exp29_*</code> evaluation outputs.</td>
+      <td><span class="tag tag-red">Canceled</span></td>
     </tr>
     <tr>
       <td><strong>Exp 30</strong></td>
@@ -1809,8 +1814,8 @@ Propose a new harness configuration. Explain:
   </div>
   <p class="note">
     <strong>Exp 24-27</strong> = factorial ablation (controller / search / reward / refinement).
-    <strong>Exp 28</strong> = paper recipe comparison.
-    <strong>Exp 29</strong> = scaling validation.
+    <strong>Exp 28</strong> = partial paper recipe comparison.
+    <strong>Exp 29</strong> = canceled first scaling attempt; a fresh scaling benchmark is still needed.
     <strong>Exp 30</strong> = Meta-Harness agent demonstration.
   </p>
 
@@ -1893,7 +1898,7 @@ Propose a new harness configuration. Explain:
     </tr>
     <tr style="background:#fee2e2">
       <td>35</td><td>H1</td><td><span class="tag tag-red">Very Hard</span></td>
-      <td>Multi-chain. Paper: 7 successes in 604 GPUh. <strong>We achieve 1/8 self in 19.4h via MCTS+G&amp;H msg5 (~4.5&times; speedup).</strong></td>
+      <td>Multi-chain. Paper: 7 successes in 604 GPUh. <strong>Our best completed local run reaches 1/8 self via MCTS+G&amp;H msg5.</strong></td>
       <td><strong>Cracked</strong> &mdash; MCTS+G&amp;H msg5</td>
     </tr>
     <tr style="background:#fee2e2">
@@ -1903,7 +1908,7 @@ Propose a new harness configuration. Explain:
     </tr>
     <tr style="background:#fee2e2">
       <td>38</td><td>TNF&alpha;</td><td><span class="tag tag-red">Very Hard</span></td>
-      <td>Three-chain. Paper: 15 successes in 475 GPUh (31.7h/hit). <strong>We achieve 4/8 self in 16.2h via MCTS+G&amp;H msg5 (~8&times; speedup).</strong></td>
+      <td>Three-chain. Paper: 15 successes in 475 GPUh (31.7h/hit). <strong>Our best completed local run reaches 4/8 self and 1/8 MPNN via MCTS+G&amp;H msg5.</strong></td>
       <td><strong>Cracked</strong> &mdash; MCTS+G&amp;H msg5</td>
     </tr>
   </table>

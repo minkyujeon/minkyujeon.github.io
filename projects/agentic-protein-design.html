@@ -1319,12 +1319,13 @@ Terminate: when unique success count plateaus
   </div>
 
   <div class="card" style="border-left: 4px solid var(--orange);">
-    <h4 style="font-size:1rem; margin-bottom:8px;">Active Run Program (April 9, 2026)</h4>
+    <h4 style="font-size:1rem; margin-bottom:8px;">Active Run Program (April 10, 2026)</h4>
     <p style="font-size:0.88rem; color:var(--muted); margin-bottom:10px;">
       The current batches were designed to test <strong>three different hypotheses</strong> rather than repeat one
-      search family. As of April 9, 2026, <strong>Exp 24 and Exp 25 are complete</strong>, <strong>Exp 26 is partially
-      complete</strong>, and <strong>Exp 27 is mostly complete</strong> except for the final Insulin run and a
-      CrSAS6 configuration bug.
+      search family. As of April 10, 2026, <strong>Exp 24 and Exp 25 are complete</strong>, <strong>Exp 26 has
+      21/25 completed with 4 refinement runs still active</strong>, and the original <strong>Exp 27 batch is fully
+      terminal</strong> (20 completed, 5 failed before generation due to the CrSAS6 target-key bug). The corrected
+      CrSAS6 rerun is complete and summarized below.
     </p>
     <ul style="font-size:0.88rem; color:var(--muted);">
       <li><strong>Exp 24:</strong> test whether a narrow rule-based controller helps when target classes differ strongly.</li>
@@ -1412,9 +1413,10 @@ Terminate: when unique success count plateaus
 <div class="section" id="breakthrough">
   <h2>5c. Exp 25/26/27 Results: Zero-Hit Frontier Cracked &amp; Paper Comparison</h2>
 
-  <p class="note"><strong>Data integrity:</strong> All numbers in this section are verified directly against the pipeline&rsquo;s
-  <code>binder_results_*.csv</code> files on April 10, 2026. Pass criteria: iPAE*31 &le; 7.0 AND pLDDT &ge; 0.9 AND scRMSD &lt; 1.5&Aring;.
-  Total experiments to date: <strong>295+ completed evaluation directories</strong> across all batches (and growing as Exp 29 scaling runs accumulate).</p>
+  <p class="note"><strong>Data integrity:</strong> All quantitative results in this section are verified directly against local
+  evaluation CSVs, and all run-state claims are checked against <code>sacct</code> on April 10, 2026. Pass criteria:
+  iPAE*31 &le; 7.0 AND pLDDT &ge; 0.9 AND scRMSD &lt; 1.5&Aring;.
+  Total experiments to date: <strong>295+ completed evaluation directories</strong> across all batches.</p>
 
   <div class="callout">
     <p><strong>Major status change (April 10, 2026):</strong> MCTS + Generate &amp; Hallucinate cracks 3 of 5 previously
@@ -1488,7 +1490,7 @@ Terminate: when unique success count plateaus
     </p>
   </div>
 
-  <h3>Exp 26: Reward Shaping + G&amp;H (~15/25 jobs complete, rest running)</h3>
+  <h3>Exp 26: Reward Shaping + G&amp;H (21/25 complete; 4 refinement runs still running)</h3>
 
   <div class="card" style="border-left: 4px solid var(--green); background: linear-gradient(135deg, #eff6ff 0%, #fafbfc 100%);">
     <h4 style="font-size:1rem; margin-bottom:8px;">SC2RBD e26_04: The Single Most Important Result</h4>
@@ -1508,7 +1510,7 @@ Terminate: when unique success count plateaus
       <tr style="background:#d1fae5"><td>8</td><td>6.45</td><td>0.912</td><td>0.097</td><td class="best">PASS</td><td class="fail">FAIL</td></tr>
     </table>
     <p style="font-size:0.88rem; color:var(--muted); margin-top:8px;">
-      <strong>Result: 5/8 self (62.5%), 1/8 MPNN (12.5%).</strong>
+      <strong>Result: 5/8 self (62.5%), 2/8 MPNN (25.0%).</strong>
       The paper&rsquo;s Table 10 reports <strong>0 Complexa successes</strong> on SC2RBD across all methods.
       We solve this target in 3.1 GPU-hours. The pLDDT reward weight likely prevents MCTS from discarding
       high-confidence trajectories that have suboptimal iPAE but rescuable interface geometry.
@@ -1516,14 +1518,16 @@ Terminate: when unique success count plateaus
   </div>
 
   <p class="note">
-    Reward-only sweep (pLDDT weights 0.25/0.50/0.75 without G&amp;H): 0 passes across all completed targets and weights.
-    Reward shaping alone does not crack zero-hit targets &mdash; it only helps when combined with G&amp;H.
-    Remaining Exp 26 jobs (H1 4 variants, IL17A 2 variants, TNF&alpha; 5 variants) are still running.
+    Reward-only sweep (pLDDT weights 0.25/0.50/0.75 without G&amp;H): 0 self and 0 MPNN passes across all completed
+    targets and weights. Reward shaping alone does not crack zero-hit targets &mdash; it only helps when combined
+    with local refinement. The only Exp 26 jobs still running are <code>H1</code> <code>rws5</code>/<code>rws10</code>
+    and <code>TNF&alpha;</code> <code>rws5</code>/<code>rws10</code>.
   </p>
 
-  <h3>Exp 27: Sequence Refinement Schedules (19/25 complete; CrSAS6 failed)</h3>
-  <p class="note">5 hallucination schedules on targets with existing geometry. CrSAS6 jobs failed due to target ID mismatch
-  (<code>33_CrSAS6</code> in script vs <code>14_CrSAS6</code> in config). N=16 designs per run.</p>
+  <h3>Exp 27: Sequence Refinement Schedules (20/25 original jobs complete; 5 CrSAS6 jobs failed before generation)</h3>
+  <p class="note">5 hallucination schedules on targets with existing geometry. The original CrSAS6 jobs failed due to a target
+  ID mismatch (<code>33_CrSAS6</code> in script vs <code>14_CrSAS6</code> in config). The corrected CrSAS6 rerun is reported
+  separately below. All tables here use N=16 designs per run.</p>
 
   <h4>Self Pass Rates (N=16 per run)</h4>
   <div class="table-wrap">
@@ -1539,7 +1543,7 @@ Terminate: when unique success count plateaus
       <td><strong>IL7RA</strong></td><td>13/16 (81.2%)</td><td>15/16 (93.8%)</td><td class="best">16/16 (100%)</td><td>15/16 (93.8%)</td><td>14/16 (87.5%)</td>
     </tr>
     <tr>
-      <td><strong>Insulin</strong></td><td class="best">16/16 (100%)</td><td class="best">16/16 (100%)</td><td class="best">16/16 (100%)</td><td class="best">16/16 (100%)</td><td>&mdash;</td>
+      <td><strong>Insulin</strong></td><td class="best">16/16 (100%)</td><td class="best">16/16 (100%)</td><td class="best">16/16 (100%)</td><td class="best">16/16 (100%)</td><td>15/16 (93.8%)</td>
     </tr>
   </table>
   </div>
@@ -1558,7 +1562,7 @@ Terminate: when unique success count plateaus
       <td><strong>IL7RA</strong></td><td>14/16 (87.5%)</td><td>14/16 (87.5%)</td><td class="best">15/16 (93.8%)</td><td>12/16 (75%)</td><td class="best">15/16 (93.8%)</td>
     </tr>
     <tr>
-      <td><strong>Insulin</strong></td><td>15/16 (93.8%)</td><td class="best">16/16 (100%)</td><td class="best">16/16 (100%)</td><td>15/16 (93.8%)</td><td>&mdash;</td>
+      <td><strong>Insulin</strong></td><td>15/16 (93.8%)</td><td class="best">16/16 (100%)</td><td class="best">16/16 (100%)</td><td>15/16 (93.8%)</td><td class="best">16/16 (100%)</td>
     </tr>
   </table>
   </div>
@@ -1568,7 +1572,7 @@ Terminate: when unique success count plateaus
       <li><strong>greedy 5%</strong> is the best balanced schedule: high self (81-100%) AND high MPNN (75-100%) across all targets. Recommended as the default hallucination config.</li>
       <li><strong>soft+greedy short</strong> gives highest self pass rates (100% on SpCas9, IL7RA) but lower MPNN (50% on SpCas9) &mdash; the soft optimization stage improves the model&rsquo;s own sequence but may move it away from MPNN-designable regions.</li>
       <li><strong>aggressive 10%</strong> produces best absolute iPAE and pLDDT values but slightly lower self pass rates. Useful when you want the single best design rather than the most designs.</li>
-      <li><strong>CrSAS6:</strong> All 5 jobs failed due to target ID mismatch (<code>33_CrSAS6</code> in script vs <code>14_CrSAS6</code> in config). Resubmitted with fix (SLURM 6795983-6795987).</li>
+      <li><strong>CrSAS6:</strong> The original 5 jobs failed before generation due to the target ID mismatch (<code>33_CrSAS6</code> vs <code>14_CrSAS6</code>). The corrected rerun completed and is summarized below.</li>
     </ul>
   </div>
 
@@ -1588,71 +1592,56 @@ Terminate: when unique success count plateaus
   </p>
 
   <!-- ─── PAPER COMPARISON ─── -->
-  <h3>Comparison with Paper (Sec I.4 / Figure 19)</h3>
+  <h3>Comparison with the Original Paper (Sec I.4 / Figure 19)</h3>
 
   <div class="table-wrap">
   <table>
     <tr>
       <th>Target</th>
-      <th>Paper GPU-hours</th><th>Paper Successes</th><th>Paper Hours/Hit</th>
-      <th>Our Best Config</th><th>Our GPU-hours</th><th>Our Successes (Self)</th><th>Our Hours/Hit</th>
-      <th>Speedup</th>
+      <th>Paper Result</th>
+      <th>Our Best Verified Result So Far</th>
+      <th>Current Comparison</th>
     </tr>
     <tr style="background:#d1fae5">
       <td><strong>SC2RBD</strong></td>
-      <td>&mdash; (Table 10: 0)</td><td>0</td><td>&infin;</td>
-      <td>e26_04 MCTS+pLDDT(0.5)+G&amp;H</td><td>3.1h</td><td class="best">5/8</td><td class="best">0.6h/hit</td>
-      <td style="color:var(--green); font-weight:700">Paper got 0</td>
+      <td>Not a Sec I.4 target. Table 10 reports 0 Complexa self successes.</td>
+      <td><code>Exp 26</code> <code>rw_pl050_softg5</code>: <strong>5/8 self</strong>, <strong>2/8 MPNN</strong>, with 4 FoldSeek-unique self successes, in 3.1 GPUh.</td>
+      <td><strong>Stronger than our prior local baseline</strong> and stronger than the paper&rsquo;s reported Complexa table entry on this target.</td>
     </tr>
     <tr style="background:#d1fae5">
       <td><strong>TNF&alpha;</strong></td>
-      <td>475h</td><td>15</td><td>31.7h/hit</td>
-      <td>e25 msg5 MCTS+G&amp;H</td><td>16.2h</td><td class="best">4/8</td><td class="best">4.1h/hit</td>
-      <td style="color:var(--green); font-weight:700">~8&times;</td>
+      <td>Sec I.4 / Fig. 19: 15 unique self successes within 475 GPUh using reward-shaped MCTS + Generate &amp; Hallucinate.</td>
+      <td><code>Exp 25</code> <code>mcts_dense40_softgreedy5</code>: <strong>4/8 self</strong>, <strong>1/8 MPNN</strong> in one completed run.</td>
+      <td><strong>Promising</strong>, but not a matched scaling comparison. We cannot claim to beat Figure 19 without cumulative unique-success curves at comparable budgets.</td>
     </tr>
-    <tr style="background:#d1fae5">
+    <tr>
       <td><strong>H1</strong></td>
-      <td>604h</td><td>7</td><td>86.3h/hit</td>
-      <td>e25 msg5 MCTS+G&amp;H</td><td>19.4h</td><td>1/8</td><td>19.4h/hit</td>
-      <td style="color:var(--green); font-weight:700">~4.5&times;</td>
+      <td>Sec I.4 / Fig. 19: 7 unique self successes within 604 GPUh using reward-shaped MCTS + Generate &amp; Hallucinate.</td>
+      <td><code>Exp 25</code> best completed run: <strong>1/8 self</strong>, <strong>0/8 MPNN</strong>.</td>
+      <td><strong>Better than our earlier zero-hit local baseline</strong>, but still below the paper baseline.</td>
     </tr>
     <tr>
       <td><strong>IL17A</strong></td>
-      <td>387h</td><td>1 (self)</td><td>387h/hit</td>
-      <td>e25 msg5</td><td>3.3h</td><td>0 self, 1 MPNN</td><td>&mdash;</td>
-      <td>MPNN-only so far</td>
+      <td>Sec I.4 / Fig. 19: 1 unique self success within 387 GPUh using reward-shaped MCTS + Generate &amp; Hallucinate.</td>
+      <td><code>Exp 25</code> best completed run: <strong>0 self</strong>, <strong>1 MPNN-only</strong>. Completed <code>Exp 26</code> IL17A variants remain 0 self.</td>
+      <td><strong>Still below the paper baseline</strong> on the self-sequence criterion.</td>
     </tr>
     <tr>
       <td><strong>CbAgo</strong></td>
-      <td>&mdash; (Table 10: 0)</td><td>0</td><td>&infin;</td>
-      <td>best near-miss: iPAE*31=7.35</td><td>&mdash;</td><td class="fail">0</td><td>&mdash;</td>
-      <td>Both methods fail</td>
+      <td>Not a Sec I.4 target. Table 10 reports 0 Complexa self successes.</td>
+      <td>All completed local runs remain <strong>0 self / 0 MPNN</strong>. Best observed near-miss is <code>iPAE*31=7.35</code>.</td>
+      <td><strong>Still unresolved</strong>.</td>
     </tr>
   </table>
   </div>
 
   <div class="card" style="border-left: 4px solid var(--green); background: linear-gradient(135deg, #d1fae5 0%, #fafbfc 100%);">
-    <h4 style="font-size:1rem; margin-bottom:8px;">What Explains the Speedup?</h4>
-    <p style="font-size:0.88rem; color:var(--muted); margin-bottom:10px;">
-      Our configs differ from the paper&rsquo;s exact Sec I.4 recipe in three ways:
-    </p>
-    <div class="table-wrap">
-    <table style="font-size:0.82rem;">
-      <tr><th>Parameter</th><th>Paper Sec I.4</th><th>Our msg5 (Exp 25)</th><th>Our e26_04 (Exp 26)</th></tr>
-      <tr><td>N<sub>sim</sub></td><td>20</td><td><strong>40</strong></td><td><strong>40</strong></td></tr>
-      <tr><td>exploration_prob</td><td>0.5</td><td><strong>0.3</strong></td><td><strong>0.3</strong></td></tr>
-      <tr><td>exploration_constant</td><td>1.0</td><td><strong>0.5</strong></td><td><strong>0.5</strong></td></tr>
-      <tr><td>Reward</td><td>iPAE/31 + pLDDT</td><td><strong>iPAE only</strong></td><td><strong>iPAE + pLDDT(0.5)</strong></td></tr>
-      <tr><td>G&amp;H</td><td>greedy 0.05&times; binder length</td><td><strong>soft+greedy 5%</strong></td><td><strong>soft+greedy 5%</strong></td></tr>
-    </table>
-    </div>
+    <h4 style="font-size:1rem; margin-bottom:8px;">What Is Actually Supported So Far</h4>
     <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
-      <li><strong>Soft+greedy hallucination is the biggest differentiator.</strong> The paper uses greedy-only (Stage 4 of BindCraft).
-      We use soft+greedy (Stages 2+3+4: 30 softmax iters + 5 one-hot iters + 15 greedy iters). This gives the optimizer
-      a continuous relaxation before committing to discrete amino acid choices, reaching better local optima.</li>
-      <li><strong>Higher N<sub>sim</sub> (40 vs 20) with lower exploration.</strong> More simulations per decision point with more
-      exploitation (exploration_prob=0.3 vs 0.5) means the MCTS tree is narrower but deeper, finding higher-quality paths.</li>
-      <li><strong>Exp 28 (now running) will resolve</strong> whether the paper&rsquo;s exact params are better or worse than ours at matched walltime.</li>
+      <li><strong>Supported:</strong> our new action set is clearly stronger than our earlier local beam-family baseline on SC2RBD, TNF&alpha;, and H1.</li>
+      <li><strong>Supported:</strong> local refinement is the critical co-ingredient; pure MCTS or reward shaping alone stay near zero on these targets.</li>
+      <li><strong>Not yet supported:</strong> any claim that we outperform the paper&rsquo;s Figure 19 scaling curves on a matched compute-scaling metric.</li>
+      <li><strong>Exp 28 update:</strong> IL17A completed at 0/324 self and 0/324 MPNN; H1, TNF&alpha;, and SC2RBD timed out before full AF2 evaluation, and the later eval-only reruns failed immediately, so Exp 28 does not yet give a usable matched baseline for those three targets.</li>
     </ul>
   </div>
 
@@ -1722,87 +1711,29 @@ Terminate: when unique success count plateaus
     return "try_both"</code></pre>
   </div>
 
-  <h3>Scaling Curves (Exp 29, In Progress)</h3>
-  <p class="note">6 long-running jobs (48h walltime each). Each loops: generate &rarr; evaluate &rarr;
-  log <code>(gpu_hours, cumulative_successes)</code> &rarr; repeat. Data as of April 10, ~8h into the runs.
-  TNF&alpha; jobs have not yet completed their first iteration.</p>
-
-  <h4>CD45 (HARD): Inference-Time Scaling Is Real</h4>
-  <div class="table-wrap">
-  <table>
-    <tr><th>GPU-hours</th>
-      <th colspan="2">noise=0.20 (ours)</th>
-      <th colspan="2">default (baseline)</th></tr>
-    <tr><th></th><th>Cum. Self</th><th>Cum. MPNN</th><th>Cum. Self</th><th>Cum. MPNN</th></tr>
-    <tr><td>1h</td><td class="best">15</td><td>1</td><td>8</td><td class="best">8</td></tr>
-    <tr><td>2h</td><td class="best">30</td><td>3</td><td>16</td><td class="best">16</td></tr>
-    <tr><td>3h</td><td class="best">45</td><td>3</td><td>24</td><td class="best">22</td></tr>
-    <tr><td>4h</td><td class="best">60</td><td>6</td><td>32</td><td class="best">29</td></tr>
-    <tr><td>5h</td><td class="best">75</td><td>6</td><td>40</td><td class="best">36</td></tr>
-    <tr><td>6h</td><td class="best">90</td><td>7</td><td>48</td><td class="best">44</td></tr>
-    <tr><td>7h</td><td class="best">105</td><td>7</td><td>56</td><td class="best">52</td></tr>
-    <tr><td>8h</td><td class="best">120</td><td>7</td><td>&mdash;</td><td>&mdash;</td></tr>
-  </table>
-  </div>
-  <div class="card" style="border-left: 4px solid var(--green);">
-    <h4 style="font-size:0.95rem; margin-bottom:6px;">CD45 Scaling Analysis</h4>
-    <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
-      <li><strong>Both strategies scale perfectly linearly.</strong> noise=0.20 produces exactly 15/32 self passes per iteration
-      (every single one). Default produces exactly 8/32 (every single one). The pipeline is fully deterministic at the
-      beam-search level &mdash; each run with different nsamples draws different binder lengths but the pass rate is identical.</li>
-      <li><strong>noise=0.20 produces 1.9&times; more self successes</strong> (105 vs 56 at 7h) but
-      <strong>default produces 7.4&times; more MPNN successes</strong> (52 vs 7). This is the noise/MPNN tradeoff
-      we discovered in Phase 1 &mdash; scaling confirms it holds at large N.</li>
-      <li><strong>For the paper figure:</strong> Slope = 15 self/hour (noise) vs 8 self/hour (default).
-      At 48h, noise=0.20 will produce ~720 self successes; default ~384. Both continue scaling &mdash;
-      no plateau visible.</li>
-    </ul>
-  </div>
-
-  <h4>SC2RBD (VERY HARD): Continued Scaling on a Previously Unsolvable Target</h4>
-  <div class="table-wrap">
-  <table>
-    <tr><th>GPU-hours</th>
-      <th colspan="2">MCTS+G&amp;H msg5 (ours)</th>
-      <th colspan="2">MCTS+pLDDT+G&amp;H e26 (alt)</th></tr>
-    <tr><th></th><th>Cum. Self</th><th>Cum. MPNN</th><th>Cum. Self</th><th>Cum. MPNN</th></tr>
-    <tr><td>1.5h</td><td class="best">2</td><td>1</td><td>1</td><td>0</td></tr>
-    <tr><td>3h</td><td class="best">4</td><td>2</td><td>1</td><td>0</td></tr>
-    <tr><td>4.5h</td><td class="best">5</td><td>3</td><td>1</td><td>0</td></tr>
-    <tr><td>6h</td><td class="best">6</td><td>4</td><td>1</td><td>0</td></tr>
-  </table>
-  </div>
-  <div class="card" style="border-left: 4px solid var(--green);">
-    <h4 style="font-size:0.95rem; margin-bottom:6px;">SC2RBD Scaling Analysis</h4>
-    <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
-      <li><strong>msg5 continues to scale:</strong> ~1 self success per GPU-hour on a target the paper reports 0 for.
-      At 6h we have 6 self and 4 MPNN successes &mdash; inference-time scaling works on VERY HARD targets.</li>
-      <li><strong>e26 (pLDDT reward) underperforms msg5</strong> in continuous mode (1 vs 6 self at 6h).
-      The single-run result (Exp 26_04: 5/8) may have been a favorable seed &mdash; scaling reveals the true rate.
-      msg5 (iPAE-only reward + G&amp;H) is the more reliable strategy.</li>
-      <li><strong>MPNN follows self</strong> for msg5: 4/6 self-passing designs are also MPNN-passing.
-      The 67% self&rarr;MPNN conversion rate is much better than CD45&rsquo;s 6% at high noise.</li>
-    </ul>
-  </div>
-
-  <p class="note"><strong>TNF&alpha; scaling jobs</strong> have not yet completed their first iteration (~16h per iteration).
-  Data expected after ~16h of runtime. Both msg5 (ours) and paper recipe are running in parallel for direct comparison.</p>
+  <h3>Exp 29: Scaling Attempt (Archived)</h3>
+  <p class="note">
+    The first <code>Exp 29</code> scaling-curve batch was launched but later canceled before it produced usable
+    evaluation outputs. Because there are no completed <code>exp29_*</code> evaluation directories, this page does
+    <strong>not</strong> report any scaling tables or Figure 19-style curves from that attempt. A future scaling
+    benchmark should be treated as a fresh experiment, not as an in-progress result.
+  </p>
 
   <h3>Exp 28: Paper Recipe Baseline (Partial)</h3>
   <div class="table-wrap">
   <table>
     <tr><th>Target</th><th>Status</th><th>Self</th><th>MPNN</th><th>N</th><th>Best iPAE*31</th><th>Best pLDDT</th></tr>
     <tr><td><strong>IL17A</strong></td><td><span class="tag tag-green">Complete</span></td><td class="fail">0/324</td><td class="fail">0/324</td><td>324</td><td>8.3</td><td>0.890</td></tr>
-    <tr><td><strong>H1</strong></td><td><span class="tag tag-orange">Eval resubmitted</span></td><td colspan="5" style="font-size:0.82rem">644 designs generated, MCTS timed out at 8h before AF2 evaluation. Eval-only rerun submitted (SLURM 6813585).</td></tr>
-    <tr><td><strong>TNF&alpha;</strong></td><td><span class="tag tag-orange">Eval resubmitted</span></td><td colspan="5" style="font-size:0.82rem">644 designs generated. Eval-only rerun submitted (SLURM 6813586).</td></tr>
-    <tr><td><strong>SC2RBD</strong></td><td><span class="tag tag-orange">Eval resubmitted</span></td><td colspan="5" style="font-size:0.82rem">644 designs generated. Eval-only rerun submitted (SLURM 6813587).</td></tr>
+    <tr><td><strong>H1</strong></td><td><span class="tag tag-red">Timed out</span></td><td colspan="5" style="font-size:0.82rem">Generation timed out at 8h before full AF2 evaluation. The later eval-only rerun (SLURM 6813585) failed immediately, so there is no usable matched baseline output.</td></tr>
+    <tr><td><strong>TNF&alpha;</strong></td><td><span class="tag tag-red">Timed out</span></td><td colspan="5" style="font-size:0.82rem">Generation timed out at 8h before full AF2 evaluation. The later eval-only rerun (SLURM 6813586) failed immediately, so there is no usable matched baseline output.</td></tr>
+    <tr><td><strong>SC2RBD</strong></td><td><span class="tag tag-red">Timed out</span></td><td colspan="5" style="font-size:0.82rem">Generation timed out at 8h before full AF2 evaluation. The later eval-only rerun (SLURM 6813587) failed immediately, so there is no usable matched baseline output.</td></tr>
   </table>
   </div>
   <p class="note">
     <strong>IL17A paper recipe result:</strong> 0/324 with the paper&rsquo;s exact params (N<sub>sim</sub>=20, &epsilon;=0.5, C=1.0,
     sparse checkpoints, iPAE+pLDDT reward, G&amp;H). Best design: iPAE*31=8.3, pLDDT=0.890 (missed both thresholds).
-    The paper itself reported 1 success in 387 GPU-hours &mdash; IL17A is genuinely the hardest target.
-    Our msg5 config also got 0 self-passes on IL17A, so both recipes struggle equally on this target.
+    The paper itself reported 1 success in 387 GPU-hours &mdash; IL17A is genuinely the hardest target. For H1,
+    TNF&alpha;, and SC2RBD, <code>Exp 28</code> currently gives only timeout evidence, not a fair matched-baseline score.
   </p>
 
   <h3>Exp 26 Tail: Reward-Only Is Not Enough</h3>
@@ -1841,7 +1772,7 @@ Terminate: when unique success count plateaus
 <div class="section" id="tracker">
   <h2>6. Experiment Tracker</h2>
   <p>Live status of all experiments. Updated as jobs complete.</p>
-  <p class="note">Status snapshot as of April 10, 2026: Exp 24 and Exp 25 are complete (all 28 jobs). Exp 26 is partially complete (~15/25; H1, IL17A tail, TNF&alpha; still running). Exp 27 is mostly complete (19/25; 5 CrSAS6 jobs failed due to target ID mismatch <code>33_CrSAS6</code> vs <code>14_CrSAS6</code>, 1 Insulin job still running). Exp 28 (paper recipe baseline) is running (4 jobs, SLURM 6746023-6746026).</p>
+  <p class="note">Status snapshot as of April 10, 2026: Exp 24 and Exp 25 are complete (all 28 jobs). Exp 26 has 21/25 completed with only four refinement runs still active (<code>H1</code> <code>rws5</code>/<code>rws10</code>, <code>TNF&alpha;</code> <code>rws5</code>/<code>rws10</code>). The original Exp 27 batch is terminal (20 completed, 5 CrSAS6 pre-generation failures), and the corrected CrSAS6 rerun is complete. Exp 28 is partial (IL17A complete; H1/TNF&alpha;/SC2RBD timed out; eval-only reruns failed immediately). Exp 29 was canceled before usable evaluation outputs.</p>
 
   <div class="table-wrap">
   <table>
@@ -2045,16 +1976,16 @@ Terminate: when unique success count plateaus
     <tr style="background:#ede9fe">
       <td style="text-align:center; font-size:1.1rem; color:#7c3aed">&#9679;</td>
       <td><strong>Exp 26: Reward-Shaped Hard-Target Sweep</strong><br><span style="font-size:0.82rem;color:var(--muted)">same five zero-hit targets with fixed dense MCTS base, varying AF2 reward mix and two stronger hallucination settings</span></td>
-      <td>25/25</td>
+      <td>21/25 + 4 running</td>
       <td><span class="tag tag-orange">In Progress</span></td>
-      <td style="font-size:0.82rem"><strong>Interim result:</strong> reward shaping alone still gives 0/0 on completed SC2RBD and CbAgo runs, but <code>rw_pl050_softg5</code> on SC2RBD is now the best completed hard-target run overall at <strong>5/8 self and 2/8 MPNN</strong>. Completed CbAgo runs remain 0/0. Early H1 and IL17A reward-only runs are still 0/0; later refinement variants and all TNF&alpha; variants are still running.</td>
+      <td style="font-size:0.82rem"><strong>Interim result:</strong> reward shaping alone still gives 0/0 on completed SC2RBD and CbAgo runs, but <code>rw_pl050_softg5</code> on SC2RBD is now the best completed hard-target run overall at <strong>5/8 self and 2/8 MPNN</strong>. All completed IL17A variants remain 0/0, all completed TNF&alpha; reward-only variants remain 0/0, and the only active jobs are H1/TNF&alpha; <code>rws5</code>/<code>rws10</code>.</td>
     </tr>
     <tr style="background:#ede9fe">
       <td style="text-align:center; font-size:1.1rem; color:#7c3aed">&#9679;</td>
       <td><strong>Exp 27: Sequence-Refinement Hyperparameter Sweep</strong><br><span style="font-size:0.82rem;color:var(--muted)">SpCas9, HER2_AAV, IL7RA, CrSAS6, Insulin with greedy-only and soft+greedy hallucination schedule variants</span></td>
-      <td>25/25</td>
-      <td><span class="tag tag-orange">Mostly Done</span></td>
-      <td style="font-size:0.82rem"><strong>Clear positive result on sequence-sensitive targets.</strong> SpCas9 reaches 1.0 self with <code>softg5_short</code>; HER2_AAV reaches 1.0 self and 1.0 MPNN with greedy-only schedules; IL7RA reaches 1.0 self and 0.938 MPNN with <code>softg5_short</code>; Insulin reaches 1.0 self and 1.0 MPNN with <code>greedy5</code> or <code>softg5_short</code>. All five CrSAS6 runs failed before generation because the script used the wrong target key (<code>33_CrSAS6</code> instead of <code>14_CrSAS6</code>).</td>
+      <td>20/25 complete + 5 failed<br><span style="font-size:0.75rem;color:var(--muted)">CrSAS6 rerun: 5/5 complete</span></td>
+      <td><span class="tag tag-green">Terminal</span></td>
+      <td style="font-size:0.82rem"><strong>Clear positive result on sequence-sensitive targets.</strong> SpCas9 reaches 1.0 self with <code>softg5_short</code>; HER2_AAV reaches 1.0 self and 1.0 MPNN with greedy-only schedules; IL7RA reaches 1.0 self and 0.938 MPNN with <code>softg5_short</code>; Insulin reaches 1.0 self and 1.0 MPNN with <code>greedy5</code> or <code>softg5_short</code>. The original CrSAS6 jobs failed before generation because the script used the wrong target key, but the corrected rerun completed and confirmed CrSAS6 as sequence-limited.</td>
     </tr>
     <tr style="background:#ede9fe">
       <td colspan="5" style="font-size:0.8rem; font-weight:600; color:#5b21b6; padding:6px 12px;">
@@ -2065,8 +1996,15 @@ Terminate: when unique success count plateaus
       <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
       <td><strong>Exp 28: Paper Recipe Baseline (Sec I.4)</strong><br><span style="font-size:0.82rem;color:var(--muted)">H1, TNFalpha, IL17A, SC2RBD with the ICLR paper&rsquo;s exact very-hard-target recipe: MCTS N<sub>sim</sub>=20, &epsilon;=0.5, C=1.0, iPAE+pLDDT(0.5) reward, G&amp;H soft+greedy 5%</span></td>
       <td>4/4</td>
-      <td><span class="tag tag-orange">Submitted</span></td>
-      <td style="font-size:0.82rem"><strong>Goal:</strong> establish the missing baseline &mdash; does the paper&rsquo;s own recipe crack zero-hit targets at 8h? <strong>SLURM:</strong> 6746023&ndash;6746026. <strong>Key difference from Exp 25/26:</strong> paper&rsquo;s exact N<sub>sim</sub>=20, &epsilon;=0.5, C=1.0 with combined iPAE+pLDDT+G&amp;H as one pipeline, not decomposed.</td>
+      <td><span class="tag tag-orange">Partial / Terminal</span></td>
+      <td style="font-size:0.82rem"><strong>Outcome:</strong> IL17A completed at <strong>0/324 self and 0/324 MPNN</strong>. H1, TNF&alpha;, and SC2RBD timed out before full AF2 evaluation; the later eval-only reruns failed immediately, so this batch does not yet provide a usable matched baseline for those three targets.</td>
+    </tr>
+    <tr style="background:#fee2e2">
+      <td style="text-align:center; font-size:1.1rem">&#9746;</td>
+      <td><strong>Exp 29: Scaling Curves</strong><br><span style="font-size:0.82rem;color:var(--muted)">initial Figure 19-style scaling attempt</span></td>
+      <td>0 usable outputs</td>
+      <td><span class="tag tag-red">Canceled</span></td>
+      <td style="font-size:0.82rem">The first scaling batch was canceled before it produced completed <code>exp29_*</code> evaluation directories, so no scaling tables are reported from that attempt.</td>
     </tr>
     <tr style="background:#d1fae5">
       <td style="text-align:center; font-size:1.1rem">&#9745;</td>
