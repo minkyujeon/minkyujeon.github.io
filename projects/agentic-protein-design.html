@@ -881,18 +881,18 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
       </tr>
       <tr>
         <td><strong>HER2_AAV</strong></td><td>Hard</td>
-        <td>3.1%</td><td class="fail">0.0%</td><td class="best">65.6%</td><td style="color:var(--orange)">Running</td>
+        <td>3.1%</td><td class="fail">0.0%</td><td class="best">65.6%</td><td>43.8%</td>
         <td style="color:var(--green); font-weight:700">Hallucination</td>
       </tr>
       <tr>
         <td><strong>BetV1</strong></td><td>Hard</td>
-        <td>18.8%</td><td class="fail">0.0%</td><td>25.0%</td><td style="color:var(--orange)">Running</td>
+        <td>18.8%</td><td class="fail">0.0%</td><td>25.0%</td><td class="best">34.4%</td>
         <td style="color:var(--green); font-weight:700">Hallucination (marginal)</td>
       </tr>
     </table>
     <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8; margin-top:10px;">
       <li><strong>Each target has a different optimal config.</strong> CD45 needs noise=0.20. HER2_AAV needs hallucination. PDL1 needs nothing (default is best). BetV1 benefits marginally from hallucination.</li>
-      <li><strong>Interventions that help one target destroy another.</strong> Hallucination kills CD45 (0%, p=0.005). noise=0.20 kills HER2 and BetV1 (both 0%). noise+halluc is worse than noise alone for CD45 (p=0.032).</li>
+      <li><strong>Interventions that help one target destroy another.</strong> Hallucination kills CD45 (0%, p=0.005). noise=0.20 kills HER2 and BetV1 (both 0%). But <strong>noise+halluc is target-dependent</strong>: it hurts CD45 (18.8% vs 46.9% for noise-only) while remaining viable on HER2_AAV (43.8%) and BetV1 (34.4%).</li>
       <li><strong>noise=0.15 doesn&rsquo;t help (sharp threshold).</strong> CD45 at noise=0.15 gives exactly 25% (=default). The jump to 46.9% happens only at 0.20.</li>
       <li><strong>bb+lat noise must change together.</strong> bb=0.2,lat=0.1 gives 9.4% (worse than default). You need both bb=0.2 AND lat=0.2 for the 46.9% effect.</li>
       <li><strong>Baseline pass rates are deterministic.</strong> 3 independent runs for each target: CD45 always 8/32, HER2 always 1/32, BetV1 always 6/32. Zero run-to-run variance.</li>
