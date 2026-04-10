@@ -1737,6 +1737,7 @@ Terminate: when unique success count plateaus
   <strong>All numbers verified against <code>binder_results_*.csv</code> on April 10, 2026.</strong></p>
 
   <h4>Self Pass Rates (iPAE*31 &le; 7.0 AND pLDDT &ge; 0.9 AND scRMSD &lt; 1.5&Aring;)</h4>
+  <p class="note"><strong>How to read this table:</strong> What is plotted = self-sequence pass counts for each Exp 25 config on each hard target. Denominator = N=8 final designs per target/config. Config meaning = <code>md40/md80/ms60</code> are pure MCTS variants; <code>mg05</code> adds greedy-only refinement; <code>msg5</code> adds full soft+greedy refinement. Interpretation = pure MCTS is almost always insufficient; the first real gains appear only after local refinement is added.</p>
   <div class="table-wrap">
   <table>
     <tr><th>Target</th><th>md40</th><th>md80</th><th>ms60</th><th>mg05 (greedy)</th><th>msg5 (soft+greedy)</th></tr>
@@ -1762,6 +1763,7 @@ Terminate: when unique success count plateaus
   </div>
 
   <h4>MPNN Pass Rates</h4>
+  <p class="note"><strong>How to read this table:</strong> What is plotted = MPNN-redesigned pass counts for the same Exp 25 runs. Denominator = N=8 redesigned evaluations per target/config. Config meaning = same as the self table above. Interpretation = Exp 25 mainly improves self-channel success; redesign robustness remains much weaker and only becomes non-zero on a few refined runs.</p>
   <div class="table-wrap">
   <table>
     <tr><th>Target</th><th>md40</th><th>md80</th><th>ms60</th><th>mg05</th><th>msg5</th></tr>
@@ -1843,6 +1845,7 @@ Terminate: when unique success count plateaus
   separately below. All tables here use N=16 designs per run.</p>
 
   <h4>Self Pass Rates (N=16 per run)</h4>
+  <p class="note"><strong>How to read this table:</strong> What is plotted = self-sequence pass counts for five local refinement schedules on already geometry-viable targets. Denominator = N=16 final designs per target/schedule. Config meaning = <code>greedy</code> enables only the semigreedy mutation stage, while <code>soft+greedy</code> adds the earlier softmax and one-hot optimization stages; <code>short</code> and <code>long</code> differ in the number of optimization iterations. Interpretation = once geometry exists, schedule choice matters as much as search choice.</p>
   <div class="table-wrap">
   <table>
     <tr><th>Target</th><th>greedy 2%</th><th>greedy 5%</th><th>soft+greedy short</th><th>soft+greedy long</th><th>aggressive 10%</th></tr>
@@ -1862,6 +1865,7 @@ Terminate: when unique success count plateaus
   </div>
 
   <h4>MPNN Pass Rates (N=16 per run)</h4>
+  <p class="note"><strong>How to read this table:</strong> What is plotted = MPNN-redesigned pass counts for the same five refinement schedules. Denominator = N=16 redesigned evaluations per target/schedule. Interpretation = the self-best schedule is not always the redesign-best schedule, so the controller should track both channels before declaring a schedule winner.</p>
   <div class="table-wrap">
   <table>
     <tr><th>Target</th><th>greedy 2%</th><th>greedy 5%</th><th>soft+greedy short</th><th>soft+greedy long</th><th>aggressive 10%</th></tr>
@@ -1924,6 +1928,7 @@ Terminate: when unique success count plateaus
 
   <!-- ─── PAPER COMPARISON ─── -->
   <h3>Comparison with the Original Paper (Sec I.4 / Figure 19)</h3>
+  <p class="note"><strong>How to read this table:</strong> What is plotted = a qualitative comparison between our best verified local result on each hard target and the paper’s reported baseline. Denominator = our rows are usually single-run local pass counts (often N=8), while the paper rows are cumulative unique self successes over hundreds of GPU-hours. Interpretation = this table is useful for directionality and baseline sanity checks, but not for claiming matched scaling superiority unless the budget and objective are aligned.</p>
   <p class="note">
     <strong>Comparison convention:</strong> our entries below are the best completed <em>single local runs</em> unless otherwise stated.
     For SC2RBD, TNF&alpha;, H1, and IL17A this means the reported self/MPNN rates are typically out of <code>N=8</code> local designs.
