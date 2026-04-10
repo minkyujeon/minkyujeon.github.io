@@ -1510,7 +1510,7 @@ Terminate: when unique success count plateaus
       <tr style="background:#d1fae5"><td>8</td><td>6.45</td><td>0.912</td><td>0.097</td><td class="best">PASS</td><td class="fail">FAIL</td></tr>
     </table>
     <p style="font-size:0.88rem; color:var(--muted); margin-top:8px;">
-      <strong>Result: 5/8 self (62.5%), 2/8 MPNN (25.0%).</strong>
+      <strong>Result: 5/8 self (62.5%), 1/8 MPNN (12.5%).</strong>
       The paper&rsquo;s Table 10 reports <strong>0 Complexa successes</strong> on SC2RBD across all methods.
       We solve this target in 3.1 GPU-hours. The pLDDT reward weight likely prevents MCTS from discarding
       high-confidence trajectories that have suboptimal iPAE but rescuable interface geometry.
@@ -1605,7 +1605,7 @@ Terminate: when unique success count plateaus
     <tr style="background:#d1fae5">
       <td><strong>SC2RBD</strong></td>
       <td>Not a Sec I.4 target. Table 10 reports 0 Complexa self successes.</td>
-      <td><code>Exp 26</code> <code>rw_pl050_softg5</code>: <strong>5/8 self</strong>, <strong>2/8 MPNN</strong>, with 4 FoldSeek-unique self successes, in 3.1 GPUh.</td>
+      <td><code>Exp 26</code> <code>rw_pl050_softg5</code>: <strong>5/8 self</strong>, <strong>1/8 MPNN</strong>, with 4 FoldSeek-unique self successes, in 3.1 GPUh.</td>
       <td><strong>Stronger than our prior local baseline</strong> and stronger than the paper&rsquo;s reported Complexa table entry on this target.</td>
     </tr>
     <tr style="background:#d1fae5">
@@ -1660,15 +1660,21 @@ Terminate: when unique success count plateaus
     <tr><th>Class</th><th>Targets</th><th>Best Action</th><th>Evidence</th></tr>
     <tr style="background:#d1fae5">
       <td><strong>Saturated</strong></td>
-      <td>VEGFA, IL7RA, BHRF1, BBF14, DerF21, Insulin</td>
+      <td>VEGFA, IL7RA, BHRF1, BBF14, DerF21</td>
       <td>Scale default</td>
-      <td>Exp 24: 72-75% self</td>
+      <td>Exp 24: VEGFA 75%, IL7RA 72%. Exp 16/17: BHRF1 100%, BBF14 75%, DerF21 75%.</td>
+    </tr>
+    <tr style="background:#d1fae5">
+      <td><strong>Weak / ambiguous</strong></td>
+      <td>Insulin, BetV1</td>
+      <td>Try both noise and halluc</td>
+      <td>Insulin baseline 44% (Exp 17); Exp 27 halluc saturates at 100%. BetV1 baseline 19%; halluc marginal (+6pp).</td>
     </tr>
     <tr style="background:#d1fae5">
       <td><strong>Sequence-limited</strong></td>
-      <td>HER2_AAV, SpCas9</td>
+      <td>HER2_AAV, SpCas9, CrSAS6</td>
       <td>Hallucination greedy 5%</td>
-      <td>Exp 27: 81-100% self</td>
+      <td>Exp 27: HER2 100%, SpCas9 81%, CrSAS6 69% (aggressive 10%)</td>
     </tr>
     <tr style="background:#d1fae5">
       <td><strong>Geometry-limited</strong></td>
@@ -1978,7 +1984,7 @@ Terminate: when unique success count plateaus
       <td><strong>Exp 26: Reward-Shaped Hard-Target Sweep</strong><br><span style="font-size:0.82rem;color:var(--muted)">same five zero-hit targets with fixed dense MCTS base, varying AF2 reward mix and two stronger hallucination settings</span></td>
       <td>21/25 + 4 running</td>
       <td><span class="tag tag-orange">In Progress</span></td>
-      <td style="font-size:0.82rem"><strong>Interim result:</strong> reward shaping alone still gives 0/0 on completed SC2RBD and CbAgo runs, but <code>rw_pl050_softg5</code> on SC2RBD is now the best completed hard-target run overall at <strong>5/8 self and 2/8 MPNN</strong>. All completed IL17A variants remain 0/0, all completed TNF&alpha; reward-only variants remain 0/0, and the only active jobs are H1/TNF&alpha; <code>rws5</code>/<code>rws10</code>.</td>
+      <td style="font-size:0.82rem"><strong>Interim result:</strong> reward shaping alone still gives 0/0 on completed SC2RBD and CbAgo runs, but <code>rw_pl050_softg5</code> on SC2RBD is now the best completed hard-target run overall at <strong>5/8 self and 1/8 MPNN</strong>. All completed IL17A variants remain 0/0, all completed TNF&alpha; reward-only variants remain 0/0, and the only active jobs are H1/TNF&alpha; <code>rws5</code>/<code>rws10</code>.</td>
     </tr>
     <tr style="background:#ede9fe">
       <td style="text-align:center; font-size:1.1rem; color:#7c3aed">&#9679;</td>
