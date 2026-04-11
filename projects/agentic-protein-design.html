@@ -324,38 +324,41 @@
                           ├─ ...
                           └─ final checkpoint: output PDBs with co-designed sequences
                                        │
-Filter:                   rank by AF2 iPAE, deduplicate sequences
+Select / Save:            keep final selected candidates from search (and optional refinement outputs)
                                        │
 Evaluate:                 AF2 refold (self seq) + ProteinMPNN redesign + refold (mpnn seq)
                                        │
-Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &lt; 1.5A
-                          Diversity = FoldSeek structural clustering</div>
+Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 0.9 AND binder scRMSD &lt; 1.5A
+                          unique-success analysis = FoldSeek clustering on the successful subset</div>
 
   <p class="note">
     "self" = sequence decoded from the model's local_latents (co-designed with structure).
     "mpnn" = ProteinMPNN redesigns the same backbone from scratch (post-hoc, independent of the model).
-    Both are refolded with AF2 to check designability.
+    Both are refolded with AF2 to check designability. The paper's binder success criterion is the
+    three-way conjunction of <code>ipAE</code>, <code>complex pLDDT</code>, and <code>binder scRMSD</code>;
+    <strong>FoldSeek diversity is not part of the pass/fail filter itself</strong>. It is applied afterward to cluster
+    the successful subset and report <em>unique successes</em>.
   </p>
 
   <h3>Full Action Space (What an Agent Can Control)</h3>
   <p>
-    We audited the current Proteina-Complexa codebase and identified <strong>7 search algorithms</strong>,
-    <strong>1 refinement operator family</strong>, <strong>4 reward-model families</strong>, and <strong>30+ tunable parameters</strong>.
-    The paper's Figure 7 covers the original <strong>five method families</strong>
-    (<code>best-of-n</code>, <code>beam-search</code>, <code>fk-steering</code>, <code>mcts</code>,
-    and Generate &amp; Hallucinate as a post-generation refinement arm). The local repo and our project later extend that action
-    space with an explicit <code>single-pass</code> baseline plus our added
-    <code>stochastic-beam-search</code> and <code>diverse-beam-search</code>.
+    We audited the current Proteina-Complexa codebase and identified <strong>7 implemented search algorithms</strong>,
+    <strong>1 implemented refinement operator family</strong>, <strong>4 evaluator/reward-model families exposed in the repo</strong>,
+    and <strong>30+ tunable parameters</strong>. The paper's Figure 7 covers the original <strong>five method families</strong>:
+    four search algorithms (<code>best-of-n</code>, <code>beam-search</code>, <code>fk-steering</code>, <code>mcts</code>)
+    plus Generate &amp; Hallucinate as a separate post-generation refinement arm. The local repo and our project later extend that action
+    space with an explicit <code>single-pass</code> baseline and our added
+    <code>stochastic-beam-search</code> / <code>diverse-beam-search</code> variants.
   </p>
 
   <div class="table-wrap">
   <table>
     <tr><th>Category</th><th>Parameter</th><th>Default</th><th>Options / Range</th><th>Explored?</th></tr>
-    <tr><td colspan="5" style="background:#f1f5f9; font-weight:600; font-size:0.82rem;">Search Algorithm (paper Figure 7 uses the original 5 method families; repo now supports 7 search actions)</td></tr>
+    <tr><td colspan="5" style="background:#f1f5f9; font-weight:600; font-size:0.82rem;">Search Algorithm (paper Figure 7 uses 4 search algorithms + 1 separate refinement arm; repo now supports 7 search actions)</td></tr>
     <tr>
       <td>Algorithm</td><td><code>algorithm</code></td><td>best-of-n</td>
       <td><code>single-pass</code>, <code>best-of-n</code>, <code>beam-search</code>, <code>stochastic-beam-search</code>, <code>diverse-beam-search</code>, <code>fk-steering</code>, <code>mcts</code></td>
-      <td><span class="tag tag-green">Yes</span> &mdash; all 7 have now been run locally at least once; paper Figure 7 covers the original 4 search families (<code>best-of-n</code>, <code>beam-search</code>, <code>fk-steering</code>, <code>mcts</code>)</td>
+      <td><span class="tag tag-orange">Partially</span> &mdash; the repo supports all 7. This project page directly analyzes local runs for <code>single-pass</code>, <code>beam-search</code>, <code>stochastic-beam-search</code>, <code>diverse-beam-search</code>, <code>fk-steering</code>, and <code>mcts</code>; <code>best-of-n</code> is part of the paper and the repo default but is not one of the main local result panels on this page.</td>
     </tr>
     <tr>
       <td>Beam Search</td><td><code>beam_width</code></td><td>4</td><td>1 &ndash; 32</td>
@@ -453,7 +456,8 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     The <strong>Explored?</strong> column refers to <strong>our local experiments</strong>, not just the paper.
     A method can therefore be "Yes" even if it was not part of the original paper, as with
     <code>stochastic-beam-search</code> and <code>diverse-beam-search</code>.
-    "No" means we have not yet run that parameter family locally.
+    "No" means we have not yet run that parameter family locally. For this section, "supported in repo" and
+    "explored locally" are intentionally separated: a capability can exist in code without yet having a clean local benchmark on this page.
     <strong>Key distinction:</strong> The companion paper (Latent Generative Search, Table 2, Sec B.4) tested 4 sampling noise combinations
     (bb&times;lat: 0.1&times;0.1, 0.1&times;0.4, 0.4&times;0.1, 0.4&times;0.4) in aggregate across 75 solvable targets from the 127-target panel.
     Result: (0.1, 0.4) solves the most targets (36 vs 33); each setting uniquely solves 2&ndash;4 targets.
