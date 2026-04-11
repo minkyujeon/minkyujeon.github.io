@@ -714,11 +714,12 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
       <h4>Companion Figure: Baseline Winners by Target</h4>
       <p>Quick visual summary of which search family wins on the 11-target baseline panel.</p>
       <div class="mini-chart">
-        <div class="bar-row"><div class="bar-label">Deep wins</div><div class="bar-track"><div class="bar-fill blue" style="width:55%"></div></div><div class="bar-val">6/11</div></div>
-        <div class="bar-row"><div class="bar-label">Wide wins</div><div class="bar-track"><div class="bar-fill green" style="width:45%"></div></div><div class="bar-val">5/11</div></div>
+        <div class="bar-row"><div class="bar-label">Deep strict wins</div><div class="bar-track"><div class="bar-fill blue" style="width:45%"></div></div><div class="bar-val">5/11</div></div>
+        <div class="bar-row"><div class="bar-label">Wide strict wins</div><div class="bar-track"><div class="bar-fill green" style="width:9%"></div></div><div class="bar-val">1/11</div></div>
+        <div class="bar-row"><div class="bar-label">Deep = wide ties</div><div class="bar-track"><div class="bar-fill orange" style="width:45%"></div></div><div class="bar-val">5/11</div></div>
         <div class="bar-row"><div class="bar-label">notto wins</div><div class="bar-track"><div class="bar-fill red" style="width:0%"></div></div><div class="bar-val">0/11</div></div>
       </div>
-      <div class="figure-caption">Caption: across 11 protein binder targets in Phase 0, deep beam is the best self-sequence baseline on 6 targets and wide beam is best on 5, while no-TTO never wins. Paper reference: Figure 7 establishes that test-time search beats blind sampling, but it does not compare deep vs wide beam on this same per-target panel. Interpretation: the baseline problem is already target-conditional inside beam search; the first meaningful choice is usually deep vs wide beam, not beam vs random sampling.</div>
+      <div class="figure-caption">Caption: this panel compares only the 11 Phase-0 protein-binder baselines by self-sequence pass rate. Using strict comparison, deep beam is higher on 5 targets (CD45, Claudin1, BetV1, SpCas9, HER2_AAV), wide beam is higher on 1 target (CrSAS6), and the two are tied on 5 targets (PD1, PDL1, IFNAR2, DerF7, TrkA). notto is never the best self-pass baseline. Paper reference: Figure 7 shows that test-time search beats blind sampling, but it does not present this exact deep-vs-wide tie structure. Interpretation: even before interventions, the baseline choice is already target-conditional inside beam search.</div>
     </div>
     <div class="figure-card">
       <h4>Companion Figure: Hard Targets Need TTO</h4>
@@ -734,8 +735,8 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
   </div>
   <p class="note">
     HER2_AAV-deep shows an anomaly: mpnn pass rate (31.3%) greatly exceeds self pass rate (3.1%).
-    This means ProteinMPNN redesigns succeed on backbones where the model's own sequence fails &mdash;
-    suggesting the model generates good structures but suboptimal sequences for this target.
+    This means ProteinMPNN redesigns succeed on backbones where the model's own sequence fails.
+    The observed pattern is therefore consistent with a sequence-heavy failure mode on this target.
   </p>
 
   <h3>What the Three Success Metrics Mean</h3>
@@ -749,12 +750,12 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
         <th style="width:35%">What Failure Means</th>
       </tr>
       <tr>
-        <td><strong>iPAE &le; 7&Aring;</strong></td>
-        <td>ipAE &lt; 7 &Aring;<br><span style="font-size:0.78rem;color:var(--muted)">(equiv. stored <code>i_pAE * 31 &lt; 7</code>)</span></td>
+        <td><strong>iPAE threshold</strong></td>
+        <td>paper text: ipAE &lt; 7 &Aring;<br><span style="font-size:0.78rem;color:var(--muted)">local eval JSON: stored <code>i_pAE * 31 &le; 7</code></span></td>
         <td><strong>Interface binding quality.</strong> AF2 Multimer&rsquo;s inter-chain Predicted Aligned Error measures how confidently
         AF2 predicts the relative position of the binder and target. Lower = AF2 believes the binder binds at the correct interface.</td>
         <td>AF2 is not confident the binder engages the target interface. The binder may not dock correctly,
-        may bind the wrong site, or may not interact at all. <em>This is the primary bottleneck for CD45 and BetV1.</em></td>
+        may bind the wrong site, or may not interact at all.</td>
       </tr>
       <tr>
         <td><strong>pLDDT &ge; 0.9</strong></td>
@@ -762,7 +763,7 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
         <td><strong>Structural confidence of the complex.</strong> AF2&rsquo;s per-residue confidence score averaged over the complex.
         Higher = AF2 is confident the predicted fold is correct. Reflects whether the amino acid sequence folds into a well-defined 3D structure.</td>
         <td>The co-designed sequence does not fold confidently &mdash; it may be disordered, partially unfolded, or adopt
-        an incorrect fold. <em>This is the primary bottleneck for HER2_AAV (hallucination fixes this because it rewrites the sequence).</em></td>
+        an incorrect fold.</td>
       </tr>
       <tr>
         <td><strong>scRMSD &lt; 1.5&Aring;</strong></td>
@@ -777,9 +778,8 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
 
   <h3>Per-Target Bottleneck Analysis (Deep Beam, Self Sequence)</h3>
   <p class="note">For each target, we decompose why designs pass or fail by checking each criterion independently.
-  This reveals whether the bottleneck is binding quality (iPAE), fold confidence (pLDDT), or structural consistency (scRMSD).
-  The Self/MPNN gap reveals whether the problem is the co-designed sequence (fixable by hallucination)
-  or the backbone itself (fixable by noise).
+  This reveals whether the dominant observed limitation is interface quality (iPAE), fold confidence (pLDDT), or structural consistency (scRMSD).
+  The Self/MPNN gap is used later in the project as a routing clue, but it is not itself a formal paper metric.
   <strong>Unless noted otherwise, every percentage in this table is out of N=32 deep-beam designs for that target.</strong></p>
   <div class="table-wrap">
   <table>
@@ -861,19 +861,21 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
   <div class="card" style="border-left: 4px solid var(--accent);">
     <h4 style="font-size:0.95rem; margin-bottom:6px;">How to Read This Table</h4>
     <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
-      <li><strong>iPAE pass%</strong>: What fraction of 32 designs have <strong>ipAE &lt; 7.0 &Aring;</strong> (equivalently, stored <code>i_pAE * 31 &lt; 7.0</code>), regardless of other criteria. If low, the backbone does not create a good binding interface &rarr; need more structural diversity (noise).</li>
-      <li><strong>pLDDT pass%</strong>: What fraction have pLDDT &ge; 0.9. If low, the co-designed sequence does not fold confidently &rarr; the sequence is the problem, not the backbone &rarr; hallucination can fix this.</li>
-      <li><strong>Self/MPNN gap</strong>: If MPNN &gt;&gt; Self (positive gap), the backbone is good but the co-designed sequence is bad &rarr; hallucination. If Self &ge; MPNN (negative gap), the co-designed sequence is at least as good as MPNN &rarr; backbone is the bottleneck.</li>
-      <li><strong>CD45 example</strong>: 94% pass pLDDT but only 25% pass iPAE. The sequences fold fine but don&rsquo;t bind &rarr; backbone geometry is wrong &rarr; noise=0.20 explores more backbone topologies and doubles the pass rate.</li>
-      <li><strong>HER2 example</strong>: Only 22% pass pLDDT but 50% pass iPAE, and MPNN gets 31% while Self gets 3%. The backbone IS good (MPNN proves it), but the model&rsquo;s own sequences don&rsquo;t fold &rarr; hallucination rewrites sequences using AF2 &rarr; 66% pass rate.</li>
+      <li><strong>iPAE pass%</strong>: What fraction of 32 designs satisfy the interface threshold. In the paper this is written as <strong>ipAE &lt; 7.0 &Aring;</strong>; in the local evaluation JSON it is implemented as stored <code>i_pAE * 31 &le; 7.0</code>. This column ignores the other two criteria.</li>
+      <li><strong>pLDDT pass%</strong>: What fraction satisfy <code>complex_pLDDT &ge; 0.9</code>, regardless of iPAE or scRMSD.</li>
+      <li><strong>scRMSD pass%</strong>: What fraction satisfy <code>binder_scRMSD_ca &lt; 1.5</code>, regardless of iPAE or pLDDT. On this 11-target panel, scRMSD is usually high and rarely the main limiting criterion.</li>
+      <li><strong>Self/MPNN gap</strong>: This compares final category pass rates, not raw backbone quality. It is used here as a practical diagnostic cue rather than as a formal causal claim.</li>
+      <li><strong>CD45 example</strong>: deep-beam CD45 has 93.8% pLDDT pass and 100% scRMSD pass, but only 25.0% iPAE pass. The observed failure concentration is therefore at the interface-quality threshold.</li>
+      <li><strong>HER2 example</strong>: deep-beam HER2_AAV has 50.0% iPAE pass, 21.9% pLDDT pass, 100% scRMSD pass, 3.1% self success, and 31.2% MPNN success. The table records this as a sequence-heavy failure pattern because the pLDDT threshold is much harder to satisfy than the iPAE threshold.</li>
     </ul>
   </div>
 
   <h3>Prior Autoresearch Sweep: 5 Configs x 10 Targets</h3>
   <p>
-    A parallel sweep (collaboration with Jinyeop Song) tested 5 beam search configurations
-    across 10 protein targets (50 experiments, all complete, 26,560 total samples).
-    E_fine_selector (= our "deep" config) won 7/10 targets by best sample iPAE.
+    This summary comes from an earlier internal Autoresearch beam-sweep report stored under
+    <code>Proteina-Complexa/Autoresearch_Denovo/analysis/history</code> and companion memo files.
+    That sweep tested 5 beam-search configurations across 10 protein targets (50 experiments, 26,560 generated samples in the report summary).
+    In that internal report, <code>E_fine_selector</code> (= our "deep" config family) won 7/10 targets by best-sample iPAE.
   </p>
   <div class="table-wrap">
   <table>
@@ -885,11 +887,10 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
     <tr><td>B_length_explorer</td><td>Max length diversity</td><td>16</td><td>2</td><td>4</td><td>[0,100,200,300,400]</td><td>0/10</td></tr>
   </table>
   </div>
-  <p class="note"><strong>Key takeaway:</strong> the earlier autoresearch sweep already showed that fixed defaults are fragile and that config sensitivity is large enough to justify adaptive selection.</p>
+  <p class="note"><strong>Key takeaway:</strong> this earlier internal sweep is the historical source for the project&rsquo;s config-sensitivity claim: fixed defaults were already fragile before the later intervention experiments began.</p>
   <p class="note">
-    Config sensitivity varies dramatically: CV of iPAE across configs ranges from 0.027 (IFNAR2 &mdash; config doesn't matter)
-    to 0.648 (BetV1 &mdash; config choice is critical). For 4/10 proteins, the optimal config changes when optimizing
-    for top-16 pool vs. top-1 sample.
+    The companion internal diversity analysis reports that config sensitivity varies substantially across proteins and that, for 4/10 proteins, the preferred config changes when the selection objective shifts from top-1 sample to top-16 pool. Those statements come from
+    <code>Autoresearch_Denovo/analysis/history/2026-04-05_config_diversity_analysis.md</code>, not from the Phase-0 evaluation CSVs above.
   </p>
 </div>
 
