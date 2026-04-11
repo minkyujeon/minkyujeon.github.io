@@ -337,7 +337,8 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
     Both are refolded with AF2 to check designability. The paper's binder success criterion is the
     three-way conjunction of <code>ipAE</code>, <code>complex pLDDT</code>, and <code>binder scRMSD</code>;
     <strong>FoldSeek diversity is not part of the pass/fail filter itself</strong>. It is applied afterward to cluster
-    the successful subset and report <em>unique successes</em>.
+    the successful subset and report <em>unique successes</em>. The factor <code>31</code> appears only because the
+    repo stores PAE-family columns in normalized 0&ndash;1 form by dividing the original 0&ndash;31 &Aring; range by 31.
   </p>
 
   <h3>Full Action Space (What an Agent Can Control)</h3>
@@ -530,7 +531,9 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
   <h3>Generation-Stage AF2 iPAE (Lower = Better Binding)</h3>
   <p class="note">
     iPAE = interface Predicted Aligned Error from AF2 multimer, normalized to 0&ndash;1 (multiply by 31 for raw score).
-    Success threshold: iPAE*31 &le; 7.0, i.e., iPAE &le; 0.226.
+    Success threshold: <strong>ipAE &lt; 7.0 &Aring;</strong>. In the local CSVs, the stored column is a normalized
+    <code>i_pAE</code> value on a 0&ndash;1 scale, so the equivalent check there is <code>i_pAE * 31 &lt; 7.0</code>
+    (or <code>i_pAE &lt; 7/31</code>).
     "Mean" = average across all samples; "Best" = minimum iPAE (best single sample).
     Green = best config per target on that metric.
   </p>
@@ -625,7 +628,7 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
 
   <h3>Evaluation Pass Rates (After AF2 Refolding + ProteinMPNN Redesign)</h3>
   <p class="note">
-    Success = iPAE*31 &le; 7.0 AND pLDDT &ge; 0.9 AND scRMSD &lt; 1.5A.
+    Success = <strong>ipAE &lt; 7.0 &Aring;</strong> AND pLDDT &ge; 0.9 AND scRMSD &lt; 1.5A.
     <code>self</code> = model's co-designed sequence.
     <code>mpnn</code> = ProteinMPNN redesign of same backbone.
     Pass rate = fraction of samples meeting all three criteria simultaneously.
@@ -747,7 +750,7 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
       </tr>
       <tr>
         <td><strong>iPAE &le; 7&Aring;</strong></td>
-        <td>i_pAE * 31 &le; 7</td>
+        <td>ipAE &lt; 7 &Aring;<br><span style="font-size:0.78rem;color:var(--muted)">(equiv. stored <code>i_pAE * 31 &lt; 7</code>)</span></td>
         <td><strong>Interface binding quality.</strong> AF2 Multimer&rsquo;s inter-chain Predicted Aligned Error measures how confidently
         AF2 predicts the relative position of the binder and target. Lower = AF2 believes the binder binds at the correct interface.</td>
         <td>AF2 is not confident the binder engages the target interface. The binder may not dock correctly,
@@ -858,7 +861,7 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
   <div class="card" style="border-left: 4px solid var(--accent);">
     <h4 style="font-size:0.95rem; margin-bottom:6px;">How to Read This Table</h4>
     <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
-      <li><strong>iPAE pass%</strong>: What fraction of 32 designs have iPAE*31 &le; 7.0 (regardless of other criteria). If low, the backbone does not create a good binding interface &rarr; need more structural diversity (noise).</li>
+      <li><strong>iPAE pass%</strong>: What fraction of 32 designs have <strong>ipAE &lt; 7.0 &Aring;</strong> (equivalently, stored <code>i_pAE * 31 &lt; 7.0</code>), regardless of other criteria. If low, the backbone does not create a good binding interface &rarr; need more structural diversity (noise).</li>
       <li><strong>pLDDT pass%</strong>: What fraction have pLDDT &ge; 0.9. If low, the co-designed sequence does not fold confidently &rarr; the sequence is the problem, not the backbone &rarr; hallucination can fix this.</li>
       <li><strong>Self/MPNN gap</strong>: If MPNN &gt;&gt; Self (positive gap), the backbone is good but the co-designed sequence is bad &rarr; hallucination. If Self &ge; MPNN (negative gap), the co-designed sequence is at least as good as MPNN &rarr; backbone is the bottleneck.</li>
       <li><strong>CD45 example</strong>: 94% pass pLDDT but only 25% pass iPAE. The sequences fold fine but don&rsquo;t bind &rarr; backbone geometry is wrong &rarr; noise=0.20 explores more backbone topologies and doubles the pass rate.</li>
@@ -1336,7 +1339,7 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
 
   <h4 style="margin:16px 0 8px;">Figure A: Pass Rate Matrix &mdash; Each Target Needs a Different Config</h4>
   <p class="note">Solid bars = self-sequence pass rate. Hatched bars = MPNN redesign pass rate. N=32 designs per condition.
-  Pass = iPAE*31 &le; 7.0 AND pLDDT &ge; 0.9 AND scRMSD &lt; 1.5&Aring;.</p>
+  Pass = ipAE &lt; 7.0 &Aring; AND pLDDT &ge; 0.9 AND scRMSD &lt; 1.5&Aring;.</p>
   <img src="agentic-figures/fig1_pass_rate_matrix.png" alt="Pass rate matrix across targets and configs" style="width:100%; max-width:800px; border:1px solid var(--border); border-radius:8px; margin-bottom:16px;">
   <div class="figure-caption">What is plotted: self-sequence and MPNN-redesign pass rates for the Phase 0 baseline panel. Denominator: N=32 evaluated designs per target/config. Config meaning: notto = no test-time search, deep = fine-grained beam pruning, wide = wider-branch beam search. Paper reference: Figure 7 shows that search beats blind sampling overall, but not this exact deep-vs-wide comparison. Interpretation: even the baseline search family is already target-conditional.</div>
 
@@ -1757,7 +1760,7 @@ Terminate: when unique success count plateaus
 
   <p class="note"><strong>Data integrity:</strong> All quantitative results in this section are verified directly against local
   evaluation CSVs, and all run-state claims are checked against <code>sacct</code> on April 11, 2026. Pass criteria:
-  iPAE*31 &le; 7.0 AND pLDDT &ge; 0.9 AND scRMSD &lt; 1.5&Aring;.
+  ipAE &lt; 7.0 &Aring; AND pLDDT &ge; 0.9 AND scRMSD &lt; 1.5&Aring;.
   The local <code>evaluation_results</code> tree now contains <strong>over 420 run directories</strong> across all batches.</p>
 
   <div class="callout">
@@ -1782,7 +1785,7 @@ Terminate: when unique success count plateaus
   All configs use iPAE-only reward (no pLDDT). md40/md80/ms60 have no hallucination.
   <strong>All numbers verified against <code>binder_results_*.csv</code> on April 11, 2026.</strong></p>
 
-  <h4>Self Pass Rates (iPAE*31 &le; 7.0 AND pLDDT &ge; 0.9 AND scRMSD &lt; 1.5&Aring;)</h4>
+  <h4>Self Pass Rates (ipAE &lt; 7.0 &Aring;, pLDDT &ge; 0.9, scRMSD &lt; 1.5&Aring;)</h4>
   <p class="note"><strong>How to read this table:</strong> What is plotted = self-sequence pass counts for each Exp 25 config on each hard target. Denominator = N=8 final designs per target/config. Config meaning = <code>md40/md80/ms60</code> are pure MCTS variants; <code>mg05</code> adds greedy-only refinement; <code>msg5</code> adds full soft+greedy refinement. Interpretation = pure MCTS is almost always insufficient; the first real gains appear only after local refinement is added.</p>
   <div class="table-wrap">
   <table>
@@ -1847,7 +1850,7 @@ Terminate: when unique success count plateaus
       (Stage 2 softmax, Stage 3 one-hot, Stage 4 semigreedy). Walltime: 3.1 GPU-hours.
     </p>
     <table style="font-size:0.85rem; width:100%;">
-      <tr><th>Design</th><th>Self iPAE*31</th><th>Self pLDDT</th><th>Self scRMSD</th><th>Self Pass?</th><th>MPNN Pass?</th></tr>
+      <tr><th>Design</th><th>Self ipAE (&Aring;)</th><th>Self pLDDT</th><th>Self scRMSD</th><th>Self Pass?</th><th>MPNN Pass?</th></tr>
       <tr><td>1</td><td>13.52</td><td>0.816</td><td>0.176</td><td class="fail">FAIL</td><td class="fail">FAIL</td></tr>
       <tr><td>2</td><td>20.68</td><td>0.644</td><td>0.359</td><td class="fail">FAIL</td><td class="fail">FAIL</td></tr>
       <tr style="background:#d1fae5"><td>3</td><td class="best">6.11</td><td class="best">0.925</td><td>0.049</td><td class="best">PASS</td><td class="best">PASS</td></tr>
@@ -2017,7 +2020,7 @@ Terminate: when unique success count plateaus
     <tr>
       <td><strong>CbAgo</strong></td>
       <td>Not a Sec I.4 target. The broader all-target Table 10 reports Complexa(Ours) = 0 MPNN, 0 MPNN-FI, and 0 Self.</td>
-      <td>All completed local runs remain <strong>0 self / 0 MPNN</strong>. Best observed near-miss is <code>iPAE*31=7.35</code>.</td>
+      <td>All completed local runs remain <strong>0 self / 0 MPNN</strong>. Best observed near-miss is <code>ipAE=7.35 &Aring;</code>.</td>
       <td><strong>Still unresolved</strong>.</td>
     </tr>
   </table>
@@ -2040,9 +2043,9 @@ Terminate: when unique success count plateaus
   <div class="card" style="border-left: 4px solid var(--accent);">
     <h4 style="font-size:1rem; margin-bottom:8px;">Notable Near-Misses</h4>
     <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
-      <li><strong>CbAgo msg5:</strong> iPAE*31=7.35 (missed by 0.35), pLDDT=0.929, scRMSD=0.10 &mdash; barely failed</li>
-      <li><strong>SC2RBD msg5 MPNN:</strong> iPAE*31=6.01, pLDDT=0.891 (missed pLDDT by 0.009) &mdash; MPNN nearly passed</li>
-      <li><strong>IL17A md40:</strong> iPAE*31=7.07 (missed by 0.07), pLDDT=0.834 &mdash; iPAE near-miss but pLDDT far from threshold</li>
+      <li><strong>CbAgo msg5:</strong> <code>ipAE=7.35 &Aring;</code> (missed by 0.35 &Aring;), pLDDT=0.929, scRMSD=0.10 &mdash; barely failed</li>
+      <li><strong>SC2RBD msg5 MPNN:</strong> <code>ipAE=6.01 &Aring;</code>, pLDDT=0.891 (missed pLDDT by 0.009) &mdash; MPNN nearly passed</li>
+      <li><strong>IL17A md40:</strong> <code>ipAE=7.07 &Aring;</code> (missed by 0.07 &Aring;), pLDDT=0.834 &mdash; ipAE near-miss but pLDDT far from threshold</li>
     </ul>
   </div>
 
@@ -2133,7 +2136,7 @@ Terminate: when unique success count plateaus
   <h3>Exp 28: Paper Recipe Baseline (Partial)</h3>
   <div class="table-wrap">
   <table>
-    <tr><th>Target</th><th>Status</th><th>Self</th><th>MPNN</th><th>N</th><th>Best iPAE*31</th><th>Best pLDDT</th></tr>
+    <tr><th>Target</th><th>Status</th><th>Self</th><th>MPNN</th><th>N</th><th>Best ipAE (&Aring;)</th><th>Best pLDDT</th></tr>
     <tr><td><strong>IL17A</strong></td><td><span class="tag tag-green">Complete</span></td><td class="fail">0/324</td><td class="fail">0/324</td><td>324</td><td>8.3</td><td>0.890</td></tr>
     <tr><td><strong>H1</strong></td><td><span class="tag tag-green">Eval complete</span></td><td class="fail">0/4 final</td><td class="fail">0/4 final</td><td>4 final + 640 lookahead</td><td>7.8</td><td>0.915</td></tr>
     <tr><td><strong>TNF&alpha;</strong></td><td><span class="tag tag-green">Eval complete</span></td><td class="best">2/4 final</td><td>1/4 final</td><td>4 final + 640 lookahead</td><td>6.5</td><td>0.928</td></tr>
@@ -2163,7 +2166,7 @@ Terminate: when unique success count plateaus
   <table>
     <tr><th>Target</th><th>rw25</th><th>rw50</th><th>rw75</th><th>rws5 (G&amp;H greedy)</th><th>rws10 (G&amp;H soft+greedy)</th></tr>
     <tr><td><strong>H1</strong> self</td><td class="fail">0/8</td><td class="fail">0/8</td><td class="fail">0/8</td><td>1/8</td><td>2/8</td></tr>
-    <tr><td><strong>IL17A</strong> self</td><td class="fail">0/8</td><td class="fail">0/8</td><td class="fail">0/8</td><td class="fail">0/8</td><td class="fail">0/8 <span style="font-size:0.75rem">(near-miss: iPAE*31=6.9, pLDDT=0.897)</span></td></tr>
+    <tr><td><strong>IL17A</strong> self</td><td class="fail">0/8</td><td class="fail">0/8</td><td class="fail">0/8</td><td class="fail">0/8</td><td class="fail">0/8 <span style="font-size:0.75rem">(near-miss: ipAE=6.9 &Aring;, pLDDT=0.897)</span></td></tr>
     <tr><td><strong>TNF&alpha;</strong> self</td><td class="fail">0/8</td><td class="fail">0/8</td><td class="fail">0/8</td><td>2/8</td><td>1/8</td></tr>
   </table>
   </div>
@@ -2173,7 +2176,7 @@ Terminate: when unique success count plateaus
     far below the SC2RBD result. TNF&alpha; <code>rws5</code> completes at
     <strong>2/8 self and 1/8 MPNN</strong>, which is better than reward-only TNF&alpha; but still below the earlier
     non-reward-shaped <code>msg5</code> result. IL17A <code>rws10</code> gets the closest:
-    iPAE*31=6.9 and pLDDT=0.897, missing both thresholds by thin margins. The current evidence supports a stricter
+    ipAE=6.9 &Aring; and pLDDT=0.897, missing both thresholds by thin margins. The current evidence supports a stricter
     statement: <strong>reward shaping is target-specific</strong>, while <strong>MCTS + local refinement</strong> is the
     more general unlock.
   </p>
@@ -2551,7 +2554,7 @@ Terminate: when unique success count plateaus
     18 SLURM jobs submitted April 6, 2026. All 18/18 complete.
     Fixed: beam_width=8, n_branch=4, nsamples=4, checkpoints=[0,65,130,200,270,340,400], N=32 designs/run.
     Baseline: Beam Search with identical params (hard top-k instead of soft selection).
-    Pass rate = fraction of 32 designs meeting iPAE*31 &le; 7.0 AND pLDDT &ge; 0.9 AND scRMSD &lt; 1.5&Aring;.
+    Pass rate = fraction of 32 designs meeting ipAE &lt; 7.0 &Aring; AND pLDDT &ge; 0.9 AND scRMSD &lt; 1.5&Aring;.
   </p>
 
   <h4 style="margin:16px 0 8px; font-size:0.95rem; color:var(--muted)">Self-sequence pass rate (%)</h4>
