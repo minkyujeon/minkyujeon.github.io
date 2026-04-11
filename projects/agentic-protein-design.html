@@ -1097,6 +1097,11 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
   <h2>5a. Clustered Results Map</h2>
   <p>The raw experiment history is chronological, but the scientific story is easier to read when grouped by
   <strong>question</strong>. This map keeps the same content while clustering related experiments together.</p>
+  <p class="note">
+    <strong>Numbering note:</strong> the labels <strong>Cluster A-E</strong> are thematic groupings, not a second subsection numbering system.
+    In practice, Cluster B is covered mainly in <strong>5b</strong>, Cluster C in <strong>5c</strong>, and Cluster D continues into
+    <strong>5d</strong>. Cluster E is kept separate as deferred work and appears only where future-facing items are explicitly marked.
+  </p>
 
   <div class="table-wrap">
   <table>
@@ -2180,14 +2185,15 @@ Terminate: when unique success count plateaus
 
 </div>
 
-<!-- ─── 6. EXPERIMENT TRACKER ─── -->
+<!-- ─── 5d. EXPERIMENT TRACKER ─── -->
 <div class="section" id="tracker">
-  <h2>6. Experiment Tracker</h2>
+  <h2>5d. Experiment Tracker</h2>
   <p>Live status of all experiments. Updated as jobs complete.</p>
   <p class="note">
-    This tracker is easiest to read by <strong>cluster</strong> rather than by submission time:
-    baseline/initial-signal experiments first, then mechanism and reliability experiments, then hard-target search
-    and refinement, then agentic routing, then deferred future extensions.
+    This tracker continues the cluster structure introduced in <strong>5a</strong>. It is easiest to read by
+    <strong>theme cluster</strong> rather than by submission time: baseline/initial-signal experiments first, then
+    mechanism and reliability experiments, then hard-target search and refinement, then agentic routing, then deferred
+    future extensions.
   </p>
   <p class="note">Status snapshot as of April 10, 2026: Exp 24 and Exp 25 are complete (all 28 jobs). Exp 26 has 23/25 completed with only two refinement runs still active (<code>H1</code> <code>rws10</code> and <code>TNF&alpha;</code> <code>rws10</code>). The original Exp 27 batch is terminal (20 completed, 5 CrSAS6 pre-generation failures), and the corrected CrSAS6 rerun is complete. Exp 28 is partial (IL17A complete; H1/TNF&alpha;/SC2RBD timed out; eval-only reruns failed immediately). Exp 29 was canceled before usable evaluation outputs. Exp 30&ndash;32 are newly submitted: 38 jobs total, covering 22 previously untested binder task entries, with 3 diagnostic jobs already running and the rest queued.</p>
 
@@ -2993,7 +2999,7 @@ Terminate: when unique success count plateaus
 </div>
 
 <div class="section" id="next-steps">
-  <h2>7. Research Plan &amp; Architecture</h2>
+  <h2>6. Research Plan &amp; Architecture</h2>
   <div class="callout">
     <p><strong>This page now focuses on results.</strong> The full experimental plan, roadmap, Phase 2 architecture,
     finalized working plan, future directions, and literature-grounded project framing have been moved unchanged to the
