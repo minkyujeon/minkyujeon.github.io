@@ -1419,7 +1419,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
         <div class="bar-row"><div class="bar-label">Exp 25 msg5</div><div class="bar-track"><div class="bar-fill green" style="width:50%"></div></div><div class="bar-val">4/8</div></div>
         <div class="bar-row"><div class="bar-label">Exp 26 rw50+s5</div><div class="bar-track"><div class="bar-fill purple" style="width:62.5%"></div></div><div class="bar-val">5/8</div></div>
       </div>
-      <div class="figure-caption">Caption: SC2RBD is the clearest example of bundle dependence. Exp 20 beam-family rows are low-budget beam / stochastic-beam / diverse-beam runs with N=16 final designs and all stay at 0/16 self. Exp 25 pure MCTS rows use checkpoint-tree search with N=8 final designs and still stay at 0/8 self. <code>msg5</code> means dense-checkpoint MCTS with N<sub>sim</sub>=40 followed by softmax + one-hot + semigreedy sequence hallucination at 5% mutation rate; that reaches 4/8 self. <code>rw50+s5</code> adds pLDDT weight 0.50 to the iPAE-based search reward and keeps the same moderate soft+greedy refinement bundle; that reaches 5/8 self and 2/8 MPNN. Paper reference: SC2RBD is not a Sec I.4 target, but the broader all-target Table 10 reports Complexa(Ours) = 0 MPNN, 0 MPNN-FI, and 0 Self for SC2RBD. Interpretation: SC2RBD is not unlocked by “more search” alone; it needs search plus the right local refinement and reward stage.</div>
+      <div class="figure-caption">Caption: SC2RBD is the clearest example of bundle dependence. Exp 20 beam-family rows are low-budget beam / stochastic-beam / diverse-beam runs with N=16 final designs and all stay at 0/16 self. Exp 25 pure MCTS rows use checkpoint-tree search with N=8 final designs and still stay at 0/8 self. <code>msg5</code> means dense-checkpoint MCTS with N<sub>sim</sub>=40 followed by softmax + one-hot + semigreedy sequence hallucination at 5% mutation rate; that reaches 4/8 self. <code>rw50+s5</code> adds pLDDT weight 0.50 to the iPAE-based search reward and keeps the same moderate soft+greedy refinement bundle; that reaches 5/8 self and 1/8 MPNN. Paper reference: SC2RBD is not a Sec I.4 target, but the broader all-target Table 10 reports Complexa(Ours) = 0 MPNN, 0 MPNN-FI, and 0 Self for SC2RBD. Interpretation: SC2RBD is not unlocked by “more search” alone; it needs search plus the right local refinement and reward stage.</div>
     </div>
     <div class="figure-card">
       <h4>TNF&alpha;</h4>
@@ -1464,7 +1464,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
         <div class="bar-row"><div class="bar-label">rw75 only</div><div class="bar-track"><div class="bar-fill red" style="width:0%"></div></div><div class="bar-val">0/8</div></div>
         <div class="bar-row"><div class="bar-label">rw50 + softg5</div><div class="bar-track"><div class="bar-fill purple" style="width:62.5%"></div></div><div class="bar-val">5/8</div></div>
       </div>
-      <div class="figure-caption">Caption: on SC2RBD, completed reward-only variants with pLDDT weights 0.25, 0.50, and 0.75 all remain at 0/8 self. The moderate reward-shaped refinement bundle <code>rw_pl050_softg5</code> uses dense-checkpoint MCTS with N<sub>sim</sub>=40, an iPAE weight of -1.0, a pLDDT weight of +0.50, and the moderate soft+greedy refinement schedule; it reaches 5/8 self and 2/8 MPNN, with 4 FoldSeek-unique self successes. Paper reference: the paper uses pLDDT-weighted reward shaping only in the very-hard-target regime, not as a general default. Interpretation: in the completed runs on this page, adding more reward terms is not enough by itself; the non-zero SC2RBD result appears only in the reward-shaped bundle that also includes local refinement.</div>
+      <div class="figure-caption">Caption: on SC2RBD, completed reward-only variants with pLDDT weights 0.25, 0.50, and 0.75 all remain at 0/8 self. The moderate reward-shaped refinement bundle <code>rw_pl050_softg5</code> uses dense-checkpoint MCTS with N<sub>sim</sub>=40, an iPAE weight of -1.0, a pLDDT weight of +0.50, and the moderate soft+greedy refinement schedule; it reaches 5/8 self and 1/8 MPNN, with 4 FoldSeek-unique self successes. Paper reference: the paper uses pLDDT-weighted reward shaping only in the very-hard-target regime, not as a general default. Interpretation: in the completed runs on this page, adding more reward terms is not enough by itself; the non-zero SC2RBD result appears only in the reward-shaped bundle that also includes local refinement.</div>
     </div>
     <div class="figure-card">
       <h4>Cross-target pattern</h4>
@@ -1854,7 +1854,7 @@ Terminate: when unique success count plateaus
       <tr style="background:#d1fae5"><td>8</td><td>6.45</td><td>0.912</td><td>0.097</td><td class="best">PASS</td><td class="fail">FAIL</td></tr>
     </table>
     <p style="font-size:0.88rem; color:var(--muted); margin-top:8px;">
-      <strong>Result: 5/8 self (62.5%) and 2/8 MPNN (25.0%), with 4 FoldSeek-unique self successes and 2 FoldSeek-unique MPNN successes.</strong>
+      <strong>Result: 5/8 self (62.5%) and 1/8 MPNN (12.5%), with 4 FoldSeek-unique self successes and 1 FoldSeek-unique MPNN success.</strong>
       The paper&rsquo;s broader all-target Table 10 reports <strong>0 Complexa MPNN, 0 Complexa MPNN-FI, and 0 Complexa Self</strong> on SC2RBD.
       We reach this local SC2RBD result in 3.1 GPU-hours. This run is the strongest completed example on the page of a
       reward-shaped search bundle outperforming our earlier local zero baseline on the same target.
@@ -1878,7 +1878,7 @@ Terminate: when unique success count plateaus
         <div class="bar-row"><div class="bar-label">rw75 only</div><div class="bar-track"><div class="bar-fill red" style="width:0%"></div></div><div class="bar-val">0/8</div></div>
         <div class="bar-row"><div class="bar-label">rw50 + softg5</div><div class="bar-track"><div class="bar-fill purple" style="width:62.5%"></div></div><div class="bar-val">5/8</div></div>
       </div>
-      <div class="figure-caption">Caption: this panel isolates the completed SC2RBD Exp 26 runs. All reward-only settings remain at 0/8 self, while the moderate reward-shaped refinement bundle reaches 5/8 self and 2/8 MPNN; the same run yields 4 FoldSeek-unique self successes. Paper reference: the paper does not report this SC2RBD-specific reward-schedule sweep; its broader Table 10 SC2RBD entry remains 0 for Complexa MPNN, MPNN-FI, and Self. Interpretation: the useful lesson is not “add pLDDT to the reward,” but “apply moderate reward shaping only inside the right refinement-coupled operator bundle.”</div>
+      <div class="figure-caption">Caption: this panel isolates the completed SC2RBD Exp 26 runs. All reward-only settings remain at 0/8 self, while the moderate reward-shaped refinement bundle reaches 5/8 self and 1/8 MPNN; the same run yields 4 FoldSeek-unique self successes. Paper reference: the paper does not report this SC2RBD-specific reward-schedule sweep; its broader Table 10 SC2RBD entry remains 0 for Complexa MPNN, MPNN-FI, and Self. Interpretation: the useful lesson is not “add pLDDT to the reward,” but “apply moderate reward shaping only inside the right refinement-coupled operator bundle.”</div>
     </div>
   </div>
 
@@ -1989,7 +1989,7 @@ Terminate: when unique success count plateaus
     <tr style="background:#d1fae5">
       <td><strong>SC2RBD</strong></td>
       <td>Not a Sec I.4 target. The broader all-target Table 10 reports Complexa(Ours) = 0 MPNN, 0 MPNN-FI, and 0 Self.</td>
-      <td><code>Exp 26</code> <code>rw_pl050_softg5</code>: <strong>5/8 self</strong>, <strong>2/8 MPNN</strong>, with 4 FoldSeek-unique self successes, in 3.1 GPUh.</td>
+      <td><code>Exp 26</code> <code>rw_pl050_softg5</code>: <strong>5/8 self</strong>, <strong>1/8 MPNN</strong>, with 4 FoldSeek-unique self successes, in 3.1 GPUh.</td>
       <td><strong>Stronger than our prior local baseline</strong> and stronger than the paper&rsquo;s reported Complexa table entry on this target.</td>
     </tr>
     <tr style="background:#d1fae5">
@@ -2025,7 +2025,11 @@ Terminate: when unique success count plateaus
       <li><strong>Supported:</strong> our new action set is clearly stronger than our earlier local beam-family baseline on SC2RBD, TNF&alpha;, and H1.</li>
       <li><strong>Supported:</strong> local refinement is the critical co-ingredient; pure MCTS or reward shaping alone stay near zero on these targets.</li>
       <li><strong>Not yet supported:</strong> any claim that we outperform the paper&rsquo;s Figure 19 scaling curves on a matched compute-scaling metric.</li>
-      <li><strong>Exp 28 update:</strong> IL17A completed at 0/324 self and 0/324 MPNN; H1, TNF&alpha;, and SC2RBD timed out before full AF2 evaluation, and the later eval-only reruns failed immediately, so Exp 28 does not yet give a usable matched baseline for those three targets.</li>
+      <li><strong>Exp 28 update (eval-only v2 reruns complete):</strong> Paper recipe final-design pass rates are now available for all 4 targets.
+      TNF&alpha; 2/4 final (50%, comparable to our msg5 4/8). SC2RBD 1/4 final (25%, below our msg5 50% and e26_04 62.5%).
+      H1 0/4 final (0%, our msg5 gets 1/8). IL17A 0/324 (both methods fail).
+      Note: <code>keep_lookahead_samples=true</code> in Exp 28 produced 640 extra partially-denoised lookahead designs per target
+      that all fail &mdash; only the 4 final designs are comparable to our Exp 25 results.</li>
     </ul>
   </div>
 
@@ -2127,16 +2131,26 @@ Terminate: when unique success count plateaus
   <table>
     <tr><th>Target</th><th>Status</th><th>Self</th><th>MPNN</th><th>N</th><th>Best iPAE*31</th><th>Best pLDDT</th></tr>
     <tr><td><strong>IL17A</strong></td><td><span class="tag tag-green">Complete</span></td><td class="fail">0/324</td><td class="fail">0/324</td><td>324</td><td>8.3</td><td>0.890</td></tr>
-    <tr><td><strong>H1</strong></td><td><span class="tag tag-red">Timed out</span></td><td colspan="5" style="font-size:0.82rem">Generation timed out at 8h before full AF2 evaluation. The later eval-only rerun (SLURM 6813585) failed immediately, so there is no usable matched baseline output.</td></tr>
-    <tr><td><strong>TNF&alpha;</strong></td><td><span class="tag tag-red">Timed out</span></td><td colspan="5" style="font-size:0.82rem">Generation timed out at 8h before full AF2 evaluation. The later eval-only rerun (SLURM 6813586) failed immediately, so there is no usable matched baseline output.</td></tr>
-    <tr><td><strong>SC2RBD</strong></td><td><span class="tag tag-red">Timed out</span></td><td colspan="5" style="font-size:0.82rem">Generation timed out at 8h before full AF2 evaluation. The later eval-only rerun (SLURM 6813587) failed immediately, so there is no usable matched baseline output.</td></tr>
+    <tr><td><strong>H1</strong></td><td><span class="tag tag-green">Eval complete</span></td><td class="fail">0/4 final</td><td class="fail">0/4 final</td><td>4 final + 640 lookahead</td><td>7.8</td><td>0.915</td></tr>
+    <tr><td><strong>TNF&alpha;</strong></td><td><span class="tag tag-green">Eval complete</span></td><td class="best">2/4 final</td><td>1/4 final</td><td>4 final + 640 lookahead</td><td>6.5</td><td>0.928</td></tr>
+    <tr><td><strong>SC2RBD</strong></td><td><span class="tag tag-green">Eval complete</span></td><td>1/4 final</td><td>1/4 final</td><td>4 final + 640 lookahead</td><td>6.0</td><td>0.928</td></tr>
   </table>
   </div>
   <p class="note">
-    <strong>IL17A paper recipe result:</strong> 0/324 with the paper&rsquo;s exact params (N<sub>sim</sub>=20, &epsilon;=0.5, C=1.0,
-    sparse checkpoints, iPAE+pLDDT reward, G&amp;H). Best design: iPAE*31=8.3, pLDDT=0.890 (missed both thresholds).
-    The paper itself reported 1 success in 387 GPU-hours &mdash; IL17A is genuinely the hardest target. For H1,
-    TNF&alpha;, and SC2RBD, <code>Exp 28</code> currently gives only timeout evidence, not a fair matched-baseline score.
+    <strong>Exp 28 &ldquo;paper recipe&rdquo; definition:</strong> MCTS with the paper&rsquo;s Sec I.4 params
+    (N<sub>sim</sub>=20, &epsilon;=0.5, C=1.0, <code>keep_lookahead_samples=true</code>),
+    iPAE+pLDDT(0.5) reward, and soft+greedy G&amp;H at 5% mutation rate.
+    The <code>keep_lookahead_samples=true</code> flag caused MCTS to save all intermediate simulation paths
+    (640 lookahead designs) alongside the 4 fully-optimized final designs. The 640 lookahead samples are
+    partially-denoised tree paths that were never fully optimized &mdash; none pass the success criteria.
+    <strong>Only the 4 final designs per target are a fair comparison</strong> with our Exp 25 results (also final-only).
+    <br><br>
+    <strong>IL17A:</strong> 0/324 (all lookahead + final). <strong>H1:</strong> 0/4 final (0/640 lookahead).
+    <strong>TNF&alpha;:</strong> 2/4 final (0/640 lookahead). <strong>SC2RBD:</strong> 1/4 final (0/640 lookahead, 1/640 MPNN-only lookahead).
+    <br><br>
+    <strong>Fair final-only comparison:</strong> TNF&alpha; paper recipe 2/4 (50%) vs our msg5 4/8 (50%) &mdash; comparable.
+    SC2RBD paper recipe 1/4 (25%) vs our msg5 4/8 (50%) or e26_04 5/8 (62.5%) &mdash; our configs outperform.
+    H1 paper recipe 0/4 (0%) vs our msg5 1/8 (12.5%) &mdash; ours finds a hit where the paper recipe does not at this budget.
   </p>
 
   <h3>Exp 26 Tail: Reward-Only Is Not Enough</h3>
@@ -2408,7 +2422,7 @@ Terminate: when unique success count plateaus
       <td><strong>Exp 26: Reward-Shaped Hard-Target Sweep</strong><br><span style="font-size:0.82rem;color:var(--muted)">same five zero-hit targets with fixed dense MCTS base, varying AF2 reward mix and two stronger hallucination settings</span></td>
       <td>25/25</td>
       <td><span class="tag tag-green">Done</span></td>
-      <td style="font-size:0.82rem"><strong>Completed result:</strong> reward shaping alone still gives 0/0 on SC2RBD and CbAgo, but <code>rw_pl050_softg5</code> on SC2RBD remains the best hard-target run overall at <strong>5/8 self and 2/8 MPNN</strong>. The late completions did not change the main conclusion: H1 peaks at <code>rw_pl075_softg10</code> with <strong>2/8 self</strong>, TNF&alpha; peaks at <code>rw_pl050_softg5</code> with <strong>2/8 self and 1/8 MPNN</strong>, and all IL17A variants remain 0/0.</td>
+      <td style="font-size:0.82rem"><strong>Completed result:</strong> reward shaping alone still gives 0/0 on SC2RBD and CbAgo, but <code>rw_pl050_softg5</code> on SC2RBD remains the best hard-target run overall at <strong>5/8 self and 1/8 MPNN</strong>. The late completions did not change the main conclusion: H1 peaks at <code>rw_pl075_softg10</code> with <strong>2/8 self</strong>, TNF&alpha; peaks at <code>rw_pl050_softg5</code> with <strong>2/8 self and 1/8 MPNN</strong>, and all IL17A variants remain 0/0.</td>
     </tr>
     <tr style="background:#ede9fe">
       <td style="text-align:center; font-size:1.1rem; color:#7c3aed">&#9679;</td>
@@ -2708,7 +2722,7 @@ Terminate: when unique success count plateaus
     <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
       <li><strong>Exp 3 shows the negative case clearly.</strong> Adding stronger interface-oriented terms to the online reward did not improve search; the most aggressive interface-focused composition collapsed to 0% on both CD45 and BetV1.</li>
       <li><strong>Moderate extra criteria were at best neutral in beam search.</strong> CD45 stayed flat at 25% self under iPAE-only versus iPAE+pLDDT+iPTM, while BetV1 showed only a small, non-significant change.</li>
-      <li><strong>Exp 26 shows the more nuanced case.</strong> Reward shaping helped SC2RBD only when paired with the right search/refinement operator. Reward-only variants stayed at 0/0, while <code>rw_pl050_softg5</code> reached <strong>5/8 self and 2/8 MPNN</strong>.</li>
+      <li><strong>Exp 26 shows the more nuanced case.</strong> Reward shaping helped SC2RBD only when paired with the right search/refinement operator. Reward-only variants stayed at 0/0, while <code>rw_pl050_softg5</code> reached <strong>5/8 self and 1/8 MPNN</strong>.</li>
     </ul>
     <p style="font-size:0.88rem; color:var(--muted); margin-bottom:10px;">
       The most defensible conclusion is therefore:

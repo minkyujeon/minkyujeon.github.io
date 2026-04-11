@@ -988,7 +988,7 @@
       <li><strong>soft+greedy G&amp;H</strong>: Stage 2 softmax optimization + Stage 3 one-hot optimization + Stage 4 semigreedy mutation search.</li>
       <li><strong>msg5</strong>: dense-checkpoint MCTS with N<sub>sim</sub>=40 plus moderate soft+greedy Generate-and-Hallucinate at 5% mutation rate.</li>
       <li><strong>rw_pl050_softg5</strong>: reward-shaped search with pLDDT weight 0.50 added to the iPAE-based reward, then the same moderate soft+greedy refinement bundle.</li>
-      <li><strong>Self</strong> and <strong>MPNN</strong> are always separate evaluation channels; a run with <code>5/8 self, 2/8 MPNN</code> does not mean 7/8 total.</li>
+      <li><strong>Self</strong> and <strong>MPNN</strong> are always separate evaluation channels; a run with <code>5/8 self, 1/8 MPNN</code> does not mean 6/8 total.</li>
       <li><strong>Paper references</strong> for Table 10 and Figure 19 usually report cumulative unique self successes at much larger budgets, not denominator-matched per-run pass rates.</li>
     </ul>
   </div>
@@ -1925,8 +1925,8 @@ Propose a new harness configuration. Explain:
       <td><strong>Exp 26</strong></td>
       <td>5 zero-hit targets</td>
       <td>Reward shaping + G&amp;H combos</td>
-      <td>SC2RBD e26_04: <strong>5/8 self (62.5%) and 2/8 MPNN</strong> with pLDDT=0.5 reward, plus <strong>4 FoldSeek-unique self successes</strong>. Reward-only (no G&amp;H): 0%. H1 <code>rws5</code> completed at 1/8 and did not exceed the non-reward best. Only H1 <code>rws10</code> and TNF&alpha; <code>rws5</code>/<code>rws10</code> are still running.</td>
-      <td><span class="tag tag-orange">22/25 done + 3 running</span></td>
+      <td>SC2RBD e26_04: <strong>5/8 self (62.5%) and 1/8 MPNN</strong> with pLDDT=0.5 reward. Reward-only (no G&amp;H): 0%. H1 peaks at <code>rws10</code> (2/8 self). TNF&alpha; peaks at <code>rws5</code> (2/8 self, 1/8 MPNN). All IL17A variants remain 0/0. CbAgo remains 0/0.</td>
+      <td><span class="tag tag-green">Done (25/25)</span></td>
     </tr>
     <tr style="background:#d1fae5">
       <td><strong>Exp 27</strong></td>
@@ -2021,7 +2021,7 @@ Propose a new harness configuration. Explain:
       outperforms any manually designed one</strong> by reasoning about <em>why</em> the pipeline fails at the trajectory level.<br>
       <strong>Working thesis (confirmed by Exp 25/26):</strong> the model covers the correct fold space &mdash;
       H1 yields hits in 19.4h (paper: 86.3h/hit), TNF&alpha; in 16.2h (paper: 31.7h/hit),
-      and SC2RBD is cracked locally at 5/8 self and 2/8 MPNN in the best completed run, while the paper&rsquo;s broader Table 10 SC2RBD row remains 0 for Complexa MPNN, MPNN-FI, and Self. Phase 2 proves this via rule-based routing.
+      and SC2RBD is cracked locally at 5/8 self and 1/8 MPNN in the best completed run, while the paper&rsquo;s broader Table 10 SC2RBD row remains 0 for Complexa MPNN, MPNN-FI, and Self. Phase 2 proves this via rule-based routing.
       Phase 3 proves that intermediate backbone diagnostics + LLM reasoning can discover configurations
       that no hand-designed rule would find &mdash; the Meta-Harness thesis applied to protein design.
     </p>
