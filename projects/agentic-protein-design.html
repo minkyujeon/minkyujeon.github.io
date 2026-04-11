@@ -940,16 +940,15 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     <h3>3. Co-designed sequences match or outperform ProteinMPNN in 10/11 targets</h3>
     <p>Considering the best config per target, self pass rate &ge; mpnn pass rate in 10 of 11 targets.
     The exception is HER2_AAV-deep (self 3.1% vs mpnn 31.3%), where the model generates
-    good backbones but suboptimal sequences. This anomaly suggests HER2_AAV may benefit from
-    targeted sequence refinement.</p>
+    good backbones but suboptimal sequences. In the later refinement experiments on this page,
+    HER2_AAV is one of the clearest cases where sequence refinement helps.</p>
   </div>
 
   <div class="card">
     <h3>4. Hard targets remain unsolved</h3>
     <p>BetV1: 18.8% self pass rate (deep), 0% mpnn. HER2_AAV: 3.1% self (deep). CD45: 25% self (deep).
-    BetV1-wide produced only 2 samples (timeout). These targets likely need qualitatively different
-    strategies: different reward signals, longer binders, different hotspot selections,
-    or stronger exploration mechanisms.</p>
+    BetV1-wide produced only 2 samples (timeout). At this stage of the project, the default beam
+    settings are clearly insufficient to treat these targets as solved.</p>
   </div>
 
   <div class="card">
@@ -999,7 +998,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
       <li><strong>noise=0.15 doesn&rsquo;t help (sharp threshold).</strong> CD45 at noise=0.15 gives exactly 25% (=default). The jump to 46.9% happens only at 0.20.</li>
       <li><strong>bb+lat noise must change together.</strong> bb=0.2,lat=0.1 gives 9.4% (worse than default). You need both bb=0.2 AND lat=0.2 for the 46.9% effect.</li>
       <li><strong>Baseline pass rates are deterministic.</strong> 3 independent runs for each target: CD45 always 8/32, HER2 always 1/32, BetV1 always 6/32. Zero run-to-run variance.</li>
-      <li><strong>Conclusion:</strong> An agentic system that dynamically selects the right config per target will outperform any fixed config. The matrix is now complete &mdash; ready to build the router.</li>
+      <li><strong>Conclusion:</strong> The completed matrix shows that target-specific routing is justified. It does <strong>not</strong> yet prove that a routed controller will beat every fixed policy on unseen targets; that is the purpose of the later held-out benchmarks.</li>
     </ul>
   </div>
   <div class="figure-grid">
@@ -1134,7 +1133,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
       <td><strong>E. Deferred method extensions</strong></td>
       <td>LLM planner validation, LoRA, trajectory recycling, multi-round adaptive loop, full scaling curves</td>
       <td>Which future directions are still open but not yet part of the validated result set?</td>
-      <td>Several ideas remain promising, but they should be treated as future work until the current search/refinement/controller stack is fully benchmarked.</td>
+      <td>Several ideas remain open, but they should be treated as future work until the current search/refinement/controller stack is fully benchmarked.</td>
     </tr>
   </table>
   </div>
@@ -1465,7 +1464,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
         <div class="bar-row"><div class="bar-label">rw75 only</div><div class="bar-track"><div class="bar-fill red" style="width:0%"></div></div><div class="bar-val">0/8</div></div>
         <div class="bar-row"><div class="bar-label">rw50 + softg5</div><div class="bar-track"><div class="bar-fill purple" style="width:62.5%"></div></div><div class="bar-val">5/8</div></div>
       </div>
-      <div class="figure-caption">Caption: on SC2RBD, completed reward-only variants with pLDDT weights 0.25, 0.50, and 0.75 all remain at 0/8 self. The moderate reward-shaped refinement bundle <code>rw_pl050_softg5</code> uses dense-checkpoint MCTS with N<sub>sim</sub>=40, an iPAE weight of -1.0, a pLDDT weight of +0.50, and the moderate soft+greedy refinement schedule; it reaches 5/8 self and 2/8 MPNN, with 4 FoldSeek-unique self successes. Paper reference: the paper uses pLDDT-weighted reward shaping only in the very-hard-target regime, not as a general default. Interpretation: adding more reward terms is not enough by itself; the gain appears only when reward shaping is paired with the right local optimizer.</div>
+      <div class="figure-caption">Caption: on SC2RBD, completed reward-only variants with pLDDT weights 0.25, 0.50, and 0.75 all remain at 0/8 self. The moderate reward-shaped refinement bundle <code>rw_pl050_softg5</code> uses dense-checkpoint MCTS with N<sub>sim</sub>=40, an iPAE weight of -1.0, a pLDDT weight of +0.50, and the moderate soft+greedy refinement schedule; it reaches 5/8 self and 2/8 MPNN, with 4 FoldSeek-unique self successes. Paper reference: the paper uses pLDDT-weighted reward shaping only in the very-hard-target regime, not as a general default. Interpretation: in the completed runs on this page, adding more reward terms is not enough by itself; the non-zero SC2RBD result appears only in the reward-shaped bundle that also includes local refinement.</div>
     </div>
     <div class="figure-card">
       <h4>Cross-target pattern</h4>
@@ -1654,14 +1653,14 @@ Terminate: when unique success count plateaus
   </div>
 
   <div class="card" style="border-left: 4px solid var(--orange);">
-    <h4 style="font-size:1rem; margin-bottom:8px;">Active Run Program (April 10, 2026)</h4>
+    <h4 style="font-size:1rem; margin-bottom:8px;">Active Run Program (April 11, 2026)</h4>
     <p style="font-size:0.88rem; color:var(--muted); margin-bottom:10px;">
       The current batches now include both the completed hard-target analysis program and a new
-      <strong>prospective unseen-target benchmark</strong>. As of April 10, 2026, <strong>Exp 24 and Exp 25 are complete</strong>,
-      <strong>Exp 26 has 23/25 completed with 2 refinement runs still active</strong>, and the original
-      <strong>Exp 27 batch is terminal</strong> (20 completed, 5 failed before generation due to the CrSAS6 target-key bug,
-      followed by a corrected rerun). In addition, <strong>Exp 30&ndash;32 have just been submitted</strong> to test whether
-      our analysis generalizes to <strong>22 previously untested binder task entries</strong>.
+      <strong>prospective unseen-target benchmark</strong>. As of April 11, 2026, <strong>Exp 24, Exp 25, and Exp 26 are complete</strong>,
+      and the original <strong>Exp 27 batch is terminal</strong> (20 completed, 5 failed before generation due to the CrSAS6 target-key bug,
+      followed by a corrected rerun). In addition, <strong>Exp 30&ndash;32 are in progress</strong> to test whether
+      our analysis generalizes to <strong>22 previously untested binder task entries</strong>: Exp 30 has 2 timeouts, 4 running, and 8 pending;
+      Exp 31 has 6 running and 2 early failures; Exp 32 has 6 diagnostic timeouts, 2 diagnostic failures, and 8 dependency-gated controller jobs still pending.
     </p>
     <ul style="font-size:0.88rem; color:var(--muted);">
       <li><strong>Exp 24:</strong> test whether a narrow rule-based controller helps when target classes differ strongly.</li>
@@ -1676,7 +1675,7 @@ Terminate: when unique success count plateaus
       This split is deliberate: <strong>Exp 25 = search hypothesis</strong>, <strong>Exp 26 = reward hypothesis</strong>,
       <strong>Exp 27 = local optimization hypothesis</strong>, and <strong>Exp 30&ndash;32 = generalization / adaptive-control hypothesis</strong>.
       Together they cover the main unresolved explanations for why the current system stalls on the hardest targets and
-      whether the learned routing logic can actually save compute on fresh targets rather than only explaining old ones.
+      whether the learned routing logic can save compute on fresh targets rather than only explaining old ones.
     </p>
   </div>
 
@@ -1696,18 +1695,18 @@ Terminate: when unique success count plateaus
           <td><code>TNF&alpha;</code></td>
           <td>15 unique successes within 475 GPUh (Fig. 19), using reward-shaped MCTS + Generate &amp; Hallucinate.</td>
           <td><code>Exp 25</code> <code>mcts_dense40_softgreedy5</code>: 4 self successes and 1 MPNN success out of 8, all 4 self successes FoldSeek-unique, in a single 16.2 GPUh run.</td>
-          <td><strong>Promising early slope</strong>, but not yet a matched proof of better scaling than the paper.</td>
+          <td><strong>Better than our local zero baseline</strong>, but not a matched proof of better scaling than the paper.</td>
         </tr>
         <tr>
           <td><code>H1</code></td>
           <td>7 unique successes within 604 GPUh (Fig. 19), using reward-shaped MCTS + Generate &amp; Hallucinate.</td>
-          <td><code>Exp 25</code> <code>mcts_dense80_c1p5_e0p2</code>: 1 self success out of 8, FoldSeek-unique, in 17.7 GPUh. Reward-shaped follow-ups are still running.</td>
-          <td><strong>Better than our local zero baseline</strong>, but not yet better than the paper baseline.</td>
+          <td><code>Exp 26</code> <code>rw_pl075_softg10</code>: 2 self successes and 0 MPNN successes out of 8, with 2 FoldSeek-unique self successes, in 27.0 GPUh.</td>
+          <td><strong>Better than our local zero baseline</strong>, but still below the paper baseline.</td>
         </tr>
         <tr>
           <td><code>IL17A</code></td>
           <td>1 unique success within 387 GPUh (Fig. 19), using reward-shaped MCTS + Generate &amp; Hallucinate.</td>
-          <td><code>Exp 25</code> best completed run gives 0 self successes and 1 MPNN-only success out of 8 in 3.0 GPUh. Reward-shaped refinement runs are still active.</td>
+          <td><code>Exp 25</code> best completed run gives 0 self successes and 1 MPNN-only success out of 8 in 3.0 GPUh. All completed Exp 26 IL17A runs remain 0/8 self and 0/8 MPNN.</td>
           <td><strong>Still below the paper baseline</strong> on the self-sequence criterion.</td>
         </tr>
         <tr>
@@ -1719,8 +1718,8 @@ Terminate: when unique success count plateaus
       </table>
     </div>
     <p class="note">
-      Conclusion: we can now say our new low-budget variants are <strong>better than our local baseline</strong> and
-      directionally promising against the paper's very-hard-target regime, but we still cannot honestly say they beat
+      Conclusion: we can now say our new low-budget variants are <strong>better than our local baseline</strong> on several
+      hard targets, but we still cannot honestly say they beat
       Figure 19 on a matched compute-scaling metric until we run explicit 30h / 100h cumulative curves and compare
       unique-success growth directly.
     </p>
@@ -1753,14 +1752,15 @@ Terminate: when unique success count plateaus
   <h2>5c. Exp 25/26/27 Results: Zero-Hit Frontier Cracked &amp; Paper Comparison</h2>
 
   <p class="note"><strong>Data integrity:</strong> All quantitative results in this section are verified directly against local
-  evaluation CSVs, and all run-state claims are checked against <code>sacct</code> on April 10, 2026. Pass criteria:
+  evaluation CSVs, and all run-state claims are checked against <code>sacct</code> on April 11, 2026. Pass criteria:
   iPAE*31 &le; 7.0 AND pLDDT &ge; 0.9 AND scRMSD &lt; 1.5&Aring;.
-  Total experiments to date: <strong>295+ completed evaluation directories</strong> across all batches.</p>
+  The local <code>evaluation_results</code> tree now contains <strong>over 420 run directories</strong> across all batches.</p>
 
   <div class="callout">
-    <p><strong>Major status change (April 10, 2026):</strong> MCTS + Generate &amp; Hallucinate cracks 3 of 5 previously
+    <p><strong>Major status change (April 11, 2026):</strong> MCTS + Generate &amp; Hallucinate cracks 3 of 5 previously
     zero-hit targets. SC2RBD goes from 0% (all prior configs) to <strong>62.5% self</strong>. TNF&alpha; goes to
-    <strong>50% self</strong>. H1 achieves <strong>12.5% self</strong> (3 configs produce hits).
+    <strong>50% self</strong> in Exp 25 and <strong>25% self</strong> in the best completed Exp 26 run. H1 achieves
+    <strong>25% self</strong> in the best completed Exp 26 run.
     The critical ingredient is <strong>MCTS + soft+greedy hallucination</strong> &mdash;
     pure MCTS without hallucination is near-useless on these targets.
     <strong>Reporting convention for Section 5c:</strong> Exp 25 and Exp 26 percentages are per single run with
@@ -1776,7 +1776,7 @@ Terminate: when unique success count plateaus
   mg05 = md40 + greedy-only G&amp;H (only Stage 4 semigreedy mutation search, 5% mutation rate).
   msg5 = md40 + soft+greedy G&amp;H (Stage 2 softmax + Stage 3 one-hot + Stage 4 semigreedy, 30 softmax + 5 one-hot + 15 greedy iters, 5% mutation rate).
   All configs use iPAE-only reward (no pLDDT). md40/md80/ms60 have no hallucination.
-  <strong>All numbers verified against <code>binder_results_*.csv</code> on April 10, 2026.</strong></p>
+  <strong>All numbers verified against <code>binder_results_*.csv</code> on April 11, 2026.</strong></p>
 
   <h4>Self Pass Rates (iPAE*31 &le; 7.0 AND pLDDT &ge; 0.9 AND scRMSD &lt; 1.5&Aring;)</h4>
   <p class="note"><strong>How to read this table:</strong> What is plotted = self-sequence pass counts for each Exp 25 config on each hard target. Denominator = N=8 final designs per target/config. Config meaning = <code>md40/md80/ms60</code> are pure MCTS variants; <code>mg05</code> adds greedy-only refinement; <code>msg5</code> adds full soft+greedy refinement. Interpretation = pure MCTS is almost always insufficient; the first real gains appear only after local refinement is added.</p>
@@ -1833,7 +1833,7 @@ Terminate: when unique success count plateaus
       MCTS with Generate &amp; Hallucinate for very hard targets.
     </p>
   </div>
-  <h3>Exp 26: Reward Shaping + G&amp;H (23/25 complete; 2 refinement runs still running)</h3>
+  <h3>Exp 26: Reward Shaping + G&amp;H (25/25 jobs complete)</h3>
 
   <div class="card" style="border-left: 4px solid var(--green); background: linear-gradient(135deg, #eff6ff 0%, #fafbfc 100%);">
     <h4 style="font-size:1rem; margin-bottom:8px;">SC2RBD e26_04: The Single Most Important Result</h4>
@@ -1856,8 +1856,8 @@ Terminate: when unique success count plateaus
     <p style="font-size:0.88rem; color:var(--muted); margin-top:8px;">
       <strong>Result: 5/8 self (62.5%) and 2/8 MPNN (25.0%), with 4 FoldSeek-unique self successes and 2 FoldSeek-unique MPNN successes.</strong>
       The paper&rsquo;s broader all-target Table 10 reports <strong>0 Complexa MPNN, 0 Complexa MPNN-FI, and 0 Complexa Self</strong> on SC2RBD.
-      We reach this local SC2RBD result in 3.1 GPU-hours. The pLDDT reward weight likely prevents MCTS from discarding
-      high-confidence trajectories that have suboptimal iPAE but rescuable interface geometry.
+      We reach this local SC2RBD result in 3.1 GPU-hours. This run is the strongest completed example on the page of a
+      reward-shaped search bundle outperforming our earlier local zero baseline on the same target.
     </p>
   </div>
 
@@ -1865,7 +1865,8 @@ Terminate: when unique success count plateaus
     Reward-only sweep (pLDDT weights 0.25/0.50/0.75 without G&amp;H): 0 self and 0 MPNN passes across all completed
     targets and weights. Reward shaping alone does not crack zero-hit targets &mdash; it only helps when combined
     with local refinement. <strong>Every completed Exp 26 row here is out of N=8 final designs for that target/config.</strong>
-    The only Exp 26 jobs still running are <code>H1</code> <code>rws10</code> and <code>TNF&alpha;</code> <code>rws5</code>/<code>rws10</code>.
+    Final completed rows that changed after the earlier draft are: <code>H1 rw_pl075_softg10</code> = 2/8 self, 0/8 MPNN;
+    <code>TNF&alpha; rw_pl050_softg5</code> = 2/8 self, 1/8 MPNN; <code>TNF&alpha; rw_pl075_softg10</code> = 1/8 self, 0/8 MPNN.
   </p>
   <div class="figure-grid">
     <div class="figure-card">
@@ -2143,15 +2144,15 @@ Terminate: when unique success count plateaus
   <div class="table-wrap">
   <table>
     <tr><th>Target</th><th>rw25</th><th>rw50</th><th>rw75</th><th>rws5 (G&amp;H greedy)</th><th>rws10 (G&amp;H soft+greedy)</th></tr>
-    <tr><td><strong>H1</strong> self</td><td class="fail">0/8</td><td class="fail">0/8</td><td class="fail">0/8</td><td>1/8</td><td><span class="tag tag-orange">Running</span></td></tr>
+    <tr><td><strong>H1</strong> self</td><td class="fail">0/8</td><td class="fail">0/8</td><td class="fail">0/8</td><td>1/8</td><td>2/8</td></tr>
     <tr><td><strong>IL17A</strong> self</td><td class="fail">0/8</td><td class="fail">0/8</td><td class="fail">0/8</td><td class="fail">0/8</td><td class="fail">0/8 <span style="font-size:0.75rem">(near-miss: iPAE*31=6.9, pLDDT=0.897)</span></td></tr>
-    <tr><td><strong>TNF&alpha;</strong> self</td><td class="fail">0/8</td><td class="fail">0/8</td><td class="fail">0/8</td><td>2/8</td><td><span class="tag tag-orange">Running</span></td></tr>
+    <tr><td><strong>TNF&alpha;</strong> self</td><td class="fail">0/8</td><td class="fail">0/8</td><td class="fail">0/8</td><td>2/8</td><td>1/8</td></tr>
   </table>
   </div>
   <p class="note">
     Reward-only (pLDDT weights 0.25&ndash;0.75 without G&amp;H): <strong>0% across all completed targets and weights</strong>.
-    H1 <code>rws5</code> completes at <strong>1/8</strong>, which matches the earlier non-reward-shaped best and therefore
-    does <strong>not</strong> show an H1-specific gain from reward shaping. TNF&alpha; <code>rws5</code> now completes at
+    H1 <code>rws10</code> completes at <strong>2/8</strong>, improving over the earlier non-reward-shaped best of 1/8 but remaining
+    far below the SC2RBD result. TNF&alpha; <code>rws5</code> completes at
     <strong>2/8 self and 1/8 MPNN</strong>, which is better than reward-only TNF&alpha; but still below the earlier
     non-reward-shaped <code>msg5</code> result. IL17A <code>rws10</code> gets the closest:
     iPAE*31=6.9 and pLDDT=0.897, missing both thresholds by thin margins. The current evidence supports a stricter
@@ -2160,12 +2161,12 @@ Terminate: when unique success count plateaus
   </p>
 
   <div class="card" style="border-left: 4px solid var(--accent); background: linear-gradient(135deg, #f8fafc 0%, #fafbfc 100%);">
-    <h4 style="font-size:1rem; margin-bottom:8px;">Additional Conclusions From the April 10 Audit</h4>
+    <h4 style="font-size:1rem; margin-bottom:8px;">Additional Conclusions From the April 11 Audit</h4>
     <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
       <li><strong>Operator bundles matter more than individual knobs.</strong> The meaningful action is not “add one metric” or “change one beam setting,” but bundles such as <code>MCTS + soft+greedy G&amp;H</code> or <code>reward-shaped MCTS + refinement</code>.</li>
       <li><strong>Reward shaping is not a universal upgrade.</strong> It helps SC2RBD in one moderate setting, but it has not yet shown a general advantage on H1 or IL17A, and reward-only variants stay at 0%.</li>
       <li><strong>Some targets looked saturated only because the action space was too narrow.</strong> IL7RA and Insulin become much stronger once short local refinement is allowed, so the controller should distinguish “default-favored” from “refinement-sensitive hybrid.”</li>
-      <li><strong>The remaining frontier is now sharper.</strong> CbAgo is still the cleanest unresolved target, while IL17A remains below the paper baseline and likely needs either more budget, stronger local refinement, or a new model-family arm.</li>
+      <li><strong>The remaining frontier is now sharper.</strong> CbAgo is still the cleanest unresolved target, while IL17A remains below the paper baseline after the currently completed search and refinement variants on this page.</li>
     </ul>
   </div>
 
@@ -2195,7 +2196,7 @@ Terminate: when unique success count plateaus
     mechanism and reliability experiments, then hard-target search and refinement, then agentic routing, then deferred
     future extensions.
   </p>
-  <p class="note">Status snapshot as of April 10, 2026: Exp 24 and Exp 25 are complete (all 28 jobs). Exp 26 has 23/25 completed with only two refinement runs still active (<code>H1</code> <code>rws10</code> and <code>TNF&alpha;</code> <code>rws10</code>). The original Exp 27 batch is terminal (20 completed, 5 CrSAS6 pre-generation failures), and the corrected CrSAS6 rerun is complete. Exp 28 is partial (IL17A complete; H1/TNF&alpha;/SC2RBD timed out; eval-only reruns failed immediately). Exp 29 was canceled before usable evaluation outputs. Exp 30&ndash;32 are newly submitted: 38 jobs total, covering 22 previously untested binder task entries, with 3 diagnostic jobs already running and the rest queued.</p>
+  <p class="note">Status snapshot as of April 11, 2026: Exp 24, Exp 25, and Exp 26 are complete. The original Exp 27 batch is terminal (20 completed, 5 CrSAS6 pre-generation failures), and the corrected CrSAS6 rerun is complete. Exp 28 is partial/terminal (IL17A complete; H1/TNF&alpha;/SC2RBD timed out; eval-only reruns failed immediately). Exp 29 was canceled before usable evaluation outputs. Exp 30 is in progress (2 timeouts, 4 running, 8 pending). Exp 31 is in progress (6 running, 2 failed early). Exp 32 currently has 6 diagnostic timeouts, 2 diagnostic failures, and 8 dependency-gated controller jobs still pending; no Exp 32 evaluation directories exist yet.</p>
 
   <div class="table-wrap">
   <table>
@@ -2405,9 +2406,9 @@ Terminate: when unique success count plateaus
     <tr style="background:#ede9fe">
       <td style="text-align:center; font-size:1.1rem; color:#7c3aed">&#9679;</td>
       <td><strong>Exp 26: Reward-Shaped Hard-Target Sweep</strong><br><span style="font-size:0.82rem;color:var(--muted)">same five zero-hit targets with fixed dense MCTS base, varying AF2 reward mix and two stronger hallucination settings</span></td>
-      <td>23/25 + 2 running</td>
-      <td><span class="tag tag-orange">In Progress</span></td>
-      <td style="font-size:0.82rem"><strong>Interim result:</strong> reward shaping alone still gives 0/0 on completed SC2RBD and CbAgo runs, but <code>rw_pl050_softg5</code> on SC2RBD is now the best completed hard-target run overall at <strong>5/8 self and 2/8 MPNN</strong>. H1 <code>rws5</code> completed at 1/8 and did not beat the earlier non-reward best. TNF&alpha; <code>rws5</code> now completes at <strong>2/8 self and 1/8 MPNN</strong>. All completed IL17A variants remain 0/0, and the only active jobs are H1 <code>rws10</code> and TNF&alpha; <code>rws10</code>.</td>
+      <td>25/25</td>
+      <td><span class="tag tag-green">Done</span></td>
+      <td style="font-size:0.82rem"><strong>Completed result:</strong> reward shaping alone still gives 0/0 on SC2RBD and CbAgo, but <code>rw_pl050_softg5</code> on SC2RBD remains the best hard-target run overall at <strong>5/8 self and 2/8 MPNN</strong>. The late completions did not change the main conclusion: H1 peaks at <code>rw_pl075_softg10</code> with <strong>2/8 self</strong>, TNF&alpha; peaks at <code>rw_pl050_softg5</code> with <strong>2/8 self and 1/8 MPNN</strong>, and all IL17A variants remain 0/0.</td>
     </tr>
     <tr style="background:#ede9fe">
       <td style="text-align:center; font-size:1.1rem; color:#7c3aed">&#9679;</td>
@@ -2467,22 +2468,22 @@ Terminate: when unique success count plateaus
       <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
       <td><strong>Exp 30: Remaining Unseen Binder Diagnostics</strong><br><span style="font-size:0.82rem;color:var(--muted)">14 previously untested non-heldout binder task entries: six CD45 hotspot variants, one DerF7 variant, three DerF21 variants, IL7RA repack, PDL1-alpha fix/repack, TNF&alpha; repack</span></td>
       <td>14/14 submitted</td>
-      <td><span class="tag tag-orange">Queued</span></td>
-      <td style="font-size:0.82rem"><strong>Purpose:</strong> expand the diagnostic taxonomy beyond the original 22 tested protein binder entries. <strong>Assumption:</strong> the current sidecar logic should generalize across variant targets and preprocessing variants, not just across the first wave of named biological targets. Each job uses the standard deep-beam diagnostic shape with an evaluated denominator of <strong>N=32</strong>.</td>
+      <td><span class="tag tag-orange">2 timeout / 4 running / 8 pending</span></td>
+      <td style="font-size:0.82rem"><strong>Purpose:</strong> expand the diagnostic taxonomy beyond the original 22 tested protein binder entries. <strong>Current state:</strong> the first two CD45 hotspot-variant diagnostics timed out at 8h, four more CD45-variant diagnostics are running, and the remaining eight entries are still pending. Each job uses the standard deep-beam diagnostic shape with a configured evaluation denominator of <strong>N=32</strong>.</td>
     </tr>
     <tr style="background:#fef3c7">
       <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
       <td><strong>Exp 31: Held-Out Default Baselines</strong><br><span style="font-size:0.82rem;color:var(--muted)">8 representative unseen binder task entries: <code>03_PDL1_AAV</code>, <code>16_DerF7</code>, <code>19_DerF21</code>, <code>26_CbAgo</code>, <code>28_HER2_AAV</code>, <code>31_IL7RA_FIX</code>, <code>32_PDL1_ALPHA</code>, <code>38_TNF&alpha;_FIX</code></span></td>
       <td>8/8 submitted</td>
-      <td><span class="tag tag-orange">Queued</span></td>
-      <td style="font-size:0.82rem"><strong>Purpose:</strong> establish a matched <strong>30-hour default baseline</strong> on held-out unseen tasks before claiming any adaptive advantage. <strong>Assumption:</strong> some held-out tasks will still be default-favored, so the adaptive system must beat a strong fixed baseline rather than a weak straw-man. Each run uses scaled default deep beam with evaluated denominator <strong>N=64</strong>.</td>
+      <td><span class="tag tag-orange">6 running / 2 failed</span></td>
+      <td style="font-size:0.82rem"><strong>Purpose:</strong> establish a matched <strong>30-hour default baseline</strong> on held-out unseen tasks before claiming any adaptive advantage. <strong>Current state:</strong> six default baselines are actively running, while <code>31_IL7RA_FIX</code> and <code>38_TNF&alpha;_FIX</code> failed immediately and therefore do not yet provide usable comparison runs. The intended evaluated denominator for each successful run is <strong>N=64</strong>.</td>
     </tr>
     <tr style="background:#fef3c7">
       <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
       <td><strong>Exp 32: Held-Out Agentic Benchmark</strong><br><span style="font-size:0.82rem;color:var(--muted)">same 8 held-out entries as Exp 31, but with one diagnostic round plus one routed follow-up via <code>agentic_loop.py</code></span></td>
       <td>16/16 submitted<br><span style="font-size:0.75rem;color:var(--muted)">8 diagnostics + 8 dependency-gated controller jobs</span></td>
-      <td><span class="tag tag-orange">3 running / 13 queued</span></td>
-      <td style="font-size:0.82rem"><strong>Core question:</strong> can target-conditioned routing find a first success faster than a fixed 30-hour default strategy on truly unseen tasks? <strong>Mechanism:</strong> Round 0 diagnostic first, then one routed follow-up chosen from the current rule set (default scaling, noise, hallucination, or MCTS+refinement). The initial diagnostic round uses <strong>N=32</strong>; the follow-up job is allowed up to <strong>30h</strong>.</td>
+      <td><span class="tag tag-orange">6 timeout / 2 failed / 8 pending</span></td>
+      <td style="font-size:0.82rem"><strong>Core question:</strong> can target-conditioned routing find a first success faster than a fixed 30-hour default strategy on truly unseen tasks? <strong>Current state:</strong> six Round 0 diagnostics timed out at 8h, two failed early, and all eight dependency-gated controller jobs remain pending because no diagnostic has yet produced a usable completion artifact. The initial diagnostic round is configured for <strong>N=32</strong>; the routed follow-up, if triggered, is allowed up to <strong>30h</strong>.</td>
     </tr>
     <tr style="background:#e0f2fe">
       <td colspan="5" style="font-size:0.8rem; font-weight:600; color:#075985; padding:6px 12px;">
@@ -2691,7 +2692,7 @@ Terminate: when unique success count plateaus
   <div class="card" style="margin-top:16px; border-left: 4px solid var(--orange);">
     <h4 style="font-size:1rem; margin-bottom:8px;">Key Findings from Exp 3</h4>
     <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
-      <li><strong>Interface-focused rewards (iPTM+iCon) completely kill generation.</strong> 0% pass rate on both targets. The heavy interface contact (iCon=1.0) and iPTM (0.5) weights likely cause the beam to prune away structurally viable backbones in favor of ones that maximize interface metrics early in denoising, before the interface has formed.</li>
+      <li><strong>Interface-focused rewards (iPTM+iCon) completely kill generation.</strong> 0% pass rate on both targets. The supported conclusion is that this reward composition is harmful in our completed runs; the page does not establish a single mechanistic explanation for why the pruning behavior fails.</li>
       <li><strong>Multi-AF2 does NOT significantly improve BetV1.</strong> 6&rarr;8 designs (18.8%&rarr;25%) = 2 extra designs out of 32. Fisher p=0.76 &mdash; pure noise. Do not interpret as a real improvement.</li>
       <li><strong>CD45 MPNN shows high run-to-run variance.</strong> Exp3 iPAE-only gives 18.8% MPNN, while the identical Phase 0 deep baseline gives 15.6% and Exp2 noise=0.10 gives 6.2%. All three are statistically indistinguishable &mdash; this is the MPNN reliability problem from num_redesign_seqs=2.</li>
       <li><strong>Implication:</strong> Reward composition is fragile. Interface-heavy weights kill generation; moderate weights are neutral. iPAE alone remains the safest and simplest choice for beam pruning.</li>
@@ -2834,7 +2835,7 @@ Terminate: when unique success count plateaus
   <div class="card" style="margin-top:12px; border-left: 4px solid var(--green);">
     <h4 style="font-size:0.95rem; margin-bottom:6px;">Exp 5 Findings</h4>
     <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
-      <li><strong>Self pass rate is perfectly reproducible.</strong> All three independent runs give exactly 8/32 for noise=0.10 and exactly 15/32 for noise=0.20. Self pass rate appears deterministic (identical random backbone seeds across runs? Or extremely stable signal). This is unprecedented reproducibility in a stochastic beam search.</li>
+      <li><strong>Self pass rate is perfectly reproducible in the completed CD45 replicas.</strong> All three independent runs give exactly 8/32 for noise=0.10 and exactly 15/32 for noise=0.20. The supported conclusion is run-to-run reproducibility under this setup.</li>
       <li><strong>noise=0.20 significantly improves CD45 self pass (25%&rarr;47%, p=0.003).</strong> Combined N=96 confirms what N=32 only hinted at (p=0.117). The effect size is real: non-overlapping 95% CIs.</li>
       <li><strong>MPNN reduction at noise=0.20 is genuine, not a sampling artifact.</strong> With num_redesign_seqs=8, noise=0.10 gives 23.4% MPNN while noise=0.20 gives 1.6% MPNN. This is confirmed real: higher backbone noise generates structurally more diverse but less ProteinMPNN-designable backbones.</li>
     </ul>
@@ -2901,7 +2902,7 @@ Terminate: when unique success count plateaus
   </div>
 
   <h4 style="margin:16px 0 8px; font-size:0.95rem;">Exp 9: BetV1 + Hallucination &mdash; <span style="color:var(--green)">Modest Self Gain, MPNN Rescued</span></h4>
-  <p class="note">Generalization test for the Exp 4 hallucination finding. HER2_AAV had a clear backbone&gt;sequence gap (self 3.1%, MPNN 31.2%). BetV1 has self 18.8%, MPNN 0% (deep). The mechanism may be different &mdash; BetV1's backbones might also be suboptimal for the target, not just the sequences.</p>
+  <p class="note">Generalization test for the Exp 4 hallucination finding. HER2_AAV had a clear backbone&gt;sequence gap (self 3.1%, MPNN 31.2%). BetV1 has self 18.8%, MPNN 0% (deep). The completed result shows a much smaller hallucination effect on BetV1 than on HER2_AAV.</p>
   <div class="table-wrap">
   <table>
     <tr><th>Target</th><th>Self (baseline)</th><th>MPNN (baseline)</th><th>Self (+halluc)</th><th>MPNN (+halluc)</th><th>Fisher p (self)</th></tr>
@@ -3018,32 +3019,15 @@ Terminate: when unique success count plateaus
   </div>
 
   <div class="card" style="border-left: 4px solid var(--purple); margin-top:16px;">
-    <h3>Recent Additions to the Plan (April 9, 2026)</h3>
-    <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
-      <li><strong>Structured Failure Analysis:</strong> a graphify-inspired knowledge graph that converts 100+ experimental results
-      into typed nodes (targets, interventions, bottleneck types) and confidence-labeled edges (improves, hurts, interacts_negatively).
-      Agents query this graph rather than re-reading raw evaluation logs. Full schema and implementation plan included.</li>
-      <li><strong>Task Decomposition for Subagents:</strong> the design loop is decomposed into 5 subagent roles (diagnostic, strategy,
-      comparison, archivist, escalation), each with structured JSON inputs/outputs, mirroring the component-focused search pattern
-      from MLE-STAR and MARS.</li>
-      <li><strong>7 Immediate Priorities with full experimental detail:</strong>
-        <ol style="padding-left:16px; margin-top:4px;">
-          <li><strong>Exp 28 &mdash; Paper recipe baseline:</strong> Run the ICLR Sec I.4 exact recipe (MCTS N<sub>sim</sub>=20, &epsilon;=0.5, C=1.0, iPAE+pLDDT reward, G&amp;H 5% mutation) on H1, TNF&alpha;, IL17A, SC2RBD. Full Hydra commands, verification criteria, and assumptions included.</li>
-          <li><strong>Exp 29 &mdash; Adaptive vs. fixed allocation:</strong> 5-arm comparison (fixed-default, fixed-best, fixed-wrong, adaptive-rule, portfolio) at matched 30 GPU-hours on CD45, SpCas9, HER2_AAV. Round-by-round protocol, decision logic, FoldSeek clustering metrics, and success criteria specified.</li>
-          <li><strong>BindCraft portfolio arm:</strong> Run BindCraft on SC2RBD (PDB 6m0j) to test model-family selection as a portfolio action.</li>
-          <li><strong>Diagnostic knowledge graph:</strong> NetworkX graph with typed nodes/edges, confidence labels, Leiden clustering. Full JSON schema and 5-step implementation plan.</li>
-          <li><strong>Portfolio composition:</strong> Diversity-over-count argument &mdash; 10h&times;3 operators vs 30h&times;1, measured by FoldSeek cluster count at TM-score 0.5 and 0.7.</li>
-          <li><strong>LLM integration roadmap:</strong> Decision table for when rules vs. LLM, structured prompt template for the v2 strategy agent, leave-one-out evaluation design.</li>
-          <li><strong>Zero-hit failure analysis:</strong> 5-part protocol (trajectory inspection, reward correlation, structural comparison, cross-method comparison, interface geometry) to characterize why SC2RBD/CbAgo/H1/IL17A/TNF&alpha; fail.</li>
-        </ol>
-      </li>
-      <li><strong>Refined thesis:</strong> the model already covers the correct fold space for hard targets (H1: 7 successes in 604 GPU-hours).
-      The contribution is reducing search cost through intelligent allocation, not increasing model capability.</li>
-    </ul>
+    <h3>Plan Boundary</h3>
+    <p style="font-size:0.88rem; color:var(--muted);">
+      This results page no longer carries an inline copy of the evolving forward plan. That material moved to the
+      companion plan page so that stale planning notes do not get mixed into the verified empirical record here.
+    </p>
     <p style="font-size:0.88rem; color:var(--muted); margin-top:8px;">
-      See the companion page for full details:
-      <a href="/projects/agentic-protein-design-plan.html#structured-analysis">Structured Failure Analysis</a> |
-      <a href="/projects/agentic-protein-design-plan.html#immediate-priorities">Immediate Priorities (7 priorities with Hydra commands)</a>
+      See the companion page for the current roadmap, structured failure analysis, LLM/planner integration ideas,
+      benchmark tiers, and next-step experimental program:
+      <a href="/projects/agentic-protein-design-plan.html">Open Research Plan &amp; Architecture</a>.
     </p>
   </div>
 
