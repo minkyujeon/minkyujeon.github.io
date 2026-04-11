@@ -898,30 +898,50 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
 <div class="section" id="ligand">
   <h2>4. Ligand Binder Results: 7V11/SAM</h2>
   <p>
-    4 TTO configs + 3 no-TTO baselines for the SAM ligand target (7V11).
-    Scored by RoseTTAFold3 (not AF2). iPTM and ranking_score are higher=better.
+    This local 7V11/SAM ligand sweep contains <strong>10 completed runs</strong>:
+    <strong>7 TTO configs</strong> (<code>cfgA</code>&ndash;<code>cfgG</code>, each with <code>N=32</code>)
+    and <strong>3 no-TTO baselines</strong> (<code>notto32</code>, <code>notto200</code>, and
+    <code>notto_matched544</code>; the last preserved <code>N=182</code> evaluated samples in the current local
+    evaluation folder). These runs are evaluated with the ligand pipeline and RoseTTAFold3-derived confidence metrics.
+    For factual consistency, the table below only uses metrics that are directly recoverable from the current local
+    evaluation CSVs: <code>self_complex_i_pAE</code> (lower is better) and <code>self_complex_pLDDT</code>
+    (higher is better), plus the aggregated self/MPNN success rates recorded in the local summaries.
+  </p>
+  <p class="note">
+    <strong>How to read this table:</strong> each row is one completed local run on the same ligand target.
+    <code>N</code> is the number of evaluated self-sequence samples preserved in the current evaluation folder.
+    <code>Mean iPAE</code> and <code>Best iPAE</code> are computed from the local per-sample CSV
+    (<code>binder_results_search_ligand_binder_local_pipeline_0.csv</code>) using
+    <code>self_complex_i_pAE</code>. <code>Mean pLDDT</code> and <code>Best pLDDT</code> come from
+    <code>self_complex_pLDDT</code>. <code>Self pass</code> and <code>MPNN pass</code> are the aggregated ligand
+    success rates in <code>overall_binder_performance_search_ligand_binder_local_pipeline_aggregated.csv</code>.
+    Unlike the previous draft, this table does <strong>not</strong> report <code>iPTM</code> or
+    <code>ranking_score</code>, because those values are not preserved in the current evaluation summary CSVs for all
+    10 runs.
   </p>
   <div class="table-wrap">
   <table>
-    <tr><th>Config</th><th>n</th><th>Mean iPAE</th><th>Best iPAE</th><th>Mean iPTM</th><th>Best iPTM</th><th>Best Ranking</th></tr>
-    <tr>
-      <td class="best">E_fine_grained (TTO)</td><td>19</td>
-      <td class="best">0.159</td><td class="best">0.108</td><td class="best">0.888</td><td class="best">0.927</td><td class="best">0.927</td>
-    </tr>
-    <tr><td>G_more_starts (TTO)</td><td>31</td><td>0.193</td><td>0.121</td><td>0.858</td><td>0.923</td><td>0.923</td></tr>
-    <tr><td>C_deep_exploit (TTO)</td><td>32</td><td>0.200</td><td>0.135</td><td>0.848</td><td>0.912</td><td>0.917</td></tr>
-    <tr><td>F_late_only (TTO)</td><td>32</td><td>0.205</td><td>0.143</td><td>0.837</td><td>0.909</td><td>0.909</td></tr>
-    <tr><td>notto (N=544)</td><td>544</td><td>0.307</td><td>0.145</td><td>0.685</td><td>0.911</td><td>0.908</td></tr>
-    <tr><td>notto (N=200)</td><td>200</td><td>0.305</td><td>0.158</td><td>0.689</td><td>0.911</td><td>0.917</td></tr>
-    <tr><td>notto (N=32)</td><td>32</td><td>0.324</td><td>0.156</td><td>0.652</td><td>0.884</td><td>0.892</td></tr>
+    <tr><th>Config</th><th>N</th><th>Mean iPAE</th><th>Best iPAE</th><th>Mean pLDDT</th><th>Best pLDDT</th><th>Self pass</th><th>MPNN pass</th></tr>
+    <tr><td class="best">E_fine_grained (TTO)</td><td>32</td><td class="best">0.160</td><td class="best">0.079</td><td>0.833</td><td>0.870</td><td>1/32 (3.1%)</td><td>2/32 (6.3%)</td></tr>
+    <tr><td>F_late_only (TTO)</td><td>32</td><td>0.186</td><td>0.148</td><td>0.826</td><td>0.859</td><td>2/32 (6.3%)</td><td>2/32 (6.3%)</td></tr>
+    <tr><td>A_balanced (TTO)</td><td>32</td><td>0.188</td><td>0.104</td><td class="best">0.834</td><td class="best">0.874</td><td>1/32 (3.1%)</td><td>3/32 (9.4%)</td></tr>
+    <tr><td>G_more_starts (TTO)</td><td>32</td><td>0.193</td><td>0.133</td><td>0.829</td><td>0.866</td><td>0/32 (0.0%)</td><td>2/32 (6.3%)</td></tr>
+    <tr><td>C_deep_exploit (TTO)</td><td>32</td><td>0.197</td><td>0.128</td><td>0.831</td><td>0.860</td><td class="best">4/32 (12.5%)</td><td>2/32 (6.3%)</td></tr>
+    <tr><td>B_high_nsamples (TTO)</td><td>32</td><td>0.200</td><td>0.089</td><td>0.832</td><td>0.857</td><td>1/32 (3.1%)</td><td class="best">5/32 (15.6%)</td></tr>
+    <tr><td>D_wide_branch (TTO)</td><td>32</td><td>0.236</td><td>0.162</td><td>0.817</td><td>0.847</td><td>0/32 (0.0%)</td><td>2/32 (6.3%)</td></tr>
+    <tr><td>notto200</td><td>200</td><td>0.247</td><td>0.119</td><td>0.805</td><td>0.868</td><td>2/200 (1.0%)</td><td>10/200 (5.0%)</td></tr>
+    <tr><td>notto_matched544</td><td>182</td><td>0.248</td><td>0.126</td><td>0.803</td><td>0.869</td><td>3/182 (1.6%)</td><td>10/182 (5.5%)</td></tr>
+    <tr><td>notto32</td><td>32</td><td>0.253</td><td>0.152</td><td>0.793</td><td>0.851</td><td>1/32 (3.1%)</td><td>0/32 (0.0%)</td></tr>
   </table>
   </div>
-  <p class="note"><strong>Key takeaway:</strong> on the ligand task, fine-grained TTO improves the whole distribution rather than just finding one lucky sample, which supports the general inference-time-scaling idea beyond protein-protein binders.</p>
+  <p class="note"><strong>Key takeaway:</strong> the ligand target shows a mixed pattern rather than one dominant winner. <code>cfgE</code> is strongest on the distributional RF3 confidence axis (<code>i_pAE</code>), <code>cfgC</code> is strongest on self success rate, and <code>cfgB</code> is strongest on MPNN redesign pass rate. The conservative conclusion is that ligand TTO helps, but the “best” ligand config depends on whether the objective is raw confidence, self success, or redesign success.</p>
   <p class="note">
-    Config E (beam search with fine-grained pruning) achieves mean iPAE 0.159 with only 19 samples,
-    beating notto's mean of 0.307 with 544 samples.
-    Importantly, notto's best iPAE with N=544 (0.145) still cannot match Config E's mean (0.159),
-    showing TTO doesn't just improve the mean &mdash; it shifts the entire distribution.
+    <strong>Conservative interpretation:</strong> on the directly recoverable RF3 confidence metrics, all seven TTO
+    configs beat the <code>notto32</code> baseline on mean <code>i_pAE</code>, and the stronger TTO configs
+    (<code>A/B/C/E/F/G</code>) also beat the larger <code>notto200</code> and <code>notto_matched544</code> baselines
+    on mean <code>i_pAE</code>. However, the larger no-TTO pools still contain some individually strong outliers
+    (for example, <code>notto200</code> reaches best <code>i_pAE = 0.119</code>), so the defensible claim is
+    distributional improvement on average, not domination of every best single sample.
   </p>
 </div>
 
