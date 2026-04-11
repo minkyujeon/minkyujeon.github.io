@@ -258,6 +258,13 @@
     using AF2 rewards, steering toward binding-competent designs. The paper tests <strong>five</strong>
     inference-time optimization algorithms: Best-of-N, Beam Search, FK Steering, MCTS, and Generate &amp; Hallucinate.
   </p>
+  <p class="note">
+    <strong>Terminology note:</strong> throughout this page, <code>notto</code> is our local nickname for the
+    <strong>Phase 0 no-TTO baseline</strong>: unguided <code>single-pass</code> generation with a large sample pool
+    (typically 194&ndash;200 samples). It is <strong>not</strong> the same thing as the paper's
+    <strong>Best-of-N</strong> method, which is itself a test-time scaling strategy that generates multiple
+    independent scored samples and selects the best one.
+  </p>
 
   <h3>Figure 7: Scaling Analysis from the Paper</h3>
   <p>
@@ -332,19 +339,23 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
 
   <h3>Full Action Space (What an Agent Can Control)</h3>
   <p>
-    We audited the Proteina-Complexa codebase and identified <strong>5 search algorithms</strong>,
-    <strong>4 reward models</strong>, and <strong>30+ tunable parameters</strong>.
-    The "Explored?" column reflects our experiments &mdash; the paper tested all 5 algorithms with default parameters in Figure 7.
+    We audited the current Proteina-Complexa codebase and identified <strong>7 search algorithms</strong>,
+    <strong>1 refinement operator family</strong>, <strong>4 reward-model families</strong>, and <strong>30+ tunable parameters</strong>.
+    The paper's Figure 7 covers the original <strong>five method families</strong>
+    (<code>best-of-n</code>, <code>beam-search</code>, <code>fk-steering</code>, <code>mcts</code>,
+    and Generate &amp; Hallucinate as a post-generation refinement arm). The local repo and our project later extend that action
+    space with an explicit <code>single-pass</code> baseline plus our added
+    <code>stochastic-beam-search</code> and <code>diverse-beam-search</code>.
   </p>
 
   <div class="table-wrap">
   <table>
     <tr><th>Category</th><th>Parameter</th><th>Default</th><th>Options / Range</th><th>Explored?</th></tr>
-    <tr><td colspan="5" style="background:#f1f5f9; font-weight:600; font-size:0.82rem;">Search Algorithm (paper tested all 5 with defaults)</td></tr>
+    <tr><td colspan="5" style="background:#f1f5f9; font-weight:600; font-size:0.82rem;">Search Algorithm (paper Figure 7 uses the original 5 method families; repo now supports 7 search actions)</td></tr>
     <tr>
       <td>Algorithm</td><td><code>algorithm</code></td><td>best-of-n</td>
-      <td><code>single-pass</code>, <code>beam-search</code>, <code>fk-steering</code>, <code>mcts</code>, <code>best-of-n</code></td>
-      <td><span class="tag tag-orange">Partial</span></td>
+      <td><code>single-pass</code>, <code>best-of-n</code>, <code>beam-search</code>, <code>stochastic-beam-search</code>, <code>diverse-beam-search</code>, <code>fk-steering</code>, <code>mcts</code></td>
+      <td><span class="tag tag-green">Yes</span> &mdash; all 7 have now been run locally at least once; paper Figure 7 covers the original 4 search families (<code>best-of-n</code>, <code>beam-search</code>, <code>fk-steering</code>, <code>mcts</code>)</td>
     </tr>
     <tr>
       <td>Beam Search</td><td><code>beam_width</code></td><td>4</td><td>1 &ndash; 32</td>
@@ -364,7 +375,15 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     </tr>
     <tr>
       <td>MCTS</td><td><code>n_simulations</code>, <code>exploration_constant</code>, <code>&epsilon;</code></td><td>20, 1.0, 0.5</td><td>5&ndash;100, 0.1&ndash;5.0, 0&ndash;1</td>
-      <td><span class="tag tag-red">Default only</span></td>
+      <td><span class="tag tag-green">Yes</span> &mdash; paper uses defaults in Fig. 7 / Sec I.4; we later swept non-default settings in Exp 25/26</td>
+    </tr>
+    <tr>
+      <td>Stochastic Beam</td><td><code>temperature</code>, <code>beam_width</code>, <code>n_branch</code></td><td>1.0, 4, 4</td><td>temp 0.01&ndash;10+, width/branch task-dependent</td>
+      <td><span class="tag tag-green">Yes</span> (Exp 20, Exp 21)</td>
+    </tr>
+    <tr>
+      <td>Diverse Beam</td><td><code>diversity_weight</code>, <code>similarity_bandwidth</code>, <code>parent_penalty</code></td><td>0.25, 2.0, 0.05</td><td>continuous diversity-strength tradeoff</td>
+      <td><span class="tag tag-green">Yes</span> (Exp 20, Exp 21)</td>
     </tr>
 
     <tr><td colspan="5" style="background:#f1f5f9; font-weight:600; font-size:0.82rem;">Denoising / Diversity</td></tr>
@@ -409,8 +428,8 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
 
     <tr><td colspan="5" style="background:#f1f5f9; font-weight:600; font-size:0.82rem;">Post-Generation</td></tr>
     <tr>
-      <td>Refinement</td><td><code>sequence_hallucination</code></td><td>off</td><td>AF2-guided seq optimization (logit opt + greedy mutation)</td>
-      <td><span class="tag tag-green">Yes (Exp 4)</span> &mdash; paper G&amp;H uses mutation only (stage 4); universally worst in Fig 7; we: selective application is transformative</td>
+      <td>Refinement</td><td><code>sequence_hallucination</code></td><td>off</td><td>AF2-guided seq optimization (soft/logit opt + hard opt + semigreedy mutation)</td>
+      <td><span class="tag tag-green">Yes</span> &mdash; paper Figure 7 uses Generate &amp; Hallucinate as a separate method family; later paper sections also study mutation-only vs logit-optimization variants; our local runs include greedy-only and soft+greedy schedules</td>
     </tr>
     <tr>
       <td>Evaluation</td><td><code>sequence_types</code></td><td>[self]</td><td><code>self</code>, <code>mpnn</code>, <code>mpnn_fixed</code></td>
@@ -430,8 +449,11 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
   </div>
 
   <p class="note">
-    "Default only" = the paper tested this algorithm but only with its default parameters.
-    "No" = neither the paper nor our experiments have explored this parameter.
+    <strong>How to read this table:</strong> the <strong>Default</strong> column is the current repo default where a default exists.
+    The <strong>Explored?</strong> column refers to <strong>our local experiments</strong>, not just the paper.
+    A method can therefore be "Yes" even if it was not part of the original paper, as with
+    <code>stochastic-beam-search</code> and <code>diverse-beam-search</code>.
+    "No" means we have not yet run that parameter family locally.
     <strong>Key distinction:</strong> The companion paper (Latent Generative Search, Table 2, Sec B.4) tested 4 sampling noise combinations
     (bb&times;lat: 0.1&times;0.1, 0.1&times;0.4, 0.4&times;0.1, 0.4&times;0.4) in aggregate across 75 solvable targets from the 127-target panel.
     Result: (0.1, 0.4) solves the most targets (36 vs 33); each setting uniquely solves 2&ndash;4 targets.
@@ -489,11 +511,12 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     <tr><th>Config</th><th>Algorithm</th><th>nsamples</th><th>beam_width</th><th>n_branch</th><th>Checkpoints</th><th>Finals/Run</th></tr>
     <tr><td><strong>notto</strong></td><td>single-pass (no TTO)</td><td>200</td><td>--</td><td>--</td><td>--</td><td>200</td></tr>
     <tr><td><strong>wide</strong></td><td>beam-search</td><td>2</td><td>16</td><td>4</td><td>[0,100,250,400]</td><td>32</td></tr>
-    <tr><td><strong>deep</strong></td><td>beam-search</td><td>4</td><td>8</td><td>3</td><td>[0,65,130,200,270,340,400]</td><td>~12-14</td></tr>
+    <tr><td><strong>deep</strong></td><td>beam-search</td><td>4</td><td>8</td><td>3</td><td>[0,65,130,200,270,340,400]</td><td>32</td></tr>
   </table>
   </div>
   <p class="note">
-    notto = 200 independent random trajectories with no reward guidance.
+    <strong>How to read this table:</strong> <code>notto</code> is our local no-TTO baseline and should not be confused with the paper's
+    <code>best-of-n</code> method. Here, notto = 194&ndash;200 independent random trajectories with no reward guidance.
     wide = large beam_width (16) with fewer, widely-spaced checkpoints (3 pruning steps).
     deep = smaller beam_width (8) with more frequent checkpoints (6 pruning steps).
     <strong>All beam-search configs in the Phase 0 sweep contribute 32 evaluated final samples per run</strong>;
@@ -678,6 +701,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     </tr>
   </table>
   </div>
+  <p class="note"><strong>Key takeaway:</strong> test-time search is mandatory on the difficult end of the protein-binder panel, but even within search there is no universal baseline winner: deep and wide split the wins and notto never wins.</p>
   <div class="figure-grid">
     <div class="figure-card">
       <h4>Companion Figure: Baseline Winners by Target</h4>
@@ -826,6 +850,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     </tr>
   </table>
   </div>
+  <p class="note"><strong>Key takeaway:</strong> this bottleneck table is the empirical basis for routing: the same overall failure rate can come from very different underlying causes, and those causes line up with different interventions.</p>
   <div class="card" style="border-left: 4px solid var(--accent);">
     <h4 style="font-size:0.95rem; margin-bottom:6px;">How to Read This Table</h4>
     <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
@@ -853,6 +878,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     <tr><td>B_length_explorer</td><td>Max length diversity</td><td>16</td><td>2</td><td>4</td><td>[0,100,200,300,400]</td><td>0/10</td></tr>
   </table>
   </div>
+  <p class="note"><strong>Key takeaway:</strong> the earlier autoresearch sweep already showed that fixed defaults are fragile and that config sensitivity is large enough to justify adaptive selection.</p>
   <p class="note">
     Config sensitivity varies dramatically: CV of iPAE across configs ranges from 0.027 (IFNAR2 &mdash; config doesn't matter)
     to 0.648 (BetV1 &mdash; config choice is critical). For 4/10 proteins, the optimal config changes when optimizing
@@ -882,6 +908,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
     <tr><td>notto (N=32)</td><td>32</td><td>0.324</td><td>0.156</td><td>0.652</td><td>0.884</td><td>0.892</td></tr>
   </table>
   </div>
+  <p class="note"><strong>Key takeaway:</strong> on the ligand task, fine-grained TTO improves the whole distribution rather than just finding one lucky sample, which supports the general inference-time-scaling idea beyond protein-protein binders.</p>
   <p class="note">
     Config E (beam search with fine-grained pruning) achieves mean iPAE 0.159 with only 19 samples,
     beating notto's mean of 0.307 with 544 samples.
@@ -1303,16 +1330,19 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
   <p class="note">Solid bars = self-sequence pass rate. Hatched bars = MPNN redesign pass rate. N=32 designs per condition.
   Pass = iPAE*31 &le; 7.0 AND pLDDT &ge; 0.9 AND scRMSD &lt; 1.5&Aring;.</p>
   <img src="agentic-figures/fig1_pass_rate_matrix.png" alt="Pass rate matrix across targets and configs" style="width:100%; max-width:800px; border:1px solid var(--border); border-radius:8px; margin-bottom:16px;">
+  <div class="figure-caption">What is plotted: self-sequence and MPNN-redesign pass rates for the Phase 0 baseline panel. Denominator: N=32 evaluated designs per target/config. Config meaning: notto = no test-time search, deep = fine-grained beam pruning, wide = wider-branch beam search. Paper reference: Figure 7 shows that search beats blind sampling overall, but not this exact deep-vs-wide comparison. Interpretation: even the baseline search family is already target-conditional.</div>
 
   <h4 style="margin:16px 0 8px;">Figure B: iPAE vs pLDDT per Design &mdash; Where Each Config Moves the Distribution</h4>
   <p class="note">Each point = one of 32 designs. Large points with black outline = pass all 3 criteria. Shaded green region = success zone.
   Notice how noise shifts CD45 designs toward the pass region, while hallucination shifts HER2 designs there.</p>
   <img src="agentic-figures/fig2_ipae_vs_plddt_scatter.png" alt="iPAE vs pLDDT scatter" style="width:100%; max-width:850px; border:1px solid var(--border); border-radius:8px; margin-bottom:16px;">
+  <div class="figure-caption">What is plotted: one point per design in iPAE-versus-pLDDT space, with the success zone highlighted. Denominator: N=32 designs per shown condition. Config meaning: noise perturbs generation-time structure search, while hallucination rewrites sequences after structure generation. Paper reference: no direct analogue exists for this per-design scatter view. Interpretation: CD45 is mainly geometry-limited, while HER2_AAV is mainly sequence-limited.</div>
 
   <h4 style="margin:16px 0 8px;">Figure C: iPAE Distribution by Config &mdash; How Interventions Shift Binding Quality</h4>
   <p class="note">Box = IQR. Line = median. Points = individual designs. Green dashed line = pass threshold (iPAE &le; 7&Aring;).
   For CD45, noise=0.20 pushes the median below the threshold. For HER2, hallucination achieves this.</p>
   <img src="agentic-figures/fig3_ipae_boxplot.png" alt="iPAE distribution boxplots" style="width:100%; max-width:800px; border:1px solid var(--border); border-radius:8px; margin-bottom:16px;">
+  <div class="figure-caption">What is plotted: iPAE distributions across designs for representative target/config pairs. Denominator: N=32 designs per condition. Config meaning: lower iPAE is better and the dashed line marks the pass threshold. Paper reference: the paper uses iPAE-based evaluation, but not this target-specific distributional comparison. Interpretation: useful interventions shift whole distributions, not just single outliers.</div>
 
   <h4 style="margin:16px 0 8px;">Figure D: Per-Design Pass/Fail Heatmap &mdash; Which Criterion is the Bottleneck?</h4>
   <p class="note">Green = pass, red = fail for each of 32 designs across 3 criteria.
@@ -1320,24 +1350,28 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
   For HER2 baseline, most designs pass iPAE but fail pLDDT &mdash; hallucination fixes exactly this.
   For CD45, noise fixes iPAE failures.</p>
   <img src="agentic-figures/fig4_per_design_heatmap.png" alt="Per-design heatmap" style="width:100%; max-width:850px; border:1px solid var(--border); border-radius:8px; margin-bottom:16px;">
+  <div class="figure-caption">What is plotted: per-design pass/fail status for iPAE, pLDDT, scRMSD, and the all-pass criterion. Denominator: N=32 designs per shown condition. Config meaning: a final success requires all three metrics to pass simultaneously. Paper reference: no direct paper analogue exists for this design-level bottleneck map. Interpretation: failures cluster by criterion, which is why routing by bottleneck is meaningful.</div>
 
   <h4 style="margin:16px 0 8px;">Figure E: Self vs MPNN Gap &mdash; Diagnostic Signal for the Agent</h4>
   <p class="note">The gap between self (solid) and MPNN (hatched) reveals the bottleneck type.
   HER2 baseline: MPNN &gt;&gt; self = &ldquo;backbone is good, sequence is bad&rdquo; &rarr; use hallucination.
   CD45 noise=0.20: self &gt;&gt; MPNN = &ldquo;noise helps self but MPNN can&rsquo;t redesign these diverse backbones&rdquo;.</p>
   <img src="agentic-figures/fig5_self_vs_mpnn_gap.png" alt="Self vs MPNN gap" style="width:100%; max-width:750px; border:1px solid var(--border); border-radius:8px; margin-bottom:16px;">
+  <div class="figure-caption">What is plotted: the gap between self-sequence and MPNN-redesign pass rates by target/config. Denominator: N=32 per condition. Config meaning: positive MPNN-over-self gap means the backbone is usable but the co-designed sequence is weak; negative gap points more toward a backbone bottleneck. Paper reference: the paper reports self and redesign outcomes, but not this diagnostic gap as an intervention signal. Interpretation: the self-vs-MPNN gap is one of the strongest routing features in this project.</div>
 
   <h4 style="margin:16px 0 8px;">Figure F: Noise Threshold &amp; Mixed Noise Analysis (CD45)</h4>
   <p class="note">Left: symmetric noise sweep shows a sharp threshold at 0.20 (no improvement at 0.15, sudden jump at 0.20).
   MPNN collapses to 0% at &ge;0.20. Right: both backbone AND latent noise must be raised together;
   raising only one component is neutral or harmful.</p>
   <img src="agentic-figures/fig6_noise_threshold.png" alt="Noise threshold" style="width:100%; max-width:800px; border:1px solid var(--border); border-radius:8px; margin-bottom:16px;">
+  <div class="figure-caption">What is plotted: the CD45 noise threshold sweep and the mixed backbone-versus-latent noise follow-up. Denominator: N=32 per run in the original threshold study; N=96 combined for the later replication. Config meaning: backbone and latent noise can move together or separately. Paper reference: the companion paper studies noise combinations in aggregate, but not as a hard-target-specific threshold experiment. Interpretation: CD45 responds to a sharp backbone-noise threshold, and latent-only noise does not reproduce the gain.</div>
 
   <h4 style="margin:16px 0 8px;">Figure G: Reproducibility &mdash; Self Pass Rate is Deterministic</h4>
   <p class="note">3 independent runs with different random seeds give <strong>exactly identical</strong> self pass rates for all 3 targets.
   This means the pipeline&rsquo;s outcome is dominated by the deterministic beam search structure,
   not stochastic noise. Changes in pass rate are real signals, not random variance.</p>
   <img src="agentic-figures/fig7_reproducibility.png" alt="Reproducibility" style="width:100%; max-width:750px; border:1px solid var(--border); border-radius:8px; margin-bottom:16px;">
+  <div class="figure-caption">What is plotted: exact reruns of the same conditions on the same targets. Denominator: three independent runs of N=32 designs each for the replicated conditions. Config meaning: these are exact replications, not new hyperparameters. Paper reference: the paper reports aggregate outcomes but does not isolate exact reproducibility this way. Interpretation: several key self-pass results are effectively deterministic, which makes later routing claims more defensible.</div>
 
   <h3>Diagnostic Signal Extraction: Can We Predict the Right Intervention?</h3>
 
@@ -1351,6 +1385,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
   Right: Per-criterion pass rates reveal whether iPAE (binding geometry) or pLDDT (structural confidence) is the limiting factor.
   Green labels = easy targets (paper classification), red = hard.</p>
   <img src="agentic-figures/fig8_diagnostic_overview.png" alt="Diagnostic overview" style="width:100%; max-width:850px; border:1px solid var(--border); border-radius:8px; margin-bottom:16px;">
+  <div class="figure-caption">What is plotted: a compressed diagnostic summary across all 11 Phase 0 targets, combining self-vs-MPNN rates and per-criterion pass rates. Denominator: N=32 deep-beam designs per target. Config meaning: this is the cheap default diagnostic round only, before any target-specific follow-up. Paper reference: the paper classifies targets by difficulty, but does not derive a routing diagnostic from one scout round. Interpretation: one inexpensive diagnostic round already separates easy, sequence-limited, geometry-limited, and ambiguous targets.</div>
 
   <h4 style="margin:16px 0 8px;">Figure I: Routing Decision Tree &mdash; The Agent&rsquo;s Logic</h4>
   <p class="note">A simple 3-question decision tree derived from the Phase 0 diagnostic signals.
@@ -1358,6 +1393,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
   Misclassifies BetV1 (predicted noise, actual halluc marginal) because BetV1 has both iPAE and pLDDT failures.
   SpCas9 and CrSAS6 fall into the &ldquo;try both&rdquo; category.</p>
   <img src="agentic-figures/fig9_routing_decision_tree.png" alt="Routing decision tree" style="width:100%; max-width:800px; border:1px solid var(--border); border-radius:8px; margin-bottom:16px;">
+  <div class="figure-caption">What is plotted: the rule-based routing tree derived from the diagnostic signals above. Denominator: validated on the targets for which completed intervention follow-ups exist. Config meaning: the tree chooses among default, noise, hallucination, or a mixed “try both” branch. Paper reference: no direct paper analogue exists because the paper uses fixed strategies rather than an explicit router. Interpretation: even a simple interpretable controller recovers most of the validated intervention choices.</div>
 
   <h4 style="margin:16px 0 8px;">Figure J: Bottleneck Decomposition &mdash; Per-Criterion Self vs MPNN for Hard Targets</h4>
   <p class="note">For the 4 hard targets, we decompose the diagnostic signal by criterion.
@@ -1366,6 +1402,7 @@ Analyze:                  Success = iPAE*31 ≤ 7 AND pLDDT ≥ 0.9 AND scRMSD &
   BetV1: both iPAE (19%) and pLDDT (25%) are bad with no MPNN gap &rarr; ambiguous, try both.
   SpCas9: balanced at ~50% for both &rarr; already decent, explore further.</p>
   <img src="agentic-figures/fig10_bottleneck_decomposition.png" alt="Bottleneck decomposition" style="width:100%; max-width:850px; border:1px solid var(--border); border-radius:8px; margin-bottom:16px;">
+  <div class="figure-caption">What is plotted: criterion-level decomposition for the hard targets only, with self and MPNN channels side by side. Denominator: N=32 deep-beam designs per target. Config meaning: this is still the default deep-beam diagnostic, but broken into the signals that motivate different interventions. Paper reference: hard targets are discussed in the paper, but not decomposed this way into per-criterion self-vs-MPNN bottlenecks. Interpretation: hard targets are heterogeneous; CD45 is geometry-limited, HER2_AAV is sequence-limited, BetV1 is mixed, and SpCas9 is borderline rather than clearly broken.</div>
 
   <h4 style="margin:20px 0 8px;">Figure K: Hard-Target Unlock Depends on the Full Operator Bundle</h4>
   <p class="note">Updated with Exp 25/26. The important comparison is not “more search” vs “less search,” but pure MCTS vs MCTS + local refinement vs reward-shaped MCTS + refinement. In this figure, Exp 20 rows use N=16, while Exp 25/26 rows use N=8.</p>
