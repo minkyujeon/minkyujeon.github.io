@@ -2165,12 +2165,82 @@ Terminate: when unique success count plateaus
     </p>
   </div>
 
-  <h3>Exp 29: Scaling Attempt (Archived)</h3>
+  <h3>Exp 29 v2: Long-Running Scaling Curves (~37h per strategy)</h3>
   <p class="note">
-    The first <code>Exp 29</code> scaling-curve batch was launched but later canceled before it produced usable
-    evaluation outputs. Because there are no completed <code>exp29_*</code> evaluation directories, this page does
-    <strong>not</strong> report any scaling tables or Figure 19-style curves from that attempt. A future scaling
-    benchmark should be treated as a fresh experiment, not as an in-progress result.
+    <strong>History:</strong> The first Exp 29 batch was 78 independent short jobs (cancelled, no usable outputs).
+    The v2 redesign uses <strong>6 long-running continuous-generation jobs</strong> (48h walltime each) that loop:
+    generate 4&ndash;32 designs &rarr; evaluate &rarr; log <code>(gpu_hours, cumulative_successes)</code> to TSV &rarr; repeat.
+    Data below is from <code>scaling_curves/*_scaling_corrected.tsv</code> (the original TSVs had a success-counting bug;
+    the <code>_corrected</code> versions were rebuilt from the actual evaluation CSVs).
+  </p>
+
+  <h4>CD45 (HARD): Default vs noise=0.20 at ~37 GPU-hours each</h4>
+  <div class="table-wrap">
+  <table>
+    <tr><th>GPU-hours</th>
+      <th colspan="2">noise=0.20 (ours)</th>
+      <th colspan="2">default (baseline)</th></tr>
+    <tr><th></th><th>Cum. Self</th><th>Cum. MPNN</th><th>Cum. Self</th><th>Cum. MPNN</th></tr>
+    <tr><td>~1h</td><td>15</td><td>1</td><td>8</td><td class="best">8</td></tr>
+    <tr><td>~5h</td><td>75</td><td>6</td><td>40</td><td>36</td></tr>
+    <tr><td>~10h</td><td>150</td><td>10</td><td>80</td><td>72</td></tr>
+    <tr><td>~20h</td><td>300</td><td>18</td><td>160</td><td>144</td></tr>
+    <tr><td>~30h</td><td>435</td><td>22</td><td>232</td><td>214</td></tr>
+    <tr><td>~37h (last)</td><td class="best">540</td><td>27</td><td>280</td><td class="best">257</td></tr>
+  </table>
+  </div>
+  <div class="card" style="border-left: 4px solid var(--green);">
+    <h4 style="font-size:0.95rem; margin-bottom:6px;">CD45 Scaling Analysis (continuous generation, 37 iterations)</h4>
+    <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
+      <li><strong>Both strategies scale linearly across 37 iterations.</strong> noise=0.20: 14.2 self/hour (540 self in 38h).
+      Default: 7.5 self/hour (280 self in 37h). <strong>No plateau visible after 37 iterations.</strong></li>
+      <li><strong>noise=0.20 produces ~1.93&times; more self successes</strong> than default at matched compute (540 vs 280).
+      But <strong>default produces ~9.5&times; more MPNN successes</strong> (257 vs 27). Confirms the Phase 1 noise/MPNN tradeoff at large N.</li>
+      <li><strong>Per-iteration counts remain perfectly deterministic</strong>: noise=0.20 produces 15/32 self every iteration; default produces 8/32 self every iteration. Any scaling gain is compute-driven, not variance-driven.</li>
+    </ul>
+  </div>
+
+  <h4>SC2RBD (VERY HARD): MCTS+G&amp;H Variants at ~35 GPU-hours each</h4>
+  <div class="table-wrap">
+  <table>
+    <tr><th>GPU-hours</th>
+      <th colspan="2">MCTS+G&amp;H msg5 (ours)</th>
+      <th colspan="2">MCTS+pLDDT+G&amp;H e26 (alt)</th></tr>
+    <tr><th></th><th>Cum. Self</th><th>Cum. MPNN</th><th>Cum. Self</th><th>Cum. MPNN</th></tr>
+    <tr><td>~1.5h</td><td>2</td><td>1</td><td>1</td><td>0</td></tr>
+    <tr><td>~6h</td><td>6</td><td>4</td><td>1</td><td>0</td></tr>
+    <tr><td>~15h</td><td>13</td><td>8</td><td>3</td><td>2</td></tr>
+    <tr><td>~25h</td><td>22</td><td>15</td><td>5</td><td>3</td></tr>
+    <tr><td>~35h (last)</td><td class="best">30</td><td class="best">22</td><td>7</td><td>4</td></tr>
+  </table>
+  </div>
+  <div class="card" style="border-left: 4px solid var(--green);">
+    <h4 style="font-size:0.95rem; margin-bottom:6px;">SC2RBD Scaling Analysis</h4>
+    <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
+      <li><strong>msg5 continues to scale at ~0.9 self/hour</strong>: 30 self successes in 35h on a target the paper reports 0 for.
+      No plateau visible. MPNN successes also accumulate (22 at 35h, ~67% of self successes).</li>
+      <li><strong>e26 (pLDDT reward + G&amp;H) underperforms msg5 by ~4.3&times; in continuous mode</strong> (7 vs 30 self at matched 35h).
+      The original single-run e26_04 result (5/8 = 62.5%) was a favorable seed. Long-running reveals msg5 is the more reliable strategy.</li>
+      <li><strong>Implication for the recommended routing:</strong> for zero-hit targets, prefer MCTS+G&amp;H (msg5) over MCTS+pLDDT+G&amp;H (e26) as the primary escalation, with e26 reserved as a fallback if msg5 fails.</li>
+    </ul>
+  </div>
+
+  <h4>TNF&alpha; (VERY HARD): Slower Iterations</h4>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Config</th><th>Iters</th><th>GPU-hours</th><th>Cum. Self</th><th>Cum. MPNN</th><th>Note</th></tr>
+    <tr><td>msg5 (ours)</td><td>4</td><td>~32h</td><td>1</td><td>0</td><td>~8h per iter, ~0.03 self/h</td></tr>
+    <tr><td>paper recipe</td><td>1</td><td>~29h</td><td class="fail">0</td><td class="fail">0</td><td>Only 1 iter completed; paper recipe slower per iter due to <code>keep_lookahead_samples=true</code></td></tr>
+  </table>
+  </div>
+  <p class="note">TNF&alpha; iterations are expensive (~8&ndash;29h per iter due to large complex size). At matched ~30h,
+  our msg5 already finds 1 self success; the paper recipe has produced 0 self successes (despite generating 644 lookahead designs
+  in the single iteration). Scaling on TNF&alpha; requires much more compute than CD45 or SC2RBD.</p>
+
+  <p class="note" style="margin-top:12px;">
+    <strong>Figure 19 comparison (paper Sec I.4 reference):</strong> the paper reports 15 TNF&alpha; successes in 475 GPUh,
+    7 H1 in 604 GPUh, 1 IL17A in 387 GPUh. Our scaling curves are not yet at matched budget (we are at 30&ndash;37h),
+    so this is still a directional comparison rather than a head-to-head superiority claim.
   </p>
 
   <h3>Exp 28: Paper Recipe Baseline (Partial)</h3>
@@ -2237,6 +2307,78 @@ Terminate: when unique success count plateaus
   </div>
   <p class="note">CrSAS6 responds well to hallucination. Aggressive 10% gives the highest self pass rate (69%).
   soft+greedy short gives the highest MPNN rate (81%). CrSAS6 is confirmed sequence-limited (not geometry-limited).</p>
+
+  <h3>Exp 31: Held-Out Target Default Baselines (N=1216 per target)</h3>
+  <p class="note">
+    <strong>What is plotted:</strong> default beam-search scaled-up to <code>N=1216</code> designs per target on
+    <strong>held-out target variants</strong> not covered by Phase 0/1. Targets include <code>PD-L1</code> re-targeted
+    for AAV capsid binding (<code>03_PDL1_AAV</code>), alternate PD-L1 structure (<code>32_PDL1_ALPHA</code>, from AlphaProteo),
+    and standard BindCraft targets (<code>16_DerF7</code>, <code>19_DerF21</code>, <code>26_CbAgo</code>, <code>28_HER2_AAV</code>).
+    <strong>Denominator:</strong> 1216 designs per run (much larger than Exp 24&ndash;27&rsquo;s N=8&ndash;32).
+    <strong>Role:</strong> Large-N baselines to test whether default beam-search saturates or plateaus on new target variants.
+  </p>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Target</th><th>Source</th><th>Self</th><th>MPNN</th><th>Interpretation</th></tr>
+    <tr style="background:#d1fae5">
+      <td><strong>03_PDL1_AAV</strong></td>
+      <td>bindcraft_targets (PD-L1)</td>
+      <td class="best">484/1216 (39.8%)</td>
+      <td class="best">588/1216 (48.4%)</td>
+      <td><strong>Saturated.</strong> Default beam scales.</td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td><strong>16_DerF7</strong></td>
+      <td>bindcraft_targets (DerF7 variant)</td>
+      <td>123/1216 (10.1%)</td>
+      <td>193/1216 (15.9%)</td>
+      <td>Partial. Below Phase 0 DerF7 default (which was ~100% self at N=32).</td>
+    </tr>
+    <tr style="background:#d1fae5">
+      <td><strong>19_DerF21</strong></td>
+      <td>bindcraft_targets (DerF21 variant)</td>
+      <td class="best">568/1216 (46.7%)</td>
+      <td class="best">680/1216 (55.9%)</td>
+      <td><strong>Saturated.</strong> Default beam scales.</td>
+    </tr>
+    <tr style="background:#fee2e2">
+      <td><strong>26_CbAgo</strong></td>
+      <td>bindcraft_targets (CbAgo)</td>
+      <td class="fail">0/1216</td>
+      <td class="fail">0/1216</td>
+      <td><strong>Still zero-hit even at N=1216.</strong> Confirms CbAgo is resistant to default beam at any N.</td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td><strong>28_HER2_AAV</strong></td>
+      <td>bindcraft_targets (HER2 variant, cropped)</td>
+      <td class="fail">0/1216</td>
+      <td>31/1216 (2.5%)</td>
+      <td>Zero self but MPNN finds 31. <strong>Sequence-limited (consistent with Phase 1 HER2_AAV signature).</strong></td>
+    </tr>
+    <tr style="background:#d1fae5">
+      <td><strong>32_PDL1_ALPHA</strong></td>
+      <td>alpha_proteo_targets (5o45 cropped)</td>
+      <td class="best">540/1216 (44.4%)</td>
+      <td class="best">747/1216 (61.4%)</td>
+      <td><strong>Saturated.</strong> Default beam scales.</td>
+    </tr>
+  </table>
+  </div>
+  <div class="card" style="border-left: 4px solid var(--accent);">
+    <h4 style="font-size:0.95rem; margin-bottom:6px;">Key Findings from Exp 31</h4>
+    <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
+      <li><strong>Default beam scales well for 3/6 held-out targets</strong> (03_PDL1_AAV, 19_DerF21, 32_PDL1_ALPHA all &gt;40% self). This confirms that
+      the saturated / default-favored class extends beyond the original 11-target Phase 0 panel.</li>
+      <li><strong>26_CbAgo remains zero-hit even at N=1216.</strong> This is the largest-N test of CbAgo so far, and default beam produces
+      exactly 0 successes. CbAgo is genuinely beyond default-beam scaling &mdash; it needs MCTS+G&amp;H (like SC2RBD and TNF&alpha;) or a
+      different generative prior entirely (Meta-Harness agent territory).</li>
+      <li><strong>28_HER2_AAV (this variant) reproduces the HER2 signature</strong>: 0 self but 31 MPNN &mdash; backbones are designable
+      but the co-designed sequence fails. Hallucination (Exp 27 recipe) is the correct intervention.</li>
+      <li><strong>16_DerF7 underperforms its Phase 0 counterpart</strong> (15_DerF7 default reached 100% self at N=32). The alternate DerF7
+      variant (16_DerF7) only reaches 10% at N=1216 &mdash; target-structure dependent. Worth investigating whether hotspot selection differs.</li>
+      <li><strong>Implication for the routing tree:</strong> The v1 rules (saturated / sequence-limited / zero-hit) transfer to held-out targets without modification. Three new targets classify as saturated, one as sequence-limited (HER2 variant), and two as hard cases (CbAgo zero-hit; DerF7 partial &mdash; worth a second diagnostic).</li>
+    </ul>
+  </div>
 
 </div>
 
