@@ -1238,36 +1238,36 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
 <div class="section" id="deep-dive">
   <h2>5b. Deep Dive: What Do Noise &amp; Hallucination Actually Do?</h2>
 
-  <p>Our two most impactful interventions &mdash; <strong>increased sampling noise</strong> and <strong>sequence hallucination</strong> &mdash;
-  operate on fundamentally different parts of the generation pipeline. Understanding <em>why</em> each works
-  for specific targets (and fails for others) is the foundation of our agentic routing logic.</p>
+  <p>Two of the main interventions studied on this page are <strong>increased sampling noise</strong> and
+  <strong>sequence hallucination</strong>. They operate at different stages of the pipeline, and the local experiments
+  show that their effects are strongly target-dependent. This section focuses on what is directly supported by the
+  code and by the completed local experiments.</p>
 
   <h3>What is <code>sc_scale_noise</code>?</h3>
   <div class="card">
-    <p>Proteina-Complexa generates proteins by solving a stochastic differential equation (SDE) that transforms Gaussian noise
-    into structure + sequence over 400 denoising steps. The <code>sc_scale_noise</code> parameter
-    (&eta; in the paper) controls how much <strong>random noise is injected at each step</strong>:</p>
+    <p>Proteina-Complexa generates proteins over 400 denoising steps. In the score-corrected sampling modes,
+    the <code>sc_scale_noise</code> parameter (&eta; in the paper notation) controls how much random noise is added
+    in the stochastic term at each step:</p>
     <pre><code>delta_x = (velocity + gt * score) * dt + sqrt(2 * gt * sc_scale_noise * dt) * random_noise</code></pre>
     <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
-      <li><strong>&eta; = 0</strong>: Pure ODE. Deterministic &mdash; same initial noise always produces the same protein.</li>
-      <li><strong>&eta; = 0.1</strong> (default): Low-temperature SDE. Tight, consistent structures. The paper&rsquo;s default for all experiments.</li>
-      <li><strong>&eta; = 0.2</strong>: Higher stochasticity. More structurally diverse backbones. Our experiments show this <strong>doubles CD45 self pass rate</strong> (25%&rarr;47%) by exploring a wider region of fold space near the binding interface.</li>
+      <li><strong>&eta; = 0</strong>: deterministic limit for the stochastic term; with the same initial state, the sampling update becomes repeatable.</li>
+      <li><strong>&eta; = 0.1</strong> (default): the standard low-noise setting used in the main baseline runs on this page.</li>
+      <li><strong>&eta; = 0.2</strong>: a higher-noise setting that, in our local experiments, improved some hard targets such as CD45 (<code>25.0% &rarr; 46.9%</code> self pass) but did not transfer universally to other targets.</li>
     </ul>
     <p style="font-size:0.88rem; color:var(--muted); margin-top:8px;">
       <strong>Two independent controls:</strong> <code>bb_ca.sc_scale_noise</code> (backbone C&alpha; noise) and
       <code>local_latents.sc_scale_noise</code> (sequence/sidechain noise) can be set independently.
-      Our Exp 6 and 12 show that <strong>both must be raised together</strong> to 0.2 for the effect &mdash;
-      raising only backbone (bb=0.2, lat=0.1) gives 9.4% (worse than default), and raising only
-      latent (bb=0.1, lat=0.4) gives 0% (catastrophic).
+      In the tested CD45 controls, the matched high-noise setting <code>bb=0.2, lat=0.2</code> outperformed the
+      asymmetric alternatives. The corresponding asymmetric controls
+      <code>bb=0.2, lat=0.1</code> and <code>bb=0.1, lat=0.4</code> did not reproduce the same gain.
     </p>
   </div>
 
   <h3>What is Sequence Hallucination?</h3>
   <div class="card">
     <p>Sequence hallucination is a <strong>post-generation refinement</strong> step that optimizes the co-designed
-    sequence using AlphaFold2 as a differentiable oracle. After the flow model produces a binder
-    (structure + sequence), hallucination iteratively modifies the sequence to minimize AF2&rsquo;s
-    predicted interface error, in three stages:</p>
+    sequence using ColabDesign&rsquo;s AF2-based binder-design pipeline. In the current repo implementation,
+    the refinement logic has three optional stages that run in order when enabled:</p>
     <table style="font-size:0.85rem; width:100%; margin-top:8px;">
       <tr><th style="width:25%">Stage</th><th>What Happens</th><th style="width:15%">Iterations</th></tr>
       <tr>
@@ -1291,15 +1291,18 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
       </tr>
     </table>
     <p style="font-size:0.88rem; color:var(--muted); margin-top:8px;">
-      <strong>Key insight:</strong> Hallucination <strong>does not change the backbone</strong> &mdash;
-      it only rewrites the amino acid sequence to better match the fixed 3D structure according to AF2.
-      This is why it works spectacularly for HER2_AAV (where the backbone is already good but the co-designed
-      sequence is poor) and fails for CD45 (where the backbone itself needs improvement).
+      <strong>Key implementation detail:</strong> hallucination optimizes the <em>sequence</em>, not the flow-model
+      denoising trajectory. The refined candidate is then re-folded by AF2/ColabDesign, so the stored post-refinement
+      structure can change, but the refinement operator itself acts through sequence optimization rather than a second
+      Complexa search pass. In the local results, this operator is most helpful on targets such as HER2_AAV, where
+      redesignability is much stronger than the original self sequence.
     </p>
     <p style="font-size:0.88rem; color:var(--muted);">
-      <strong>Note:</strong> The ICLR paper&rsquo;s &ldquo;Generate &amp; Hallucinate&rdquo; uses only Stage 3 (greedy mutation),
-      which is fast but limited. Our experiments use all three stages (softmax + one-hot + greedy),
-      which is slower but more powerful for hard targets.
+      <strong>Paper/implementation note:</strong> the paper discusses Generate-and-Hallucinate in more than one form,
+      including ablations over the soft/logit-optimization stages. The local runs on this page should therefore be read
+      by their actual repo settings: when <code>enable_soft_optimization=true</code> and
+      <code>enable_greedy_optimization=true</code>, all three stages are used; when soft optimization is off, only the
+      greedy stage is used.
     </p>
   </div>
 
@@ -1315,31 +1318,31 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
       </tr>
       <tr>
         <td><strong>CD45</strong></td>
-        <td>Backbone diversity too low</td>
+        <td>Geometry-limited under the default baseline</td>
         <td class="best">25%&rarr;47%</td>
         <td class="fail">25%&rarr;0%</td>
-        <td>More noise &rarr; more diverse folds &rarr; more hit the binding pocket. Halluc can&rsquo;t fix a bad backbone.</td>
+        <td>The local matrix is consistent with a geometry-sensitive target: higher sampling noise helped, while hallucination alone did not.</td>
       </tr>
       <tr>
         <td><strong>HER2_AAV</strong></td>
-        <td>Sequence quality (backbone is fine)</td>
+        <td>Sequence-sensitive under the default baseline</td>
         <td class="fail">3%&rarr;0%</td>
         <td class="best">3%&rarr;66%</td>
-        <td>MPNN pass=31% proves backbones are good. Halluc rewrites bad co-designed sequences. Noise destroys the delicate backbone.</td>
+        <td>The large self-versus-MPNN gap in the baseline panel is consistent with a sequence-heavy bottleneck, and hallucination helps strongly on this target.</td>
       </tr>
       <tr>
         <td><strong>BetV1</strong></td>
-        <td>Both backbone and sequence</td>
+        <td>Mixed / unclear from the first intervention round</td>
         <td class="fail">19%&rarr;0%</td>
         <td>19%&rarr;25%</td>
-        <td>Modest halluc gain. No clear backbone&gt;sequence gap to exploit. Noise too aggressive.</td>
+        <td>The completed local matrix shows only a modest hallucination gain and a strong penalty from higher noise, so this target does not cleanly match the CD45 or HER2_AAV patterns.</td>
       </tr>
       <tr>
         <td><strong>PDL1</strong></td>
-        <td>None (easy target)</td>
+        <td>Default-favored / easy</td>
         <td>100%&rarr;75%</td>
         <td>100%&rarr;81%</td>
-        <td>Default is already perfect. Any intervention only adds noise or overwrites good sequences.</td>
+        <td>The default baseline already saturates the self pass rate, so these interventions are unnecessary on this target.</td>
       </tr>
     </table>
   </div>
@@ -1374,44 +1377,38 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
 
   <h4 style="margin:16px 0 8px;">Figure B: iPAE vs pLDDT per Design &mdash; Where Each Config Moves the Distribution</h4>
   <p class="note">Each point = one of 32 designs. Large points with black outline = pass all 3 criteria. Shaded green region = success zone.
-  Notice how noise shifts CD45 designs toward the pass region, while hallucination shifts HER2 designs there.</p>
+  This view is meant to show qualitative distribution shifts rather than to claim a mechanistic proof from any single scatter plot.</p>
   <img src="agentic-figures/fig2_ipae_vs_plddt_scatter.png" alt="iPAE vs pLDDT scatter" style="width:100%; max-width:850px; border:1px solid var(--border); border-radius:8px; margin-bottom:16px;">
-  <div class="figure-caption">What is plotted: one point per design in iPAE-versus-pLDDT space, with the success zone highlighted. Denominator: N=32 designs per shown condition. Config meaning: noise perturbs generation-time structure search, while hallucination rewrites sequences after structure generation. Paper reference: no direct analogue exists for this per-design scatter view. Interpretation: CD45 is mainly geometry-limited, while HER2_AAV is mainly sequence-limited.</div>
+  <div class="figure-caption">What is plotted: one point per design in iPAE-versus-pLDDT space, with the success zone highlighted. Denominator: N=32 designs per shown condition. Config meaning: noise perturbs generation-time sampling, while hallucination is a post-generation sequence-refinement operator. Paper reference: no direct analogue exists for this per-design scatter view. Interpretation: the local CD45 and HER2_AAV results are consistent with different bottleneck types, which is why later sections route them differently.</div>
 
   <h4 style="margin:16px 0 8px;">Figure C: iPAE Distribution by Config &mdash; How Interventions Shift Binding Quality</h4>
   <p class="note">Box = IQR. Line = median. Points = individual designs. Green dashed line = pass threshold (iPAE &le; 7&Aring;).
-  For CD45, noise=0.20 pushes the median below the threshold. For HER2, hallucination achieves this.</p>
+  This panel is a qualitative distribution summary; the quantitative claims should be read from the pass-rate tables above and below it.</p>
   <img src="agentic-figures/fig3_ipae_boxplot.png" alt="iPAE distribution boxplots" style="width:100%; max-width:800px; border:1px solid var(--border); border-radius:8px; margin-bottom:16px;">
-  <div class="figure-caption">What is plotted: iPAE distributions across designs for representative target/config pairs. Denominator: N=32 designs per condition. Config meaning: lower iPAE is better and the dashed line marks the pass threshold. Paper reference: the paper uses iPAE-based evaluation, but not this target-specific distributional comparison. Interpretation: useful interventions shift whole distributions, not just single outliers.</div>
+  <div class="figure-caption">What is plotted: iPAE distributions across designs for representative target/config pairs. Denominator: N=32 designs per condition. Config meaning: lower iPAE is better and the dashed line marks the pass threshold. Paper reference: the paper uses iPAE-based evaluation, but not this target-specific distributional comparison. Interpretation: some successful interventions improve the bulk of the distribution, but this panel should not be over-read beyond the paired quantitative pass-rate results.</div>
 
   <h4 style="margin:16px 0 8px;">Figure D: Per-Design Pass/Fail Heatmap &mdash; Which Criterion is the Bottleneck?</h4>
   <p class="note">Green = pass, red = fail for each of 32 designs across 3 criteria.
   Bottom row (ALL PASS) = all three must be green.
-  For HER2 baseline, most designs pass iPAE but fail pLDDT &mdash; hallucination fixes exactly this.
-  For CD45, noise fixes iPAE failures.</p>
+  This is a diagnostic visualization, not a formal causal analysis.</p>
   <img src="agentic-figures/fig4_per_design_heatmap.png" alt="Per-design heatmap" style="width:100%; max-width:850px; border:1px solid var(--border); border-radius:8px; margin-bottom:16px;">
-  <div class="figure-caption">What is plotted: per-design pass/fail status for iPAE, pLDDT, scRMSD, and the all-pass criterion. Denominator: N=32 designs per shown condition. Config meaning: a final success requires all three metrics to pass simultaneously. Paper reference: no direct paper analogue exists for this design-level bottleneck map. Interpretation: failures cluster by criterion, which is why routing by bottleneck is meaningful.</div>
+  <div class="figure-caption">What is plotted: per-design pass/fail status for iPAE, pLDDT, scRMSD, and the all-pass criterion. Denominator: N=32 designs per shown condition. Config meaning: a final success requires all three metrics to pass simultaneously. Paper reference: no direct paper analogue exists for this design-level bottleneck map. Interpretation: failures can cluster by criterion, which is why later routing logic uses structured diagnostics rather than a single scalar score alone.</div>
 
   <h4 style="margin:16px 0 8px;">Figure E: Self vs MPNN Gap &mdash; Diagnostic Signal for the Agent</h4>
-  <p class="note">The gap between self (solid) and MPNN (hatched) reveals the bottleneck type.
-  HER2 baseline: MPNN &gt;&gt; self = &ldquo;backbone is good, sequence is bad&rdquo; &rarr; use hallucination.
-  CD45 noise=0.20: self &gt;&gt; MPNN = &ldquo;noise helps self but MPNN can&rsquo;t redesign these diverse backbones&rdquo;.</p>
+  <p class="note">The gap between self (solid) and MPNN (hatched) is used here as a diagnostic clue rather than a formal proof of mechanism.
+  Large positive MPNN-over-self gaps are consistent with sequence-sensitive cases such as HER2_AAV, while large self-over-MPNN gaps can indicate that a search intervention found self sequences that ProteinMPNN does not redesign well.</p>
   <img src="agentic-figures/fig5_self_vs_mpnn_gap.png" alt="Self vs MPNN gap" style="width:100%; max-width:750px; border:1px solid var(--border); border-radius:8px; margin-bottom:16px;">
-  <div class="figure-caption">What is plotted: the gap between self-sequence and MPNN-redesign pass rates by target/config. Denominator: N=32 per condition. Config meaning: positive MPNN-over-self gap means the backbone is usable but the co-designed sequence is weak; negative gap points more toward a backbone bottleneck. Paper reference: the paper reports self and redesign outcomes, but not this diagnostic gap as an intervention signal. Interpretation: the self-vs-MPNN gap is one of the strongest routing features in this project.</div>
+  <div class="figure-caption">What is plotted: the gap between self-sequence and MPNN-redesign pass rates by target/config. Denominator: N=32 per condition. Config meaning: large MPNN-over-self gaps can be used as a routing clue for sequence refinement, while large self-over-MPNN gaps suggest a different intervention regime. Paper reference: the paper reports self and redesign outcomes, but not this diagnostic gap as an intervention signal. Interpretation: the self-vs-MPNN gap is one of the most useful routing features in this project, but it is treated as a heuristic rather than a standalone causal label.</div>
 
   <h4 style="margin:16px 0 8px;">Figure F: Noise Threshold &amp; Mixed Noise Analysis (CD45)</h4>
-  <p class="note">Left: symmetric noise sweep shows a sharp threshold at 0.20 (no improvement at 0.15, sudden jump at 0.20).
-  MPNN collapses to 0% at &ge;0.20. Right: both backbone AND latent noise must be raised together;
-  raising only one component is neutral or harmful.</p>
+  <p class="note">Left: the tested symmetric CD45 sweep shows no gain at 0.15 and a clear gain at 0.20. Right: in the tested asymmetric controls, the matched high-noise setting outperformed the one-sided backbone-only and latent-heavy variants.</p>
   <img src="agentic-figures/fig6_noise_threshold.png" alt="Noise threshold" style="width:100%; max-width:800px; border:1px solid var(--border); border-radius:8px; margin-bottom:16px;">
-  <div class="figure-caption">What is plotted: the CD45 noise threshold sweep and the mixed backbone-versus-latent noise follow-up. Denominator: N=32 per run in the original threshold study; N=96 combined for the later replication. Config meaning: backbone and latent noise can move together or separately. Paper reference: the companion paper studies noise combinations in aggregate, but not as a hard-target-specific threshold experiment. Interpretation: CD45 responds to a sharp backbone-noise threshold, and latent-only noise does not reproduce the gain.</div>
+  <div class="figure-caption">What is plotted: the CD45 noise threshold sweep and the mixed backbone-versus-latent noise follow-up. Denominator: N=32 per run in the original threshold study; N=96 combined for the later replication. Config meaning: backbone and latent noise can move together or separately. Paper reference: the companion paper studies noise combinations in aggregate, but not as a hard-target-specific threshold experiment. Interpretation: in the tested CD45 controls, the benefit appears only once the matched higher-noise setting is used; the asymmetric alternatives do not reproduce the same gain.</div>
 
   <h4 style="margin:16px 0 8px;">Figure G: Reproducibility &mdash; Self Pass Rate is Deterministic</h4>
-  <p class="note">3 independent runs with different random seeds give <strong>exactly identical</strong> self pass rates for all 3 targets.
-  This means the pipeline&rsquo;s outcome is dominated by the deterministic beam search structure,
-  not stochastic noise. Changes in pass rate are real signals, not random variance.</p>
+  <p class="note">The completed replication set reproduced the same self-success counts on the representative hard targets shown here. This supports stability for those specific repeated conditions, but should not be overgeneralized to every experiment family on the page.</p>
   <img src="agentic-figures/fig7_reproducibility.png" alt="Reproducibility" style="width:100%; max-width:750px; border:1px solid var(--border); border-radius:8px; margin-bottom:16px;">
-  <div class="figure-caption">What is plotted: exact reruns of the same conditions on the same targets. Denominator: three independent runs of N=32 designs each for the replicated conditions. Config meaning: these are exact replications, not new hyperparameters. Paper reference: the paper reports aggregate outcomes but does not isolate exact reproducibility this way. Interpretation: several key self-pass results are effectively deterministic, which makes later routing claims more defensible.</div>
+  <div class="figure-caption">What is plotted: exact reruns of the same conditions on the same targets. Denominator: three independent runs of N=32 designs each for the replicated conditions. Config meaning: these are exact replications, not new hyperparameters. Paper reference: the paper reports aggregate outcomes but does not isolate exact reproducibility this way. Interpretation: the repeated hard-target baselines shown here were stable across reruns, which makes the corresponding routing conclusions more credible.</div>
 
   <h3>Diagnostic Signal Extraction: Can We Predict the Right Intervention?</h3>
 
@@ -1420,12 +1417,9 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
   for all 11 targets and test whether simple rules can route to the correct config.</p>
 
   <h4 style="margin:16px 0 8px;">Figure H: Diagnostic Overview &mdash; All 11 Targets</h4>
-  <p class="note">Left: Self vs MPNN pass rate. Targets above the diagonal have a sequence bottleneck (MPNN &gt; Self, like HER2 at +28pp gap)
-  &mdash; hallucination can fix this. Targets below with low self have a backbone bottleneck &mdash; noise can help.
-  Right: Per-criterion pass rates reveal whether iPAE (binding geometry) or pLDDT (structural confidence) is the limiting factor.
-  Green labels = easy targets (paper classification), red = hard.</p>
+  <p class="note">Left: Self vs MPNN pass rate. Large MPNN-over-self gaps are treated as sequence-sensitive clues; large self-over-MPNN gaps point to a different intervention regime. Right: per-criterion pass rates show which success filter is most restrictive under the default scout round. Green labels = easy targets (paper classification), red = hard.</p>
   <img src="agentic-figures/fig8_diagnostic_overview.png" alt="Diagnostic overview" style="width:100%; max-width:850px; border:1px solid var(--border); border-radius:8px; margin-bottom:16px;">
-  <div class="figure-caption">What is plotted: a compressed diagnostic summary across all 11 Phase 0 targets, combining self-vs-MPNN rates and per-criterion pass rates. Denominator: N=32 deep-beam designs per target. Config meaning: this is the cheap default diagnostic round only, before any target-specific follow-up. Paper reference: the paper classifies targets by difficulty, but does not derive a routing diagnostic from one scout round. Interpretation: one inexpensive diagnostic round already separates easy, sequence-limited, geometry-limited, and ambiguous targets.</div>
+  <div class="figure-caption">What is plotted: a compressed diagnostic summary across all 11 Phase 0 targets, combining self-vs-MPNN rates and per-criterion pass rates. Denominator: N=32 deep-beam designs per target. Config meaning: this is the cheap default diagnostic round only, before any target-specific follow-up. Paper reference: the paper classifies targets by difficulty, but does not derive a routing diagnostic from one scout round. Interpretation: one inexpensive diagnostic round already separates easy targets from several distinct non-easy patterns, which is enough to motivate later routing.</div>
 
   <h4 style="margin:16px 0 8px;">Figure I: Routing Decision Tree &mdash; The Agent&rsquo;s Logic</h4>
   <p class="note">A simple 3-question decision tree derived from the Phase 0 diagnostic signals.
@@ -1436,13 +1430,9 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
   <div class="figure-caption">What is plotted: the rule-based routing tree derived from the diagnostic signals above. Denominator: validated on the targets for which completed intervention follow-ups exist. Config meaning: the tree chooses among default, noise, hallucination, or a mixed “try both” branch. Paper reference: no direct paper analogue exists because the paper uses fixed strategies rather than an explicit router. Interpretation: even a simple interpretable controller recovers most of the validated intervention choices.</div>
 
   <h4 style="margin:16px 0 8px;">Figure J: Bottleneck Decomposition &mdash; Per-Criterion Self vs MPNN for Hard Targets</h4>
-  <p class="note">For the 4 hard targets, we decompose the diagnostic signal by criterion.
-  CD45: iPAE is the bottleneck (25% pass) while pLDDT is fine (94%) &rarr; backbone geometry needs help &rarr; noise=0.20.
-  HER2: pLDDT is the bottleneck (22%) and MPNN&gt;&gt;Self (+28pp gap) &rarr; sequence quality issue &rarr; hallucination.
-  BetV1: both iPAE (19%) and pLDDT (25%) are bad with no MPNN gap &rarr; ambiguous, try both.
-  SpCas9: balanced at ~50% for both &rarr; already decent, explore further.</p>
+  <p class="note">For the 4 hard targets, this figure decomposes the default diagnostic signal by criterion. The text labels are intended as routing heuristics tied to the completed local matrix, not as definitive mechanistic proof from a single chart.</p>
   <img src="agentic-figures/fig10_bottleneck_decomposition.png" alt="Bottleneck decomposition" style="width:100%; max-width:850px; border:1px solid var(--border); border-radius:8px; margin-bottom:16px;">
-  <div class="figure-caption">What is plotted: criterion-level decomposition for the hard targets only, with self and MPNN channels side by side. Denominator: N=32 deep-beam designs per target. Config meaning: this is still the default deep-beam diagnostic, but broken into the signals that motivate different interventions. Paper reference: hard targets are discussed in the paper, but not decomposed this way into per-criterion self-vs-MPNN bottlenecks. Interpretation: hard targets are heterogeneous; CD45 is geometry-limited, HER2_AAV is sequence-limited, BetV1 is mixed, and SpCas9 is borderline rather than clearly broken.</div>
+  <div class="figure-caption">What is plotted: criterion-level decomposition for the hard targets only, with self and MPNN channels side by side. Denominator: N=32 deep-beam designs per target. Config meaning: this is still the default deep-beam diagnostic, but broken into the signals that motivate different interventions. Paper reference: hard targets are discussed in the paper, but not decomposed this way into per-criterion self-vs-MPNN bottlenecks. Interpretation: the hard targets are heterogeneous; the decomposition is useful because it distinguishes clear HER2_AAV-like sequence-sensitive cases from mixed or geometry-sensitive cases such as CD45 and BetV1.</div>
 
   <h4 style="margin:20px 0 8px;">Figure K: Hard-Target Unlock Depends on the Full Operator Bundle</h4>
   <p class="note">Updated with Exp 25/26. The important comparison is not “more search” vs “less search,” but pure MCTS vs MCTS + local refinement vs reward-shaped MCTS + refinement. In this figure, Exp 20 rows use N=16, while Exp 25/26 rows use N=8.</p>
@@ -1455,7 +1445,7 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
         <div class="bar-row"><div class="bar-label">Exp 25 msg5</div><div class="bar-track"><div class="bar-fill green" style="width:50%"></div></div><div class="bar-val">4/8</div></div>
         <div class="bar-row"><div class="bar-label">Exp 26 rw50+s5</div><div class="bar-track"><div class="bar-fill purple" style="width:62.5%"></div></div><div class="bar-val">5/8</div></div>
       </div>
-      <div class="figure-caption">Caption: SC2RBD is the clearest example of bundle dependence. Exp 20 beam-family rows are low-budget beam / stochastic-beam / diverse-beam runs with N=16 final designs and all stay at 0/16 self. Exp 25 pure MCTS rows use checkpoint-tree search with N=8 final designs and still stay at 0/8 self. <code>msg5</code> means dense-checkpoint MCTS with N<sub>sim</sub>=40 followed by softmax + one-hot + semigreedy sequence hallucination at 5% mutation rate; that reaches 4/8 self. <code>rw50+s5</code> adds pLDDT weight 0.50 to the iPAE-based search reward and keeps the same moderate soft+greedy refinement bundle; that reaches 5/8 self and 1/8 MPNN. Paper reference: SC2RBD is not a Sec I.4 target, but the broader all-target Table 10 reports Complexa(Ours) = 0 MPNN, 0 MPNN-FI, and 0 Self for SC2RBD. Interpretation: SC2RBD is not unlocked by “more search” alone; it needs search plus the right local refinement and reward stage.</div>
+      <div class="figure-caption">Caption: SC2RBD is the clearest example of bundle dependence. Exp 20 beam-family rows are low-budget beam / stochastic-beam / diverse-beam runs with N=16 final designs and all stay at 0/16 self. Exp 25 pure MCTS rows use checkpoint-tree search with N=8 final designs and still stay at 0/8 self. <code>msg5</code> means dense-checkpoint MCTS with N<sub>sim</sub>=40 followed by softmax + one-hot + semigreedy sequence hallucination at 5% mutation rate; that reaches 4/8 self. <code>rw50+s5</code> adds pLDDT weight 0.50 to the iPAE-based search reward and keeps the same moderate soft+greedy refinement bundle; that reaches 5/8 self and 2/8 MPNN. Paper reference: SC2RBD is not a Sec I.4 target, but the broader all-target Table 10 reports Complexa(Ours) = 0 MPNN, 0 MPNN-FI, and 0 Self for SC2RBD. Interpretation: SC2RBD is not unlocked by “more search” alone; it needs search plus the right local refinement and reward stage.</div>
     </div>
     <div class="figure-card">
       <h4>TNF&alpha;</h4>
@@ -1574,8 +1564,8 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
     <p style="font-size:0.88rem; color:var(--muted); margin-top:8px;">
       <strong>3/4 correct, 1 ambiguous.</strong> The decision tree correctly identifies the best intervention for PDL1, CD45, and HER2_AAV
       using only Phase 0 deep beam data (no intervention experiments needed). BetV1 is genuinely ambiguous &mdash;
-      neither intervention works strongly (halluc gives +6pp, n.s.). <strong>The Self/MPNN gap and per-criterion pass rates
-      are sufficient diagnostic signals for routing.</strong>
+      neither intervention works strongly in the completed local matrix. <strong>The Self/MPNN gap and per-criterion pass rates
+      are useful diagnostic signals for routing.</strong>
     </p>
   </div>
   <div class="figure-grid">
@@ -1615,12 +1605,13 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
     return "try_both"             # Ambiguous → run noise AND halluc,
                                   # pick whichever works better</code></pre>
     <p style="font-size:0.88rem; color:var(--muted); margin-top:8px;">
-      <strong>Validated on 4 targets: 3/4 correct.</strong> SpCas9 and CrSAS6 validation runs (Exp 15a-d) are now complete, and the broader diagnosis batch for BHRF1, SC2RBD, and VEGFA also completed in Exp 16a-i.
+      <strong>Validated on 4 representative targets: 3/4 correct.</strong> The decision-tree sketch is grounded in the completed
+      default/noise/hallucination matrix and should be read as an interpretable first controller, not as the final policy.
     </p>
   </div>
 
   <div class="card" style="border-left: 4px solid var(--purple);">
-    <h4 style="font-size:1rem; margin-bottom:8px;">Step 2: Multi-Round Adaptive Loop (Narrow v1 Active)</h4>
+    <h4 style="font-size:1rem; margin-bottom:8px;">Step 2: Multi-Round Adaptive Loop (Prototype Layout)</h4>
     <p style="font-size:0.88rem; color:var(--muted); margin-bottom:10px;">
       The full agentic system runs multiple rounds, re-diagnosing after each intervention. The first narrow v1
       demo is now active on <code>SC2RBD</code>: reuse the completed Exp 16 baseline diagnosis as Round 1,
@@ -1649,10 +1640,9 @@ Terminate: when unique success count plateaus
       The routing decision tree handles round 1&rarr;2. Rounds 2&rarr;3+ require learning from the intervention&rsquo;s outcome.
     </p>
     <p style="font-size:0.88rem; color:var(--muted);">
-      <strong>Why this beats fixed strategies:</strong> The paper&rsquo;s Figure 7 shows that Beam Search achieves ~25 unique successes
-      in 30 GPU-hours on hard targets using a fixed strategy. An adaptive agent that spends 6h diagnosing, then 24h
-      on the right intervention, should achieve more unique successes than 30h of blind beam search &mdash;
-      because it avoids wasting compute on configs that produce 0% for that specific target.
+      <strong>Why this matters:</strong> this loop converts the diagnostic findings on this page into a concrete benchmark design.
+      Whether it actually beats a matched fixed strategy is an empirical question, which is exactly what the later
+      held-out experiments are intended to test.
     </p>
   </div>
 
@@ -1695,8 +1685,9 @@ Terminate: when unique success count plateaus
       <strong>prospective unseen-target benchmark</strong>. As of April 11, 2026, <strong>Exp 24, Exp 25, and Exp 26 are complete</strong>,
       and the original <strong>Exp 27 batch is terminal</strong> (20 completed, 5 failed before generation due to the CrSAS6 target-key bug,
       followed by a corrected rerun). In addition, <strong>Exp 30&ndash;32 are in progress</strong> to test whether
-      our analysis generalizes to <strong>22 previously untested binder task entries</strong>: Exp 30 has 2 timeouts, 4 running, and 8 pending;
-      Exp 31 has 6 running and 2 early failures; Exp 32 has 6 diagnostic timeouts, 2 diagnostic failures, and 8 dependency-gated controller jobs still pending.
+      our analysis generalizes to <strong>22 previously untested binder task entries</strong>: Exp 30 currently has
+      6 timeouts, 1 early failure, 6 running jobs, and 1 pending job; Exp 31 has 2 completed, 4 running, and 2 early failures;
+      Exp 32 has 6 diagnostic timeouts, 2 diagnostic failures, and 8 dependency-gated controller jobs still pending.
     </p>
     <ul style="font-size:0.88rem; color:var(--muted);">
       <li><strong>Exp 24:</strong> test whether a narrow rule-based controller helps when target classes differ strongly.</li>
@@ -1748,7 +1739,7 @@ Terminate: when unique success count plateaus
         <tr>
           <td><code>SC2RBD</code></td>
           <td>Not a Section I.4 target. In the broader paper results, Complexa has 0 unique self successes for this hard target in Table 10.</td>
-          <td><code>Exp 26</code> <code>rw_pl050_softg5</code>: 5 self successes and 2 MPNN successes out of 8, with 4 FoldSeek-unique self successes, in 3.1 GPUh.</td>
+          <td><code>Exp 26</code> <code>rw_pl050_softg5</code>: 5 self successes and 2 MPNN successes out of 8, with 4 FoldSeek-unique self successes and 2 FoldSeek-unique MPNN successes, in 3.1 GPUh.</td>
           <td><strong>Strongest evidence so far</strong> that the new action set can rescue a previously zero local target.</td>
         </tr>
       </table>
