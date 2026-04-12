@@ -1076,7 +1076,7 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
       <tr>
         <td><strong>FK Steering temperature</strong></td>
         <td>FK Steering with &beta;=10 (inverse temp); no temperature sweep in Figure 7</td>
-        <td>Full sweep T=0.01&ndash;2.0 &rarr; <strong>Beam dominates; FK monotonically worse</strong></td>
+        <td>Full sweep T=0.01&ndash;2.0 &rarr; <strong>beam is strongest on the self channel in the completed local sweep, while IFNAR2 MPNN is the main FK exception</strong></td>
       </tr>
       <tr>
         <td><strong>Sampling noise (sc_scale_noise)</strong></td>
@@ -1114,14 +1114,14 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
         <td><strong>Core contribution:</strong> diagnose difficulty, route to optimal (noise level + hallucination toggle), iterate</td>
       </tr>
       <tr>
-        <td><strong>LoRA finetuning (Exp 10)</strong></td>
+        <td><strong>Future: LoRA finetuning</strong></td>
         <td>Not done</td>
-        <td>Planned: finetune denoiser on successful binders to shift prior</td>
+        <td>Deferred idea: finetune the denoiser on successful binders to test whether the prior can be shifted toward productive regions</td>
       </tr>
       <tr>
-        <td><strong>Trajectory recycling (Exp 11)</strong></td>
+        <td><strong>Future: trajectory recycling</strong></td>
         <td>Paper has &ldquo;diffuse-denoise&rdquo; (noise+regenerate finished designs) &mdash; different from in-trajectory warm-starting</td>
-        <td>Planned: warm-start from t=130 intermediate states of successful trajectories</td>
+        <td>Deferred idea: warm-start from intermediate trajectory states of successful or near-miss designs</td>
       </tr>
     </table>
   </div>
@@ -1594,8 +1594,8 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
         return "default"          # Easy target, already solved
 
     if gap > 10:
-        return "hallucination"    # Backbone is good (MPNN proves it),
-                                  # sequence is bad → rewrite with AF2
+        return "hallucination"    # MPNN is much higher than self,
+                                  # so try sequence-side refinement
 
     if ipae_pass_pct < 50 and plddt_pass_pct > 50:
         return "noise_0.20"       # Backbone geometry is the bottleneck
@@ -2262,14 +2262,14 @@ Terminate: when unique success count plateaus
       <td><strong>Exp 1: FK Steering Temperature Sweep</strong><br><span style="font-size:0.82rem;color:var(--muted)">3 targets x 5 temps + 3 beam baselines</span></td>
       <td>18/18</td>
       <td><span class="tag tag-green">Done</span></td>
-      <td style="font-size:0.82rem">Beam dominates. FK is monotonically worse as T increases. See detail below.</td>
+      <td style="font-size:0.82rem">Beam is strongest on the self channel in the completed local sweep; IFNAR2 MPNN is the main exception, where FK T=0.01 is higher. See detail below.</td>
     </tr>
     <tr style="background:#d1fae5">
       <td style="text-align:center; font-size:1.1rem">&#9745;</td>
       <td><strong>Exp 2: Denoising Temperature Sweep</strong><br><span style="font-size:0.82rem;color:var(--muted)">PDL1 wide + CD45 deep x 4 sc_scale_noise values</span></td>
       <td>8/8</td>
       <td><span class="tag tag-green">Done</span></td>
-      <td style="font-size:0.82rem"><strong>CD45: noise 0.2&ndash;0.4 nearly doubles self pass (25%&rarr;47%), but MPNN drops to 0%.</strong> See detail below.</td>
+      <td style="font-size:0.82rem"><strong>CD45: noise 0.2 and 0.4 both reach 15/32 self, up from 8/32 at noise 0.1; the local MPNN channel falls to 0/32 at the higher-noise settings.</strong> See detail below.</td>
     </tr>
     <tr style="background:#d1fae5">
       <td style="text-align:center; font-size:1.1rem">&#9745;</td>
@@ -2342,7 +2342,7 @@ Terminate: when unique success count plateaus
       <td><strong>Exp 10a-c: Fill Matrix Gaps</strong><br><span style="font-size:0.82rem;color:var(--muted)">CD45+halluc, HER2+noise=0.20, BetV1+noise=0.20</span></td>
       <td>3/3</td>
       <td><span class="tag tag-red">All 0%</span></td>
-      <td style="font-size:0.82rem"><strong>All three complete at 0/32 self.</strong> The combined matrix-fill runs confirm that interventions do not transfer cleanly across targets: the same knob that helps one target can fail completely on another.</td>
+      <td style="font-size:0.82rem"><strong>All three complete at 0/32 self.</strong> In these local matrix-fill runs, none of the transferred intervention settings produced a self-pass recovery.</td>
     </tr>
     <tr style="background:#d1fae5">
       <td style="text-align:center; font-size:1.1rem">&#9745;</td>
@@ -2356,7 +2356,7 @@ Terminate: when unique success count plateaus
       <td><strong>Exp 12a-b: Mechanism / Sweet Spot</strong><br><span style="font-size:0.82rem;color:var(--muted)">CD45 noise=0.15, CD45 bb=0.2/lat=0.1</span></td>
       <td>2/2</td>
       <td><span class="tag tag-green">Done</span></td>
-      <td style="font-size:0.82rem"><strong>12a: noise=0.15 gives 8/32 (=baseline). Sharp threshold at 0.20.</strong> 12b: bb=0.2,lat=0.1 gives 3/32 (9.4%) &mdash; WORSE than default. Need BOTH bb+lat=0.2 together.</td>
+      <td style="font-size:0.82rem"><strong>12a: noise=0.15 gives 8/32, matching baseline.</strong> 12b: bb=0.2,lat=0.1 gives 3/32 (9.4%), below both the 8/32 baseline and the 15/32 seen under the symmetric 0.2/0.2 setting.</td>
     </tr>
     <tr style="background:#d1fae5">
       <td style="text-align:center; font-size:1.1rem">&#9745;</td>
@@ -2798,8 +2798,8 @@ Terminate: when unique success count plateaus
 
   <div class="callout warn">
     <p><strong>Why these experiments exist:</strong> A rigorous reliability audit identified 3 critical issues with Exp 1&ndash;4:
-    (1) MPNN statistics are unreliable at <code>num_redesign_seqs=2</code> &mdash; same CD45 config gives 3%&ndash;19% MPNN across 5 independent runs;
-    (2) Exp 2 noise=0.20 finding (25%&rarr;47%) has p=0.117 at N=32 &mdash; not publication-significant;
+    (1) MPNN statistics are unreliable at <code>num_redesign_seqs=2</code> &mdash; the same CD45 config gave a wide spread across independent runs;
+    (2) Exp 2 noise=0.20 finding (8/32&rarr;15/32) was promising at N=32 but had not yet been replicated;
     (3) Exp 4 HER2_AAV comparison uses different seeds for baseline and +hallucination runs.
     All new jobs use <code>num_redesign_seqs=8</code> to fix issue (1).</p>
   </div>
@@ -2811,9 +2811,9 @@ Terminate: when unique success count plateaus
   </p>
   <div class="table-wrap">
   <table>
-    <tr><th>Target</th><th>Condition</th><th>Self k/N</th><th>Self %</th><th>95% CI</th><th>MPNN %</th></tr>
-    <tr><td>HER2_AAV</td><td>No hallucination — Exp 4b (same config)</td><td>1/32</td><td>3.1%</td><td>[0.6%, 15.7%]</td><td>43.8%</td></tr>
-    <tr><td>HER2_AAV</td><td>+Hallucination — Exp 4</td><td class="best">21/32</td><td class="best">65.6%</td><td>[48.3%, 79.6%]</td><td>46.9%</td></tr>
+    <tr><th>Target</th><th>Condition</th><th>Self k/N</th><th>Self %</th><th>MPNN %</th></tr>
+    <tr><td>HER2_AAV</td><td>No hallucination — Exp 4b (same config)</td><td>1/32</td><td>3.1%</td><td>43.8%</td></tr>
+    <tr><td>HER2_AAV</td><td>+Hallucination — Exp 4</td><td class="best">21/32</td><td class="best">65.6%</td><td>46.9%</td></tr>
   </table>
   </div>
   <div class="card" style="margin-top:12px; border-left: 4px solid var(--green);">
@@ -2833,32 +2833,32 @@ Terminate: when unique success count plateaus
   <h4 style="margin:12px 0 6px; font-size:0.88rem; color:var(--muted)">Self-pass per run (CD45)</h4>
   <div class="table-wrap">
   <table>
-    <tr><th>Condition</th><th>Run 1 (orig)</th><th>Run 2</th><th>Run 3</th><th>Combined N=96</th><th>95% CI</th></tr>
+    <tr><th>Condition</th><th>Run 1 (orig)</th><th>Run 2</th><th>Run 3</th><th>Combined N=96</th></tr>
     <tr>
       <td>noise=0.10 (default)</td>
       <td>8/32 (25.0%)</td><td>8/32 (25.0%)</td><td>8/32 (25.0%)</td>
-      <td>24/96 (25.0%)</td><td>[17.4%, 34.5%]</td>
+      <td>24/96 (25.0%)</td>
     </tr>
     <tr>
       <td>noise=0.20</td>
       <td>15/32 (46.9%)</td><td>15/32 (46.9%)</td><td>15/32 (46.9%)</td>
-      <td class="best">45/96 (46.9%)</td><td>[37.2%, 56.8%]</td>
+      <td class="best">45/96 (46.9%)</td>
     </tr>
   </table>
   </div>
   <h4 style="margin:12px 0 6px; font-size:0.88rem; color:var(--muted)">MPNN-pass (Run 2+3 only, both use num_redesign_seqs=8)</h4>
   <div class="table-wrap">
   <table>
-    <tr><th>Condition</th><th>MPNN R2</th><th>MPNN R3</th><th>Combined R2+R3 (N=64)</th><th>95% CI</th></tr>
+    <tr><th>Condition</th><th>MPNN R2</th><th>MPNN R3</th><th>Combined R2+R3 (N=64)</th></tr>
     <tr>
       <td>noise=0.10</td>
       <td>7/32 (21.9%)</td><td>8/32 (25.0%)</td>
-      <td class="best">15/64 (23.4%)</td><td>[14.7%, 35.1%]</td>
+      <td class="best">15/64 (23.4%)</td>
     </tr>
     <tr>
       <td>noise=0.20</td>
       <td>1/32 (3.1%)</td><td>0/32 (0%)</td>
-      <td>1/64 (1.6%)</td><td>[0.3%, 8.3%]</td>
+      <td>1/64 (1.6%)</td>
     </tr>
   </table>
   </div>
@@ -2878,22 +2878,22 @@ Terminate: when unique success count plateaus
   </p>
   <div class="table-wrap">
   <table>
-    <tr><th>Config</th><th>bb noise</th><th>latent noise</th><th>Self k/N</th><th>Self %</th><th>95% CI</th><th>MPNN %</th><th>vs default</th></tr>
+    <tr><th>Config</th><th>bb noise</th><th>latent noise</th><th>Self k/N</th><th>Self %</th><th>MPNN %</th><th>Local comparison</th></tr>
     <tr>
       <td>Default (Exp 2 r1)</td><td>0.1</td><td>0.1</td>
-      <td>8/32</td><td>25.0%</td><td>[13.3%, 42.1%]</td><td>6.2%*</td><td>anchor</td>
+      <td>8/32</td><td>25.0%</td><td>6.2%*</td><td>anchor</td>
     </tr>
     <tr>
       <td>Symmetric (Exp 2)</td><td>0.2</td><td>0.2</td>
-      <td>15/32</td><td>46.9%</td><td>[30.9%, 63.6%]</td><td>~0%</td><td>p=0.117 (N=32); p=0.003 (N=96)</td>
+      <td>15/32</td><td>46.9%</td><td>~0%</td><td>higher self than default in both the original run and the later replicas</td>
     </tr>
     <tr>
       <td>Exp 6a (mixed low)</td><td>0.1</td><td>0.2</td>
-      <td>8/32</td><td>25.0%</td><td>[13.3%, 42.1%]</td><td>0%</td><td class="fail">p=1.0 (no improvement)</td>
+      <td>8/32</td><td>25.0%</td><td>0%</td><td class="fail">matches the default self count, not the 0.2/0.2 gain</td>
     </tr>
     <tr>
       <td>Exp 6b (paper best)</td><td>0.1</td><td>0.4</td>
-      <td class="fail">0/32</td><td class="fail">0.0%</td><td>[0.0%, 10.7%]</td><td class="fail">0%</td><td class="fail">p=0.005 (catastrophic drop)</td>
+      <td class="fail">0/32</td><td class="fail">0.0%</td><td class="fail">0%</td><td class="fail">below both default and the symmetric 0.2/0.2 setting in this local run</td>
     </tr>
   </table>
   </div>
@@ -2911,12 +2911,12 @@ Terminate: when unique success count plateaus
   <p class="note">Combines the two strongest interventions for hard targets. Exp 2 showed noise=0.2 doubles CD45 self pass (25%&rarr;47%) but MPNN=0%. Exp 4 showed hallucination rescues backbones with weak co-designed sequences. Hypothesis: higher noise generates better backbones; hallucination then writes good sequences for them.</p>
   <div class="table-wrap">
   <table>
-    <tr><th>Condition</th><th>Self k/N</th><th>Self %</th><th>95% CI</th><th>MPNN %</th><th>vs noise=0.2 only</th></tr>
-    <tr><td>Deep baseline (Phase 0)</td><td>8/32</td><td>25.0%</td><td>[13.3%, 42.1%]</td><td>15.6%</td><td>anchor</td></tr>
-    <tr><td>noise=0.2 only (Exp 2)</td><td class="best">15/32</td><td class="best">46.9%</td><td>[30.9%, 63.6%]</td><td>0%</td><td>anchor</td></tr>
-    <tr><td>Halluc only (Exp 10a)</td><td class="fail">0/32</td><td class="fail">0.0%</td><td>[0.0%, 10.7%]</td><td>3.1%</td><td class="fail">worse than noise-only</td></tr>
+    <tr><th>Condition</th><th>Self k/N</th><th>Self %</th><th>MPNN %</th><th>Local comparison</th></tr>
+    <tr><td>Deep baseline (Phase 0)</td><td>8/32</td><td>25.0%</td><td>15.6%</td><td>anchor</td></tr>
+    <tr><td>noise=0.2 only (Exp 2)</td><td class="best">15/32</td><td class="best">46.9%</td><td>0%</td><td>anchor</td></tr>
+    <tr><td>Halluc only (Exp 10a)</td><td class="fail">0/32</td><td class="fail">0.0%</td><td>3.1%</td><td class="fail">worse than noise-only</td></tr>
     <tr style="background:#fee2e2">
-      <td>noise=0.2 + halluc (Exp 8)</td><td class="fail">6/32</td><td class="fail">18.8%</td><td>[8.9%, 35.3%]</td><td class="fail">0%</td><td class="fail">p=0.032 (worse)</td>
+      <td>noise=0.2 + halluc (Exp 8)</td><td class="fail">6/32</td><td class="fail">18.8%</td><td class="fail">0%</td><td class="fail">worse than noise-only in the completed local run</td>
     </tr>
   </table>
   </div>
@@ -2960,7 +2960,7 @@ Terminate: when unique success count plateaus
       <li><strong>Root cause:</strong> The codebase requires <code>fold_cond=True</code> (CATH code conditioning) for CFG to activate. Binder design doesn&rsquo;t use CATH conditioning &mdash; it conditions on target structure directly. The unconditional forward pass (needed for CFG) isn&rsquo;t available in binder mode.</li>
       <li><strong>Technical detail:</strong> CFG computes <code>v_guided = w*v_cond + (1-w)*v_uncond</code>. The model needs to produce both conditional and unconditional predictions. For binders, the model is always conditioned on the target &mdash; there&rsquo;s no &ldquo;unconditional&rdquo; mode to subtract.</li>
       <li><strong>Alternative:</strong> Autoguidance (ag_ratio=1.0) uses a separate &ldquo;bad model&rdquo; checkpoint instead of unconditional predictions, but requires training a degraded model. Not currently available.</li>
-      <li><strong>Conclusion:</strong> CFG guidance amplification is not applicable to binder design without model modifications. The two remaining paths to improve backbone quality are: (a) sc_scale_noise tuning (Exp 2, confirmed effective), and (b) LoRA finetuning / trajectory recycling (Exp 10&ndash;11, planned).</li>
+      <li><strong>Conclusion:</strong> CFG guidance amplification is not applicable to binder design without model modifications. The completed local work therefore moved to other intervention families instead of CFG.</li>
     </ul>
   </div>
 
@@ -3009,7 +3009,7 @@ Terminate: when unique success count plateaus
       </tr>
       <tr>
         <td><strong>Exp 4 &mdash; PDL1 self 100%&rarr;81.2% (drop)</strong></td>
-        <td>PDL1 self pass drops from 32/32 to 26/32 in the completed local run &mdash; must be reported alongside the MPNN gain.</td>
+        <td>PDL1 self pass drops from 32/32 to 26/32 in the completed local run and should be reported alongside the MPNN gain.</td>
         <td><span class="tag tag-green">Ready (must report)</span></td>
       </tr>
       <tr>
