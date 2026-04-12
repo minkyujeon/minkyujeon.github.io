@@ -628,7 +628,7 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
 
   <h3>Evaluation Pass Rates (After AF2 Refolding + ProteinMPNN Redesign)</h3>
   <p class="note">
-    Success = <strong>ipAE &lt; 7.0 &Aring;</strong> AND pLDDT &ge; 0.9 AND scRMSD &lt; 1.5A.
+    Success = <strong>ipAE &lt; 7.0 &Aring;</strong> AND pLDDT &gt; 0.9 AND scRMSD &lt; 1.5A.
     <code>self</code> = model's co-designed sequence.
     <code>mpnn</code> = ProteinMPNN redesign of same backbone.
     Pass rate = fraction of samples meeting all three criteria simultaneously.
@@ -758,8 +758,8 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
         may bind the wrong site, or may not interact at all.</td>
       </tr>
       <tr>
-        <td><strong>pLDDT &ge; 0.9</strong></td>
-        <td>complex_pLDDT &ge; 0.9</td>
+        <td><strong>pLDDT &gt; 0.9</strong></td>
+        <td>complex_pLDDT &gt; 0.9</td>
         <td><strong>Structural confidence of the complex.</strong> AF2&rsquo;s per-residue confidence score averaged over the complex.
         Higher = AF2 is confident the predicted fold is correct. Reflects whether the amino acid sequence folds into a well-defined 3D structure.</td>
         <td>The co-designed sequence does not fold confidently &mdash; it may be disordered, partially unfolded, or adopt
@@ -862,7 +862,7 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
     <h4 style="font-size:0.95rem; margin-bottom:6px;">How to Read This Table</h4>
     <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
       <li><strong>iPAE pass%</strong>: What fraction of 32 designs satisfy the interface threshold. In the paper this is written as <strong>ipAE &lt; 7.0 &Aring;</strong>; in the local evaluation JSON it is implemented as stored <code>i_pAE * 31 &le; 7.0</code>. This column ignores the other two criteria.</li>
-      <li><strong>pLDDT pass%</strong>: What fraction satisfy <code>complex_pLDDT &ge; 0.9</code>, regardless of iPAE or scRMSD.</li>
+      <li><strong>pLDDT pass%</strong>: What fraction satisfy <code>complex_pLDDT &gt; 0.9</code>, regardless of iPAE or scRMSD.</li>
       <li><strong>scRMSD pass%</strong>: What fraction satisfy <code>binder_scRMSD_ca &lt; 1.5</code>, regardless of iPAE or pLDDT. On this 11-target panel, scRMSD is usually high and rarely the main limiting criterion.</li>
       <li><strong>Self/MPNN gap</strong>: This compares final category pass rates, not raw backbone quality. It is used here as a practical diagnostic cue rather than as a formal causal claim.</li>
       <li><strong>CD45 example</strong>: deep-beam CD45 has 93.8% pLDDT pass and 100% scRMSD pass, but only 25.0% iPAE pass. The observed failure concentration is therefore at the interface-quality threshold.</li>
@@ -1371,7 +1371,7 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
 
   <h4 style="margin:16px 0 8px;">Figure A: Pass Rate Matrix &mdash; Each Target Needs a Different Config</h4>
   <p class="note">Solid bars = self-sequence pass rate. Hatched bars = MPNN redesign pass rate. N=32 designs per condition.
-  Pass = ipAE &lt; 7.0 &Aring; AND pLDDT &ge; 0.9 AND scRMSD &lt; 1.5&Aring;.</p>
+  Pass = ipAE &lt; 7.0 &Aring; AND pLDDT &gt; 0.9 AND scRMSD &lt; 1.5&Aring;.</p>
   <img src="agentic-figures/fig1_pass_rate_matrix.png" alt="Pass rate matrix across targets and configs" style="width:100%; max-width:800px; border:1px solid var(--border); border-radius:8px; margin-bottom:16px;">
   <div class="figure-caption">What is plotted: self-sequence and MPNN-redesign pass rates for the Phase 0 baseline panel. Denominator: N=32 evaluated designs per target/config. Config meaning: notto = no test-time search, deep = fine-grained beam pruning, wide = wider-branch beam search. Paper reference: Figure 7 shows that search beats blind sampling overall, but not this exact deep-vs-wide comparison. Interpretation: even the baseline search family is already target-conditional.</div>
 
@@ -1490,7 +1490,7 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
         <div class="bar-row"><div class="bar-label">rw75 only</div><div class="bar-track"><div class="bar-fill red" style="width:0%"></div></div><div class="bar-val">0/8</div></div>
         <div class="bar-row"><div class="bar-label">rw50 + softg5</div><div class="bar-track"><div class="bar-fill purple" style="width:62.5%"></div></div><div class="bar-val">5/8</div></div>
       </div>
-      <div class="figure-caption">Caption: on SC2RBD, completed reward-only variants with pLDDT weights 0.25, 0.50, and 0.75 all remain at 0/8 self. The moderate reward-shaped refinement bundle <code>rw_pl050_softg5</code> uses dense-checkpoint MCTS with N<sub>sim</sub>=40, an iPAE weight of -1.0, a pLDDT weight of +0.50, and the moderate soft+greedy refinement schedule; it reaches 5/8 self and 1/8 MPNN, with 4 FoldSeek-unique self successes. Paper reference: the paper uses pLDDT-weighted reward shaping only in the very-hard-target regime, not as a general default. Interpretation: in the completed runs on this page, adding more reward terms is not enough by itself; the non-zero SC2RBD result appears only in the reward-shaped bundle that also includes local refinement.</div>
+      <div class="figure-caption">Caption: on SC2RBD, completed reward-only variants with pLDDT weights 0.25, 0.50, and 0.75 all remain at 0/8 self. The moderate reward-shaped refinement bundle <code>rw_pl050_softg5</code> uses dense-checkpoint MCTS with N<sub>sim</sub>=40, an iPAE weight of -1.0, a pLDDT weight of +0.50, and the moderate soft+greedy refinement schedule; it reaches 5/8 self and 2/8 MPNN, with 4 FoldSeek-unique self successes and 2 FoldSeek-unique MPNN successes. Paper reference: the paper uses pLDDT-weighted reward shaping only in the very-hard-target regime, not as a general default. Interpretation: in the completed runs on this page, adding more reward terms is not enough by itself; the non-zero SC2RBD result appears only in the reward-shaped bundle that also includes local refinement.</div>
     </div>
     <div class="figure-card">
       <h4>Cross-target pattern</h4>
@@ -1779,9 +1779,9 @@ Terminate: when unique success count plateaus
   <h2>5c. Exp 25/26/27 Results: Zero-Hit Frontier Cracked &amp; Paper Comparison</h2>
 
   <p class="note"><strong>Data integrity:</strong> All quantitative results in this section are verified directly against local
-  evaluation CSVs, and all run-state claims are checked against <code>sacct</code> on April 11, 2026. Pass criteria:
-  ipAE &lt; 7.0 &Aring; AND pLDDT &ge; 0.9 AND scRMSD &lt; 1.5&Aring;.
-  The local <code>evaluation_results</code> tree now contains <strong>over 420 run directories</strong> across all batches.</p>
+  evaluation CSVs, and all run-state claims are checked against <code>sacct</code> on April 11, 2026. Paper-level pass criteria:
+  ipAE &lt; 7.0 &Aring;, complex pLDDT &gt; 0.9, and binder scRMSD &lt; 1.5&Aring;.
+  The local <code>evaluation_results</code> tree currently contains <strong>460 run directories</strong> across all batches.</p>
 
   <div class="callout">
     <p><strong>Major status change (April 11, 2026):</strong> MCTS + Generate &amp; Hallucinate cracks 3 of 5 previously
@@ -1805,7 +1805,7 @@ Terminate: when unique success count plateaus
   All configs use iPAE-only reward (no pLDDT). md40/md80/ms60 have no hallucination.
   <strong>All numbers verified against <code>binder_results_*.csv</code> on April 11, 2026.</strong></p>
 
-  <h4>Self Pass Rates (ipAE &lt; 7.0 &Aring;, pLDDT &ge; 0.9, scRMSD &lt; 1.5&Aring;)</h4>
+  <h4>Self Pass Rates (ipAE &lt; 7.0 &Aring;, pLDDT &gt; 0.9, scRMSD &lt; 1.5&Aring;)</h4>
   <p class="note"><strong>How to read this table:</strong> What is plotted = self-sequence pass counts for each Exp 25 config on each hard target. Denominator = N=8 final designs per target/config. Config meaning = <code>md40/md80/ms60</code> are pure MCTS variants; <code>mg05</code> adds greedy-only refinement; <code>msg5</code> adds full soft+greedy refinement. Interpretation = pure MCTS is almost always insufficient; the first real gains appear only after local refinement is added.</p>
   <div class="table-wrap">
   <table>
@@ -1877,11 +1877,11 @@ Terminate: when unique success count plateaus
       <tr style="background:#d1fae5"><td>4</td><td>5.83</td><td>0.916</td><td>0.144</td><td class="best">PASS</td><td class="fail">FAIL</td></tr>
       <tr><td>5</td><td>9.61</td><td>0.803</td><td>0.283</td><td class="fail">FAIL</td><td class="fail">FAIL</td></tr>
       <tr style="background:#d1fae5"><td>6</td><td class="best">5.33</td><td class="best">0.928</td><td>0.096</td><td class="best">PASS</td><td class="fail">FAIL</td></tr>
-      <tr style="background:#d1fae5"><td>7</td><td>5.36</td><td>0.907</td><td>0.093</td><td class="best">PASS</td><td class="fail">FAIL</td></tr>
+      <tr style="background:#d1fae5"><td>7</td><td>5.36</td><td>0.907</td><td>0.093</td><td class="best">PASS</td><td class="best">PASS</td></tr>
       <tr style="background:#d1fae5"><td>8</td><td>6.45</td><td>0.912</td><td>0.097</td><td class="best">PASS</td><td class="fail">FAIL</td></tr>
     </table>
     <p style="font-size:0.88rem; color:var(--muted); margin-top:8px;">
-      <strong>Result: 5/8 self (62.5%) and 1/8 MPNN (12.5%), with 4 FoldSeek-unique self successes and 1 FoldSeek-unique MPNN success.</strong>
+      <strong>Result: 5/8 self (62.5%) and 2/8 MPNN (25.0%), with 4 FoldSeek-unique self successes and 2 FoldSeek-unique MPNN successes.</strong>
       The paper&rsquo;s broader all-target Table 10 reports <strong>0 Complexa MPNN, 0 Complexa MPNN-FI, and 0 Complexa Self</strong> on SC2RBD.
       We reach this local SC2RBD result in 3.1 GPU-hours. This run is the strongest completed example on the page of a
       reward-shaped search bundle outperforming our earlier local zero baseline on the same target.
@@ -1905,7 +1905,7 @@ Terminate: when unique success count plateaus
         <div class="bar-row"><div class="bar-label">rw75 only</div><div class="bar-track"><div class="bar-fill red" style="width:0%"></div></div><div class="bar-val">0/8</div></div>
         <div class="bar-row"><div class="bar-label">rw50 + softg5</div><div class="bar-track"><div class="bar-fill purple" style="width:62.5%"></div></div><div class="bar-val">5/8</div></div>
       </div>
-      <div class="figure-caption">Caption: this panel isolates the completed SC2RBD Exp 26 runs. All reward-only settings remain at 0/8 self, while the moderate reward-shaped refinement bundle reaches 5/8 self and 1/8 MPNN; the same run yields 4 FoldSeek-unique self successes. Paper reference: the paper does not report this SC2RBD-specific reward-schedule sweep; its broader Table 10 SC2RBD entry remains 0 for Complexa MPNN, MPNN-FI, and Self. Interpretation: the useful lesson is not “add pLDDT to the reward,” but “apply moderate reward shaping only inside the right refinement-coupled operator bundle.”</div>
+      <div class="figure-caption">Caption: this panel isolates the completed SC2RBD Exp 26 runs. All reward-only settings remain at 0/8 self, while the moderate reward-shaped refinement bundle reaches 5/8 self and 2/8 MPNN; the same run yields 4 FoldSeek-unique self successes and 2 FoldSeek-unique MPNN successes. Paper reference: the paper does not report this SC2RBD-specific reward-schedule sweep; its broader Table 10 SC2RBD entry remains 0 for Complexa MPNN, MPNN-FI, and Self. Interpretation: the useful lesson is not “add pLDDT to the reward,” but “apply moderate reward shaping only inside the right refinement-coupled operator bundle.”</div>
     </div>
   </div>
 
@@ -2016,7 +2016,7 @@ Terminate: when unique success count plateaus
     <tr style="background:#d1fae5">
       <td><strong>SC2RBD</strong></td>
       <td>Not a Sec I.4 target. The broader all-target Table 10 reports Complexa(Ours) = 0 MPNN, 0 MPNN-FI, and 0 Self.</td>
-      <td><code>Exp 26</code> <code>rw_pl050_softg5</code>: <strong>5/8 self</strong>, <strong>1/8 MPNN</strong>, with 4 FoldSeek-unique self successes, in 3.1 GPUh.</td>
+      <td><code>Exp 26</code> <code>rw_pl050_softg5</code>: <strong>5/8 self</strong>, <strong>2/8 MPNN</strong>, with 4 FoldSeek-unique self successes and 2 FoldSeek-unique MPNN successes, in 3.1 GPUh.</td>
       <td><strong>Stronger than our prior local baseline</strong> and stronger than the paper&rsquo;s reported Complexa table entry on this target.</td>
     </tr>
     <tr style="background:#d1fae5">
@@ -2052,11 +2052,8 @@ Terminate: when unique success count plateaus
       <li><strong>Supported:</strong> our new action set is clearly stronger than our earlier local beam-family baseline on SC2RBD, TNF&alpha;, and H1.</li>
       <li><strong>Supported:</strong> local refinement is the critical co-ingredient; pure MCTS or reward shaping alone stay near zero on these targets.</li>
       <li><strong>Not yet supported:</strong> any claim that we outperform the paper&rsquo;s Figure 19 scaling curves on a matched compute-scaling metric.</li>
-      <li><strong>Exp 28 update (eval-only v2 reruns complete):</strong> Paper recipe final-design pass rates are now available for all 4 targets.
-      TNF&alpha; 2/4 final (50%, comparable to our msg5 4/8). SC2RBD 1/4 final (25%, below our msg5 50% and e26_04 62.5%).
-      H1 0/4 final (0%, our msg5 gets 1/8). IL17A 0/324 (both methods fail).
-      Note: <code>keep_lookahead_samples=true</code> in Exp 28 produced 640 extra partially-denoised lookahead designs per target
-      that all fail &mdash; only the 4 final designs are comparable to our Exp 25 results.</li>
+      <li><strong>Exp 28 update:</strong> the currently preserved aggregate outputs are dominated by large numbers of lookahead states, so they are useful as a paper-recipe sanity check but not as a denominator-matched final-only comparison to Exp 25/26.
+      Verified aggregate counts are: SC2RBD <strong>1/644 self, 2/644 MPNN</strong>; TNF&alpha; <strong>2/644 self, 1/644 MPNN</strong>; H1 <strong>0/644 self, 0/644 MPNN</strong>; IL17A <strong>0/324 self, 0/324 MPNN</strong>.</li>
     </ul>
   </div>
 
@@ -2156,28 +2153,21 @@ Terminate: when unique success count plateaus
   <h3>Exp 28: Paper Recipe Baseline (Partial)</h3>
   <div class="table-wrap">
   <table>
-    <tr><th>Target</th><th>Status</th><th>Self</th><th>MPNN</th><th>N</th><th>Best ipAE (&Aring;)</th><th>Best pLDDT</th></tr>
-    <tr><td><strong>IL17A</strong></td><td><span class="tag tag-green">Complete</span></td><td class="fail">0/324</td><td class="fail">0/324</td><td>324</td><td>8.3</td><td>0.890</td></tr>
-    <tr><td><strong>H1</strong></td><td><span class="tag tag-green">Eval complete</span></td><td class="fail">0/4 final</td><td class="fail">0/4 final</td><td>4 final + 640 lookahead</td><td>7.8</td><td>0.915</td></tr>
-    <tr><td><strong>TNF&alpha;</strong></td><td><span class="tag tag-green">Eval complete</span></td><td class="best">2/4 final</td><td>1/4 final</td><td>4 final + 640 lookahead</td><td>6.5</td><td>0.928</td></tr>
-    <tr><td><strong>SC2RBD</strong></td><td><span class="tag tag-green">Eval complete</span></td><td>1/4 final</td><td>1/4 final</td><td>4 final + 640 lookahead</td><td>6.0</td><td>0.928</td></tr>
+    <tr><th>Target</th><th>Status</th><th>Aggregate Self</th><th>Aggregate MPNN</th><th>Saved denominator</th><th>Interpretation boundary</th></tr>
+    <tr><td><strong>IL17A</strong></td><td><span class="tag tag-green">Complete</span></td><td class="fail">0/324</td><td class="fail">0/324</td><td>324</td><td>Usable aggregate negative baseline.</td></tr>
+    <tr><td><strong>H1</strong></td><td><span class="tag tag-green">Eval complete</span></td><td class="fail">0/644</td><td class="fail">0/644</td><td>644</td><td>Aggregate output mixes final and lookahead states; not denominator-matched to Exp 25/26.</td></tr>
+    <tr><td><strong>TNF&alpha;</strong></td><td><span class="tag tag-green">Eval complete</span></td><td>2/644</td><td>1/644</td><td>644</td><td>Aggregate output mixes final and lookahead states; useful only as a paper-recipe sanity check.</td></tr>
+    <tr><td><strong>SC2RBD</strong></td><td><span class="tag tag-green">Eval complete</span></td><td>1/644</td><td>2/644</td><td>644</td><td>Aggregate output mixes final and lookahead states; useful only as a paper-recipe sanity check.</td></tr>
   </table>
   </div>
   <p class="note">
     <strong>Exp 28 &ldquo;paper recipe&rdquo; definition:</strong> MCTS with the paper&rsquo;s Sec I.4 params
     (N<sub>sim</sub>=20, &epsilon;=0.5, C=1.0, <code>keep_lookahead_samples=true</code>),
-    iPAE+pLDDT(0.5) reward, and soft+greedy G&amp;H at 5% mutation rate.
-    The <code>keep_lookahead_samples=true</code> flag caused MCTS to save all intermediate simulation paths
-    (640 lookahead designs) alongside the 4 fully-optimized final designs. The 640 lookahead samples are
-    partially-denoised tree paths that were never fully optimized &mdash; none pass the success criteria.
-    <strong>Only the 4 final designs per target are a fair comparison</strong> with our Exp 25 results (also final-only).
-    <br><br>
-    <strong>IL17A:</strong> 0/324 (all lookahead + final). <strong>H1:</strong> 0/4 final (0/640 lookahead).
-    <strong>TNF&alpha;:</strong> 2/4 final (0/640 lookahead). <strong>SC2RBD:</strong> 1/4 final (0/640 lookahead, 1/640 MPNN-only lookahead).
-    <br><br>
-    <strong>Fair final-only comparison:</strong> TNF&alpha; paper recipe 2/4 (50%) vs our msg5 4/8 (50%) &mdash; comparable.
-    SC2RBD paper recipe 1/4 (25%) vs our msg5 4/8 (50%) or e26_04 5/8 (62.5%) &mdash; our configs outperform.
-    H1 paper recipe 0/4 (0%) vs our msg5 1/8 (12.5%) &mdash; ours finds a hit where the paper recipe does not at this budget.
+    iPAE+pLDDT(0.5) reward, and soft+greedy G&amp;H at 5% mutation rate. Because
+    <code>keep_lookahead_samples=true</code> preserved large numbers of intermediate tree states, the currently stored
+    aggregate CSVs are not denominator-matched to the final-only Exp 25/26 runs. The only strict claims this page makes
+    from Exp 28 are the aggregate counts shown in the table above and the fact that the paper-style recipe did not produce
+    a clean matched-budget win in the currently preserved local outputs.
   </p>
 
   <h3>Exp 26 Tail: Reward-Only Is Not Enough</h3>
@@ -2237,7 +2227,7 @@ Terminate: when unique success count plateaus
     mechanism and reliability experiments, then hard-target search and refinement, then agentic routing, then deferred
     future extensions.
   </p>
-  <p class="note">Status snapshot as of April 11, 2026: Exp 24, Exp 25, and Exp 26 are complete. The original Exp 27 batch is terminal (20 completed, 5 CrSAS6 pre-generation failures), and the corrected CrSAS6 rerun is complete. Exp 28 is partial/terminal (IL17A complete; H1/TNF&alpha;/SC2RBD timed out; eval-only reruns failed immediately). Exp 29 was canceled before usable evaluation outputs. Exp 30 is in progress (2 timeouts, 4 running, 8 pending). Exp 31 is in progress (6 running, 2 failed early). Exp 32 currently has 6 diagnostic timeouts, 2 diagnostic failures, and 8 dependency-gated controller jobs still pending; no Exp 32 evaluation directories exist yet.</p>
+  <p class="note">Status snapshot as of April 11, 2026: Exp 24, Exp 25, and Exp 26 are complete. The original Exp 27 batch is terminal (20 completed, 5 CrSAS6 pre-generation failures), and the corrected CrSAS6 rerun is complete. Exp 28 is partial/terminal (IL17A complete; H1/TNF&alpha;/SC2RBD aggregate eval outputs exist but are mixed final+lookahead artifact sets). Exp 29 was canceled before usable evaluation outputs. Exp 30 is in progress (6 timeouts, 1 failed early, 6 running, 1 pending). Exp 31 is in progress (2 completed, 4 running, 2 failed early). Exp 32 currently has 6 diagnostic timeouts, 2 diagnostic failures, and 8 dependency-gated controller jobs still pending; no Exp 32 evaluation directories exist yet.</p>
 
   <div class="table-wrap">
   <table>
@@ -2258,7 +2248,7 @@ Terminate: when unique success count plateaus
       <td><strong>Phase 0: Baseline Sweep</strong><br><span style="font-size:0.82rem;color:var(--muted)">11 targets x 3 configs (notto/wide/deep)</span></td>
       <td>33/33</td>
       <td><span class="tag tag-green">Done</span></td>
-      <td style="font-size:0.82rem">Deep wins 6/11, wide wins 5/11. Beam search 3-5x better than random.</td>
+      <td style="font-size:0.82rem">Strict self-pass comparison: deep wins 5/11, wide wins 1/11, ties 5/11, notto wins 0/11. Deep beam is the most reliable baseline, but ties are common.</td>
     </tr>
     <tr style="background:#d1fae5">
       <td style="text-align:center; font-size:1.1rem">&#9745;</td>
@@ -2449,7 +2439,7 @@ Terminate: when unique success count plateaus
       <td><strong>Exp 26: Reward-Shaped Hard-Target Sweep</strong><br><span style="font-size:0.82rem;color:var(--muted)">same five zero-hit targets with fixed dense MCTS base, varying AF2 reward mix and two stronger hallucination settings</span></td>
       <td>25/25</td>
       <td><span class="tag tag-green">Done</span></td>
-      <td style="font-size:0.82rem"><strong>Completed result:</strong> reward shaping alone still gives 0/0 on SC2RBD and CbAgo, but <code>rw_pl050_softg5</code> on SC2RBD remains the best hard-target run overall at <strong>5/8 self and 1/8 MPNN</strong>. The late completions did not change the main conclusion: H1 peaks at <code>rw_pl075_softg10</code> with <strong>2/8 self</strong>, TNF&alpha; peaks at <code>rw_pl050_softg5</code> with <strong>2/8 self and 1/8 MPNN</strong>, and all IL17A variants remain 0/0.</td>
+      <td style="font-size:0.82rem"><strong>Completed result:</strong> reward shaping alone still gives 0/0 on SC2RBD and CbAgo, but <code>rw_pl050_softg5</code> on SC2RBD remains the best hard-target run overall at <strong>5/8 self and 2/8 MPNN</strong>. The late completions did not change the main conclusion: H1 peaks at <code>rw_pl075_softg10</code> with <strong>2/8 self</strong>, TNF&alpha; peaks at <code>rw_pl050_softg5</code> with <strong>2/8 self and 1/8 MPNN</strong>, and all IL17A variants remain 0/0.</td>
     </tr>
     <tr style="background:#ede9fe">
       <td style="text-align:center; font-size:1.1rem; color:#7c3aed">&#9679;</td>
@@ -2470,7 +2460,7 @@ Terminate: when unique success count plateaus
       <td><strong>Exp 28: Paper Recipe Baseline (Sec I.4)</strong><br><span style="font-size:0.82rem;color:var(--muted)">H1, TNFalpha, IL17A, SC2RBD with the ICLR paper&rsquo;s exact very-hard-target recipe: MCTS N<sub>sim</sub>=20, &epsilon;=0.5, C=1.0, iPAE+pLDDT(0.5) reward, G&amp;H soft+greedy 5%</span></td>
       <td>4/4</td>
       <td><span class="tag tag-orange">Partial / Terminal</span></td>
-      <td style="font-size:0.82rem"><strong>Outcome:</strong> IL17A completed at <strong>0/324 self and 0/324 MPNN</strong>. H1, TNF&alpha;, and SC2RBD timed out before full AF2 evaluation; the later eval-only reruns failed immediately, so this batch does not yet provide a usable matched baseline for those three targets.</td>
+      <td style="font-size:0.82rem"><strong>Outcome:</strong> IL17A completed at <strong>0/324 self and 0/324 MPNN</strong>. For H1, TNF&alpha;, and SC2RBD the currently preserved aggregate outputs mix final and lookahead states, so this batch provides a paper-recipe sanity check but not a denominator-matched baseline against Exp 25/26.</td>
     </tr>
     <tr style="background:#fee2e2">
       <td style="text-align:center; font-size:1.1rem">&#9746;</td>
@@ -2509,15 +2499,15 @@ Terminate: when unique success count plateaus
       <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
       <td><strong>Exp 30: Remaining Unseen Binder Diagnostics</strong><br><span style="font-size:0.82rem;color:var(--muted)">14 previously untested non-heldout binder task entries: six CD45 hotspot variants, one DerF7 variant, three DerF21 variants, IL7RA repack, PDL1-alpha fix/repack, TNF&alpha; repack</span></td>
       <td>14/14 submitted</td>
-      <td><span class="tag tag-orange">2 timeout / 4 running / 8 pending</span></td>
-      <td style="font-size:0.82rem"><strong>Purpose:</strong> expand the diagnostic taxonomy beyond the original 22 tested protein binder entries. <strong>Current state:</strong> the first two CD45 hotspot-variant diagnostics timed out at 8h, four more CD45-variant diagnostics are running, and the remaining eight entries are still pending. Each job uses the standard deep-beam diagnostic shape with a configured evaluation denominator of <strong>N=32</strong>.</td>
+      <td><span class="tag tag-orange">6 timeout / 1 failed / 6 running / 1 pending</span></td>
+      <td style="font-size:0.82rem"><strong>Purpose:</strong> expand the diagnostic taxonomy beyond the original 22 tested protein binder entries. <strong>Current state:</strong> the six CD45 hotspot-variant diagnostics timed out at 8h, one later diagnostic failed early, six jobs are still running, and one final entry is still pending. Each job uses the standard deep-beam diagnostic shape with a configured evaluation denominator of <strong>N=32</strong>.</td>
     </tr>
     <tr style="background:#fef3c7">
       <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
       <td><strong>Exp 31: Held-Out Default Baselines</strong><br><span style="font-size:0.82rem;color:var(--muted)">8 representative unseen binder task entries: <code>03_PDL1_AAV</code>, <code>16_DerF7</code>, <code>19_DerF21</code>, <code>26_CbAgo</code>, <code>28_HER2_AAV</code>, <code>31_IL7RA_FIX</code>, <code>32_PDL1_ALPHA</code>, <code>38_TNF&alpha;_FIX</code></span></td>
       <td>8/8 submitted</td>
-      <td><span class="tag tag-orange">6 running / 2 failed</span></td>
-      <td style="font-size:0.82rem"><strong>Purpose:</strong> establish a matched <strong>30-hour default baseline</strong> on held-out unseen tasks before claiming any adaptive advantage. <strong>Current state:</strong> six default baselines are actively running, while <code>31_IL7RA_FIX</code> and <code>38_TNF&alpha;_FIX</code> failed immediately and therefore do not yet provide usable comparison runs. The intended evaluated denominator for each successful run is <strong>N=64</strong>.</td>
+      <td><span class="tag tag-orange">2 complete / 4 running / 2 failed</span></td>
+      <td style="font-size:0.82rem"><strong>Purpose:</strong> establish a matched <strong>30-hour default baseline</strong> on held-out unseen tasks before claiming any adaptive advantage. <strong>Current state:</strong> two default baselines have completed, four are actively running, and <code>31_IL7RA_FIX</code> plus <code>38_TNF&alpha;_FIX</code> failed immediately. The intended evaluated denominator for each successful run is <strong>N=64</strong>.</td>
     </tr>
     <tr style="background:#fef3c7">
       <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
@@ -2574,7 +2564,7 @@ Terminate: when unique success count plateaus
     18 SLURM jobs submitted April 6, 2026. All 18/18 complete.
     Fixed: beam_width=8, n_branch=4, nsamples=4, checkpoints=[0,65,130,200,270,340,400], N=32 designs/run.
     Baseline: Beam Search with identical params (hard top-k instead of soft selection).
-    Pass rate = fraction of 32 designs meeting ipAE &lt; 7.0 &Aring; AND pLDDT &ge; 0.9 AND scRMSD &lt; 1.5&Aring;.
+    Pass rate = fraction of 32 designs meeting ipAE &lt; 7.0 &Aring; AND pLDDT &gt; 0.9 AND scRMSD &lt; 1.5&Aring;.
   </p>
 
   <h4 style="margin:16px 0 8px; font-size:0.95rem; color:var(--muted)">Self-sequence pass rate (%)</h4>
@@ -2749,7 +2739,7 @@ Terminate: when unique success count plateaus
     <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
       <li><strong>Exp 3 shows the negative case clearly.</strong> Adding stronger interface-oriented terms to the online reward did not improve search; the most aggressive interface-focused composition collapsed to 0% on both CD45 and BetV1.</li>
       <li><strong>Moderate extra criteria were at best neutral in beam search.</strong> CD45 stayed flat at 25% self under iPAE-only versus iPAE+pLDDT+iPTM, while BetV1 showed only a small, non-significant change.</li>
-      <li><strong>Exp 26 shows the more nuanced case.</strong> Reward shaping helped SC2RBD only when paired with the right search/refinement operator. Reward-only variants stayed at 0/0, while <code>rw_pl050_softg5</code> reached <strong>5/8 self and 1/8 MPNN</strong>.</li>
+      <li><strong>Exp 26 shows the more nuanced case.</strong> Reward shaping helped SC2RBD only when paired with the right search/refinement operator. Reward-only variants stayed at 0/0, while <code>rw_pl050_softg5</code> reached <strong>5/8 self and 2/8 MPNN</strong>.</li>
     </ul>
     <p style="font-size:0.88rem; color:var(--muted); margin-bottom:10px;">
       The most defensible conclusion is therefore:
