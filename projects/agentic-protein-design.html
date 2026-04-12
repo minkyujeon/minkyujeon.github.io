@@ -951,43 +951,51 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
 
   <div class="card">
     <h3>1. No universal winner across targets</h3>
-    <p>Wide beam wins on PD1, PDL1, TrkA, CrSAS6, DerF7. Deep beam wins on Claudin1, SpCas9, CD45, HER2_AAV, BetV1.
-    The Autoresearch sweep confirms: the optimal config changes for 4/10 proteins when switching from top-1 to top-16 selection.
-    This target-dependence is the core motivation for adaptive routing.</p>
+    <p>On the 11-target Phase-0 protein-binder baseline panel, <strong>deep beam is strictly higher on 5 targets</strong>
+    (<code>CD45</code>, <code>Claudin1</code>, <code>BetV1</code>, <code>SpCas9</code>, <code>HER2_AAV</code>),
+    <strong>wide beam is strictly higher on 1 target</strong> (<code>CrSAS6</code>), and the two are
+    <strong>tied on 5 targets</strong> (<code>PD1</code>, <code>PDL1</code>, <code>IFNAR2</code>,
+    <code>DerF7</code>, <code>TrkA</code>). <code>notto</code> is never the best self-pass baseline.
+    This target-dependence is the factual baseline motivation for adaptive routing.</p>
   </div>
 
   <div class="card">
     <h3>2. Beam search dramatically outperforms random sampling</h3>
-    <p>With all evaluation pass rates complete: IFNAR2 jumps from 24% (notto) to 100% (deep);
-    PD1 from 8.5% to 100%; Claudin1 from 0.5% to 100%; CrSAS6 from 4% to 100%.
-    Even CD45 (hard) goes from 0% to 25%. All 3 hard targets (CD45, HER2_AAV, BetV1) score 0% with notto
-    but achieve non-zero pass rates with beam search. Mean iPAE drops 3-5x across all targets.</p>
+    <p>On the Phase-0 protein-binder panel, unguided sampling is consistently weaker than beam search.
+    At the hard end of the panel, <code>CD45</code>, <code>HER2_AAV</code>, and <code>BetV1</code> all have
+    <strong>0% self success under <code>notto</code></strong>, while deep beam reaches
+    <strong>25.0%</strong>, <strong>3.1%</strong>, and <strong>18.8%</strong>, respectively.
+    On easier targets, beam search often lifts self success all the way to 100%.
+    The conservative summary is that test-time search is necessary; the remaining question is which search policy to use per target.</p>
   </div>
 
   <div class="card">
     <h3>3. Co-designed sequences match or outperform ProteinMPNN in 10/11 targets</h3>
-    <p>Considering the best config per target, self pass rate &ge; mpnn pass rate in 10 of 11 targets.
-    The exception is HER2_AAV-deep (self 3.1% vs mpnn 31.3%), where the model generates
-    good backbones but suboptimal sequences. In the later refinement experiments on this page,
-    HER2_AAV is one of the clearest cases where sequence refinement helps.</p>
+    <p>Considering the best Phase-0 baseline config per target, <code>self</code> success is
+    <strong>greater than or equal to</strong> <code>mpnn</code> success in <strong>10 of 11</strong>
+    protein-binder targets. The clear exception is <code>HER2_AAV</code>, where deep beam gives
+    <strong>3.1% self</strong> versus <strong>31.3% MPNN</strong>. That gap is consistent with a sequence-heavy
+    failure mode on that target and is one of the reasons later sequence-refinement experiments are informative.</p>
   </div>
 
   <div class="card">
     <h3>4. Hard targets remain unsolved</h3>
-    <p>BetV1: 18.8% self pass rate (deep), 0% mpnn. HER2_AAV: 3.1% self (deep). CD45: 25% self (deep).
-    BetV1-wide produced only 2 samples (timeout). At this stage of the project, the default beam
-    settings are clearly insufficient to treat these targets as solved.</p>
+    <p>In the Phase-0 baseline panel, the hard targets are clearly separated from the easy targets.
+    Deep beam produces non-zero self success on <code>CD45</code> (<strong>25.0%</strong>),
+    <code>HER2_AAV</code> (<strong>3.1%</strong>), and <code>BetV1</code> (<strong>18.8%</strong>),
+    but these are still far from the near-saturated easy-target regime. <code>BetV1-wide</code> also produced
+    only 2 evaluated samples because of timeout, so the hard-target comparison must be read with that caveat.
+    The conservative conclusion is that the default beam settings do not make the hard subset “solved.”</p>
   </div>
 
   <div class="card">
     <h3>5. Large portions of the action space remain unexplored</h3>
-    <p>The ICLR paper tested all 5 algorithms with fixed default parameters (&eta;=0.1, N=4, L=4, K=100).
-    The companion paper (Latent Generative Search) tested 4 sampling noise combinations in aggregate
-    across 75 solvable targets and used multi-objective rewards for its 127-target campaign.
-    However, the per-target breakdown of what noise level helps <em>hard</em> targets specifically
-    vs. easy ones, systematic parameter tuning within algorithms (e.g., FK Steering temperature, MCTS exploration constant),
-    and adaptive multi-round routing &mdash; none of these have been explored.
-    Our project maps this space with per-target analysis and builds an adaptive routing agent on top of it.</p>
+    <p>The original paper establishes that inference-time search matters, but it evaluates a fixed set of search methods
+    under fixed default settings. The later sections of this page expand beyond that baseline by checking
+    per-target noise sensitivity, full sequence hallucination, reward shaping, MCTS variants, and eventually
+    target-conditioned routing. The important factual point is not that “everything was unexplored,” but that
+    <strong>the paper did not provide a per-target intervention map for these added knobs</strong>. That gap is
+    what the rest of this project is trying to fill.</p>
   </div>
 
   <div class="card" style="border-left: 4px solid var(--accent); background: linear-gradient(135deg, #eff6ff 0%, #fafbfc 100%);">
@@ -1022,10 +1030,10 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
     </table>
     <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8; margin-top:10px;">
       <li><strong>Each target has a different optimal config.</strong> CD45 needs noise=0.20. HER2_AAV needs hallucination. PDL1 needs nothing (default is best). BetV1 benefits marginally from hallucination.</li>
-      <li><strong>Interventions that help one target destroy another.</strong> Hallucination kills CD45 (0%, p=0.005). noise=0.20 kills HER2 and BetV1 (both 0%). But <strong>noise+halluc is target-dependent</strong>: it hurts CD45 (18.8% vs 46.9% for noise-only) while remaining viable on HER2_AAV (43.8%) and BetV1 (34.4%).</li>
+      <li><strong>Interventions that help one target can hurt another.</strong> On CD45, hallucination drops self success from 25.0% to 0.0%, whereas on HER2_AAV it raises self success from 3.1% to 65.6%. Likewise, <code>noise=0.20</code> helps CD45 but not HER2_AAV or BetV1. The combined <code>noise+halluc</code> bundle is also target-dependent: it hurts CD45 relative to noise-only, while remaining viable on HER2_AAV and BetV1.</li>
       <li><strong>noise=0.15 doesn&rsquo;t help (sharp threshold).</strong> CD45 at noise=0.15 gives exactly 25% (=default). The jump to 46.9% happens only at 0.20.</li>
       <li><strong>bb+lat noise must change together.</strong> bb=0.2,lat=0.1 gives 9.4% (worse than default). You need both bb=0.2 AND lat=0.2 for the 46.9% effect.</li>
-      <li><strong>Baseline pass rates are deterministic.</strong> 3 independent runs for each target: CD45 always 8/32, HER2 always 1/32, BetV1 always 6/32. Zero run-to-run variance.</li>
+      <li><strong>Baseline replication was stable on the representative hard targets.</strong> In the completed rerun set, the Phase-0 deep default reproduced the same self counts for CD45, HER2_AAV, and BetV1 across the repeated baseline checks used in the reliability section.</li>
       <li><strong>Conclusion:</strong> The completed matrix shows that target-specific routing is justified. It does <strong>not</strong> yet prove that a routed controller will beat every fixed policy on unseen targets; that is the purpose of the later held-out benchmarks.</li>
     </ul>
   </div>
@@ -1073,7 +1081,7 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
       <tr>
         <td><strong>Sampling noise (sc_scale_noise)</strong></td>
         <td>Companion paper (Latent Gen. Search, Table 2): 4 noise combos, aggregate across 75 solvable targets. ICLR paper: fixed &eta;=0.1</td>
-        <td>Per-target pass rates; found <strong>noise 0.2 doubles hard-target self pass but kills MPNN</strong> &mdash; not visible in aggregates</td>
+        <td>Per-target pass rates; found that <strong>noise 0.2 can strongly help some hard targets</strong> (for example CD45) while hurting others and often reducing redesign success &mdash; a target-specific pattern not visible in aggregate tables</td>
       </tr>
       <tr>
         <td><strong>Sequence hallucination</strong></td>
@@ -1093,12 +1101,12 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
       <tr>
         <td><strong>Hard target analysis</strong></td>
         <td>Fig 7 separates easy (12) vs hard (7); Sec I.4 tackles 3 very hard targets (H1, TNF-&alpha;, IL17A) with MCTS+G&amp;H+modified reward; Sec I.6 has per-target plots</td>
-        <td>Systematic isolation: hard targets benefit from higher noise; easy from default; <strong>routing signal identified</strong></td>
+        <td>Systematic isolation on our local panel: some hard targets favor higher noise or later refinement, while default remains best on several easy targets; <strong>routing signal identified</strong></td>
       </tr>
       <tr>
         <td><strong>Mixed noise (bb &ne; latent)</strong></td>
         <td>Companion paper (Table 2): (0.1, 0.4) solves most targets (36 vs 33 default)</td>
-        <td>Exp 6: Per-target isolation &rarr; <strong>backbone noise drives improvement; latent noise alone catastrophic (0%, p=0.005)</strong></td>
+        <td>Exp 6: per-target isolation &rarr; <strong>backbone and latent noise cannot be treated as interchangeable</strong>; in the tested CD45 controls, latent-heavy asymmetric settings failed while the matched high-noise setting succeeded</td>
       </tr>
       <tr>
         <td><strong>Adaptive routing agent</strong></td>
