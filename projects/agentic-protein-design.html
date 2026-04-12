@@ -343,9 +343,8 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
 
   <h3>Full Action Space (What an Agent Can Control)</h3>
   <p>
-    We audited the current Proteina-Complexa codebase and identified <strong>7 implemented search algorithms</strong>,
-    <strong>1 implemented refinement operator family</strong>, <strong>4 evaluator/reward-model families exposed in the repo</strong>,
-    and <strong>30+ tunable parameters</strong>. The paper's Figure 7 covers the original <strong>five method families</strong>:
+    We audited the current Proteina-Complexa codebase and verified <strong>7 implemented search algorithms</strong>
+    plus <strong>1 implemented refinement operator family</strong>. The paper's Figure 7 covers the original <strong>five method families</strong>:
     four search algorithms (<code>best-of-n</code>, <code>beam-search</code>, <code>fk-steering</code>, <code>mcts</code>)
     plus Generate &amp; Hallucinate as a separate post-generation refinement arm. The local repo and our project later extend that action
     space with an explicit <code>single-pass</code> baseline and our added
@@ -375,7 +374,7 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
     </tr>
     <tr>
       <td>FK Steering</td><td><code>temperature</code> (inv. temp &beta;)</td><td>&beta;=10</td><td>0.01 &ndash; 100.0</td>
-      <td><span class="tag tag-green">Yes (Exp 1)</span> &mdash; beam dominates</td>
+      <td><span class="tag tag-green">Yes (Exp 1)</span> &mdash; beam is strongest on the self channel in the completed local sweep, with IFNAR2 MPNN as the main FK exception</td>
     </tr>
     <tr>
       <td>MCTS</td><td><code>n_simulations</code>, <code>exploration_constant</code>, <code>&epsilon;</code></td><td>20, 1.0, 0.5</td><td>5&ndash;100, 0.1&ndash;5.0, 0&ndash;1</td>
@@ -1029,10 +1028,10 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
       </tr>
     </table>
     <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8; margin-top:10px;">
-      <li><strong>Each target has a different optimal config.</strong> CD45 needs noise=0.20. HER2_AAV needs hallucination. PDL1 needs nothing (default is best). BetV1 benefits marginally from hallucination.</li>
+      <li><strong>Each target has a different best observed config in this local matrix.</strong> CD45 peaks at noise=0.20. HER2_AAV peaks under hallucination. PDL1 peaks at the default. BetV1 peaks at the combined noise+hallucination run.</li>
       <li><strong>Interventions that help one target can hurt another.</strong> On CD45, hallucination drops self success from 25.0% to 0.0%, whereas on HER2_AAV it raises self success from 3.1% to 65.6%. Likewise, <code>noise=0.20</code> helps CD45 but not HER2_AAV or BetV1. The combined <code>noise+halluc</code> bundle is also target-dependent: it hurts CD45 relative to noise-only, while remaining viable on HER2_AAV and BetV1.</li>
       <li><strong>noise=0.15 doesn&rsquo;t help (sharp threshold).</strong> CD45 at noise=0.15 gives exactly 25% (=default). The jump to 46.9% happens only at 0.20.</li>
-      <li><strong>bb+lat noise must change together.</strong> bb=0.2,lat=0.1 gives 9.4% (worse than default). You need both bb=0.2 AND lat=0.2 for the 46.9% effect.</li>
+      <li><strong>The tested asymmetric mixed-noise control does not reproduce the gain.</strong> In the completed local follow-up, bb=0.2,lat=0.1 gives 3/32 (9.4%), below both the 8/32 baseline and the 15/32 symmetric 0.2/0.2 result.</li>
       <li><strong>Baseline replication was stable on the representative hard targets.</strong> In the completed rerun set, the Phase-0 deep default reproduced the same self counts for CD45, HER2_AAV, and BetV1 across the repeated baseline checks used in the reliability section.</li>
       <li><strong>Conclusion:</strong> The completed matrix shows that target-specific routing is justified. It does <strong>not</strong> yet prove that a routed controller will beat every fixed policy on unseen targets; that is the purpose of the later held-out benchmarks.</li>
     </ul>
@@ -1956,9 +1955,9 @@ Terminate: when unique success count plateaus
   <div class="card" style="border-left: 4px solid var(--green);">
     <h4 style="font-size:0.95rem; margin-bottom:6px;">Hallucination Schedule Ranking</h4>
     <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
-      <li><strong>greedy 5%</strong> is the best balanced schedule: high self (81-100%) AND high MPNN (75-100%) across all targets. Recommended as the default hallucination config.</li>
-      <li><strong>soft+greedy short</strong> gives highest self pass rates (100% on SpCas9, IL7RA) but lower MPNN (50% on SpCas9) &mdash; the soft optimization stage improves the model&rsquo;s own sequence but may move it away from MPNN-designable regions.</li>
-      <li><strong>aggressive 10%</strong> produces best absolute iPAE and pLDDT values but slightly lower self pass rates. Useful when you want the single best design rather than the most designs.</li>
+      <li><strong>greedy 5%</strong> is the strongest balanced schedule on this completed four-target panel, with high self and high MPNN rates across all four targets.</li>
+      <li><strong>soft+greedy short</strong> reaches the top self pass rate on some targets (for example SpCas9 and IL7RA), while the MPNN channel can be lower than the best greedy-only schedule on the same target.</li>
+      <li><strong>aggressive 10%</strong> is not the most reliable pass-rate winner on this panel; its completed runs do not dominate the shorter or moderate schedules across the four targets shown here.</li>
       <li><strong>CrSAS6:</strong> The original 5 jobs failed before generation due to the target ID mismatch (<code>33_CrSAS6</code> vs <code>14_CrSAS6</code>). The corrected rerun completed and is summarized below.</li>
     </ul>
   </div>
@@ -2499,15 +2498,15 @@ Terminate: when unique success count plateaus
       <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
       <td><strong>Exp 30: Remaining Unseen Binder Diagnostics</strong><br><span style="font-size:0.82rem;color:var(--muted)">14 previously untested non-heldout binder task entries: six CD45 hotspot variants, one DerF7 variant, three DerF21 variants, IL7RA repack, PDL1-alpha fix/repack, TNF&alpha; repack</span></td>
       <td>14/14 submitted</td>
-      <td><span class="tag tag-orange">6 timeout / 1 failed / 6 running / 1 pending</span></td>
-      <td style="font-size:0.82rem"><strong>Purpose:</strong> expand the diagnostic taxonomy beyond the original 22 tested protein binder entries. <strong>Current state:</strong> the six CD45 hotspot-variant diagnostics timed out at 8h, one later diagnostic failed early, six jobs are still running, and one final entry is still pending. Each job uses the standard deep-beam diagnostic shape with a configured evaluation denominator of <strong>N=32</strong>.</td>
+      <td><span class="tag tag-orange">6 timeout / 1 failed / 7 running</span></td>
+      <td style="font-size:0.82rem"><strong>Purpose:</strong> expand the diagnostic taxonomy beyond the original 22 tested protein binder entries. <strong>Current state:</strong> the six CD45 hotspot-variant diagnostics timed out at 8h, one later diagnostic failed early, and seven jobs are still running. Each job uses the standard deep-beam diagnostic shape with a configured evaluation denominator of <strong>N=32</strong>.</td>
     </tr>
     <tr style="background:#fef3c7">
       <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
       <td><strong>Exp 31: Held-Out Default Baselines</strong><br><span style="font-size:0.82rem;color:var(--muted)">8 representative unseen binder task entries: <code>03_PDL1_AAV</code>, <code>16_DerF7</code>, <code>19_DerF21</code>, <code>26_CbAgo</code>, <code>28_HER2_AAV</code>, <code>31_IL7RA_FIX</code>, <code>32_PDL1_ALPHA</code>, <code>38_TNF&alpha;_FIX</code></span></td>
       <td>8/8 submitted</td>
-      <td><span class="tag tag-orange">2 complete / 4 running / 2 failed</span></td>
-      <td style="font-size:0.82rem"><strong>Purpose:</strong> establish a matched <strong>30-hour default baseline</strong> on held-out unseen tasks before claiming any adaptive advantage. <strong>Current state:</strong> two default baselines have completed, four are actively running, and <code>31_IL7RA_FIX</code> plus <code>38_TNF&alpha;_FIX</code> failed immediately. The intended evaluated denominator for each successful run is <strong>N=64</strong>.</td>
+      <td><span class="tag tag-orange">3 complete / 3 running / 2 failed</span></td>
+      <td style="font-size:0.82rem"><strong>Purpose:</strong> establish a matched <strong>30-hour default baseline</strong> on held-out unseen tasks before claiming any adaptive advantage. <strong>Current state:</strong> three default baselines have completed, three are actively running, and <code>31_IL7RA_FIX</code> plus <code>38_TNF&alpha;_FIX</code> failed immediately. The intended evaluated denominator for each successful run is <strong>N=64</strong>.</td>
     </tr>
     <tr style="background:#fef3c7">
       <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
