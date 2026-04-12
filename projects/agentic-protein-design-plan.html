@@ -1957,21 +1957,21 @@ Propose a new harness configuration. Explain:
       <td>14 unseen non-heldout binder entries</td>
       <td><strong>Diagnostic-only expansion</strong></td>
       <td>Standard deep-beam diagnosis on the remaining untested binder variants to extend the target taxonomy beyond the original 22 tested entries.</td>
-      <td><span class="tag tag-orange">Running</span></td>
+      <td><span class="tag tag-red">Terminal: 13 timeout / 1 failed</span></td>
     </tr>
     <tr>
       <td><strong>Exp 31</strong></td>
       <td>8 held-out unseen binder entries</td>
       <td><strong>Matched 30h default baseline</strong></td>
       <td>Strong fixed baseline for the unseen-target benchmark: scaled default deep beam on the same held-out set used by the new agentic controller.</td>
-      <td><span class="tag tag-orange">Running</span></td>
+      <td><span class="tag tag-orange">Terminal: 6 complete / 2 failed</span></td>
     </tr>
     <tr>
       <td><strong>Exp 32</strong></td>
       <td>Same 8 held-out entries</td>
       <td><strong>Rule-based held-out agentic benchmark</strong></td>
-      <td>One diagnostic round plus one routed follow-up per target, using the implemented <code>agentic_loop.py</code> and a 30h follow-up budget.</td>
-      <td><span class="tag tag-orange">6 timeout / 2 failed / 8 pending</span></td>
+      <td>One diagnostic round plus one routed follow-up per target, using the implemented <code>agentic_loop.py</code> and a 30h follow-up budget. The current submission is blocked because every diagnostic parent job either timed out or failed, leaving the child jobs in <code>DependencyNeverSatisfied</code>.</td>
+      <td><span class="tag tag-red">6 timeout / 2 failed / 8 blocked</span></td>
     </tr>
     <tr>
       <td><strong>Future Meta-Harness demo</strong></td>

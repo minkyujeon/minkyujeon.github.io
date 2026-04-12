@@ -2498,22 +2498,22 @@ Terminate: when unique success count plateaus
       <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
       <td><strong>Exp 30: Remaining Unseen Binder Diagnostics</strong><br><span style="font-size:0.82rem;color:var(--muted)">14 previously untested non-heldout binder task entries: six CD45 hotspot variants, one DerF7 variant, three DerF21 variants, IL7RA repack, PDL1-alpha fix/repack, TNF&alpha; repack</span></td>
       <td>14/14 submitted</td>
-      <td><span class="tag tag-orange">6 timeout / 1 failed / 7 running</span></td>
-      <td style="font-size:0.82rem"><strong>Purpose:</strong> expand the diagnostic taxonomy beyond the original 22 tested protein binder entries. <strong>Current state:</strong> the six CD45 hotspot-variant diagnostics timed out at 8h, one later diagnostic failed early, and seven jobs are still running. Each job uses the standard deep-beam diagnostic shape with a configured evaluation denominator of <strong>N=32</strong>.</td>
+      <td><span class="tag tag-red">13 timeout / 1 failed</span></td>
+      <td style="font-size:0.82rem"><strong>Purpose:</strong> expand the diagnostic taxonomy beyond the original 22 tested protein binder entries. <strong>Current state:</strong> thirteen diagnostics timed out at 8h and one failed early, so this batch is terminal without usable completions. Each job used the standard deep-beam diagnostic shape with a configured evaluation denominator of <strong>N=32</strong>.</td>
     </tr>
     <tr style="background:#fef3c7">
       <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
       <td><strong>Exp 31: Held-Out Default Baselines</strong><br><span style="font-size:0.82rem;color:var(--muted)">8 representative unseen binder task entries: <code>03_PDL1_AAV</code>, <code>16_DerF7</code>, <code>19_DerF21</code>, <code>26_CbAgo</code>, <code>28_HER2_AAV</code>, <code>31_IL7RA_FIX</code>, <code>32_PDL1_ALPHA</code>, <code>38_TNF&alpha;_FIX</code></span></td>
       <td>8/8 submitted</td>
-      <td><span class="tag tag-orange">3 complete / 3 running / 2 failed</span></td>
-      <td style="font-size:0.82rem"><strong>Purpose:</strong> establish a matched <strong>30-hour default baseline</strong> on held-out unseen tasks before claiming any adaptive advantage. <strong>Current state:</strong> three default baselines have completed, three are actively running, and <code>31_IL7RA_FIX</code> plus <code>38_TNF&alpha;_FIX</code> failed immediately. The intended evaluated denominator for each successful run is <strong>N=64</strong>.</td>
+      <td><span class="tag tag-orange">6 complete / 2 failed</span></td>
+      <td style="font-size:0.82rem"><strong>Purpose:</strong> establish a matched <strong>30-hour default baseline</strong> on held-out unseen tasks before claiming any adaptive advantage. <strong>Current state:</strong> six default baselines have completed and <code>31_IL7RA_FIX</code> plus <code>38_TNF&alpha;_FIX</code> failed immediately. The intended evaluated denominator for each successful run is <strong>N=64</strong>.</td>
     </tr>
     <tr style="background:#fef3c7">
       <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
       <td><strong>Exp 32: Held-Out Agentic Benchmark</strong><br><span style="font-size:0.82rem;color:var(--muted)">same 8 held-out entries as Exp 31, but with one diagnostic round plus one routed follow-up via <code>agentic_loop.py</code></span></td>
       <td>16/16 submitted<br><span style="font-size:0.75rem;color:var(--muted)">8 diagnostics + 8 dependency-gated controller jobs</span></td>
-      <td><span class="tag tag-orange">6 timeout / 2 failed / 8 pending</span></td>
-      <td style="font-size:0.82rem"><strong>Core question:</strong> can target-conditioned routing find a first success faster than a fixed 30-hour default strategy on truly unseen tasks? <strong>Current state:</strong> six Round 0 diagnostics timed out at 8h, two failed early, and all eight dependency-gated controller jobs remain pending because no diagnostic has yet produced a usable completion artifact. The initial diagnostic round is configured for <strong>N=32</strong>; the routed follow-up, if triggered, is allowed up to <strong>30h</strong>.</td>
+      <td><span class="tag tag-red">6 timeout / 2 failed / 8 blocked</span></td>
+      <td style="font-size:0.82rem"><strong>Core question:</strong> can target-conditioned routing find a first success faster than a fixed 30-hour default strategy on truly unseen tasks? <strong>Current state:</strong> six Round 0 diagnostics timed out, two failed early, and all eight dependency-gated controller jobs are now blocked with <code>DependencyNeverSatisfied</code> because no diagnostic completed successfully. The initial diagnostic round was configured for <strong>N=32</strong>; the routed follow-up would have been allowed up to <strong>30h</strong>.</td>
     </tr>
     <tr style="background:#e0f2fe">
       <td colspan="5" style="font-size:0.8rem; font-weight:600; color:#075985; padding:6px 12px;">
