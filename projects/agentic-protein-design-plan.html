@@ -306,7 +306,7 @@
     <tr>
       <td><strong>Main technical risk</strong></td>
       <td><span class="tag tag-orange">Moderate</span></td>
-      <td>Exp 25/26 cracked 3/5 zero-hit targets via MCTS+G&amp;H (SC2RBD 62.5%, TNF&alpha; 50%, H1 12.5%). Risk reduced from &ldquo;High&rdquo;. Remaining risk: CbAgo and IL17A are still 0% &mdash; the Meta-Harness agent (Phase 3) targets these.</td>
+      <td>Exp 25/26 produced non-zero local results on 3/5 previously zero-hit targets via MCTS+G&amp;H (SC2RBD 62.5%, TNF&alpha; 50%, H1 12.5% in completed single runs). Remaining risk: CbAgo and IL17A are still unresolved in the completed local runs on this page.</td>
     </tr>
     <tr>
       <td><strong>Benchmark quality</strong></td>
@@ -355,7 +355,10 @@
   <p>
     Experiments are ordered by expected impact and feasibility.
     Each tests a specific hypothesis about the unexplored action space.
-    All experiments use the same success criteria: iPAE*31 &le; 7.0 AND pLDDT &ge; 0.9 AND scRMSD &lt; 1.5A.
+    All experiments use the same binder success criteria: <code>ipAE &lt; 7.0 &Aring;</code>,
+    <code>complex pLDDT &gt; 0.9</code>, and <code>binder scRMSD &lt; 1.5 &Aring;</code>.
+    When the local repo stores normalized PAE columns, the equivalent implementation is
+    <code>stored i_pAE * 31 &lt; 7.0</code>.
   </p>
 
   <h3>Phase 1: Explore the Unexplored Action Space</h3>
@@ -698,7 +701,7 @@
       <td>Phase 2c</td>
       <td>Multi-round adaptive loop demo</td>
       <td>Exp 21 (SC2RBD, no gain) &rarr; Exp 24 (trio) &rarr; Exp 25/26 (MCTS+G&amp;H breakthrough) &rarr; Exp 28 (partial paper-recipe comparison)</td>
-      <td><span class="tag tag-orange">In Progress &mdash; MCTS+G&amp;H breakthrough confirmed; Exp 26 tail still active</span></td>
+      <td><span class="tag tag-green">Done</span> Exp 21, 24, 25, 26, and 28 are all terminal; Exp 29 was canceled.</td>
       <td>April 2026</td>
     </tr>
     <tr>
@@ -721,22 +724,22 @@
   <div class="callout warn">
     <p><strong>Open questions:</strong><br>
     (1) <del>Does FK Steering temperature tuning improve over Beam Search?</del>
-    <strong>Answered (Exp 1): No.</strong> Beam dominates; FK monotonically worse.<br>
+    <strong>Answered (Exp 1):</strong> In the completed local sweep, beam is strongest on the self channel; IFNAR2 MPNN is the main FK exception.<br>
     (2) <del>Does CFG guidance_w &gt; 1.0 improve backbone quality?</del>
     <strong>Answered (Exp 7): Not applicable.</strong> CFG requires CATH fold conditioning, N/A for binders.<br>
     (3) <del>Do composite rewards improve beam pruning?</del>
     <strong>Answered (Exp 3): No.</strong> Heavy interface weights kill generation (0/32). Moderate weights are neutral.<br>
-    (4) <del>Does sc_scale_noise &gt; 0.1 significantly improve hard targets?</del>
-    <strong>Answered (Exp 2+5): Yes.</strong> noise=0.20 gives 47% vs 25% (p=0.003, N=96). Perfectly reproducible across 3 runs.<br>
+    (4) <del>Does sc_scale_noise &gt; 0.1 improve hard targets?</del>
+    <strong>Answered (Exp 2+5):</strong> On CD45, noise=0.20 gives 15/32 in the original run and 45/96 across the later replicas, versus 8/32 and 24/96 at the default 0.10 setting.<br>
     (5) <del>Does backbone vs. sequence noise matter independently?</del>
-    <strong>Answered (Exp 6):</strong> Backbone noise is the driver. lat=0.2 alone: no effect (p=1.0). lat=0.4 alone: catastrophic (0%, p=0.005). <strong>New mechanistic insight.</strong><br>
+    <strong>Answered (Exp 6):</strong> The tested latent-heavy asymmetric controls did not reproduce the CD45 gain: <code>bb=0.1, lat=0.2</code> stayed at 8/32 and <code>bb=0.1, lat=0.4</code> fell to 0/32.<br>
     (6) <del>Can sequence hallucination rescue weak sequences?</del>
-    <strong>Answered (Exp 4+4b): Yes for HER2_AAV (p&lt;10&#8315;&#8310;).</strong> Paired within-run control confirms causal.<br>
+    <strong>Answered (Exp 4+4b):</strong> Yes for HER2_AAV in the completed paired local comparison: 1/32 without hallucination versus 21/32 with hallucination under the matched control.<br>
     (7) <del>Does hallucination generalize to other hard targets (BetV1)?</del>
-    <strong>Answered (Exp 9): Weakly.</strong> Self: 18.8%&rarr;25.0% (n.s.), but MPNN rescued 0%&rarr;9.4%. Effect is target-dependent.<br>
+    <strong>Answered (Exp 9):</strong> Weakly. BetV1 self moves from 6/32 to 8/32 and MPNN from 0/32 to 3/32 in the completed local run.<br>
     (8) <del>Can noise=0.2 + hallucination jointly boost CD45?</del>
-    <strong>Answered (Exp 8): No &mdash; negative interaction.</strong> Halluc hurts at high noise (46.9%&rarr;18.8%, p=0.032). Interventions are mutually exclusive.<br>
-    (9) <del>Does noise=0.20 help or hurt HER2_AAV and BetV1?</del> <strong>Answered (Exp 10b/10c): It hurts both.</strong> HER2_AAV and BetV1 both drop to 0/32 at noise=0.20 (p=0.024).<br>
+    <strong>Answered (Exp 8):</strong> No in the completed local CD45 run. The combination drops from 15/32 under noise=0.20 alone to 6/32 under noise=0.20 plus hallucination.<br>
+    (9) <del>Does noise=0.20 help or hurt HER2_AAV and BetV1?</del> <strong>Answered (Exp 10b/10c):</strong> In the completed local matrix-fill runs, HER2_AAV and BetV1 both finish at 0/32 self under noise=0.20 alone.<br>
     (10) <del>What is the MPNN-preserving sweet spot for noise?</del> <strong>Answered (Exp 12a): No lower sweet spot on CD45.</strong> noise=0.15 gives 8/32, identical to baseline.<br>
     (11) <del>Is bb noise alone sufficient (bb=0.2, lat=0.1)?</del> <strong>Answered (Exp 12b): No.</strong> bb=0.2, lat=0.1 gives 3/32 (9.4%), worse than default.<br>
     (12) <del>Does the noise+halluc negative interaction replicate on other targets?</del> <strong>Answered (Exp 13a/13b): Not universally.</strong> HER2_AAV combo gives 14/32 self and 19/32 MPNN; BetV1 combo gives 11/32 self and 3/32 MPNN.<br>
@@ -768,7 +771,7 @@
     <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
       <li><strong>Target-specific bottleneck identification</strong> from a single diagnostic round (N=32, ~6 GPU-hours).</li>
       <li><strong>A validated routing tree</strong> (3/4 correct) that reads Self/MPNN gap + per-criterion pass rates to select the right intervention.</li>
-      <li><strong>Non-additive intervention effects</strong>: noise + hallucination is worse than either alone (p=0.032).</li>
+      <li><strong>Non-additive intervention effects</strong>: in the completed CD45 local run, noise + hallucination is worse than either component alone.</li>
       <li><strong>Intervention specificity</strong>: hallucination helps only targets with a backbone&gt;sequence gap; noise=0.20 helps only targets with an iPAE bottleneck. Both destroy the other type of target.</li>
       <li><strong>100+ experiments</strong> across 11 targets, 3 configs, and 15+ intervention conditions, all cross-validated at the per-design level.</li>
     </ul>
@@ -1171,9 +1174,9 @@
       <tr>
         <td><strong>build_graph</strong></td>
         <td>Merge all extractions into one NetworkX graph with confidence labels</td>
-        <td><code>EXTRACTED</code> = directly measured (e.g., noise=0.20 &rarr; improves &rarr; CD45, p=0.003)<br>
+        <td><code>EXTRACTED</code> = directly measured in completed local runs (for example, noise=0.20 improving CD45 in the later replicas)<br>
         <code>INFERRED</code> = cross-target transfer (e.g., &ldquo;SC2RBD diagnostic resembles CD45&rdquo;)<br>
-        <code>AMBIGUOUS</code> = inconclusive (e.g., BetV1 + hallucination, p=0.76)</td>
+        <code>AMBIGUOUS</code> = mixed or inconclusive local evidence</td>
       </tr>
       <tr>
         <td><strong>cluster</strong></td>
@@ -1198,7 +1201,7 @@
     <p style="font-size:0.88rem; color:var(--muted);">
       This is the <strong>MARS &ldquo;comparative reflective memory&rdquo;</strong> concept implemented as a graph:
       instead of storing flat text lessons, we store typed relationships with confidence scores,
-      enabling agents to reason about causal structure rather than pattern-match on summaries.
+      enabling agents to reason about experimental structure rather than pattern-match on summaries.
     </p>
   </div>
 
@@ -1227,7 +1230,7 @@
     <tr>
       <td><strong>Comparison agent</strong></td>
       <td>Pre-intervention and post-intervention diagnostics for the same target</td>
-      <td>Causal analysis: what improved, what degraded, was the intervention effective (with p-value), new edges for knowledge graph</td>
+      <td>Comparative analysis: what improved, what degraded, whether the intervention helped in the completed local contrast, and which new edges should be added to the knowledge graph</td>
       <td>MARS comparative reflection: diff two solutions to isolate causal factors</td>
     </tr>
     <tr>
@@ -1262,7 +1265,7 @@
     This determines whether our apparent gain is from the config changes (higher N<sub>sim</sub>, soft+greedy halluc)
     or simply from running MCTS+G&amp;H at all (which the paper always did for hard targets but we hadn&rsquo;t tried until Exp 25).</p>
 
-    <p><strong>Hypothesis:</strong> Our msg5 config will outperform the paper&rsquo;s exact recipe at matched walltime,
+    <p><strong>Hypothesis:</strong> Our msg5 config may outperform the paper&rsquo;s exact recipe at matched walltime,
     because: (a) soft+greedy hallucination reaches better local optima than greedy-only, and (b) N<sub>sim</sub>=40
     with lower exploration (0.3 vs 0.5) produces a deeper, more exploitative search tree.</p>
 
@@ -1329,17 +1332,17 @@
     <p><strong>Verification criteria:</strong></p>
     <ul>
       <li><strong>If &ge;1 success on any target:</strong> Zero-hit problem was a recipe-discovery problem. The agent&rsquo;s value is discovering this recipe automatically from diagnostic signals. Record GPU-hours-to-first-hit and compare against paper&rsquo;s Fig 19 scaling curve.</li>
-      <li><strong>If 0 successes on all 4 targets at 8h:</strong> The minimum budget threshold is higher than 8h. Check whether any designs are &ldquo;near-miss&rdquo; (iPAE*31 &lt; 10 and pLDDT &gt; 0.85). If near-misses exist, longer runs would likely succeed. If no near-misses, the target may need even more compute or a different model family.</li>
+      <li><strong>If 0 successes on all 4 targets at 8h:</strong> Check whether any designs are near-miss cases (for example, low ipAE and near-threshold pLDDT). If near-misses exist, longer runs may be justified. If not, the target may need more compute or a different model family.</li>
     </ul>
 
     <p><strong>Assumptions to verify:</strong></p>
     <ul>
-      <li>The codebase&rsquo;s MCTS does not implement a &ldquo;K&rdquo; branching factor &mdash; each simulation creates a new child node (unlimited branching). The paper&rsquo;s K=100 likely refers to checkpoint count, not MCTS-specific branching.</li>
+      <li>The codebase&rsquo;s MCTS does not implement a &ldquo;K&rdquo; branching factor &mdash; each simulation creates a new child node. The paper&rsquo;s K=100 may refer to checkpointing or another outer-loop budget parameter rather than an explicit MCTS branching factor.</li>
       <li>AF2 reward does not explicitly divide iPAE by 31 (unlike RF3). The weight balance iPAE=-1.0 + pLDDT=0.5 achieves a similar effect since iPAE is on [0,1] scale and pLDDT is on [0,1].</li>
     </ul>
 
     <p><strong>Cost:</strong> ~32 GPU-hours (4 targets &times; 8h walltime). <strong>Status:</strong> <span class="tag tag-green">Partial / Archived</span>
-    IL17A complete: <strong>0/324 self, 0/324 MPNN</strong> (best iPAE*31=8.3, pLDDT=0.890 &mdash; consistent with paper&rsquo;s 1 success in 387h).
+    IL17A complete: <strong>0/324 self, 0/324 MPNN</strong> (best stored i_pAE*31=8.3, pLDDT=0.890).
     H1, TNF&alpha;, SC2RBD: <strong>timed out at 8h</strong> before full AF2 evaluation, and the later eval-only reruns
     (SLURM 6813585&ndash;6813587) failed immediately. This batch therefore gives a clean negative result for IL17A only,
     and only timeout evidence for the other three targets.</p>
@@ -1357,7 +1360,7 @@
     CD45, SpCas9, and HER2_AAV have rich, validated intervention responses (noise=0.20 doubles CD45, halluc rescues HER2, SpCas9 favors halluc).
     A fixed strategy must commit to one config for 30h; the adaptive strategy can diagnose and switch.</p>
 
-    <p><strong>Hypothesis:</strong> The adaptive agent produces more unique successes (FoldSeek-clustered) than any single fixed strategy
+    <p><strong>Hypothesis:</strong> The adaptive agent may produce more unique successes (FoldSeek-clustered) than any single fixed strategy
     at 30 GPU-hours, because: (a) it avoids wasting compute on configs that produce 0% for the specific target,
     and (b) it can compose complementary operators across rounds to increase structural diversity.</p>
 
@@ -1419,7 +1422,7 @@
     <ul>
       <li>Adaptive-rule &ge; Fixed-best on at least 2/3 targets (total unique successes)</li>
       <li>Portfolio strategy produces &ge; 1.5x the FoldSeek clusters of Fixed-best on at least 1 target</li>
-      <li>Adaptive-rule &gt; Fixed-wrong on all 3 targets (proves routing avoids catastrophic picks)</li>
+      <li>Adaptive-rule &gt; Fixed-wrong on all 3 targets (evidence that routing avoids clearly bad picks on this benchmark)</li>
     </ul>
 
     <p><strong>Key figure for the paper:</strong> Plot unique successes vs. GPU-hours (0, 6, 14, 22, 30h marks) for all 5 strategies, per target. The adaptive curve should separate from fixed curves at the 14&ndash;22h mark where the routing advantage kicks in.</p>
@@ -1501,14 +1504,14 @@
     {"id": "intervention:halluc",     "type": "Intervention", "category": "refinement"},
     {"id": "bottleneck:ipae_limited", "type": "BottleneckType"},
     {"id": "bottleneck:plddt_limited","type": "BottleneckType"},
-    {"id": "outcome:cd45_noise020",   "type": "Outcome",  "self_rate": 0.469, "mpnn_rate": 0.016, "p_value": 0.003}
+    {"id": "outcome:cd45_noise020",   "type": "Outcome",  "self_rate": 0.469, "mpnn_rate": 0.016, "evidence": "completed local replicas"}
   ],
   "edges": [
     {"source": "target:CD45",       "target": "bottleneck:ipae_limited", "relation": "has_bottleneck", "confidence": "EXTRACTED", "evidence": "iPAE_pass=25%, pLDDT_pass=94%"},
     {"source": "intervention:noise_0.20", "target": "outcome:cd45_noise020", "relation": "produces", "confidence": "EXTRACTED"},
-    {"source": "intervention:noise_0.20", "target": "target:CD45", "relation": "improves", "confidence": "EXTRACTED", "effect_size": "+21.9pp", "p_value": 0.003},
-    {"source": "intervention:halluc",     "target": "target:CD45", "relation": "hurts",    "confidence": "EXTRACTED", "effect_size": "-25.0pp", "p_value": 0.005},
-    {"source": "intervention:noise_0.20", "target": "intervention:halluc", "relation": "interacts_negatively", "confidence": "EXTRACTED", "context": "CD45", "p_value": 0.032},
+    {"source": "intervention:noise_0.20", "target": "target:CD45", "relation": "improves", "confidence": "EXTRACTED", "effect_size": "+21.9pp", "evidence": "completed local replicas"},
+    {"source": "intervention:halluc",     "target": "target:CD45", "relation": "hurts",    "confidence": "EXTRACTED", "effect_size": "-25.0pp", "evidence": "completed local run"},
+    {"source": "intervention:noise_0.20", "target": "intervention:halluc", "relation": "interacts_negatively", "confidence": "EXTRACTED", "context": "CD45", "evidence": "completed local combination run"},
     {"source": "target:SC2RBD",     "target": "target:CD45", "relation": "similar_bottleneck", "confidence": "INFERRED", "reason": "both geometry_limited_zero_hit"}
   ]
 }</code></pre>
@@ -1831,7 +1834,7 @@ Propose a new harness configuration. Explain:
     <p><strong>Cost:</strong> ~20 GPU-hours + LLM API. <strong>Status:</strong> <span class="tag tag-purple">After Priority 6</span></p>
   </div>
 
-  <h3>Execution Roadmap (Revised April 10, 2026)</h3>
+  <h3>Execution Roadmap (Revised April 11, 2026)</h3>
   <div class="table-wrap">
   <table>
     <tr><th style="width:12%">Phase</th><th style="width:28%">Deliverable</th><th style="width:30%">Main Experiments</th><th style="width:15%">Status</th><th style="width:15%">Timeline</th></tr>
@@ -1890,15 +1893,15 @@ Propose a new harness configuration. Explain:
   </div>
 
   <div class="callout">
-    <p><strong>The key transition (Phase 2 &rarr; Phase 3):</strong> Phase 2 proves that choosing the right operator per target
-    improves success-vs-budget (rule-based routing + scaling curves). Phase 3 proves that an LLM agent reading
+    <p><strong>The key transition (Phase 2 &rarr; Phase 3):</strong> Phase 2 aims to show that choosing the right operator per target
+    improves success-vs-budget (rule-based routing + scaling curves). Phase 3 would then test whether an LLM agent reading
     <strong>intermediate backbone trajectory diagnostics</strong> can discover <em>novel</em> operator configurations
     that no manually designed rule would find. The intermediate backbone pipeline (Priority 6) is the bridge &mdash;
     without it, the agent sees only final scalars (same as rules). With it, the agent can reason about
     <em>where in the denoising trajectory</em> the design fails and propose checkpoint-specific fixes.</p>
   </div>
 
-  <h3>Active Experiment Program (Updated April 10, 2026)</h3>
+  <h3>Active Experiment Program (Updated April 11, 2026)</h3>
   <p class="note">
     This is the most operational part of the page. It should be read together with the results page: the results page
     records what happened, while this section records why the current batches exist and what scientific uncertainty each
@@ -1925,7 +1928,7 @@ Propose a new harness configuration. Explain:
       <td><strong>Exp 26</strong></td>
       <td>5 zero-hit targets</td>
       <td>Reward shaping + G&amp;H combos</td>
-      <td>SC2RBD e26_04: <strong>5/8 self (62.5%) and 1/8 MPNN</strong> with pLDDT=0.5 reward. Reward-only (no G&amp;H): 0%. H1 peaks at <code>rws10</code> (2/8 self). TNF&alpha; peaks at <code>rws5</code> (2/8 self, 1/8 MPNN). All IL17A variants remain 0/0. CbAgo remains 0/0.</td>
+      <td>SC2RBD e26_04: <strong>5/8 self (62.5%) and 2/8 MPNN</strong> with pLDDT=0.5 reward. Reward-only (no G&amp;H): 0%. H1 peaks at <code>rws10</code> (2/8 self). TNF&alpha; peaks at <code>rws5</code> (2/8 self, 1/8 MPNN). All IL17A variants remain 0/0. CbAgo remains 0/0.</td>
       <td><span class="tag tag-green">Done (25/25)</span></td>
     </tr>
     <tr style="background:#d1fae5">
@@ -1954,21 +1957,21 @@ Propose a new harness configuration. Explain:
       <td>14 unseen non-heldout binder entries</td>
       <td><strong>Diagnostic-only expansion</strong></td>
       <td>Standard deep-beam diagnosis on the remaining untested binder variants to extend the target taxonomy beyond the original 22 tested entries.</td>
-      <td><span class="tag tag-orange">Queued</span></td>
+      <td><span class="tag tag-orange">Running</span></td>
     </tr>
     <tr>
       <td><strong>Exp 31</strong></td>
       <td>8 held-out unseen binder entries</td>
       <td><strong>Matched 30h default baseline</strong></td>
       <td>Strong fixed baseline for the unseen-target benchmark: scaled default deep beam on the same held-out set used by the new agentic controller.</td>
-      <td><span class="tag tag-orange">Queued</span></td>
+      <td><span class="tag tag-orange">Running</span></td>
     </tr>
     <tr>
       <td><strong>Exp 32</strong></td>
       <td>Same 8 held-out entries</td>
       <td><strong>Rule-based held-out agentic benchmark</strong></td>
       <td>One diagnostic round plus one routed follow-up per target, using the implemented <code>agentic_loop.py</code> and a 30h follow-up budget.</td>
-      <td><span class="tag tag-orange">3 running / rest queued</span></td>
+      <td><span class="tag tag-orange">6 timeout / 2 failed / 8 pending</span></td>
     </tr>
     <tr>
       <td><strong>Future Meta-Harness demo</strong></td>
@@ -2019,10 +2022,9 @@ Propose a new harness configuration. Explain:
       <strong>It is not:</strong> a generic hyperparameter sweep, a static best-config search, or a simple rule-based router
       (though rules are the starting point). The full system aims to show that an <strong>agent-discovered configuration
       outperforms any manually designed one</strong> by reasoning about <em>why</em> the pipeline fails at the trajectory level.<br>
-      <strong>Working thesis (confirmed by Exp 25/26):</strong> the model covers the correct fold space &mdash;
-      H1 yields hits in 19.4h (paper: 86.3h/hit), TNF&alpha; in 16.2h (paper: 31.7h/hit),
-      and SC2RBD is cracked locally at 5/8 self and 1/8 MPNN in the best completed run, while the paper&rsquo;s broader Table 10 SC2RBD row remains 0 for Complexa MPNN, MPNN-FI, and Self. Phase 2 proves this via rule-based routing.
-      Phase 3 proves that intermediate backbone diagnostics + LLM reasoning can discover configurations
+      <strong>Working thesis (supported by Exp 25/26):</strong> the model can reach productive regions of fold space on several previously zero-hit local targets once the action set includes MCTS + local refinement.
+      SC2RBD is cracked locally at 5/8 self and 2/8 MPNN in the best completed run, while the paper&rsquo;s broader Table 10 SC2RBD row remains 0 for Complexa MPNN, MPNN-FI, and Self. Phase 2 tests this through rule-based routing.
+      Phase 3 would test whether intermediate backbone diagnostics + LLM reasoning can discover configurations
       that no hand-designed rule would find &mdash; the Meta-Harness thesis applied to protein design.
     </p>
   </div>
@@ -2072,7 +2074,7 @@ Propose a new harness configuration. Explain:
     <tr>
       <td>25</td><td>CbAgo</td><td><span class="tag tag-red">Hard</span></td>
       <td>0 unique successes in the paper. From BindCraft targets.</td>
-      <td>Low (likely 0% with beam search)</td>
+      <td>Low under the beam-family methods completed so far</td>
     </tr>
     <tr style="background:#fee2e2">
       <td>35</td><td>H1</td><td><span class="tag tag-red">Very Hard</span></td>
@@ -2208,10 +2210,10 @@ Propose a new harness configuration. Explain:
   <div class="callout">
     <p>
       <strong>No disruptive refactor of Proteina-Complexa.</strong> All changes are additive modules, not invasive edits to the base model.<br>
-      <strong>No broad knob sweep as the main story.</strong> Phase 1 already showed that blind sweeps are wasteful &mdash; CD45&rsquo;s hallucination result (0%) proves that wrong interventions actively harm. The story is target-aware routing, not parameter search.<br>
+      <strong>No broad knob sweep as the main story.</strong> Phase 1 already showed that blind sweeps are wasteful &mdash; the completed CD45 hallucination run finished at 0%, showing that wrong interventions can actively hurt. The story is target-aware routing, not parameter search.<br>
       <strong>No early denoiser finetuning.</strong> LoRA/PEFT comes after state-bank evidence, campaign memory, and surrogate learning are established (per planning doc guidance).<br>
       <strong>No full pretraining from scratch.</strong> Compute budget is inference-time optimization only (up to 32 H100 GPUs).<br>
-      <strong>No paper recipe avoidance.</strong> The ICLR paper&rsquo;s Sec I.4 very-hard-target recipe (MCTS + modified reward + G&amp;H) must be
+      <strong>No paper recipe avoidance.</strong> The ICLR paper&rsquo;s Sec I.4 very-hard-target recipe (MCTS + modified reward + G&amp;H) should be
       run as a baseline before claiming the agent improves over it. If the recipe works at 30h, the agent&rsquo;s contribution is
       <em>discovering</em> that recipe automatically; if it doesn&rsquo;t, the agent&rsquo;s contribution is knowing when to escalate budget.<br>
       <strong>No zero-hit overclaiming.</strong> SC2RBD, TNF&alpha;, and H1 are now cracked by Exp 25/26 via MCTS+G&amp;H.
