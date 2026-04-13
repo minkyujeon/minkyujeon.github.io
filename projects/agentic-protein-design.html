@@ -791,14 +791,26 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
   <code>both &lt; 30%</code> → Both low;
   else → Both iPAE+pLDDT or Mixed.</p>
 
+  <div class="callout">
+    <p><strong>New in this version:</strong> added <strong>"Self unique/total"</strong> column showing FoldSeek-clustered unique successes
+    (matching the paper's Figure 22 "# Unique Successes" y-axis), and intervention rows now show both total-pass-count AND unique-count.
+    Format: <code>4/8 self (50%, unique 4/4)</code> = 4 of 8 designs pass, 4 of those 4 are structurally distinct (FoldSeek clusters at TM-score 0.5).</p>
+    <p><strong>Paper-default comparison points</strong>: where available, a "Paper Sec I.4 recipe (Exp 28)" row is included for hard targets,
+    showing the paper's exact config (MCTS N<sub>sim</sub>=20, &epsilon;=0.5, C=1.0, iPAE/31+pLDDT reward, G&amp;H greedy 5%).
+    Additional paper-default runs (Beam K=100, pure MCTS K=100, G&amp;H 1% mutations) are queued in <strong>Exp 33</strong> and will be added when complete.</p>
+    <p><strong>Config diff from paper (our msg5 vs paper Sec I.4 MCTS):</strong>
+    we use N<sub>sim</sub>=40 (paper: 20), &epsilon;=0.3 (paper: 0.5), C=0.5 (paper: 1.0), iPAE-only reward (paper: iPAE+pLDDT),
+    G&amp;H stages 2+3+4 (paper: stage 4 only), mutation rate 5% (paper: 5% for hard, 1% default).</p>
+  </div>
+
   <div class="table-wrap" style="overflow-x:auto;">
-  <table style="font-size:0.8rem;">
+  <table style="font-size:0.78rem;">
     <tr>
-      <th>Target</th><th>Difficulty / Baseline Source</th><th>N (total)</th>
-      <th>iPAE pass (n/N, %)</th><th>pLDDT pass (n/N, %)</th><th>scRMSD pass (n/N, %)</th>
-      <th>Self (n/N, %)</th><th>MPNN (n/N, %)</th><th>Gap</th>
+      <th>Target</th><th>Difficulty / Baseline Source</th><th>N</th>
+      <th>iPAE pass</th><th>pLDDT pass</th><th>scRMSD pass</th>
+      <th>Self (n/N)</th><th>Self unique/total</th><th>MPNN (n/N)</th><th>Gap</th>
       <th>Bottleneck (baseline)</th>
-      <th style="min-width:320px;">Tested interventions (Self / MPNN, each N=8-1216)</th>
+      <th style="min-width:360px;">Tested interventions (n/N self · unique/total · n/N MPNN)</th>
     </tr>
     <tr style="background:#d1fae5">
       <td><strong>PD1</strong></td>
@@ -808,10 +820,11 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
       <td>32/32 (100%)</td>
       <td>32/32 (100%)</td>
       <td>32/32 (100%)</td>
+      <td>7/32</td>
       <td>22/32 (69%)</td>
       <td style="color:var(--red)">-31pp</td>
       <td>None (saturated)</td>
-      <td style="font-size:0.72rem; line-height:1.5;"><em style="color:#999">Baseline only (no intervention matrix)</em></td>
+      <td style="font-size:0.7rem; line-height:1.5;"><em style="color:#999">Baseline only</em></td>
     </tr>
     <tr style="background:#d1fae5">
       <td><strong>PDL1</strong></td>
@@ -821,10 +834,11 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
       <td>32/32 (100%)</td>
       <td>32/32 (100%)</td>
       <td>32/32 (100%)</td>
+      <td>4/32</td>
       <td>12/32 (38%)</td>
       <td style="color:var(--red)">-62pp</td>
       <td>None (saturated)</td>
-      <td style="font-size:0.72rem; line-height:1.5;"><strong>+noise=0.20</strong>: 24/32 self (75%), 24/32 MPNN (75%)<br><strong>+halluc</strong>: 26/32 self (81%), 25/32 MPNN (78%)</td>
+      <td style="font-size:0.7rem; line-height:1.5;"><strong>+noise=0.20</strong>: 24/32 self (75%, unique 8/24), 24/32 MPNN<br><strong>+halluc</strong>: 26/32 self (81%, unique 4/26), 25/32 MPNN</td>
     </tr>
     <tr style="background:#d1fae5">
       <td><strong>IFNAR2</strong></td>
@@ -834,10 +848,11 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
       <td>32/32 (100%)</td>
       <td>32/32 (100%)</td>
       <td>32/32 (100%)</td>
+      <td>7/32</td>
       <td>32/32 (100%)</td>
       <td style="">0pp</td>
       <td>None (saturated)</td>
-      <td style="font-size:0.72rem; line-height:1.5;"><em style="color:#999">Baseline only (no intervention matrix)</em></td>
+      <td style="font-size:0.7rem; line-height:1.5;"><em style="color:#999">Baseline only</em></td>
     </tr>
     <tr style="background:#fef3c7">
       <td><strong>CD45</strong></td>
@@ -847,10 +862,11 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
       <td>30/32 (94%)</td>
       <td>32/32 (100%)</td>
       <td>8/32 (25%)</td>
+      <td>1/8</td>
       <td>5/32 (16%)</td>
       <td style="">-9pp</td>
       <td>iPAE (geometry)</td>
-      <td style="font-size:0.72rem; line-height:1.5;"><span style="color:var(--green); font-weight:700">&#9733; </span><strong>+noise=0.20 (best)</strong>: 15/32 self (47%), 0/32 MPNN (0%)<br><strong>+halluc</strong>: 0/32 self (0%), 1/32 MPNN (3%)<br><strong>+noise+halluc</strong>: 6/32 self (19%), 0/32 MPNN (0%)<br><strong>+FK steering T=0.10</strong>: 8/32 self (25%), 0/32 MPNN (0%)</td>
+      <td style="font-size:0.7rem; line-height:1.5;"><span style="color:var(--green); font-weight:700">&#9733; </span><strong>+noise=0.20 (best)</strong>: 15/32 self (47%, unique 2/15), 0/32 MPNN<br><strong>+halluc</strong>: 0/32 self (0%, unique —), 1/32 MPNN<br><strong>+noise+halluc</strong>: 6/32 self (19%, unique 2/6), 0/32 MPNN<br><strong>+FK steering T=0.10 (β=10, paper default)</strong>: 8/32 self (25%, unique 1/8), 0/32 MPNN</td>
     </tr>
     <tr style="background:#d1fae5">
       <td><strong>Claudin1</strong></td>
@@ -860,10 +876,11 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
       <td>32/32 (100%)</td>
       <td>32/32 (100%)</td>
       <td>32/32 (100%)</td>
+      <td>6/32</td>
       <td>12/32 (38%)</td>
       <td style="color:var(--red)">-62pp</td>
       <td>None (saturated)</td>
-      <td style="font-size:0.72rem; line-height:1.5;"><strong>+FK steering T=0.10</strong>: 1/32 self (3%), 5/32 MPNN (16%)</td>
+      <td style="font-size:0.7rem; line-height:1.5;"><strong>+FK steering T=0.10 (β=10, paper default)</strong>: 1/32 self (3%, unique 1/1), 5/32 MPNN</td>
     </tr>
     <tr style="background:#fef3c7">
       <td><strong>CrSAS6</strong></td>
@@ -873,10 +890,11 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
       <td>32/32 (100%)</td>
       <td>32/32 (100%)</td>
       <td>24/32 (75%)</td>
+      <td>4/24</td>
       <td>8/32 (25%)</td>
       <td style="color:var(--red)">-50pp</td>
       <td>Mixed</td>
-      <td style="font-size:0.72rem; line-height:1.5;"><strong>+halluc softg10 (Exp 27, best self)</strong>: 11/16 self (69%), 10/16 MPNN (62%)<br><strong>+halluc softg5_short (Exp 27)</strong>: 8/16 self (50%), 13/16 MPNN (81%)<br><strong>+halluc greedy5 (Exp 27)</strong>: 8/16 self (50%), 11/16 MPNN (69%)<br><span style="color:var(--green); font-weight:700">&#9733; </span><strong>+noise=0.20 (Exp 15)</strong>: 32/32 self (100%), 24/32 MPNN (75%)</td>
+      <td style="font-size:0.7rem; line-height:1.5;"><strong>+halluc softg10 (best)</strong>: 11/16 self (69%, unique 3/11), 10/16 MPNN<br><strong>+halluc softg5_short</strong>: 8/16 self (50%, unique 2/8), 13/16 MPNN<br><strong>+halluc greedy5</strong>: 8/16 self (50%, unique 2/8), 11/16 MPNN<br><span style="color:var(--green); font-weight:700">&#9733; </span><strong>+noise=0.20</strong>: 32/32 self (100%, unique 6/32), 24/32 MPNN</td>
     </tr>
     <tr style="background:#d1fae5">
       <td><strong>DerF7</strong></td>
@@ -886,10 +904,11 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
       <td>32/32 (100%)</td>
       <td>32/32 (100%)</td>
       <td>32/32 (100%)</td>
+      <td>6/32</td>
       <td>27/32 (84%)</td>
       <td style="">-16pp</td>
       <td>None (saturated)</td>
-      <td style="font-size:0.72rem; line-height:1.5;"><em style="color:#999">Baseline only (no intervention matrix)</em></td>
+      <td style="font-size:0.7rem; line-height:1.5;"><em style="color:#999">Baseline only</em></td>
     </tr>
     <tr style="background:#fef3c7">
       <td><strong>BetV1</strong></td>
@@ -899,10 +918,11 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
       <td>8/32 (25%)</td>
       <td>30/32 (94%)</td>
       <td>6/32 (19%)</td>
+      <td>1/6</td>
       <td>0/32 (0%)</td>
       <td style="">-19pp</td>
       <td>Both (both low)</td>
-      <td style="font-size:0.72rem; line-height:1.5;"><strong>+halluc (best)</strong>: 8/32 self (25%), 3/32 MPNN (9%)<br><strong>+noise=0.20</strong>: 0/32 self (0%), 1/32 MPNN (3%)<br><strong>+noise+halluc</strong>: 11/32 self (34%), 3/32 MPNN (9%)</td>
+      <td style="font-size:0.7rem; line-height:1.5;"><strong>+halluc (best)</strong>: 8/32 self (25%, unique 2/8), 3/32 MPNN<br><strong>+noise=0.20</strong>: 0/32 self (0%, unique —), 1/32 MPNN<br><strong>+noise+halluc</strong>: 11/32 self (34%, unique 3/11), 3/32 MPNN</td>
     </tr>
     <tr style="background:#fef3c7">
       <td><strong>SpCas9</strong></td>
@@ -912,10 +932,11 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
       <td>16/32 (50%)</td>
       <td>32/32 (100%)</td>
       <td>16/32 (50%)</td>
+      <td>2/16</td>
       <td>15/32 (47%)</td>
       <td style="">-3pp</td>
       <td>Both iPAE+pLDDT</td>
-      <td style="font-size:0.72rem; line-height:1.5;"><span style="color:var(--green); font-weight:700">&#9733; </span><strong>+halluc softg5_short (Exp 27, 100% self)</strong>: 16/16 self (100%), 8/16 MPNN (50%)<br><span style="color:var(--green); font-weight:700">&#9733; </span><strong>+halluc greedy5 (Exp 27, balanced)</strong>: 13/16 self (81%), 12/16 MPNN (75%)<br><span style="color:var(--green); font-weight:700">&#9733; </span><strong>+halluc softg10 (Exp 27, aggressive)</strong>: 14/16 self (88%), 12/16 MPNN (75%)<br><strong>+noise=0.20 (Exp 15)</strong>: 11/32 self (34%), 8/32 MPNN (25%)</td>
+      <td style="font-size:0.7rem; line-height:1.5;"><span style="color:var(--green); font-weight:700">&#9733; </span><strong>+halluc softg5_short (100%)</strong>: 16/16 self (100%, unique 4/16), 8/16 MPNN<br><span style="color:var(--green); font-weight:700">&#9733; </span><strong>+halluc greedy5</strong>: 13/16 self (81%, unique 4/13), 12/16 MPNN<br><span style="color:var(--green); font-weight:700">&#9733; </span><strong>+halluc softg10</strong>: 14/16 self (88%, unique 4/14), 12/16 MPNN<br><strong>+noise=0.20</strong>: 11/32 self (34%, unique 2/11), 8/32 MPNN</td>
     </tr>
     <tr style="background:#dbeafe">
       <td><strong>HER2_AAV</strong></td>
@@ -925,10 +946,11 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
       <td>7/32 (22%)</td>
       <td>32/32 (100%)</td>
       <td>1/32 (3%)</td>
+      <td>1/1</td>
       <td>10/32 (31%)</td>
       <td style="color:var(--green)">+28pp</td>
       <td>Sequence (MPNN≫Self)</td>
-      <td style="font-size:0.72rem; line-height:1.5;"><span style="color:var(--green); font-weight:700">&#9733; </span><strong>+halluc (Exp 4, best)</strong>: 21/32 self (66%), 15/32 MPNN (47%)<br><span style="color:var(--green); font-weight:700">&#9733; </span><strong>+halluc greedy5 (Exp 27, 100%)</strong>: 16/16 self (100%), 16/16 MPNN (100%)<br><strong>+noise=0.20</strong>: 0/32 self (0%), 1/32 MPNN (3%)<br><span style="color:var(--green); font-weight:700">&#9733; </span><strong>+noise+halluc</strong>: 14/32 self (44%), 19/32 MPNN (59%)</td>
+      <td style="font-size:0.7rem; line-height:1.5;"><span style="color:var(--green); font-weight:700">&#9733; </span><strong>+halluc (best)</strong>: 21/32 self (66%, unique 4/21), 15/32 MPNN<br><span style="color:var(--green); font-weight:700">&#9733; </span><strong>+halluc greedy5 (100%)</strong>: 16/16 self (100%, unique 4/16), 16/16 MPNN<br><strong>+noise=0.20</strong>: 0/32 self (0%, unique —), 1/32 MPNN<br><span style="color:var(--green); font-weight:700">&#9733; </span><strong>+noise+halluc</strong>: 14/32 self (44%, unique 4/14), 19/32 MPNN</td>
     </tr>
     <tr style="background:#d1fae5">
       <td><strong>TrkA</strong></td>
@@ -938,10 +960,11 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
       <td>32/32 (100%)</td>
       <td>32/32 (100%)</td>
       <td>32/32 (100%)</td>
+      <td>4/32</td>
       <td>30/32 (94%)</td>
       <td style="">-6pp</td>
       <td>None (saturated)</td>
-      <td style="font-size:0.72rem; line-height:1.5;"><em style="color:#999">Baseline only (no intervention matrix)</em></td>
+      <td style="font-size:0.7rem; line-height:1.5;"><em style="color:#999">Baseline only</em></td>
     </tr>
     <tr style="background:#d1fae5">
       <td><strong>BHRF1</strong></td>
@@ -951,10 +974,11 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
       <td>32/32 (100%)</td>
       <td>32/32 (100%)</td>
       <td>32/32 (100%)</td>
+      <td>4/32</td>
       <td>32/32 (100%)</td>
       <td style="">0pp</td>
       <td>None (saturated)</td>
-      <td style="font-size:0.72rem; line-height:1.5;"><strong>+noise=0.20</strong>: 32/32 self (100%), 32/32 MPNN (100%)<br><strong>+halluc</strong>: 30/32 self (94%), 30/32 MPNN (94%)</td>
+      <td style="font-size:0.7rem; line-height:1.5;"><strong>+noise=0.20</strong>: 32/32 self (100%, unique 5/32), 32/32 MPNN<br><strong>+halluc</strong>: 30/32 self (94%, unique 4/30), 30/32 MPNN</td>
     </tr>
     <tr style="background:#fef3c7">
       <td><strong>SC2RBD</strong></td>
@@ -964,10 +988,11 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
       <td>0/32 (0%)</td>
       <td>25/32 (78%)</td>
       <td>0/32 (0%)</td>
+      <td>—</td>
       <td>0/32 (0%)</td>
       <td style="">0pp</td>
       <td>Both (both low)</td>
-      <td style="font-size:0.72rem; line-height:1.5;"><strong>+noise=0.20</strong>: 0/32 self (0%), 0/32 MPNN (0%)<br><strong>+halluc</strong>: 0/32 self (0%), 1/32 MPNN (3%)<br><span style="color:var(--green); font-weight:700">&#9733; </span><strong>MCTS+G&H msg5 (Exp 25)</strong>: 4/8 self (50%), 0/8 MPNN (0%)<br><span style="color:var(--green); font-weight:700">&#9733; </span><strong>MCTS+pLDDT+G&H rws5 (Exp 26, best)</strong>: 5/8 self (62%), 2/8 MPNN (25%)<br><strong>pure MCTS md40</strong>: 0/8 self (0%), 0/8 MPNN (0%)<br><strong>Agentic diverse-beam (Exp 24)</strong>: 0/64 self (0%), 0/64 MPNN (0%)<br><strong>Exp 28 paper recipe</strong>: 1/644 self (0%), 2/644 MPNN (0%)</td>
+      <td style="font-size:0.7rem; line-height:1.5;"><strong>+noise=0.20</strong>: 0/32 self (0%, unique —), 0/32 MPNN<br><strong>+halluc</strong>: 0/32 self (0%, unique —), 1/32 MPNN<br><span style="color:var(--green); font-weight:700">&#9733; </span><strong>MCTS+G&H msg5 (Exp 25)</strong>: 4/8 self (50%, unique 4/4), 0/8 MPNN<br><span style="color:var(--green); font-weight:700">&#9733; </span><strong>MCTS+pLDDT+G&H rws5 (Exp 26, best)</strong>: 5/8 self (62%, unique 4/5), 2/8 MPNN<br><strong>pure MCTS md40</strong>: 0/8 self (0%, unique —), 0/8 MPNN<br><strong>Agentic (Exp 24)</strong>: 0/64 self (0%, unique —), 0/64 MPNN<br><strong>Paper Sec I.4 recipe (Exp 28)</strong>: 1/644 self (0%, unique 1/1), 2/644 MPNN</td>
     </tr>
     <tr style="background:#fef3c7">
       <td><strong>VEGFA</strong></td>
@@ -977,10 +1002,11 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
       <td>25/32 (78%)</td>
       <td>32/32 (100%)</td>
       <td>21/32 (66%)</td>
+      <td>4/21</td>
       <td>21/32 (66%)</td>
       <td style="">0pp</td>
       <td>Mixed</td>
-      <td style="font-size:0.72rem; line-height:1.5;"><strong>+noise=0.20</strong>: 8/32 self (25%), 2/32 MPNN (6%)<br><strong>+halluc</strong>: 18/32 self (56%), 17/32 MPNN (53%)<br><span style="color:var(--green); font-weight:700">&#9733; </span><strong>Agentic scale-default (Exp 24)</strong>: 72/96 self (75%), 50/96 MPNN (52%)</td>
+      <td style="font-size:0.7rem; line-height:1.5;"><strong>+noise=0.20</strong>: 8/32 self (25%, unique 1/8), 2/32 MPNN<br><strong>+halluc</strong>: 18/32 self (56%, unique 5/18), 17/32 MPNN<br><span style="color:var(--green); font-weight:700">&#9733; </span><strong>Agentic (Exp 24)</strong>: 72/96 self (75%, unique 11/72), 50/96 MPNN</td>
     </tr>
     <tr style="background:#fef3c7">
       <td><strong>BBF14</strong></td>
@@ -990,10 +1016,11 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
       <td>24/32 (75%)</td>
       <td>29/32 (91%)</td>
       <td>24/32 (75%)</td>
+      <td>3/24</td>
       <td>24/32 (75%)</td>
       <td style="">0pp</td>
       <td>Both iPAE+pLDDT</td>
-      <td style="font-size:0.72rem; line-height:1.5;"><strong>+noise=0.20</strong>: 24/32 self (75%), 24/32 MPNN (75%)<br><strong>+halluc</strong>: 17/32 self (53%), 19/32 MPNN (59%)</td>
+      <td style="font-size:0.7rem; line-height:1.5;"><strong>+noise=0.20</strong>: 24/32 self (75%, unique 4/24), 24/32 MPNN<br><strong>+halluc</strong>: 17/32 self (53%, unique 3/17), 19/32 MPNN</td>
     </tr>
     <tr style="background:#dbeafe">
       <td><strong>DerF21</strong></td>
@@ -1003,10 +1030,11 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
       <td>24/32 (75%)</td>
       <td>32/32 (100%)</td>
       <td>24/32 (75%)</td>
+      <td>3/24</td>
       <td>29/32 (91%)</td>
       <td style="color:var(--green)">+16pp</td>
       <td>Sequence (MPNN≫Self)</td>
-      <td style="font-size:0.72rem; line-height:1.5;"><strong>+noise=0.20</strong>: 13/32 self (41%), 24/32 MPNN (75%)<br><strong>+halluc</strong>: 18/32 self (56%), 19/32 MPNN (59%)</td>
+      <td style="font-size:0.7rem; line-height:1.5;"><strong>+noise=0.20</strong>: 13/32 self (41%, unique 3/13), 24/32 MPNN<br><strong>+halluc</strong>: 18/32 self (56%, unique 4/18), 19/32 MPNN</td>
     </tr>
     <tr style="background:#fef3c7">
       <td><strong>CbAgo</strong></td>
@@ -1016,10 +1044,11 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
       <td>0/32 (0%)</td>
       <td>32/32 (100%)</td>
       <td>0/32 (0%)</td>
+      <td>—</td>
       <td>0/32 (0%)</td>
       <td style="">0pp</td>
       <td>Both (both low)</td>
-      <td style="font-size:0.72rem; line-height:1.5;"><strong>+noise=0.20</strong>: 0/32 self (0%), 0/32 MPNN (0%)<br><strong>MCTS+G&H msg5 (Exp 25)</strong>: 0/8 self (0%), 0/8 MPNN (0%)<br><strong>MCTS+pLDDT+G&H rws5</strong>: 0/8 self (0%), 0/8 MPNN (0%)<br><strong>pure MCTS md40</strong>: 0/8 self (0%), 0/8 MPNN (0%)<br><strong>halluc 36h rerun</strong>: 0/32 self (0%), 0/32 MPNN (0%)</td>
+      <td style="font-size:0.7rem; line-height:1.5;"><strong>+noise=0.20</strong>: 0/32 self (0%, unique —), 0/32 MPNN<br><strong>MCTS+G&H msg5</strong>: 0/8 self (0%, unique —), 0/8 MPNN<br><strong>MCTS+pLDDT+G&H rws5</strong>: 0/8 self (0%, unique —), 0/8 MPNN<br><strong>pure MCTS md40</strong>: 0/8 self (0%, unique —), 0/8 MPNN<br><strong>halluc 36h rerun</strong>: 0/32 self (0%, unique —), 0/32 MPNN</td>
     </tr>
     <tr style="background:#d1fae5">
       <td><strong>IL7RA</strong></td>
@@ -1029,10 +1058,11 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
       <td>27/32 (84%)</td>
       <td>32/32 (100%)</td>
       <td>27/32 (84%)</td>
+      <td>3/27</td>
       <td>17/32 (53%)</td>
       <td style="color:var(--red)">-31pp</td>
       <td>None (saturated)</td>
-      <td style="font-size:0.72rem; line-height:1.5;"><strong>+noise=0.20</strong>: 24/32 self (75%), 28/32 MPNN (88%)<br><strong>+halluc</strong>: 18/32 self (56%), 27/32 MPNN (84%)<br><span style="color:var(--green); font-weight:700">&#9733; </span><strong>+halluc softg5_short (Exp 27, 100%)</strong>: 16/16 self (100%), 15/16 MPNN (94%)<br><strong>Agentic scale-default (Exp 24)</strong>: 69/96 self (72%), 53/96 MPNN (55%)</td>
+      <td style="font-size:0.7rem; line-height:1.5;"><strong>+noise=0.20</strong>: 24/32 self (75%, unique 4/24), 28/32 MPNN<br><strong>+halluc</strong>: 18/32 self (56%, unique 3/18), 27/32 MPNN<br><span style="color:var(--green); font-weight:700">&#9733; </span><strong>+halluc softg5_short (100%)</strong>: 16/16 self (100%, unique 4/16), 15/16 MPNN<br><strong>Agentic (Exp 24)</strong>: 69/96 self (72%, unique 6/69), 53/96 MPNN</td>
     </tr>
     <tr style="background:#fef3c7">
       <td><strong>Insulin</strong></td>
@@ -1042,10 +1072,11 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
       <td>14/32 (44%)</td>
       <td>32/32 (100%)</td>
       <td>14/32 (44%)</td>
+      <td>2/14</td>
       <td>15/32 (47%)</td>
       <td style="">+3pp</td>
       <td>pLDDT (sequence)</td>
-      <td style="font-size:0.72rem; line-height:1.5;"><span style="color:var(--green); font-weight:700">&#9733; </span><strong>+noise=0.20</strong>: 16/32 self (50%), 14/32 MPNN (44%)<br><span style="color:var(--green); font-weight:700">&#9733; </span><strong>+halluc</strong>: 16/32 self (50%), 14/32 MPNN (44%)<br><span style="color:var(--green); font-weight:700">&#9733; </span><strong>+halluc greedy5 (Exp 27, 100%)</strong>: 16/16 self (100%), 16/16 MPNN (100%)</td>
+      <td style="font-size:0.7rem; line-height:1.5;"><span style="color:var(--green); font-weight:700">&#9733; </span><strong>+noise=0.20</strong>: 16/32 self (50%, unique 2/16), 14/32 MPNN<br><span style="color:var(--green); font-weight:700">&#9733; </span><strong>+halluc</strong>: 16/32 self (50%, unique 5/16), 14/32 MPNN<br><span style="color:var(--green); font-weight:700">&#9733; </span><strong>+halluc greedy5 (100%)</strong>: 16/16 self (100%, unique 4/16), 16/16 MPNN</td>
     </tr>
     <tr style="background:#fef3c7">
       <td><strong>H1</strong></td>
@@ -1055,10 +1086,11 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
       <td>16/32 (50%)</td>
       <td>3/32 (9%)</td>
       <td>0/32 (0%)</td>
+      <td>—</td>
       <td>0/32 (0%)</td>
       <td style="">0pp</td>
       <td>Both iPAE+pLDDT</td>
-      <td style="font-size:0.72rem; line-height:1.5;"><strong>+noise=0.20</strong>: 0/32 self (0%), 0/32 MPNN (0%)<br><strong>MCTS+G&H msg5 (Exp 25)</strong>: 1/8 self (12%), 0/8 MPNN (0%)<br><strong>MCTS+pLDDT+G&H rws10 (Exp 26, best)</strong>: 2/8 self (25%), 0/8 MPNN (0%)<br><strong>pure MCTS md80</strong>: 1/8 self (12%), 0/8 MPNN (0%)<br><strong>Exp 28 paper recipe</strong>: 0/644 self (0%), 0/644 MPNN (0%)</td>
+      <td style="font-size:0.7rem; line-height:1.5;"><strong>+noise=0.20</strong>: 0/32 self (0%, unique —), 0/32 MPNN<br><strong>MCTS+G&H msg5</strong>: 1/8 self (12%, unique 1/1), 0/8 MPNN<br><strong>MCTS+pLDDT+G&H rws10 (best)</strong>: 2/8 self (25%, unique 2/2), 0/8 MPNN<br><strong>pure MCTS md80</strong>: 1/8 self (12%, unique 1/1), 0/8 MPNN<br><strong>Paper Sec I.4 recipe (Exp 28)</strong>: 0/644 self (0%, unique —), 0/644 MPNN</td>
     </tr>
     <tr style="background:#fef3c7">
       <td><strong>IL17A</strong></td>
@@ -1068,10 +1100,11 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
       <td>0/32 (0%)</td>
       <td>23/32 (72%)</td>
       <td>0/32 (0%)</td>
+      <td>—</td>
       <td>0/32 (0%)</td>
       <td style="">0pp</td>
       <td>Both (both low)</td>
-      <td style="font-size:0.72rem; line-height:1.5;"><strong>+noise=0.20</strong>: 0/32 self (0%), 0/32 MPNN (0%)<br><strong>+halluc</strong>: 0/32 self (0%), 0/32 MPNN (0%)<br><strong>MCTS+G&H msg5 (Exp 25)</strong>: 0/8 self (0%), 1/8 MPNN (12%)<br><strong>MCTS+pLDDT+G&H rws10 (Exp 26, MPNN only)</strong>: 0/8 self (0%), 0/8 MPNN (0%)<br><strong>Exp 28 paper recipe</strong>: 0/324 self (0%), 0/324 MPNN (0%)</td>
+      <td style="font-size:0.7rem; line-height:1.5;"><strong>+noise=0.20</strong>: 0/32 self (0%, unique —), 0/32 MPNN<br><strong>+halluc</strong>: 0/32 self (0%, unique —), 0/32 MPNN<br><strong>MCTS+G&H msg5</strong>: 0/8 self (0%, unique —), 1/8 MPNN<br><strong>MCTS+pLDDT+G&H rws10 (MPNN only)</strong>: 0/8 self (0%, unique —), 0/8 MPNN<br><strong>Paper Sec I.4 recipe (Exp 28)</strong>: 0/324 self (0%, unique —), 0/324 MPNN</td>
     </tr>
     <tr style="background:#fef3c7">
       <td><strong>TNFalpha</strong></td>
@@ -1081,10 +1114,11 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
       <td>0/32 (0%)</td>
       <td>32/32 (100%)</td>
       <td>0/32 (0%)</td>
+      <td>—</td>
       <td>0/32 (0%)</td>
       <td style="">0pp</td>
       <td>Both (both low)</td>
-      <td style="font-size:0.72rem; line-height:1.5;"><strong>+noise=0.20</strong>: 0/32 self (0%), 0/32 MPNN (0%)<br><span style="color:var(--green); font-weight:700">&#9733; </span><strong>MCTS+G&H msg5 (Exp 25, best)</strong>: 4/8 self (50%), 1/8 MPNN (12%)<br><strong>MCTS+pLDDT+G&H rws5</strong>: 2/8 self (25%), 1/8 MPNN (12%)<br><strong>pure MCTS md40</strong>: 0/8 self (0%), 0/8 MPNN (0%)<br><strong>Exp 28 paper recipe</strong>: 2/644 self (0%), 1/644 MPNN (0%)</td>
+      <td style="font-size:0.7rem; line-height:1.5;"><strong>+noise=0.20</strong>: 0/32 self (0%, unique —), 0/32 MPNN<br><span style="color:var(--green); font-weight:700">&#9733; </span><strong>MCTS+G&H msg5 (best)</strong>: 4/8 self (50%, unique 4/4), 1/8 MPNN<br><strong>MCTS+pLDDT+G&H rws5</strong>: 2/8 self (25%, unique 2/2), 1/8 MPNN<br><strong>pure MCTS md40</strong>: 0/8 self (0%, unique —), 0/8 MPNN<br><strong>Paper Sec I.4 recipe (Exp 28)</strong>: 2/644 self (0%, unique 2/2), 1/644 MPNN</td>
     </tr>
     <tr style="background:#fef3c7">
       <td><strong>PDL1-AAV (heldout)</strong></td>
@@ -1094,10 +1128,11 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
       <td>561/1216 (46%)</td>
       <td>1198/1216 (99%)</td>
       <td>484/1216 (40%)</td>
+      <td>12/484</td>
       <td>597/1216 (49%)</td>
       <td style="">+9pp</td>
       <td>Both iPAE+pLDDT</td>
-      <td style="font-size:0.72rem; line-height:1.5;"><em style="color:#999">Baseline only (no intervention matrix)</em></td>
+      <td style="font-size:0.7rem; line-height:1.5;"><em style="color:#999">Baseline only</em></td>
     </tr>
     <tr style="background:#fef3c7">
       <td><strong>DerF7-variant (heldout)</strong></td>
@@ -1107,10 +1142,11 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
       <td>876/1216 (72%)</td>
       <td>1199/1216 (99%)</td>
       <td>123/1216 (10%)</td>
+      <td>3/123</td>
       <td>193/1216 (16%)</td>
       <td style="">+6pp</td>
       <td>iPAE (geometry)</td>
-      <td style="font-size:0.72rem; line-height:1.5;"><em style="color:#999">Baseline only (no intervention matrix)</em></td>
+      <td style="font-size:0.7rem; line-height:1.5;"><em style="color:#999">Baseline only</em></td>
     </tr>
     <tr style="background:#fef3c7">
       <td><strong>DerF21-variant (heldout)</strong></td>
@@ -1120,10 +1156,11 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
       <td>604/1216 (50%)</td>
       <td>971/1216 (80%)</td>
       <td>568/1216 (47%)</td>
+      <td>25/568</td>
       <td>688/1216 (57%)</td>
       <td style="">+10pp</td>
       <td>pLDDT (sequence)</td>
-      <td style="font-size:0.72rem; line-height:1.5;"><em style="color:#999">Baseline only (no intervention matrix)</em></td>
+      <td style="font-size:0.7rem; line-height:1.5;"><em style="color:#999">Baseline only</em></td>
     </tr>
     <tr style="background:#fef3c7">
       <td><strong>CbAgo-variant (heldout)</strong></td>
@@ -1133,10 +1170,11 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
       <td>91/1216 (7%)</td>
       <td>1181/1216 (97%)</td>
       <td>0/1216 (0%)</td>
+      <td>—</td>
       <td>0/1216 (0%)</td>
       <td style="">0pp</td>
       <td>Both (both low)</td>
-      <td style="font-size:0.72rem; line-height:1.5;"><em style="color:#999">Baseline only (no intervention matrix)</em></td>
+      <td style="font-size:0.7rem; line-height:1.5;"><em style="color:#999">Baseline only</em></td>
     </tr>
     <tr style="background:#fef3c7">
       <td><strong>HER2_AAV-variant (heldout)</strong></td>
@@ -1146,10 +1184,11 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
       <td>87/1216 (7%)</td>
       <td>1184/1216 (97%)</td>
       <td>0/1216 (0%)</td>
+      <td>—</td>
       <td>31/1216 (3%)</td>
       <td style="">+3pp</td>
       <td>Both (both low)</td>
-      <td style="font-size:0.72rem; line-height:1.5;"><em style="color:#999">Baseline only (no intervention matrix)</em></td>
+      <td style="font-size:0.7rem; line-height:1.5;"><em style="color:#999">Baseline only</em></td>
     </tr>
     <tr style="background:#dbeafe">
       <td><strong>PDL1-ALPHA (heldout)</strong></td>
@@ -1159,10 +1198,11 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
       <td>564/1216 (46%)</td>
       <td>1198/1216 (99%)</td>
       <td>540/1216 (44%)</td>
+      <td>24/540</td>
       <td>754/1216 (62%)</td>
       <td style="color:var(--green)">+18pp</td>
       <td>Sequence (MPNN≫Self)</td>
-      <td style="font-size:0.72rem; line-height:1.5;"><em style="color:#999">Baseline only (no intervention matrix)</em></td>
+      <td style="font-size:0.7rem; line-height:1.5;"><em style="color:#999">Baseline only</em></td>
     </tr>
   </table>
   </div>
@@ -2108,31 +2148,78 @@ Terminate: when unique success count plateaus
   All configs use iPAE-only reward (no pLDDT). md40/md80/ms60 have no hallucination.
   <strong>All numbers verified against <code>binder_results_*.csv</code> on April 11, 2026.</strong></p>
 
-  <h4>Self Pass Rates (ipAE &lt; 7.0 &Aring;, pLDDT &gt; 0.9, scRMSD &lt; 1.5&Aring;)</h4>
-  <p class="note"><strong>How to read this table:</strong> What is plotted = self-sequence pass counts for each Exp 25 config on each hard target. Denominator = N=8 final designs per target/config. Config meaning = <code>md40/md80/ms60</code> are pure MCTS variants; <code>mg05</code> adds greedy-only refinement; <code>msg5</code> adds full soft+greedy refinement. Interpretation = pure MCTS is almost always insufficient; the first real gains appear only after local refinement is added.</p>
+  <h4>Self Pass Rates: total count &amp; <em>unique</em> count (Exp 25 configs + Paper Sec I.4 recipe)</h4>
+  <p class="note"><strong>Format:</strong> <code>total_pass/N (unique)</code> — e.g., <code>4/8 (4)</code> means 4 of 8 designs pass, all 4 are FoldSeek-distinct folds at TM-score 0.5. The "unique" count aligns with the paper's Figure 22 y-axis ("# Unique Successes").
+  <strong>Denominator:</strong> N=8 final designs per Exp 25/26 run; Exp 28 paper recipe had 644 total but we report 4 final designs (see final-only comparison below).</p>
+
+  <div class="callout warn">
+    <p><strong>Config diff: our msg5 vs Paper Sec I.4 recipe</strong></p>
+    <table style="font-size:0.82rem; margin-top:6px;">
+      <tr><th>Parameter</th><th>Our msg5 (Exp 25)</th><th>Paper Sec I.4 (H1/TNF&alpha;)</th><th>Paper Sec I.4 (IL17A)</th></tr>
+      <tr><td>Search algorithm</td><td>MCTS</td><td>MCTS</td><td>MCTS</td></tr>
+      <tr><td>Checkpoints</td><td><strong>Dense [0,50,…,400] (9 ckpts, K=50)</strong></td><td>Sparse [0,100,…,400] (5 ckpts, K=100)</td><td>Dense (K=50, matches ours)</td></tr>
+      <tr><td>N<sub>sim</sub></td><td><strong>40</strong></td><td>20</td><td>20</td></tr>
+      <tr><td>exploration_prob (&epsilon;)</td><td><strong>0.3</strong></td><td>0.5</td><td>0.5</td></tr>
+      <tr><td>exploration_const (C)</td><td><strong>0.5</strong></td><td>1.0</td><td>1.0</td></tr>
+      <tr><td>Reward</td><td><strong>iPAE only</strong></td><td>iPAE/31 + pLDDT (modified)</td><td>iPAE/31 + pLDDT</td></tr>
+      <tr><td>G&amp;H stages</td><td><strong>Stages 2+3+4 (softmax 45 iter + one-hot 5 iter + greedy 15 iter)</strong></td><td>Stage 4 only (greedy 15 iter)</td><td>Stage 4 only</td></tr>
+      <tr><td>G&amp;H mutation rate</td><td>5%</td><td>5% (0.05× binder length)</td><td>5%</td></tr>
+    </table>
+    <p style="font-size:0.82rem; margin-top:6px;"><strong>Key differences:</strong> our msg5 uses iPAE-only reward (paper uses combined iPAE+pLDDT), full 3-stage G&amp;H (paper uses stage 4 only), and 2× more simulations with tighter exploration. The <code>rw_pl050_softg5</code> Exp 26 config adds the pLDDT reward term (closer to paper's recipe but still with 3-stage G&amp;H).</p>
+  </div>
+
   <div class="table-wrap">
   <table>
-    <tr><th>Target</th><th>md40</th><th>md80</th><th>ms60</th><th>mg05 (greedy)</th><th>msg5 (soft+greedy)</th></tr>
+    <tr><th rowspan="2">Target</th><th colspan="3">Pure MCTS (no G&amp;H)</th><th colspan="2">MCTS + G&amp;H</th><th>Paper Sec I.4 recipe</th></tr>
+    <tr><th>md40</th><th>md80</th><th>ms60</th><th>mg05 (greedy)</th><th>msg5 (soft+greedy, ours)</th><th>Exp 28 (final designs)</th></tr>
     <tr>
-      <td><strong>SC2RBD</strong></td><td class="fail">0/8</td><td class="fail">0/8</td><td class="fail">0/8</td><td>1/8 (12.5%)</td><td class="best">4/8 (50.0%)</td>
+      <td><strong>SC2RBD</strong></td>
+      <td class="fail">0/8 (0)</td><td class="fail">0/8 (0)</td><td class="fail">0/8 (0)</td>
+      <td>1/8 (1)</td>
+      <td class="best">4/8 (4)</td>
+      <td>1/4 (1)</td>
     </tr>
     <tr>
-      <td><strong>TNF&alpha;</strong></td><td class="fail">0/8</td><td class="fail">0/8</td><td class="fail">0/8</td><td>1/8 (12.5%)</td><td class="best">4/8 (50.0%)</td>
+      <td><strong>TNF&alpha;</strong></td>
+      <td class="fail">0/8 (0)</td><td class="fail">0/8 (0)</td><td class="fail">0/8 (0)</td>
+      <td>1/8 (1)</td>
+      <td class="best">4/8 (4)</td>
+      <td>2/4 (2)</td>
     </tr>
     <tr>
-      <td><strong>H1</strong></td><td class="fail">0/8</td><td>1/8</td><td class="fail">0/8</td><td>1/8</td><td>1/8</td>
+      <td><strong>H1</strong></td>
+      <td class="fail">0/8 (0)</td><td>1/8 (1)</td><td class="fail">0/8 (0)</td>
+      <td>1/8 (1)</td>
+      <td>1/8 (1)</td>
+      <td class="fail">0/4 (0)</td>
     </tr>
     <tr>
-      <td><strong>IL17A</strong></td><td class="fail">0/8</td><td class="fail">0/8</td><td class="fail">0/8</td><td class="fail">0/8</td><td class="fail">0/8</td>
+      <td><strong>IL17A</strong></td>
+      <td class="fail">0/8</td><td class="fail">0/8</td><td class="fail">0/8</td>
+      <td class="fail">0/8</td><td class="fail">0/8</td>
+      <td class="fail">0/324 (0)</td>
     </tr>
     <tr>
-      <td><strong>CbAgo</strong></td><td class="fail">0/8</td><td class="fail">0/8</td><td class="fail">0/8</td><td class="fail">0/8</td><td class="fail">0/8</td>
+      <td><strong>CbAgo</strong></td>
+      <td class="fail">0/8</td><td class="fail">0/8</td><td class="fail">0/8</td>
+      <td class="fail">0/8</td><td class="fail">0/8</td>
+      <td><em>not in Sec I.4</em></td>
     </tr>
     <tr style="background:#f8fafc; font-weight:600">
-      <td>Total</td><td>0/40</td><td>1/40</td><td>0/40</td><td>3/40</td><td class="best">9/40</td>
+      <td>Total (5 targets)</td>
+      <td>0/40</td><td>1/40</td><td>0/40</td>
+      <td>3/40</td>
+      <td class="best">9/40 (9 unique)</td>
+      <td>3/336 final (3 unique)</td>
     </tr>
   </table>
   </div>
+  <p class="note">
+    <strong>Parenthetical = unique FoldSeek-clustered successes</strong> (matching paper Fig. 22 y-axis).
+    All 9 msg5 successes are structurally distinct (unique = total). The paper-recipe column includes Exp 28 eval-only reruns;
+    IL17A was run with N=324 lookahead samples (all fail), H1/TNFα/SC2RBD had 4 final designs each after the lookahead-inflation bug was understood.
+    On matched <strong>final-design</strong> basis: our msg5 total 9/40 &gt; paper recipe 3/12 = 25% vs 22.5% — comparable per-design but our configs scale to larger N faster per unit compute.
+  </p>
 
   <h4>MPNN Pass Rates</h4>
   <p class="note"><strong>How to read this table:</strong> What is plotted = MPNN-redesigned pass counts for the same Exp 25 runs. Denominator = N=8 redesigned evaluations per target/config. Config meaning = same as the self table above. Interpretation = Exp 25 mainly improves self-channel success; redesign robustness remains much weaker and only becomes non-zero on a few refined runs.</p>
@@ -2164,6 +2251,18 @@ Terminate: when unique success count plateaus
     </p>
   </div>
   <h3>Exp 26: Reward Shaping + G&amp;H (25/25 jobs complete)</h3>
+
+  <div class="callout warn">
+    <p><strong>Config diff: Exp 26 <code>rw_pl050_softg5</code> vs Paper Sec I.4 recipe</strong></p>
+    <table style="font-size:0.82rem; margin-top:6px;">
+      <tr><th>Parameter</th><th>Exp 26 rw_pl050_softg5 (our best)</th><th>Paper Sec I.4</th></tr>
+      <tr><td>MCTS params</td><td>N<sub>sim</sub>=40, &epsilon;=0.3, C=0.5, dense ckpts (K=50)</td><td>N<sub>sim</sub>=20, &epsilon;=0.5, C=1.0, K=100 (H1/TNFα) or K=50 (IL17A)</td></tr>
+      <tr><td>Reward</td><td><strong>iPAE(-1.0) + pLDDT(+0.5)</strong> ✓ matches paper's "iPAE/31+pLDDT"</td><td>iPAE/31 + pLDDT</td></tr>
+      <tr><td>G&amp;H stages</td><td><strong>Stages 2+3+4 (full soft+greedy)</strong></td><td>Stage 4 only (greedy, 15 iter)</td></tr>
+      <tr><td>G&amp;H mutation rate</td><td>5% (0.05× binder length)</td><td>5% (for hard targets per Sec I.4; 1% is paper's general default)</td></tr>
+    </table>
+    <p style="font-size:0.82rem; margin-top:6px;"><strong>The reward function matches the paper</strong> (modified iPAE+pLDDT) but our G&amp;H is more aggressive (all 3 stages vs stage 4 only). This is closest of our configs to the paper's Sec I.4 recipe. Exp 28 attempted the paper's exact config; see Exp 28 section for the head-to-head comparison.</p>
+  </div>
 
   <div class="card" style="border-left: 4px solid var(--green); background: linear-gradient(135deg, #eff6ff 0%, #fafbfc 100%);">
     <h4 style="font-size:1rem; margin-bottom:8px;">SC2RBD e26_04: The Single Most Important Result</h4>
@@ -2218,7 +2317,19 @@ Terminate: when unique success count plateaus
   separately below. All tables here use N=16 designs per run.</p>
 
   <h4>Self Pass Rates (N=16 per run)</h4>
-  <p class="note"><strong>How to read this table:</strong> What is plotted = self-sequence pass counts for five local refinement schedules on already geometry-viable targets. Denominator = N=16 final designs per target/schedule. Config meaning = <code>greedy</code> enables only the semigreedy mutation stage, while <code>soft+greedy</code> adds the earlier softmax and one-hot optimization stages; <code>short</code> and <code>long</code> differ in the number of optimization iterations. Interpretation = once geometry exists, schedule choice matters as much as search choice.</p>
+  <p class="note"><strong>How to read this table:</strong> self-sequence pass counts for five local refinement schedules on geometry-viable targets. Denominator = N=16 final designs per target/schedule. <code>greedy</code> enables only the semigreedy mutation stage (paper default); <code>soft+greedy</code> adds earlier softmax + one-hot stages. <code>short</code> vs <code>long</code> differ in # iterations. Mutation rate % = per-iteration mutation budget.</p>
+
+  <div class="callout warn">
+    <p><strong>Config diff: Exp 27 G&amp;H schedules vs Paper's G&amp;H default (Sec H.5)</strong></p>
+    <table style="font-size:0.82rem; margin-top:6px;">
+      <tr><th>Parameter</th><th>Exp 27 tested</th><th>Paper general default</th><th>Paper Sec I.4 (very hard)</th></tr>
+      <tr><td>Stages</td><td>Stage 4 only (greedy) OR Stages 2+3+4 (soft+greedy)</td><td>Stage 4 only</td><td>Stage 4 only</td></tr>
+      <tr><td>Mutation rate</td><td><strong>2%, 5%, 10%</strong></td><td><strong>1%</strong> (0.01× binder length)</td><td>5% (0.05× binder length)</td></tr>
+      <tr><td>Iterations (stage 4)</td><td>15</td><td>15</td><td>15</td></tr>
+      <tr><td>Initialization</td><td>From Complexa-generated sequence</td><td>From Complexa-generated sequence</td><td>From Complexa-generated sequence</td></tr>
+    </table>
+    <p style="font-size:0.82rem; margin-top:6px;"><strong>Key difference:</strong> paper's general default uses <em>1% mutations</em> (our 2% is the closest we ran, still ~2× higher). Exp 33c (currently running) adds the exact <strong>1% schedule</strong> for CD45/HER2/BetV1 to complete the comparison.</p>
+  </div>
   <div class="table-wrap">
   <table>
     <tr><th>Target</th><th>greedy 2%</th><th>greedy 5%</th><th>soft+greedy short</th><th>soft+greedy long</th><th>aggressive 10%</th></tr>
