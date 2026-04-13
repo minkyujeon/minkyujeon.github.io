@@ -140,16 +140,18 @@
 <div class="hero">
   <div class="container">
     <div class="breadcrumb"><a href="/">Minkyu Jeon</a> / <a href="/projects/">Projects</a> / <a href="/projects/agentic-protein-design.html">Agentic Protein Design</a></div>
-    <h1>Agentic Inference-Time Scaling for De Novo Protein Design</h1>
+    <h1>AutoResearch on a Fixed-Weight Generative Protein Model</h1>
     <p class="subtitle">
-      Research plan, architecture, benchmark design, and future directions. This companion page keeps the full planning
-      material separate from the experiment log so the project is easier to review and maintain.
+      Reframing the de novo binder design loop: <strong>fix only the Proteina-Complexa checkpoint, let a code-writing
+      LLM agent rewrite everything else</strong> (search algorithm, reward shape, BindCraft schedule, budget
+      allocation), and benchmark against our existing human-designed campaign on the same targets, hardware, and
+      FoldSeek-unique success metric.
     </p>
     <div class="meta">
       <span>Minkyu Jeon</span>
       <span>Princeton University</span>
-      <span>April 2026</span>
-      <span><span class="tag tag-blue">Planning Companion</span></span>
+      <span>April 2026 &middot; reframed 2026-04-13</span>
+      <span><span class="tag tag-purple">AutoResearch Reframing</span></span>
     </div>
   </div>
 </div>
@@ -159,7 +161,17 @@
 <div class="toc">
   <h3>Contents</h3>
   <ol>
-    <li><a href="#plan-map">Structured Reading Map</a></li>
+    <li><a href="#autoresearch"><strong>AutoResearch Reframing (new top-level)</strong></a>
+      <ul style="list-style: disc; padding-left: 20px; margin-top: 4px;">
+        <li><a href="#autoresearch-thesis" style="font-size:0.85rem">Thesis &amp; what changes</a></li>
+        <li><a href="#autoresearch-related" style="font-size:0.85rem">Related work (Latent-Y caveat)</a></li>
+        <li><a href="#autoresearch-novelty" style="font-size:0.85rem">Novelty angles in priority order</a></li>
+        <li><a href="#autoresearch-contract" style="font-size:0.85rem">Action space, frozen surfaces, Goodhart guards</a></li>
+        <li><a href="#autoresearch-phases" style="font-size:0.85rem">Concrete phases A&ndash;D and ship list</a></li>
+        <li><a href="#autoresearch-risks" style="font-size:0.85rem">Risks, kill criteria, budget</a></li>
+      </ul>
+    </li>
+    <li><a href="#plan-map">Structured Reading Map (now: human-loop baseline doc)</a></li>
     <li><a href="#evaluation">Rigorous Plan Evaluation</a></li>
     <li><a href="#experiments">Historical Experimental Plan Snapshot</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
@@ -179,8 +191,282 @@
   <a href="/projects/agentic-protein-design-plan.html" class="active">Research Plan &amp; Architecture</a>
 </div>
 
+<div class="section" id="autoresearch">
+  <h2>0. AutoResearch Reframing (new top-level)</h2>
+
+  <div class="callout">
+    <p><strong>What changed on 2026-04-13.</strong> Everything below this section (the original plan) treats <em>the human</em> as the researcher who designs diagnostic sidecars, writes routing rules, and chooses operator bundles. The page on <a href="/projects/agentic-protein-design.html">agentic-protein-design.html</a> is the resulting <strong>human-designed loop</strong>. This new top section reframes the work: <strong>fix only Complexa's checkpoint</strong>, expose every other surface (search algorithm, reward shape, BindCraft schedule, budget allocation, even the diagnostic code) as the action space of a <strong>code-writing LLM agent</strong>, and treat the prior human campaign as the baseline to beat on a single fixed metric (FoldSeek-unique successes). The original plan is preserved below as the design document for that baseline.</p>
+  </div>
+
+  <h3 id="autoresearch-thesis">0.1 Thesis: human-designed loop &rarr; agentic loop</h3>
+
+  <div class="card" style="border-left: 4px solid var(--purple);">
+    <p style="font-size:0.92rem; color:var(--text); margin-bottom:8px;"><strong>Old question:</strong> "What is the best human-designed inference-time recipe for de novo binders on Complexa?"</p>
+    <p style="font-size:0.92rem; color:var(--text); margin-bottom:8px;"><strong>New question:</strong> "Given Complexa as a fixed black-box generator, can a code-writing LLM agent discover a better recipe than our human-designed one, on the same hardware, on the same metric, under the same per-target compute budget?"</p>
+    <p style="font-size:0.88rem; color:var(--muted); margin-bottom:0;">The agent is <em>not</em> expected to understand protein chemistry. It is expected to: (1) read evaluation TSVs (success rates, ipAE / pLDDT / scRMSD distributions, FoldSeek cluster IDs); (2) write Python that edits the search loop, reward function, BindCraft hyperparameters, or budget allocation; (3) run the modified pipeline within a fixed wall-clock per attempt; (4) commit-or-revert based on FoldSeek-unique success delta. We trust its <strong>coding</strong> ability, not its biology.</p>
+  </div>
+
+  <p style="font-size:0.9rem;">Structurally, this ports <a href="https://github.com/karpathy/autoresearch">Karpathy's AutoResearch contract</a> (one file the agent edits, one metric, one fixed budget, git as memory) from LLM pre-training to a fixed-weight generative protein model.</p>
+
+  <h3>0.1b Heilmeier-style summary for the proposal</h3>
+  <div class="table-wrap">
+  <table>
+    <tr><th style="width:28%">Question</th><th style="width:72%">Current answer in this project</th></tr>
+    <tr>
+      <td><strong>1. What are you trying to do?</strong></td>
+      <td>Build an LLM coding agent that improves a frozen de novo binder-design pipeline by editing only the surrounding harness code, then measure whether it finds more <strong>FoldSeek-unique successful binders</strong> than our human-designed loop under the same compute budget.</td>
+    </tr>
+    <tr>
+      <td><strong>2. How is it done today, and what are the limits?</strong></td>
+      <td>Today it is done by a human researcher who inspects results, writes analysis code, changes search or refinement settings, reruns the pipeline, and manually compares outcomes. This already works, but it is slow, target-specific, memory-limited, and difficult to scale to many expensive targets.</td>
+    </tr>
+    <tr>
+      <td><strong>3. What is new, and why might it work?</strong></td>
+      <td>The new element is not a better protein model. The novelty is a <strong>code-writing outer loop</strong> over a fixed model: the agent reads prior traces, edits search / reward / BindCraft / budget code, and learns from the full campaign history. It might work because our current results already prove that harness choices matter dramatically across targets.</td>
+    </tr>
+    <tr>
+      <td><strong>4. Who cares?</strong></td>
+      <td>If successful, this becomes a concrete benchmark for <strong>AutoResearch on generative science models</strong>, not just on language models. In practice it could shorten the iteration loop for de novo binder discovery and provide a public, reproducible testbed for agentic scientific coding.</td>
+    </tr>
+  </table>
+  </div>
+
+  <div class="callout warn">
+    <p><strong>Important narrative discipline.</strong> The proposal should never imply that the LLM "understands proteins" in a mechanistic sense. The intended claim is narrower and stronger: the LLM can act as a <strong>research software engineer</strong> around a fixed protein model, reading traces, writing code, and improving the harness faster or more systematically than a human operating alone.</p>
+  </div>
+
+  <h3 id="autoresearch-related">0.2 Related work (do not duplicate)</h3>
+
+  <p class="note">Survey snapshot 2026-04-13. The combined intersection (code-writing agent + fixed-weight generative protein model + wet-lab-grounded fitness) is currently <strong>empty</strong>. Latent-Y is the nearest prior art and must be explicitly contrasted in any writeup.</p>
+
+  <div class="table-wrap">
+  <table>
+    <tr><th style="width:20%">Work</th><th style="width:32%">What it does</th><th style="width:48%">Why we are not it</th></tr>
+    <tr>
+      <td><strong>AutoResearch (Karpathy, Mar 2026)</strong></td>
+      <td>Coding agent edits one <code>train.py</code>, fixed 5-min runs, reads <code>val_bpb</code>, commit-or-revert. ~12 attempts/hr.</td>
+      <td>Demonstrated only on LLM pre-training. We port the harness contract to a fixed-weight generative <em>science</em> model with a wet-lab-grounded metric.</td>
+    </tr>
+    <tr>
+      <td><strong>AI Scientist v2 (Sakana, 2025; <a href="https://arxiv.org/abs/2504.08066">2504.08066</a>)</strong></td>
+      <td>Best-First Tree Search over code edits, end-to-end ML paper writing, no template.</td>
+      <td>Targets ML workshop papers, not science models. We borrow the BFTS-over-code-edits primitive but the evaluator is a binder pipeline, not arXiv-validity.</td>
+    </tr>
+    <tr>
+      <td><strong>AlphaEvolve (DeepMind, <a href="https://arxiv.org/abs/2506.13131">2506.13131</a>)</strong></td>
+      <td>Evolutionary LLM-programmer over a fixed evaluator; matrix multiplication, datacenter scheduling, math.</td>
+      <td><strong>Closest conceptual match.</strong> Frame ours as "AlphaEvolve with evaluator = BindCraft + FoldSeek." No published binder application.</td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td><strong>Latent-Y (Latent Labs, Mar 2026; <a href="https://arxiv.org/abs/2603.29727">2603.29727</a>)</strong> <span class="tag tag-orange">flag</span></td>
+      <td>End-to-end agent runs antibody campaigns end-to-end (lit review &rarr; epitope &rarr; design &rarr; validation) wrapping their <strong>Latent-X2</strong> generative model. Lab-validated nanobodies on 6/9 targets.</td>
+      <td><strong>Closest prior art.</strong> But: (a) <em>orchestrates fixed tools</em>, does not write Python that modifies the generation loop itself; (b) proprietary model; (c) no published reward / search-strategy tuning. Our differentiator: open Complexa weights + code-writing agent + public FoldSeek metric. <strong>Must be contrasted explicitly.</strong></td>
+    </tr>
+    <tr>
+      <td><strong>AutoBinder Agent (<a href="https://arxiv.org/abs/2602.00019">2602.00019</a>) / ProteinMCP (bioRxiv 2026)</strong></td>
+      <td>MCP-based orchestrators chaining MaSIF / Rosetta / ProteinMPNN / AF3.</td>
+      <td>Tool-call orchestration; action space is fixed JSON, not Python diffs over the generation loop.</td>
+    </tr>
+    <tr>
+      <td><strong>Snell et al. (<a href="https://arxiv.org/abs/2408.03314">2408.03314</a>); Plan-and-Budget surveys</strong></td>
+      <td>LLM as compute-optimal solver, or LLM/bandit meta-scheduler picking strategy per query.</td>
+      <td>All on reasoning. No published LLM meta-scheduler over a generative <em>science</em> model's knobs &mdash; this is the empty quadrant we occupy.</td>
+    </tr>
+    <tr>
+      <td><strong>Profluent ProGen3, ESM3, BinderFlow, PXDesign</strong></td>
+      <td>Scaling / prompting / pipeline papers.</td>
+      <td>No agent loop. Useful as comparison points for static recipes only.</td>
+    </tr>
+  </table>
+  </div>
+
+  <h3 id="autoresearch-novelty">0.3 Novelty angles, in priority order</h3>
+
+  <ol style="font-size:0.92rem; color:var(--text); padding-left:22px; line-height:1.7;">
+    <li><strong>AlphaEvolve-style code evolution over a fixed generative protein model with a wet-lab-grounded fitness.</strong> No published binder work does code-writing evolution; everything published does tool orchestration. The wet-lab-grounded fitness (FoldSeek-unique successes after BindCraft) is what makes this different from a reasoning benchmark and different from an ML-paper mill.</li>
+    <li><strong>Agent-controlled inference-time compute for generative science models.</strong> Snell-style test-time scaling has not been pointed at generative science. Empty quadrant.</li>
+    <li><strong>Honest human-vs-agent baseline.</strong> The existing <a href="/projects/agentic-protein-design.html">Results page</a> is a real, year-long, logged human-designed-loop campaign on the same targets, hardware, and metric. AI Scientist v2's "human baseline" was synthetic. Ours is not.</li>
+  </ol>
+
+  <h3 id="autoresearch-contract">0.4 The contract: action space, frozen surfaces, Goodhart guards</h3>
+
+  <div class="table-wrap">
+  <table>
+    <tr><th style="width:24%">Surface</th><th style="width:14%">Status</th><th style="width:62%">Why</th></tr>
+    <tr style="background:#fee2e2">
+      <td>Complexa model weights / checkpoint</td>
+      <td><span class="tag tag-red">Frozen</span></td>
+      <td>Without weight-fixing the contribution becomes "we trained a better protein model," which is not the claim.</td>
+    </tr>
+    <tr style="background:#fee2e2">
+      <td>Success metric (ipAE&times;31&lt;7 &and; pLDDT&gt;0.9 &and; scRMSD&lt;1.5 &Aring;) and FoldSeek clustering at TM&gt;0.5</td>
+      <td><span class="tag tag-red">Frozen</span></td>
+      <td>Removes Goodhart. Agent cannot redefine winning. Identical to <a href="/projects/agentic-protein-design.html">human campaign</a> and to paper Sec. 3.3.</td>
+    </tr>
+    <tr style="background:#fee2e2">
+      <td>Target list and per-target compute budget (H100-hours)</td>
+      <td><span class="tag tag-red">Frozen</span></td>
+      <td>Required for any apples-to-apples comparison to the human-loop baseline. Per-target budget mirrors what the human campaign actually spent.</td>
+    </tr>
+    <tr style="background:#fee2e2">
+      <td>Evaluation script (<code>pipeline_evaluate.py</code>), FoldSeek clustering script, ipAE/pLDDT/scRMSD threshold values</td>
+      <td><span class="tag tag-red">Frozen, read-only manifest</span></td>
+      <td>Enforced by a file-allow-list in the agent harness. Audited post-hoc by a third evaluator (e.g., RF3 or ESM-Fold) on top-K attempts.</td>
+    </tr>
+    <tr style="background:#d1fae5">
+      <td>Reward function shape (which terms, which weights, curriculum)</td>
+      <td><span class="tag tag-green">Editable</span></td>
+      <td>Primary action.</td>
+    </tr>
+    <tr style="background:#d1fae5">
+      <td>Search algorithm (beam-width, n_branch, MCTS params, FK-Steering temperature, diversity threshold)</td>
+      <td><span class="tag tag-green">Editable</span></td>
+      <td>Primary action. Any algorithm that produces a sample is fair.</td>
+    </tr>
+    <tr style="background:#d1fae5">
+      <td>BindCraft / G&amp;H schedule (which stages, mutation rate, iteration count)</td>
+      <td><span class="tag tag-green">Editable</span></td>
+      <td>Post-generation refinement is part of the action space.</td>
+    </tr>
+    <tr style="background:#d1fae5">
+      <td>Per-step budget allocation (generation vs evaluation vs refinement)</td>
+      <td><span class="tag tag-green">Editable</span></td>
+      <td>Where to spend the wall-clock is itself a research decision.</td>
+    </tr>
+    <tr style="background:#d1fae5">
+      <td>Diagnostic code: which evaluation TSV columns to read, what summary statistics to compute, how to decide next step</td>
+      <td><span class="tag tag-green">Editable</span></td>
+      <td>The agent should learn what to look at, not be told. Mirrors the human-campaign sidecar discovery process.</td>
+    </tr>
+  </table>
+  </div>
+
+  <div class="callout warn">
+    <p><strong>Goodhart guards (what the agent must not do).</strong></p>
+    <ul style="font-size:0.86rem; color:var(--text); padding-left:18px; line-height:1.7; margin:6px 0 0;">
+      <li>Modify the read-only manifest above.</li>
+      <li>Inflate denominators (e.g., counting lookahead samples as final samples &mdash; this was an actual bug in human Exp 28).</li>
+      <li>Skip the BindCraft sequence redesign step before counting MPNN successes.</li>
+      <li>Use any external structure predictor / scoring model not present in the human baseline.</li>
+      <li>Cherry-pick across attempts after seeing the test evaluator. Held-out re-evaluation is mandatory before any reported number.</li>
+    </ul>
+  </div>
+
+  <h3 id="autoresearch-phases">0.5 Concrete phases (~6 weeks, ~1200 H100h)</h3>
+
+  <div class="exp-card planned">
+    <h4>Phase A &mdash; Harness <span class="tag tag-purple">week 1</span></h4>
+    <ul>
+      <li>Single-file <code>complexa_run.py</code> exposing reward weights, beam params, BindCraft schedule, per-step budget. <strong>The agent only edits this file.</strong></li>
+      <li>Read-only <code>complexa_eval.py</code> consumes outputs, returns a FoldSeek-unique success TSV.</li>
+      <li><strong>Git as memory</strong>: every attempt = one commit on a side branch. Wrapper auto-reverts on regression vs the moving best.</li>
+      <li>Wall-clock per attempt = <strong>6 H100-hours</strong> (one Phase 0 deep-beam round in the human campaign).</li>
+      <li>One target only: <strong>SC2RBD</strong> (where the human campaign reached 30 self in 35h with msg5 from a paper-zero baseline).</li>
+    </ul>
+  </div>
+
+  <div class="exp-card planned">
+    <h4>Phase B &mdash; Single-target agent run <span class="tag tag-purple">weeks 2&ndash;3</span></h4>
+    <ul>
+      <li>Driver: Claude Code or Codex with a <code>program.md</code> brief and the harness above. ~12 attempts/day on one H100; ~4 attempts/day if BindCraft is included per attempt.</li>
+      <li>Budget: <strong>50 attempts on SC2RBD &asymp; 300 H100h</strong>.</li>
+      <li><strong>Headline question</strong>: at matched cumulative compute, does the agent's best attempt beat msg5's 30 self in 35h on FoldSeek-unique successes?</li>
+      <li>Deliverable: every attempt's commit + diff + TSV logged as a public trace.</li>
+    </ul>
+  </div>
+
+  <div class="exp-card planned">
+    <h4>Phase C &mdash; Multi-target generalization <span class="tag tag-purple">weeks 4&ndash;5</span></h4>
+    <ul>
+      <li>Same harness, three hard targets concurrently: <strong>SC2RBD, CD45, BetV1</strong>. Agent allocates a shared budget across targets.</li>
+      <li><strong>Headline question</strong>: does the agent re-discover the human routing tree (noise=0.20 for CD45, msg5 for SC2RBD, halluc for HER2_AAV-class), or find better target-conditional code?</li>
+      <li>Budget: ~600 H100h total.</li>
+    </ul>
+  </div>
+
+  <div class="exp-card planned">
+    <h4>Phase D &mdash; Held-out target transfer <span class="tag tag-purple">week 6</span></h4>
+    <ul>
+      <li>Agent transferred to <strong>HER2_AAV</strong> with no prior tuning on it. 30 H100h budget.</li>
+      <li>Comparators: (a) human Exp 27 best (greedy5 = 16/16 self), (b) BindCraft baseline at matched compute, (c) the agent's Phase C policy applied frozen.</li>
+      <li><strong>Headline question</strong>: does the agent's transfer beat the human's transfer on a target neither has seen during the search loop?</li>
+    </ul>
+  </div>
+
+  <h4 style="margin-top:18px;">What we ship if Phase A&ndash;B works</h4>
+  <ul style="font-size:0.92rem;">
+    <li>One scaling curve: <strong>agent's cumulative FoldSeek-unique successes vs cumulative H100-hours</strong> on SC2RBD, vs (msg5, BindCraft default, G&amp;H stage-4-only at 1%) at matched compute.</li>
+    <li>Full attempt trace (commits + diffs + TSVs) as a public dataset.</li>
+    <li>Workshop / arXiv preprint titled along the lines of "AutoResearch on Proteina-Complexa: a fixed-weight generative protein model as a benchmark for code-writing agents."</li>
+  </ul>
+
+  <div class="card" style="border-left: 4px solid var(--green);">
+    <h3 style="font-size:1rem; margin-bottom:8px;">Why the existing results page matters under this reframing</h3>
+    <p style="font-size:0.88rem; color:var(--muted); margin-bottom:8px;">
+      The current <a href="/projects/agentic-protein-design.html">results page</a> is not "old work to move past." Under the AutoResearch framing it becomes the <strong>human-designed harness corpus</strong> that defines the benchmark and provides the first research memory bank:
+    </p>
+    <ul style="font-size:0.88rem; color:var(--muted); padding-left:18px; line-height:1.8; margin-bottom:0;">
+      <li><strong>Phase 0 / Exp 31</strong> define the fixed baseline harnesses the agent must beat.</li>
+      <li><strong>Exp 2 / 4 / 13b / 25 / 26 / 27</strong> are examples of human-discovered harness edits that changed target outcomes dramatically.</li>
+      <li><strong>Exp 29</strong> provides the first scaling-trace format that the agent loop should eventually write automatically.</li>
+      <li><strong>The paper-comparison sections</strong> define what counts as a fair external benchmark and what still requires denominator-matched reproduction.</li>
+    </ul>
+  </div>
+
+  <h3 id="autoresearch-risks">0.6 Risks, kill criteria, budget</h3>
+
+  <div class="table-wrap">
+  <table>
+    <tr><th style="width:24%">Risk</th><th style="width:38%">What it would mean</th><th style="width:38%">Mitigation / pivot</th></tr>
+    <tr>
+      <td>Agent finds nothing better than msg5 on SC2RBD in Phase B</td>
+      <td>Code-writing agents are not yet competitive with a year of human design on this task.</td>
+      <td>Still publishable as a calibrated negative result on a real generative science model. Pivot writeup to "Why human-designed loops still win on de novo binders, with an instrumented agent baseline."</td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td>Latent-Y or a follow-up publishes code-writing version before us</td>
+      <td>Loses headline novelty.</td>
+      <td>Ship Phase A+B as a workshop paper / arXiv preprint by end of week 4. Differentiator (open Complexa + code edits + public FoldSeek) remains intact even if Latent-Y publishes a parallel result.</td>
+    </tr>
+    <tr>
+      <td>Agent gamifies the metric in a way the read-only manifest misses</td>
+      <td>Apparent improvement is not real.</td>
+      <td>Mandatory post-hoc re-evaluation on a held-out evaluator (RF3 or ESM-Fold) for top-K attempts, plus held-out target transfer in Phase D.</td>
+    </tr>
+    <tr>
+      <td>Budget overrun</td>
+      <td>50 &times; 6h &times; 4 targets &asymp; 1200 H100h &asymp; $4&ndash;6k on Princeton's cluster.</td>
+      <td>Budget conversation with advisor before starting Phase C. Phase A+B is &lt;400 H100h and is decision-relevant on its own.</td>
+    </tr>
+    <tr>
+      <td>Agent harness instability (e.g., infinite loops, OOM, evaluation-script crashes)</td>
+      <td>Wasted compute, biased trace.</td>
+      <td>Per-attempt timeout, OOM watchdog, structured error reporting back to the agent. Borrow harness primitives directly from <a href="https://github.com/karpathy/autoresearch">karpathy/autoresearch</a>.</td>
+    </tr>
+  </table>
+  </div>
+
+  <div class="callout">
+    <p><strong>Kill criterion.</strong> If after 50 SC2RBD attempts the agent's best FoldSeek-unique cumulative count at matched 35 H100h is &lt;50% of msg5's (i.e., &lt;15 unique vs human's 30), the project pivots from "agent beats human" to "calibrated negative result + benchmark contribution." Either outcome is shippable.</p>
+  </div>
+
+  <h3>0.7 What this reframing does to the rest of this page</h3>
+
+  <p>The original sections below (Reading Map, Plan Evaluation, Historical Plan, Roadmap, Phase 2 Vision) were written for the human-designed loop and remain the design document for that baseline. Read them as the <strong>specification of the comparator</strong>, not as the live plan. The live plan is Section 0 above. Specifically:</p>
+
+  <ul style="font-size:0.92rem;">
+    <li><strong>Sections 1&ndash;2 (Plan Evaluation, Historical Plan)</strong>: still the right framing for the human-loop baseline. Useful for explaining what the agent has to beat.</li>
+    <li><strong>Sections 3&ndash;4 (Roadmap, Phase 2 Vision)</strong>: define the diagnostic sidecar / routing logic that the agent must rediscover or surpass.</li>
+    <li><strong>The "Meta-Harness Agent" priority (revised)</strong>: subsumed by Section 0 above. Treat the older Meta-Harness sketch as a partial, design-only precursor to AutoResearch.</li>
+  </ul>
+</div>
+
 <div class="section" id="plan-map">
-  <h2>0. Structured Reading Map</h2>
+  <div class="callout warn">
+    <p><strong>Sections 1&ndash;5 below describe the <em>human-designed loop</em></strong> that serves as the comparator for the AutoResearch reframing in Section 0. They are preserved verbatim as the design document for that baseline. For the live plan, see <a href="#autoresearch">Section 0</a>.</p>
+  </div>
+
+  <h2>0a. Structured Reading Map <span style="font-size:0.65em; color:var(--muted); font-weight:normal">(human-loop baseline doc)</span></h2>
   <p>
     This page contains both <strong>historical planning artifacts</strong> and the <strong>current working plan</strong>.
     It is easiest to read by cluster rather than strictly top to bottom.
