@@ -213,8 +213,8 @@
     <div class="breadcrumb"><a href="/">Minkyu Jeon</a> / <a href="/projects/">Projects</a></div>
     <h1>Agentic Inference-Time Scaling for De Novo Protein Design</h1>
     <p class="subtitle">
-      Results and experiment log for the binder sweep, intervention ablations, and first agentic pilots.
-      The research plan, architecture, and future directions now live on a separate companion page.
+      Organized result page for the baseline sweep, target-specific intervention studies, hard-target frontier runs,
+      held-out baselines, and the 7V11 ligand pilot. The forward-looking research plan now lives on a separate companion page.
     </p>
     <div class="meta">
       <span>Minkyu Jeon</span>
@@ -230,15 +230,16 @@
 <div class="toc">
   <h3>Contents</h3>
   <ol>
+    <li><a href="#read-first">Read This First: Folder Map &amp; Reading Order</a></li>
     <li><a href="#motivation">The Problem: Inference-Time Scaling</a></li>
     <li><a href="#pipeline">The Pipeline &amp; Action Space</a></li>
-    <li><a href="#results">Current Results: 11-Target Protein Binder Sweep</a></li>
-    <li><a href="#ligand">Ligand Binder Results: 7V11/SAM</a></li>
-    <li><a href="#findings">Key Findings &amp; Reliability Audit</a></li>
-    <li><a href="#clustered-results">Clustered Results Map</a></li>
-    <li><a href="#deep-dive">Deep Dive: What Do Noise &amp; Hallucination Actually Do?</a></li>
-    <li><a href="#breakthrough">Exp 25/26 Breakthrough: Zero-Hit Frontier Cracked</a> <span class="tag tag-green" style="font-size:0.65rem">New</span></li>
-    <li><a href="#tracker">Experiment Tracker</a></li>
+    <li><a href="#results">Phase 0 Baseline Sweep</a></li>
+    <li><a href="#ligand">Ligand Pilot: 7V11/SAM</a></li>
+    <li><a href="#findings">Main Findings &amp; Intervention Map</a></li>
+    <li><a href="#clustered-results">Appendix A: Thematic Results Map</a></li>
+    <li><a href="#deep-dive">Appendix B: Mechanism Deep Dive</a></li>
+    <li><a href="#breakthrough">Frontier Hard-Target &amp; Held-Out Results</a> <span class="tag tag-green" style="font-size:0.65rem">New</span></li>
+    <li><a href="#tracker">Appendix C: Experiment Log</a></li>
     <li><a href="#next-steps">Research Plan &amp; Architecture</a></li>
   </ol>
 </div>
@@ -246,6 +247,113 @@
 <div class="page-nav">
   <a href="/projects/agentic-protein-design.html" class="active">Results &amp; Experiment Log</a>
   <a href="/projects/agentic-protein-design-plan.html">Research Plan &amp; Architecture</a>
+</div>
+
+<div class="section" id="read-first">
+  <h2>0. Read This First: Folder Map &amp; Reading Order</h2>
+
+  <p>
+    This page is organized by <strong>scientific question</strong>, but the raw outputs in
+    <code>Proteina-Complexa/evaluation_results</code> are stored by <strong>target + run family</strong>.
+    The table below bridges those two views so a new reader can immediately see which folders correspond to which part of the story.
+  </p>
+
+  <div class="callout">
+    <p><strong>Recommended first pass:</strong> read Section 3 for the 11-target baseline, Section 5 for the cross-target lessons,
+    Section 6 for the zero-hit frontier and held-out baselines, and Section 4 only if you want the separate ligand pilot.
+    Sections labeled <strong>Appendix</strong> are mechanism detail and provenance, not the main narrative.</p>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat"><div class="num">471</div><div class="label">Eval Dirs (Apr 12, 2026)</div></div>
+    <div class="stat green"><div class="num">35</div><div class="label">Phase 0 / Baseline</div></div>
+    <div class="stat orange"><div class="num">97</div><div class="label">Intervention Dirs</div></div>
+    <div class="stat purple"><div class="num">129</div><div class="label">Frontier Dirs</div></div>
+    <div class="stat red"><div class="num">161</div><div class="label">Replication Dirs</div></div>
+    <div class="stat"><div class="num">25</div><div class="label">Held-Out / Diag</div></div>
+  </div>
+  <p class="note">
+    Coverage audit of <code>evaluation_results</code> on <strong>April 12, 2026</strong>: every directory currently falls into one of the
+    campaign families below and is treated on this page either as main evidence, paper-aligned sanity check, or appendix provenance.
+  </p>
+
+  <div class="table-wrap">
+  <table>
+    <tr><th>Question / campaign</th><th>Main folder patterns in <code>evaluation_results</code></th><th>Where to read on this page</th></tr>
+    <tr>
+      <td><strong>Phase 0 baseline sweep</strong><br><span style="font-size:0.78rem; color:var(--muted)">11 protein targets, 3 baseline configs</span></td>
+      <td><code>search_binder_local_pipeline_*_sweep_notto_*</code><br><code>search_binder_local_pipeline_*_sweep_deep_*</code><br><code>search_binder_local_pipeline_*_sweep_wide_*</code></td>
+      <td>Section 3. The clean baseline comparison: no TTO vs deep beam vs wide beam.</td>
+    </tr>
+    <tr>
+      <td><strong>Single-target intervention studies</strong><br><span style="font-size:0.78rem; color:var(--muted)">noise, FK steering, hallucination, paired reruns</span></td>
+      <td><code>*_exp1_fk_*</code>, <code>*_exp2_noise*</code>, <code>*_exp4_halluc_*</code>, plus paired reruns such as <code>exp10-15</code></td>
+      <td>Section 5. This is where target-specific sensitivity becomes visible.</td>
+    </tr>
+    <tr>
+      <td><strong>Expanded protein panel</strong><br><span style="font-size:0.78rem; color:var(--muted)">additional targets beyond the first 11</span></td>
+      <td><code>*_exp16*_*</code>, <code>*_exp17*_*</code>, <code>*_exp30diag_*</code></td>
+      <td>Mainly Section 5. These runs extend the target taxonomy beyond the original Phase 0 panel.</td>
+    </tr>
+    <tr>
+      <td><strong>Zero-hit frontier</strong><br><span style="font-size:0.78rem; color:var(--muted)">targets where default beam-family search stalls</span></td>
+      <td><code>*_exp19_*</code>, <code>*_exp20_*</code>, <code>*_exp21_*</code>, <code>*_exp25_*</code>, <code>*_exp26_*</code>, <code>*_exp28_*</code></td>
+      <td>Section 6. This is the frontier story for SC2RBD, CbAgo, H1, IL17A, and TNF&alpha;.</td>
+    </tr>
+    <tr>
+      <td><strong>Refinement schedule study</strong></td>
+      <td><code>*_exp27_*</code></td>
+      <td>Section 6. Short vs longer Generate-and-Hallucinate schedules once geometry already exists.</td>
+    </tr>
+    <tr>
+      <td><strong>Paper-aligned sanity runs</strong><br><span style="font-size:0.78rem; color:var(--muted)">exact-recipe or near-recipe local reproductions</span></td>
+      <td><code>*_paper_*</code>, <code>*_exp28_*</code>, <code>*_tnf_paper_iter*</code></td>
+      <td>Section 6 plus Appendix C. These are used as paper-alignment checks, not as the main source of new scientific claims.</td>
+    </tr>
+    <tr>
+      <td><strong>Held-out generalization</strong></td>
+      <td><code>*_exp31base_*</code>, <code>*_exp32diag_*</code></td>
+      <td>Section 6. These runs test whether the routing logic transfers to unseen target variants.</td>
+    </tr>
+    <tr>
+      <td><strong>Replication and scaling provenance</strong></td>
+      <td><code>*_iter*</code>, long-running scaling directories, repeated reruns for CD45 / SC2RBD / TNF&alpha;</td>
+      <td>Appendix C. These directories support reliability, scaling-curve, and provenance claims rather than introducing a separate scientific story.</td>
+    </tr>
+    <tr>
+      <td><strong>Ligand pilot</strong></td>
+      <td><code>search_ligand_binder_local_pipeline_39_7V11_LIGAND_*</code></td>
+      <td>Section 4. Kept separate because the ligand pipeline and metrics differ from protein-binder evaluation.</td>
+    </tr>
+  </table>
+  </div>
+
+  <div class="card-grid">
+    <div class="card">
+      <h3>How to read the folder names</h3>
+      <p>
+        Most binder folders follow
+        <code>search_binder_local_pipeline_[target id]_[target]_[campaign]_[target key]</code>.
+        The scientifically important token is usually the campaign name:
+        <code>sweep_deep</code>, <code>exp2_noise0p20</code>, <code>exp25_*</code>, <code>exp31base</code>, and so on.
+      </p>
+    </div>
+    <div class="card">
+      <h3>Why the page is grouped this way</h3>
+      <p>
+        The same target often reappears across multiple experiments. Organizing by experiment number alone makes similar
+        results look unrelated. This page instead moves from <strong>baseline</strong> to <strong>targeted fixes</strong>
+        to <strong>frontier search</strong> to <strong>held-out transfer</strong>, while keeping the raw folder patterns visible.
+      </p>
+    </div>
+    <div class="card">
+      <h3>What is not treated as new evidence</h3>
+      <p>
+        Some folders exist mainly for provenance: exact replications, paper-aligned reruns, and recovery/diagnostic batches.
+        They still matter, but they belong in sanity checks and appendix sections rather than in the main result claims.
+      </p>
+    </div>
+  </div>
 </div>
 
 <!-- ─── 1. MOTIVATION ─── -->
@@ -485,7 +593,7 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
 
 <!-- ─── 3. RESULTS ─── -->
 <div class="section" id="results">
-  <h2>3. Current Results: 11-Target Protein Binder Sweep</h2>
+  <h2>3. Phase 0 Baseline Sweep: 11 Protein Targets</h2>
   <p>
     33 SLURM jobs across 11 protein targets and 3 configurations.
     We selected 11 of the paper&rsquo;s 19 main protein targets: 7 easy (PD1, PDL1, IFNAR2, TrkA, DerF7, CrSAS6, Claudin1)
@@ -496,6 +604,11 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
     A parallel <strong>Autoresearch sweep</strong> (collaboration with Jinyeop Song) additionally tested
     5 beam search configs across 10 targets (50 experiments, all complete).
   </p>
+  <div class="callout">
+    <p><strong>Folder anchor:</strong> this section corresponds to the Phase 0 run families
+    <code>*_sweep_notto_*</code>, <code>*_sweep_deep_*</code>, and <code>*_sweep_wide_*</code> across the 11 baseline targets.
+    If you want the cleanest comparison before interventions, start here.</p>
+  </div>
 
   <div class="stat-row">
     <div class="stat"><div class="num">11</div><div class="label">Protein Targets</div></div>
@@ -992,7 +1105,7 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
       <td>0/32 (0%)</td>
       <td style="">0pp</td>
       <td>Both (both low)</td>
-      <td style="font-size:0.7rem; line-height:1.5;"><strong>+noise=0.20</strong>: 0/32 self (0%, unique —), 0/32 MPNN<br><strong>+halluc</strong>: 0/32 self (0%, unique —), 1/32 MPNN<br><span style="color:var(--green); font-weight:700">&#9733; </span><strong>MCTS+G&H msg5 (Exp 25)</strong>: 4/8 self (50%, unique 4/4), 0/8 MPNN<br><span style="color:var(--green); font-weight:700">&#9733; </span><strong>MCTS+pLDDT+G&H rws5 (Exp 26, best)</strong>: 5/8 self (62%, unique 4/5), 2/8 MPNN<br><strong>pure MCTS md40</strong>: 0/8 self (0%, unique —), 0/8 MPNN<br><strong>Agentic (Exp 24)</strong>: 0/64 self (0%, unique —), 0/64 MPNN<br><strong>Paper Sec I.4 recipe (Exp 28)</strong>: 1/644 self (0%, unique 1/1), 2/644 MPNN</td>
+      <td style="font-size:0.7rem; line-height:1.5;"><strong>+noise=0.20</strong>: 0/32 self (0%, unique —), 0/32 MPNN<br><strong>+halluc</strong>: 0/32 self (0%, unique —), 1/32 MPNN<br><span style="color:var(--green); font-weight:700">&#9733; </span><strong>MCTS+G&amp;H msg5 (Exp 25)</strong>: 4/8 self (50%, unique 4/4), 0/8 MPNN<br><span style="color:var(--green); font-weight:700">&#9733; </span><strong>MCTS+pLDDT+G&amp;H rws5 (Exp 26, best)</strong>: 5/8 self (62%, unique 4/5), 2/8 MPNN<br><strong>pure MCTS md40</strong>: 0/8 self (0%, unique —), 0/8 MPNN<br><strong>Agentic (Exp 24)</strong>: 0/64 self (0%, unique —), 0/64 MPNN<br><strong>Paper Sec I.4 recipe (Exp 28)</strong>: 1/644 self (0%, unique 1/1), 2/644 MPNN</td>
     </tr>
     <tr style="background:#fef3c7">
       <td><strong>VEGFA</strong></td>
@@ -1048,7 +1161,7 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
       <td>0/32 (0%)</td>
       <td style="">0pp</td>
       <td>Both (both low)</td>
-      <td style="font-size:0.7rem; line-height:1.5;"><strong>+noise=0.20</strong>: 0/32 self (0%, unique —), 0/32 MPNN<br><strong>MCTS+G&H msg5</strong>: 0/8 self (0%, unique —), 0/8 MPNN<br><strong>MCTS+pLDDT+G&H rws5</strong>: 0/8 self (0%, unique —), 0/8 MPNN<br><strong>pure MCTS md40</strong>: 0/8 self (0%, unique —), 0/8 MPNN<br><strong>halluc 36h rerun</strong>: 0/32 self (0%, unique —), 0/32 MPNN</td>
+      <td style="font-size:0.7rem; line-height:1.5;"><strong>+noise=0.20</strong>: 0/32 self (0%, unique —), 0/32 MPNN<br><strong>MCTS+G&amp;H msg5</strong>: 0/8 self (0%, unique —), 0/8 MPNN<br><strong>MCTS+pLDDT+G&amp;H rws5</strong>: 0/8 self (0%, unique —), 0/8 MPNN<br><strong>pure MCTS md40</strong>: 0/8 self (0%, unique —), 0/8 MPNN<br><strong>halluc 36h rerun</strong>: 0/32 self (0%, unique —), 0/32 MPNN</td>
     </tr>
     <tr style="background:#d1fae5">
       <td><strong>IL7RA</strong></td>
@@ -1090,7 +1203,7 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
       <td>0/32 (0%)</td>
       <td style="">0pp</td>
       <td>Both iPAE+pLDDT</td>
-      <td style="font-size:0.7rem; line-height:1.5;"><strong>+noise=0.20</strong>: 0/32 self (0%, unique —), 0/32 MPNN<br><strong>MCTS+G&H msg5</strong>: 1/8 self (12%, unique 1/1), 0/8 MPNN<br><strong>MCTS+pLDDT+G&H rws10 (best)</strong>: 2/8 self (25%, unique 2/2), 0/8 MPNN<br><strong>pure MCTS md80</strong>: 1/8 self (12%, unique 1/1), 0/8 MPNN<br><strong>Paper Sec I.4 recipe (Exp 28)</strong>: 0/644 self (0%, unique —), 0/644 MPNN</td>
+      <td style="font-size:0.7rem; line-height:1.5;"><strong>+noise=0.20</strong>: 0/32 self (0%, unique —), 0/32 MPNN<br><strong>MCTS+G&amp;H msg5</strong>: 1/8 self (12%, unique 1/1), 0/8 MPNN<br><strong>MCTS+pLDDT+G&amp;H rws10 (best)</strong>: 2/8 self (25%, unique 2/2), 0/8 MPNN<br><strong>pure MCTS md80</strong>: 1/8 self (12%, unique 1/1), 0/8 MPNN<br><strong>Paper Sec I.4 recipe (Exp 28)</strong>: 0/644 self (0%, unique —), 0/644 MPNN</td>
     </tr>
     <tr style="background:#fef3c7">
       <td><strong>IL17A</strong></td>
@@ -1104,7 +1217,7 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
       <td>0/32 (0%)</td>
       <td style="">0pp</td>
       <td>Both (both low)</td>
-      <td style="font-size:0.7rem; line-height:1.5;"><strong>+noise=0.20</strong>: 0/32 self (0%, unique —), 0/32 MPNN<br><strong>+halluc</strong>: 0/32 self (0%, unique —), 0/32 MPNN<br><strong>MCTS+G&H msg5</strong>: 0/8 self (0%, unique —), 1/8 MPNN<br><strong>MCTS+pLDDT+G&H rws10 (MPNN only)</strong>: 0/8 self (0%, unique —), 0/8 MPNN<br><strong>Paper Sec I.4 recipe (Exp 28)</strong>: 0/324 self (0%, unique —), 0/324 MPNN</td>
+      <td style="font-size:0.7rem; line-height:1.5;"><strong>+noise=0.20</strong>: 0/32 self (0%, unique —), 0/32 MPNN<br><strong>+halluc</strong>: 0/32 self (0%, unique —), 0/32 MPNN<br><strong>MCTS+G&amp;H msg5</strong>: 0/8 self (0%, unique —), 1/8 MPNN<br><strong>MCTS+pLDDT+G&amp;H rws10 (MPNN only)</strong>: 0/8 self (0%, unique —), 0/8 MPNN<br><strong>Paper Sec I.4 recipe (Exp 28)</strong>: 0/324 self (0%, unique —), 0/324 MPNN</td>
     </tr>
     <tr style="background:#fef3c7">
       <td><strong>TNFalpha</strong></td>
@@ -1118,7 +1231,7 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
       <td>0/32 (0%)</td>
       <td style="">0pp</td>
       <td>Both (both low)</td>
-      <td style="font-size:0.7rem; line-height:1.5;"><strong>+noise=0.20</strong>: 0/32 self (0%, unique —), 0/32 MPNN<br><span style="color:var(--green); font-weight:700">&#9733; </span><strong>MCTS+G&H msg5 (best)</strong>: 4/8 self (50%, unique 4/4), 1/8 MPNN<br><strong>MCTS+pLDDT+G&H rws5</strong>: 2/8 self (25%, unique 2/2), 1/8 MPNN<br><strong>pure MCTS md40</strong>: 0/8 self (0%, unique —), 0/8 MPNN<br><strong>Paper Sec I.4 recipe (Exp 28)</strong>: 2/644 self (0%, unique 2/2), 1/644 MPNN</td>
+      <td style="font-size:0.7rem; line-height:1.5;"><strong>+noise=0.20</strong>: 0/32 self (0%, unique —), 0/32 MPNN<br><span style="color:var(--green); font-weight:700">&#9733; </span><strong>MCTS+G&amp;H msg5 (best)</strong>: 4/8 self (50%, unique 4/4), 1/8 MPNN<br><strong>MCTS+pLDDT+G&amp;H rws5</strong>: 2/8 self (25%, unique 2/2), 1/8 MPNN<br><strong>pure MCTS md40</strong>: 0/8 self (0%, unique —), 0/8 MPNN<br><strong>Paper Sec I.4 recipe (Exp 28)</strong>: 2/644 self (0%, unique 2/2), 1/644 MPNN</td>
     </tr>
     <tr style="background:#fef3c7">
       <td><strong>PDL1-AAV (heldout)</strong></td>
@@ -1215,7 +1328,7 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
 
 <!-- ─── 4. LIGAND BINDER RESULTS ─── -->
 <div class="section" id="ligand">
-  <h2>4. Ligand Binder Results: 7V11/SAM</h2>
+  <h2>4. Ligand Pilot: 7V11/SAM</h2>
   <p>
     This local 7V11/SAM ligand sweep contains <strong>10 completed runs</strong>:
     <strong>7 TTO configs</strong> (<code>cfgA</code>&ndash;<code>cfgG</code>, each with <code>N=32</code>)
@@ -1266,7 +1379,13 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
 
 <!-- ─── 5. KEY FINDINGS ─── -->
 <div class="section" id="findings">
-  <h2>5. Key Findings</h2>
+  <h2>5. Main Findings and Intervention Map</h2>
+
+  <p>
+    This is the synthesis section. It merges the Phase 0 baseline sweep, the single-target intervention runs,
+    the expanded target panel, and the later diagnostic reruns into one cross-target story.
+    If Section 3 tells you <em>that</em> fixed defaults are not enough, Section 5 tells you <em>why</em>.
+  </p>
 
   <div class="card">
     <h3>1. No universal winner across targets</h3>
@@ -1448,13 +1567,13 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
 
 <!-- ─── 5a. CLUSTERED RESULTS MAP ─── -->
 <div class="section" id="clustered-results">
-  <h2>5a. Clustered Results Map</h2>
+  <h2>Appendix A. Thematic Results Map</h2>
   <p>The raw experiment history is chronological, but the scientific story is easier to read when grouped by
   <strong>question</strong>. This map keeps the same content while clustering related experiments together.</p>
   <p class="note">
     <strong>Numbering note:</strong> the labels <strong>Cluster A-E</strong> are thematic groupings, not a second subsection numbering system.
-    In practice, Cluster B is covered mainly in <strong>5b</strong>, Cluster C in <strong>5c</strong>, and Cluster D continues into
-    <strong>5d</strong>. Cluster E is kept separate as deferred work and appears only where future-facing items are explicitly marked.
+    In practice, Cluster B is covered mainly in <strong>Appendix B</strong>, Cluster C in <strong>Section 6</strong>, and Cluster D continues into
+    <strong>Appendix C</strong>. Cluster E is kept separate as deferred work and appears only where future-facing items are explicitly marked.
   </p>
 
   <div class="table-wrap">
@@ -1555,7 +1674,7 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
 
 <!-- ─── 5b. DEEP DIVE: NOISE & HALLUCINATION ─── -->
 <div class="section" id="deep-dive">
-  <h2>5b. Deep Dive: What Do Noise &amp; Hallucination Actually Do?</h2>
+  <h2>Appendix B. Mechanism: What Do Noise &amp; Hallucination Actually Do?</h2>
 
   <p>Two of the main interventions studied on this page are <strong>increased sampling noise</strong> and
   <strong>sequence hallucination</strong>. They operate at different stages of the pipeline, and the local experiments
@@ -2119,7 +2238,14 @@ Terminate: when unique success count plateaus
 
 <!-- ─── 5c. BREAKTHROUGH RESULTS ─── -->
 <div class="section" id="breakthrough">
-  <h2>5c. Exp 25/26/27 Results: Zero-Hit Frontier Cracked &amp; Paper Comparison</h2>
+  <h2>6. Frontier Hard-Target Results, Paper Comparison, and Held-Out Baselines</h2>
+
+  <div class="callout">
+    <p><strong>How to read this section:</strong> the underlying folders are scattered across <code>exp20</code>, <code>exp25</code>,
+    <code>exp26</code>, <code>exp27</code>, <code>exp28</code>, and <code>exp31base</code>. This page reorganizes them by question:
+    what unlocks zero-hit targets, what refinement schedule helps once geometry exists, how that compares to the paper,
+    and what transfers to held-out targets.</p>
+  </div>
 
   <p class="note"><strong>Data integrity:</strong> All quantitative results in this section are verified directly against local
   evaluation CSVs, and all run-state claims are checked against <code>sacct</code> on April 11, 2026. Paper-level pass criteria:
@@ -2133,7 +2259,7 @@ Terminate: when unique success count plateaus
     <strong>25% self</strong> in the best completed Exp 26 run.
     The critical ingredient is <strong>MCTS + soft+greedy hallucination</strong> &mdash;
     pure MCTS without hallucination is near-useless on these targets.
-    <strong>Reporting convention for Section 5c:</strong> Exp 25 and Exp 26 percentages are per single run with
+    <strong>Reporting convention for Section 6:</strong> Exp 25 and Exp 26 percentages are per single run with
     <code>N=8</code> final designs unless a larger denominator is explicitly written; Exp 27 percentages are per run with
     <code>N=16</code>; Exp 24 aggregates multiple routed runs and therefore reports the total evaluated <code>N</code> in the table.</p>
   </div>
@@ -2410,9 +2536,79 @@ Terminate: when unique success count plateaus
     but Exp 27 later showed that short local refinement is substantially stronger once geometry already exists.
   </p>
 
+  <h3>Paper Setup: What We Match and What We Change</h3>
+  <p class="note">
+    Verified directly against the local PDF
+    <code>SCALING ATOMISTIC PROTEIN BINDER DESIGN WITH GENERATIVE PRETRAINING AND TEST-TIME COMPUTE.pdf</code>.
+    The key references are <strong>Table 2</strong>, <strong>Figure 7</strong>, <strong>Table 10</strong>, <strong>Figure 19</strong>,
+    and Appendix <strong>Sec. I.4</strong>.
+  </p>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Comparison point</th><th>Paper setup</th><th>How this page differs</th></tr>
+    <tr>
+      <td><strong>Generative benchmark</strong></td>
+      <td>200 samples per protein target, success = <code>ipAE &lt; 7</code>, <code>complex pLDDT &gt; 0.9</code>, <code>binder scRMSD &lt; 1.5</code>, report FoldSeek-unique successes for Self / MPNN / MPNN-FI.</td>
+      <td>We keep the same core protein success filter, but most local tables report <strong>pass rates</strong> and then add unique-count annotations separately. Our low-budget baseline panels therefore should not be read as direct replacements for Table 10.</td>
+    </tr>
+    <tr>
+      <td><strong>Standard inference-scaling benchmark</strong></td>
+      <td>Figure 7 uses <code>fipAE</code>-only reward, compares Best-of-N / Beam / FKS / MCTS / G&amp;H, and plots cumulative unique self successes against GPU hours. Easy targets go to roughly 16 GPUh, hard targets to roughly 32 GPUh.</td>
+      <td>Our Phase 0 panel is not a Figure-7 reproduction. It is a <strong>fixed-config scout round</strong> designed to expose per-target differences quickly, using <code>notto</code>, <code>deep</code>, and <code>wide</code> as local baselines.</td>
+    </tr>
+    <tr>
+      <td><strong>Very hard targets (Sec. I.4 / Fig. 19)</strong></td>
+      <td>TNF&alpha;, H1, IL17A use reward <code>ipAE/31 + pLDDT</code>, MCTS with <code>K=100</code>, <code>&epsilon;=0.5</code>, <code>C=1</code>, <code>Nsim=20</code>, followed by stage-4 G&amp;H at <code>0.05 &times; binder length</code> mutation rate, with &gt;100 GPUh horizons.</td>
+      <td>Our <code>Exp 25/26</code> runs are lower-budget local variants, usually <code>N=8</code> finals per run. <code>Exp 28</code> is the closest paper-recipe check. These runs tell us whether we are moving in the same direction, not whether we have already beaten Figure 19 on matched scaling.</td>
+    </tr>
+    <tr>
+      <td><strong>What our local campaign adds</strong></td>
+      <td>The paper establishes strong global regimes: easy vs hard target classes, test-time search scaling, and very-hard-target escalation.</td>
+      <td>We add <strong>per-target routing logic</strong>, exact reruns, paper-aligned sanity runs, held-out default baselines, and operator-bundle comparisons that are not explicit in the paper.</td>
+    </tr>
+  </table>
+  </div>
+  <p class="note">
+    <strong>Fair reading rule:</strong> the paper usually reports <strong>unique successes</strong> and often integrates over large GPU-hour budgets,
+    whereas many local sections on this page report <strong>pass counts or pass rates from one completed run</strong>. Direct superiority claims are only justified when the objective and budget are matched.
+  </p>
+
+  <h3>Paper-Aligned Sanity Runs Preserved in <code>evaluation_results</code></h3>
+  <p class="note">
+    These runs correspond to the explicit <code>paper_*</code> families in the local tree. They are useful because they show that the
+    local environment reproduces the same <strong>regime ordering</strong> on easy targets, even though the preserved evaluated subsets
+    are much smaller than the paper&rsquo;s full benchmarks.
+  </p>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Local run family</th><th>N</th><th>Self pass</th><th>MPNN pass</th><th>Interpretation</th></tr>
+    <tr>
+      <td><code>paper_pdl1_notto</code></td><td>32</td><td>1/32</td><td>8/32</td>
+      <td>Paper-style no-TTO sanity run on an easy target. Self is non-zero but modest; redesign helps more.</td>
+    </tr>
+    <tr>
+      <td><code>paper_pdl1_tto_16gh</code></td><td>4</td><td>1/4</td><td>2/4</td>
+      <td>Very small preserved subset, but still confirms that test-time optimization quickly reaches non-zero success on PDL1.</td>
+    </tr>
+    <tr>
+      <td><code>paper_trka_notto</code></td><td>32</td><td>3/32</td><td>4/32</td>
+      <td>Consistent with TrkA being an easy target even before search fully scales out.</td>
+    </tr>
+    <tr>
+      <td><code>paper_trka_tto_16gh</code></td><td>4</td><td>4/4</td><td>3/4</td>
+      <td>Again a tiny preserved subset, but it matches the easy-target story from Figure 7: once compute is spent on search, TrkA saturates quickly.</td>
+    </tr>
+  </table>
+  </div>
+  <p class="note">
+    These four runs are <strong>sanity checks, not full reproductions</strong>: the paper&rsquo;s generative benchmark uses 200 samples per target,
+    and its inference-scaling figures are cumulative GPU-hour curves. The preserved local <code>paper_*</code> folders are therefore best read as
+    environment checks that our local evaluation stack lands in the same qualitative regime.
+  </p>
+
   <!-- ─── PAPER COMPARISON ─── -->
   <h3>Comparison with the Original Paper (Sec I.4 / Figure 19)</h3>
-  <p class="note"><strong>How to read this table:</strong> What is plotted = a qualitative comparison between our best verified local result on each hard target and the paper’s reported baseline. Denominator = our rows are usually single-run local pass counts (often N=8), while the paper rows are cumulative unique self successes over hundreds of GPU-hours. Interpretation = this table is useful for directionality and baseline sanity checks, but not for claiming matched scaling superiority unless the budget and objective are aligned.</p>
+  <p class="note"><strong>How to read this table:</strong> What is plotted = a qualitative comparison between our best verified local result on each hard target and the paper&rsquo;s closest anchor, usually <strong>Table 10</strong> (generative self/MPNN unique successes) or <strong>Figure 19 / Sec. I.4</strong> (very-hard-target long-horizon search). Denominator = our rows are usually single-run local pass counts, while the paper rows are unique-success totals or cumulative scaling curves. Interpretation = use this table for directionality, not for matched scaling claims.</p>
   <p class="note">
     <strong>Comparison convention:</strong> our entries below are the best completed <em>single local runs</em> unless otherwise stated.
     For SC2RBD, TNF&alpha;, H1, and IL17A this means the reported self/MPNN rates are typically out of <code>N=8</code> local designs.
@@ -2423,7 +2619,7 @@ Terminate: when unique success count plateaus
   <table>
     <tr>
       <th>Target</th>
-      <th>Paper Result</th>
+      <th>Paper Anchor</th>
       <th>Our Best Verified Result So Far</th>
       <th>Current Comparison</th>
     </tr>
@@ -2432,6 +2628,24 @@ Terminate: when unique success count plateaus
       <td>Not a Sec I.4 target. The broader all-target Table 10 reports Complexa(Ours) = 0 MPNN, 0 MPNN-FI, and 0 Self.</td>
       <td><code>Exp 26</code> <code>rw_pl050_softg5</code>: <strong>5/8 self</strong>, <strong>2/8 MPNN</strong>, with 4 FoldSeek-unique self successes and 2 FoldSeek-unique MPNN successes, in 3.1 GPUh.</td>
       <td><strong>Stronger than our prior local baseline</strong> and stronger than the paper&rsquo;s reported Complexa table entry on this target.</td>
+    </tr>
+    <tr style="background:#d1fae5">
+      <td><strong>CD45</strong></td>
+      <td>Table 10 generative anchor: Complexa(Ours) = 0 MPNN, 0 MPNN-FI, 0 Self.</td>
+      <td><code>Exp 2</code> <code>noise=0.20</code>: <strong>15/32 self</strong>, <strong>0/32 MPNN</strong>, with 2 FoldSeek-unique self successes.</td>
+      <td><strong>Clear local improvement over the paper&rsquo;s zero-generative anchor</strong>. The right reading is that target-specific noise helps after generation; this is not a claim about beating the paper&rsquo;s full search benchmark.</td>
+    </tr>
+    <tr style="background:#d1fae5">
+      <td><strong>BetV1</strong></td>
+      <td>Table 10 generative anchor: Complexa(Ours) = 0 MPNN, 0 MPNN-FI, 0 Self.</td>
+      <td><code>Exp 13b</code> <code>noise+halluc</code>: <strong>11/32 self</strong>, <strong>3/32 MPNN</strong>, with 3 FoldSeek-unique self successes.</td>
+      <td><strong>Again stronger than the paper&rsquo;s zero-generative anchor</strong>, and a clean example of why the page emphasizes operator bundles rather than one global default.</td>
+    </tr>
+    <tr style="background:#d1fae5">
+      <td><strong>HER2_AAV</strong></td>
+      <td>Table 10 generative anchor: Complexa(Ours) = 0 MPNN, 0 MPNN-FI, 0 Self.</td>
+      <td><code>Exp 4</code> <code>halluc</code>: <strong>21/32 self</strong>, <strong>15/32 MPNN</strong>, with 4 FoldSeek-unique self successes. Later <code>Exp 27</code> schedule sweeps reach <strong>16/16 self</strong> on shorter refinement runs.</td>
+      <td><strong>Strongest paper-vs-local gap in the sequence-sensitive regime.</strong> The paper establishes that hard targets exist; our local campaign identifies that HER2_AAV specifically wants post-generation sequence repair.</td>
     </tr>
     <tr style="background:#d1fae5">
       <td><strong>TNF&alpha;</strong></td>
@@ -2464,6 +2678,7 @@ Terminate: when unique success count plateaus
     <h4 style="font-size:1rem; margin-bottom:8px;">What Is Actually Supported So Far</h4>
     <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
       <li><strong>Supported:</strong> our new action set is clearly stronger than our earlier local beam-family baseline on SC2RBD, TNF&alpha;, and H1.</li>
+      <li><strong>Supported:</strong> relative to the paper&rsquo;s <strong>generative</strong> Table 10 anchor, several previously zero-self targets now enter a non-zero local regime under target-specific operators: <code>CD45</code>, <code>BetV1</code>, <code>HER2_AAV</code>, and <code>SC2RBD</code>.</li>
       <li><strong>Supported:</strong> local refinement is the critical co-ingredient; pure MCTS or reward shaping alone stay near zero on these targets.</li>
       <li><strong>Not yet supported:</strong> any claim that we outperform the paper&rsquo;s Figure 19 scaling curves on a matched compute-scaling metric.</li>
       <li><strong>Exp 28 update:</strong> the currently preserved aggregate outputs are dominated by large numbers of lookahead states, so they are useful as a paper-recipe sanity check but not as a denominator-matched final-only comparison to Exp 25/26.
@@ -2925,15 +3140,20 @@ Terminate: when unique success count plateaus
 
 <!-- ─── 5d. EXPERIMENT TRACKER ─── -->
 <div class="section" id="tracker">
-  <h2>5d. Experiment Tracker</h2>
+  <h2>Appendix C. Experiment Log and Provenance</h2>
+  <div class="callout warn">
+    <p><strong>Appendix note:</strong> this section is a provenance log tied to experiment numbers, reruns, and SLURM batches.
+    New readers can skip it on first pass and return only when they want to trace a claim back to a concrete run family in
+    <code>evaluation_results</code>.</p>
+  </div>
   <p>Live status of all experiments. Updated as jobs complete.</p>
   <p class="note">
-    This tracker continues the cluster structure introduced in <strong>5a</strong>. It is easiest to read by
+    This tracker continues the cluster structure introduced in <strong>Appendix A</strong>. It is easiest to read by
     <strong>theme cluster</strong> rather than by submission time: baseline/initial-signal experiments first, then
     mechanism and reliability experiments, then hard-target search and refinement, then agentic routing, then deferred
     future extensions.
   </p>
-  <p class="note">Status snapshot as of April 11, 2026: Exp 24, Exp 25, and Exp 26 are complete. The original Exp 27 batch is terminal (20 completed, 5 CrSAS6 pre-generation failures), and the corrected CrSAS6 rerun is complete. Exp 28 is complete (IL17A full eval at N=324; H1/TNF&alpha;/SC2RBD v2 eval-only reruns produced final-design counts, see Section 5c). <strong>Exp 29 v2 is running</strong> (6 long-running strategies; ~37h of data already accumulated for CD45 and ~35h for SC2RBD, tables in Section 5c). Exp 30 has generation timeouts across all 13 dirs; analysis-only recovery jobs resubmitted (SLURM 6896284&ndash;6896296). <strong>Exp 31 has 6/6 completed with full eval CSVs (N=1216 each, see Section 5c).</strong> Exp 32 diagnostic runs timed out; recovery submitted (SLURM 6896311&ndash;6896320).</p>
+  <p class="note">Status snapshot as of April 11, 2026: Exp 24, Exp 25, and Exp 26 are complete. The original Exp 27 batch is terminal (20 completed, 5 CrSAS6 pre-generation failures), and the corrected CrSAS6 rerun is complete. Exp 28 is complete (IL17A full eval at N=324; H1/TNF&alpha;/SC2RBD v2 eval-only reruns produced final-design counts, see Section 6). <strong>Exp 29 v2 is running</strong> (6 long-running strategies; ~37h of data already accumulated for CD45 and ~35h for SC2RBD, tables in Section 6). Exp 30 has generation timeouts across all 13 dirs; analysis-only recovery jobs resubmitted (SLURM 6896284&ndash;6896296). <strong>Exp 31 has 6/6 completed with full eval CSVs (N=1216 each, see Section 6).</strong> Exp 32 diagnostic runs timed out; recovery submitted (SLURM 6896311&ndash;6896320).</p>
 
   <div class="table-wrap">
   <table>
@@ -3173,7 +3393,7 @@ Terminate: when unique success count plateaus
       <td><strong>Exp 29 v2: Long-Running Scaling Curves</strong><br><span style="font-size:0.82rem;color:var(--muted)">6 continuous-generation jobs (48h walltime each) on CD45, SC2RBD, TNF&alpha;. v1 canceled (78 short jobs); v2 uses long-running loops with TSV logging.</span></td>
       <td>6 running</td>
       <td><span class="tag tag-orange">Running (~35-37h in)</span></td>
-      <td style="font-size:0.82rem"><strong>Running data from <code>scaling_curves/*_scaling_corrected.tsv</code>:</strong> CD45 noise=0.20: 540 self in 38h. CD45 default: 280 self / 257 MPNN in 37h. SC2RBD msg5: 30 self / 22 MPNN in 35h. SC2RBD e26: 7 self in 35h. TNF&alpha; msg5: 1 self in 32h. TNF&alpha; paper recipe: 0 in 29h. Full curves in Section 5c.</td>
+      <td style="font-size:0.82rem"><strong>Running data from <code>scaling_curves/*_scaling_corrected.tsv</code>:</strong> CD45 noise=0.20: 540 self in 38h. CD45 default: 280 self / 257 MPNN in 37h. SC2RBD msg5: 30 self / 22 MPNN in 35h. SC2RBD e26: 7 self in 35h. TNF&alpha; msg5: 1 self in 32h. TNF&alpha; paper recipe: 0 in 29h. Full curves in Section 6.</td>
     </tr>
     <tr style="background:#d1fae5">
       <td style="text-align:center; font-size:1.1rem">&#9745;</td>
