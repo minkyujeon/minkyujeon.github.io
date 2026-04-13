@@ -2557,6 +2557,11 @@ Terminate: when unique success count plateaus
       <td>Our Phase 0 panel is not a Figure-7 reproduction. It is a <strong>fixed-config scout round</strong> designed to expose per-target differences quickly, using <code>notto</code>, <code>deep</code>, and <code>wide</code> as local baselines.</td>
     </tr>
     <tr>
+      <td><strong>Held-out default baseline (Exp 31)</strong></td>
+      <td>There is <strong>no exact paper analogue</strong> for this benchmark. The closest paper objects are the Figure 7 beam-search scaling curves and the Table 10 target-level benchmark, but neither uses this held-out-target protocol.</td>
+      <td><code>Exp 31</code> uses the local deep-beam default on unseen targets: <code>beam-search</code>, <code>beam_width=8</code>, <code>n_branch=3</code>, checkpoints <code>[0,65,130,200,270,340,400]</code>, <code>num_redesign_seqs=8</code>, and <code>N=1216</code> evaluated designs per target on H100. It should be read as a <strong>prospective held-out default control</strong>, not as an exact reproduction of any paper baseline.</td>
+    </tr>
+    <tr>
       <td><strong>Very hard targets (Sec. I.4 / Fig. 19)</strong></td>
       <td>TNF&alpha;, H1, IL17A use reward <code>ipAE/31 + pLDDT</code>, MCTS with <code>K=100</code>, <code>&epsilon;=0.5</code>, <code>C=1</code>, <code>Nsim=20</code>, followed by stage-4 G&amp;H at <code>0.05 &times; binder length</code> mutation rate, with &gt;100 GPUh horizons.</td>
       <td>Our <code>Exp 25/26</code> runs are lower-budget local variants, usually <code>N=8</code> finals per run. <code>Exp 28</code> is the closest paper-recipe check. These runs tell us whether we are moving in the same direction, not whether we have already beaten Figure 19 on matched scaling.</td>
@@ -3073,6 +3078,14 @@ Terminate: when unique success count plateaus
     <strong>Denominator:</strong> 1216 designs per run (much larger than Exp 24&ndash;27&rsquo;s N=8&ndash;32).
     <strong>Role:</strong> Large-N baselines to test whether default beam-search saturates or plateaus on new target variants.
   </p>
+  <div class="callout">
+    <p><strong>Baseline setup, stated explicitly:</strong> <code>Exp 31</code> is the local deep-beam default scaled out on held-out targets,
+    using <code>beam-search</code> with <code>beam_width=8</code>, <code>n_branch=3</code>, checkpoints
+    <code>[0,65,130,200,270,340,400]</code>, and <code>num_redesign_seqs=8</code>. This matches the project&rsquo;s
+    internal deep baseline family, but <strong>it is not identical to a single named paper baseline</strong>:
+    the paper&rsquo;s Table 10 is a 200-sample generative benchmark, and Figure 7 reports cumulative scaling curves on A100 over matched GPU budgets rather than this held-out <code>N=1216</code> prospective control.
+    So the right interpretation is <strong>&ldquo;held-out local default control&rdquo;</strong>, not &ldquo;exact paper baseline reproduction.&rdquo;</p>
+  </div>
   <div class="table-wrap">
   <table>
     <tr><th>Target</th><th>Source</th><th>Self</th><th>MPNN</th><th>Interpretation</th></tr>
@@ -3120,6 +3133,53 @@ Terminate: when unique success count plateaus
     </tr>
   </table>
   </div>
+  <h4>Exp 31 vs Closest Earlier Reference</h4>
+  <p class="note">
+    This comparison table answers a different question from the main Exp 31 table: not just whether the held-out default works,
+    but whether each held-out target behaves like the <strong>closest earlier local analogue</strong>. For some targets the analogue is
+    a parent target already seen in Phase 0; for others it is the earlier diagnosis on the same family.
+  </p>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Held-out target</th><th>Exp 31 default baseline</th><th>Closest earlier reference</th><th>Takeaway</th></tr>
+    <tr style="background:#d1fae5">
+      <td><strong>03_PDL1_AAV</strong></td>
+      <td>484/1216 self, 597/1216 MPNN</td>
+      <td>Closest family: Phase 0 <code>02_PDL1</code> deep baseline was saturated on the original target.</td>
+      <td>The AAV retargeted variant is harder than the original PDL1 case, but it still lands in the same <strong>default-favored / saturating</strong> regime under large-N beam.</td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td><strong>16_DerF7</strong></td>
+      <td>123/1216 self, 193/1216 MPNN</td>
+      <td>Phase 0 <code>15_DerF7</code> deep baseline: <strong>32/32 self</strong>, <strong>27/32 MPNN</strong>.</td>
+      <td>The held-out DerF7 variant is materially harder than the original structure. Same method family, different target instance, very different outcome.</td>
+    </tr>
+    <tr style="background:#d1fae5">
+      <td><strong>19_DerF21</strong></td>
+      <td>568/1216 self, 688/1216 MPNN</td>
+      <td>Exp 17 earlier diagnosis already labeled DerF21 <strong>default-favored</strong>.</td>
+      <td>Exp 31 confirms that diagnosis at scale. DerF21 remains a clean default-beam success case even under held-out evaluation.</td>
+    </tr>
+    <tr style="background:#fee2e2">
+      <td><strong>26_CbAgo</strong></td>
+      <td>0/1216 self, 0/1216 MPNN</td>
+      <td>Exp 17 / Exp 18 / Exp 20 all remained at <strong>0</strong> on earlier CbAgo runs.</td>
+      <td>No behavioural change with scale. <strong>CbAgo is still a genuine zero-hit target under default beam</strong>, not a small-sample artifact.</td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td><strong>28_HER2_AAV</strong></td>
+      <td>0/1216 self, 31/1216 MPNN</td>
+      <td>Phase 0 <code>27_HER2_AAV</code> deep baseline: <strong>1/32 self</strong>, <strong>10/32 MPNN</strong>; Exp 4 hallucination later jumped to <strong>21/32 self</strong>.</td>
+      <td>The held-out HER2 variant preserves the same qualitative signature: <strong>sequence-limited</strong>, with redesignable backbones but poor self sequences under the default.</td>
+    </tr>
+    <tr style="background:#d1fae5">
+      <td><strong>32_PDL1_ALPHA</strong></td>
+      <td>540/1216 self, 754/1216 MPNN</td>
+      <td>Closest family: original PDL1 and TrkA easy-target baselines in Phase 0 / paper-aligned sanity checks.</td>
+      <td>This alternate PD-L1 structure still behaves like an <strong>easy / default-favored</strong> target under large-N beam.</td>
+    </tr>
+  </table>
+  </div>
   <div class="card" style="border-left: 4px solid var(--accent);">
     <h4 style="font-size:0.95rem; margin-bottom:6px;">Key Findings from Exp 31</h4>
     <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
@@ -3132,6 +3192,9 @@ Terminate: when unique success count plateaus
       but the co-designed sequence fails. Hallucination (Exp 27 recipe) is the correct intervention.</li>
       <li><strong>16_DerF7 underperforms its Phase 0 counterpart</strong> (15_DerF7 default reached 100% self at N=32). The alternate DerF7
       variant (16_DerF7) only reaches 10% at N=1216 &mdash; target-structure dependent. Worth investigating whether hotspot selection differs.</li>
+      <li><strong>Why CD45 is not in Exp 31:</strong> Exp 31 was defined as a <strong>held-out target benchmark</strong>, so it intentionally excluded already-diagnosed training targets such as
+      <code>05_CD45</code>, <code>23_BetV1</code>, and the original <code>27_HER2_AAV</code>. The unseen <strong>CD45 hotspot variants</strong> were assigned instead to <code>Exp 30</code>
+      (targets <code>06_CD45</code> through <code>11_CD45</code>), but those runs timed out before full AF2 evaluation, so there is currently no completed Exp 30 CD45 baseline table to report here.</li>
       <li><strong>Implication for the routing tree:</strong> The v1 rules (saturated / sequence-limited / zero-hit) transfer to held-out targets without modification. Three new targets classify as saturated, one as sequence-limited (HER2 variant), and two as hard cases (CbAgo zero-hit; DerF7 partial &mdash; worth a second diagnostic).</li>
     </ul>
   </div>
