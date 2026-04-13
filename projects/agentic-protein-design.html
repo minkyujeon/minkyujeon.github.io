@@ -2537,11 +2537,6 @@ Terminate: when unique success count plateaus
     A dedicated paper-style <code>best-of-n</code> run was performed in Exp 19 (<code>bon_r8/r16/r32</code>) only.</p>
   </div>
 
-  <h4 style="margin:16px 0 8px;">Figure N: Per-Target Scaling Grid (All 28 Targets)</h4>
-  <p class="note">One panel per target. Markers = single completed runs. Lines = Exp 29 v2 long-running continuous-generation curves (CD45, SC2RBD, TNF&alpha; only). Marker color/shape encodes config family; see individual per-target figures for legends.</p>
-  <img src="agentic-figures/per_target_scaling/_all_targets_grid.png" alt="Per-target scaling grid (all 28 targets)" style="width:100%; max-width:1200px; border:1px solid var(--border); border-radius:8px; margin-bottom:16px;">
-  <div class="figure-caption"><strong>What is plotted:</strong> summary grid of per-target scaling across all 28 targets we have data on (11 Phase 0 + 11 Phase 2 + 6 held-out Exp 31 variants). <strong>X-axis:</strong> H100 GPU-hours (wall-clock, includes generation + full AF2-Multimer evaluation). <strong>Y-axis:</strong> cumulative unique self-sequence successes under the pipeline's 3-criterion filter. <strong>Markers:</strong> one per single completed run across all our experiments (Phase 0 sweep, Phase 1 ablations Exp 1&ndash;13, Phase 2 Exp 20&ndash;27, Exp 28 paper recipe, Exp 31 held-out baselines). <strong>Lines:</strong> Exp 29 v2 scaling curves showing cumulative successes across iterations. <strong>Panel titles</strong> show target name + our empirical difficulty class (derived from this data, not paper classification). <strong>Interpretation boundary:</strong> direct overlay with paper Fig. 22 requires ~2&ndash;3&times; A100/H100 hardware scaling factor.</div>
-
   <h4 style="margin:20px 0 8px;">Individual Per-Target Figures (Self-Contained Captions)</h4>
   <p class="note">Each figure below is a standalone per-target scaling plot showing every config we ran on that target, with an embedded caption below the axes that fully explains the data sources and interpretation boundary. Figures are grouped by difficulty class.</p>
 
