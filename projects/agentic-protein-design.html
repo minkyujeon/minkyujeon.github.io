@@ -231,6 +231,7 @@
   <h3>Contents</h3>
   <ol>
     <li><a href="#read-first">Read This First: Folder Map &amp; Reading Order</a></li>
+    <li><a href="#inference-time-optimization">Paper Framework: 3.4 Inference-Time Optimization</a></li>
     <li><a href="#motivation">The Problem: Inference-Time Scaling</a></li>
     <li><a href="#pipeline">The Pipeline &amp; Action Space</a></li>
     <li><a href="#results">Phase 0 Baseline Sweep</a></li>
@@ -353,6 +354,110 @@
         They still matter, but they belong in sanity checks and appendix sections rather than in the main result claims.
       </p>
     </div>
+  </div>
+</div>
+
+<div class="section" id="inference-time-optimization">
+  <h2>0.5. Paper Framework: 3.4 Inference-Time Optimization</h2>
+
+  <p>
+    The companion paper&rsquo;s Section 3.4 is the conceptual backbone of this page. The core idea is simple:
+    <strong>keep the generative prior fixed, but spend more inference-time compute searching over denoising trajectories</strong>.
+    Instead of retraining the model for every new target, the paper asks whether better search at test time can recover
+    more successful binders from the same pretrained generator.
+  </p>
+  <p class="note">
+    This is why the local experiments on this page are organized around <strong>search families and interventions</strong>:
+    beam defaults, FK-style steering, MCTS-style hard-target search, and post-generation refinement. The question is not
+    only &ldquo;how good is the generator?&rdquo; but also &ldquo;what should we do with the generator at inference time?&rdquo;
+  </p>
+
+  <h3>Core Notation and Intuition</h3>
+  <div class="card-grid">
+    <div class="card">
+      <h3><code>N</code>, <code>L</code>, and <code>K</code></h3>
+      <p>
+        In the paper&rsquo;s search notation, <code>N</code> is the <strong>beam width</strong> or number of trajectories kept alive after each decision,
+        <code>L</code> is the <strong>branch factor</strong> or number of children explored from each kept trajectory,
+        and <code>K</code> is the number of <strong>denoising steps between decisions</strong>. Intuitively:
+        keep <code>N</code> promising lines, expand each one <code>L</code> ways, then decide again every <code>K</code> steps.
+      </p>
+    </div>
+    <div class="card">
+      <h3><code>R(x,s)</code> and <code>S(x,s)</code></h3>
+      <p>
+        The paper separates <strong>reward</strong> from <strong>success</strong>. <code>R(x,s)</code> is the score used to guide search
+        on a clean decoded structure-sequence pair <code>(x,s)</code>, while <code>S(x,s)</code> is the final pass/fail success criterion.
+        Search follows the reward; reporting follows the success filter.
+      </p>
+    </div>
+    <div class="card">
+      <h3>Why Roll Out to Clean Samples?</h3>
+      <p>
+        A key paper design choice is that it <strong>does not trust noisy intermediate states directly</strong>. Instead, each intermediate
+        candidate is rolled out to a fully denoised clean sample before computing AF2-style rewards. That matters because structure-prediction
+        rewards are only reliable on clean decoded binders, not on partially denoised latent states.
+      </p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <p><strong>Beam-search cycle in one line:</strong> keep <code>N</code> partial trajectories, expand each one into <code>L</code> children,
+    score the resulting <code>N &times; L</code> candidates after rolling them out to clean samples, then keep the best <code>N</code> again.</p>
+  </div>
+
+  <h3>Method Family Summary</h3>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Method</th><th>What is selected?</th><th>How it works at a high level</th></tr>
+    <tr>
+      <td><strong>Best-of-N</strong></td>
+      <td>Independent final samples</td>
+      <td>Generate many complete samples independently, score them, and keep the best ones. This is the simplest form of inference-time scaling because it adds compute without changing the search path.</td>
+    </tr>
+    <tr>
+      <td><strong>Beam Search</strong></td>
+      <td>Top partial trajectories</td>
+      <td>Maintain a beam of promising partial states. At each decision point, every kept state branches, all branches are rolled out to clean samples for reward estimation, and the top trajectories survive to the next round.</td>
+    </tr>
+    <tr>
+      <td><strong>Feynman-Kac Steering</strong></td>
+      <td>Reward-weighted particles</td>
+      <td>Use the same candidate-generation idea as beam-style search, but replace hard top-k selection with <strong>soft reward-weighted resampling</strong>. High-reward candidates are more likely to survive, while some diversity is preserved.</td>
+    </tr>
+    <tr>
+      <td><strong>MCTS</strong></td>
+      <td>Tree nodes with visit statistics</td>
+      <td>Treat denoising as a tree of partial states. The search alternates between exploring new children and exploiting already promising ones, using visit counts and average reward to balance exploration against exploitation.</td>
+    </tr>
+  </table>
+  </div>
+
+  <p class="note">
+    In the paper&rsquo;s FK interpretation, search biases the original model toward high-reward samples rather than replacing the model outright:
+  </p>
+  <div class="math-block" style="margin:12px 0; padding:14px 16px; background:#f8fafc; border:1px solid var(--border); border-radius:10px; overflow-x:auto;">
+    <code>p&#771;(x,s) &prop; p&#x03D5;(x,s) exp{&beta; R(x,s)}</code>
+  </div>
+  <p class="note">
+    For MCTS, the paper uses a standard exploration-versus-exploitation idea: prefer children with high average reward, but still revisit under-explored ones.
+    The two key knobs are <code>&epsilon;</code> (how often to expand a new child) and <code>C</code> (how strongly to favor under-visited children).
+  </p>
+
+  <h3>How This Maps to Our Page</h3>
+  <div class="card">
+    <ul style="font-size:0.9rem; color:var(--muted); padding-left:16px; line-height:1.8;">
+      <li><strong>Phase 0 and Exp 31</strong> use our local <strong>beam-family default control</strong>: a fixed beam-style search that establishes what the default policy can do before interventions.</li>
+      <li><strong>Exp 1 and Exp 20</strong> probe <strong>beam-family variants and FK-like alternatives</strong>, asking whether different search dynamics help without changing the underlying generator.</li>
+      <li><strong>Exp 25, Exp 26, and Exp 28</strong> move into <strong>MCTS-style hard-target search</strong>, where zero-hit targets require a stronger exploration strategy than default beam search.</li>
+      <li><strong>Exp 27</strong> is best read as <strong>post-generation refinement</strong>: once a usable backbone exists, sequence repair can matter more than changing the trajectory-search family itself.</li>
+    </ul>
+  </div>
+
+  <div class="callout warn">
+    <p><strong>Boundary / caveat:</strong> this page uses the paper&rsquo;s Section 3.4 as the conceptual scaffold, but some of our local defaults differ from the repo / paper defaults.
+    In particular, our common local deep-beam control is <strong>not identical</strong> to the paper&rsquo;s canonical beam default, so later comparisons on this page should be read as
+    <strong>paper-aligned local experiments</strong>, not as exact denominator-matched reproductions unless that is stated explicitly.</p>
   </div>
 </div>
 
@@ -914,6 +1019,38 @@ Analyze:                  pass criteria = ipAE &lt; 7.0A AND complex pLDDT &gt; 
     <p><strong>Config diff from paper (our msg5 vs paper Sec I.4 MCTS):</strong>
     we use N<sub>sim</sub>=40 (paper: 20), &epsilon;=0.3 (paper: 0.5), C=0.5 (paper: 1.0), iPAE-only reward (paper: iPAE+pLDDT),
     G&amp;H stages 2+3+4 (paper: stage 4 only), mutation rate 5% (paper: 5% for hard, 1% default).</p>
+  </div>
+
+  <div class="callout warn">
+    <p><strong>Can this table be compared directly to the paper?</strong> Only in a limited way.</p>
+    <table style="font-size:0.82rem; margin-top:6px;">
+      <tr><th>Object</th><th>What it measures</th><th>Directly comparable?</th><th>Why / reading rule</th></tr>
+      <tr>
+        <td><strong>This bottleneck table</strong></td>
+        <td>Local baseline diagnostics, mostly <code>N=32</code> or <code>N=1216</code>, with criterion-level pass rates and local intervention rows</td>
+        <td><strong>No</strong></td>
+        <td>It mixes denominators and reports per-run pass counts or pass rates. It is designed for routing and failure-mode diagnosis, not as a paper-faithful benchmark table.</td>
+      </tr>
+      <tr>
+        <td><strong>Paper Table 10</strong></td>
+        <td>Target-matched <code>200-sample</code> generative benchmark with FoldSeek-unique successes for Self / MPNN / MPNN-FI</td>
+        <td><strong>Only qualitatively</strong></td>
+        <td>We can compare whether a target stays at zero or moves into a non-zero regime, but not claim matched superiority unless we reproduce the same denominator and reporting protocol.</td>
+      </tr>
+      <tr>
+        <td><strong>Paper Figure 18</strong></td>
+        <td>Cumulative unique self successes vs GPU hours for Generate &amp; Hallucinate, G&amp;H with logit optimization, and BindCraft</td>
+        <td><strong>No</strong></td>
+        <td>Figure 18 is a compute-scaling curve for hallucination-family methods. Our bottleneck table is a fixed-budget diagnostic matrix and answers a different question.</td>
+      </tr>
+      <tr>
+        <td><strong>Our Exp 29 scaling curves</strong></td>
+        <td>Cumulative self / MPNN successes vs H100 GPU-hours for selected local strategies</td>
+        <td><strong>Directionally</strong></td>
+        <td>These are the closest local objects to Figure 18 or Figure 19, but the hardware, target protocol, and success-counting conventions are still not fully matched.</td>
+      </tr>
+    </table>
+    <p style="font-size:0.82rem; margin-top:6px;"><strong>CD45 example:</strong> in the paper, Figure 18 shows that Generate &amp; Hallucinate variants accumulate unique self successes with additional compute. In our local runs, CD45 improves most strongly under <code>noise=0.20</code>, which is a generation-stage intervention rather than the same hallucination family. The target is similar, but the mechanism being exploited is different.</p>
   </div>
 
   <div class="table-wrap" style="overflow-x:auto;">
@@ -2578,6 +2715,40 @@ Terminate: when unique success count plateaus
     whereas many local sections on this page report <strong>pass counts or pass rates from one completed run</strong>. Direct superiority claims are only justified when the objective and budget are matched.
   </p>
 
+  <h3>What Is Directly Comparable, Qualitatively Comparable, or Not Comparable?</h3>
+  <p class="note">
+    This page intentionally mixes routing diagnostics, single-run intervention snapshots, and long-running scaling curves. The table below makes the comparison boundary explicit so readers do not over-read any one panel.
+  </p>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Paper object</th><th>Closest local object</th><th>Status</th><th>Reason</th></tr>
+    <tr>
+      <td><strong>Table 10</strong> generative benchmark</td>
+      <td>Seen-target intervention summaries and the bottleneck table above</td>
+      <td><span class="tag tag-orange">Qualitative only</span></td>
+      <td>We can compare target-by-target regime changes, especially paper-zero to local-nonzero transitions, but our tables are not denominator-matched to the paper's 200-sample unique-success protocol.</td>
+    </tr>
+    <tr>
+      <td><strong>Figure 18</strong> hard-target G&amp;H scaling</td>
+      <td><code>Exp 29</code> CD45 scaling plus local hallucination sweeps</td>
+      <td><span class="tag tag-red">Not direct</span></td>
+      <td>Figure 18 isolates hallucination-family compute scaling. Our strongest CD45 gain comes from generation-stage noise, not the same post-generation operator family.</td>
+    </tr>
+    <tr>
+      <td><strong>Sec. I.4 / Figure 19</strong> very-hard scaling</td>
+      <td><code>Exp 25/26</code>, <code>Exp 28</code>, and the current TNF&alpha; / H1 / IL17A scaling notes</td>
+      <td><span class="tag tag-orange">Directional</span></td>
+      <td>These are the right targets and the right search family, but our budgets are still far shorter and our best local bundle is not yet a clean paper-faithful recipe reproduction.</td>
+    </tr>
+    <tr>
+      <td><strong>Figure 7</strong> standard inference-time scaling</td>
+      <td>Phase 0 scout panel and per-target scaling figures</td>
+      <td><span class="tag tag-red">Not direct</span></td>
+      <td>Phase 0 was built as a routing scout round rather than a matched Figure 7 benchmark.</td>
+    </tr>
+  </table>
+  </div>
+
   <h3>Paper-Aligned Sanity Runs Preserved in <code>evaluation_results</code></h3>
   <p class="note">
     These runs correspond to the explicit <code>paper_*</code> families in the local tree. They are useful because they show that the
@@ -2605,6 +2776,50 @@ Terminate: when unique success count plateaus
     </tr>
   </table>
   </div>
+
+  <h3>Target-Level Bridge: Paper Table 10 vs Paper Figure 18 vs Our Local Results</h3>
+  <p class="note">
+    This bridge table is the safest way to compare the repeated hard targets across the paper and this page. The point is not that every column is directly matched; the point is to separate three different questions:
+    <strong>(1)</strong> what the paper's fixed generative benchmark says,
+    <strong>(2)</strong> what the paper's hallucination-family scaling curve says,
+    and <strong>(3)</strong> what our local intervention campaign says.
+  </p>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Target</th><th>Paper Table 10 anchor</th><th>Paper Figure 18 story</th><th>Our closest local result</th><th>How to read it</th></tr>
+    <tr>
+      <td><strong>CD45</strong></td>
+      <td>Complexa = 0 MPNN, 0 MPNN-FI, 0 Self</td>
+      <td>G&amp;H and G&amp;H w/ logit optimization both scale upward with GPU hours; the logit variant ends slightly higher in the plotted budget range.</td>
+      <td><code>Exp 2 noise=0.20</code>: 15/32 self, 0/32 MPNN. <code>Exp 29</code> scaling: 540 cumulative self successes vs 280 for default by ~37 GPUh.</td>
+      <td><strong>Mechanism differs.</strong> The paper's CD45 gain comes from hallucination-family scaling, while our strongest gain comes from a generation-stage noise intervention. Both show extra compute helps, but they are not the same recipe.</td>
+    </tr>
+    <tr>
+      <td><strong>BetV1</strong></td>
+      <td>Complexa = 0 MPNN, 0 MPNN-FI, 0 Self</td>
+      <td>All three Figure 18 methods scale non-trivially; G&amp;H with logit optimization appears strongest in the plotted range.</td>
+      <td><code>Exp 13b noise+halluc</code>: 11/32 self, 3/32 MPNN, 3 FoldSeek-unique self successes.</td>
+      <td><strong>Qualitative bridge only.</strong> Our local campaign confirms that BetV1 is not permanently zero, but we do not yet have a matched GPU-hour scaling curve for a paper-faithful G&amp;H recipe.</td>
+    </tr>
+    <tr>
+      <td><strong>HER2_AAV</strong></td>
+      <td>Complexa = 0 MPNN, 0 MPNN-FI, 0 Self</td>
+      <td>BindCraft dominates the two G&amp;H variants over most of the plotted budget range.</td>
+      <td><code>Exp 4 halluc</code>: 21/32 self, 15/32 MPNN. <code>Exp 27 greedy5</code>: 16/16 self, 16/16 MPNN on refinement-focused reruns.</td>
+      <td><strong>Sequence-repair agreement.</strong> Both the paper and our local results say HER2_AAV needs strong post-generation sequence optimization, not just more default generation.</td>
+    </tr>
+    <tr>
+      <td><strong>SC2RBD</strong></td>
+      <td>Complexa = 0 MPNN, 0 MPNN-FI, 0 Self</td>
+      <td>BindCraft is the only clearly rising curve; G&amp;H variants remain near zero in the plotted range.</td>
+      <td><code>Exp 26 rw_pl050_softg5</code>: 5/8 self, 2/8 MPNN. <code>Exp 29</code> msg5 scaling: 30 cumulative self successes by ~35 GPUh.</td>
+      <td><strong>Local bundle is stronger than the paper's generative anchor</strong>, but SC2RBD is not a Figure 19 target and our best local bundle is not the same as the paper's Figure 18 methods.</td>
+    </tr>
+  </table>
+  </div>
+  <p class="note">
+    <strong>Takeaway:</strong> Table 10 and Figure 18 differ because they answer different questions. Table 10 asks whether the fixed generative benchmark already produces unique successes at a 200-sample budget. Figure 18 asks how hallucination-family methods accumulate unique self successes as GPU-hours increase on hard targets. Our local campaign adds a third question: which intervention family is actually best for each target?
+  </p>
   <p class="note">
     These four runs are <strong>sanity checks, not full reproductions</strong>: the paper&rsquo;s generative benchmark uses 200 samples per target,
     and its inference-scaling figures are cumulative GPU-hour curves. The preserved local <code>paper_*</code> folders are therefore best read as
@@ -2854,6 +3069,65 @@ Terminate: when unique success count plateaus
     so this is still a directional comparison rather than a head-to-head superiority claim.
   </p>
 
+  <div class="callout warn">
+    <p><strong>Can we compare our very-hard results to Sec. I.4 / Figure 19?</strong> Yes, but only directionally for now.</p>
+    <ul style="font-size:0.86rem; color:var(--muted); padding-left:18px; line-height:1.7; margin:0;">
+      <li><strong>Comparable in target class:</strong> both the paper and our page treat <code>TNF&alpha;</code>, <code>H1</code>, and <code>IL17A</code> as the true very-hard regime where zero-hit defaults require MCTS-family search plus local refinement.</li>
+      <li><strong>Comparable in qualitative lesson:</strong> local refinement is necessary, reward shaping alone is not enough, and very-hard targets demand much longer compute horizons than ordinary hard targets.</li>
+      <li><strong>Not yet comparable in headline metric:</strong> the paper reports cumulative unique self successes over roughly <code>387&ndash;604 GPUh</code>, while our current local evidence is mostly single-run <code>N=8</code> snapshots plus short scaling traces at <code>~30&ndash;37 GPUh</code>.</li>
+      <li><strong>Closest local anchor:</strong> <code>Exp 28</code> is the nearest paper-recipe sanity check, but the preserved outputs mix final and lookahead states, so it is useful as a recipe check rather than as a clean matched benchmark.</li>
+    </ul>
+  </div>
+
+  <h3>What Additional Experiments Are Needed for a Fair Paper Comparison?</h3>
+  <p class="note">
+    The current page is strong on mechanism and routing, but a fair paper comparison still requires a small set of denominator-matched benchmarks. The plan below is ordered by scientific value rather than convenience.
+  </p>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Priority</th><th>Experiment needed</th><th>Why it matters</th><th>Minimum acceptance criterion</th></tr>
+    <tr>
+      <td><strong>1</strong></td>
+      <td><strong>Table 10 reproduction panel on repeated targets</strong>: rerun <code>CD45</code>, <code>BetV1</code>, <code>HER2_AAV</code>, <code>SC2RBD</code> with the paper's <code>200-sample</code> denominator and report FoldSeek-unique Self / MPNN / MPNN-FI.</td>
+      <td>This is the cleanest way to say whether our local interventions move paper-zero targets into a non-zero regime under the same benchmark protocol.</td>
+      <td>One table with paper-faithful denominators and the same three output channels.</td>
+    </tr>
+    <tr>
+      <td><strong>2</strong></td>
+      <td><strong>Figure 18-style scaling on matched targets</strong>: run cumulative GPU-hour curves for <code>CD45</code>, <code>BetV1</code>, and <code>HER2_AAV</code> under paper-faithful <code>Generate &amp; Hallucinate</code>, <code>G&amp;H w/ logit opt.</code>, and our local best intervention.</td>
+      <td>This isolates whether our claimed target-specific wins are actually better than the paper's hallucination-family scaling, rather than only better than a local baseline snapshot.</td>
+      <td>Cumulative unique self-success TSVs on the same x-axis definition: generation + evaluation GPU-hours.</td>
+    </tr>
+    <tr>
+      <td><strong>3</strong></td>
+      <td><strong>Figure 19 matched scaling for very hard targets</strong>: long-running curves for <code>TNF&alpha;</code>, <code>H1</code>, and <code>IL17A</code> using the paper's Sec. I.4 recipe and our local best variant side by side.</td>
+      <td>This is the only fair way to claim that our MCTS-family bundle is stronger, weaker, or simply different from the paper's very-hard recipe.</td>
+      <td>Reach at least the first <code>100 GPUh</code> milestone per target with cumulative unique self successes logged consistently.</td>
+    </tr>
+    <tr>
+      <td><strong>4</strong></td>
+      <td><strong>Paper-faithful G&amp;H default sweep</strong>: exact stage-4-only <code>1%</code> mutation schedule on our repeated hard targets, alongside our <code>2%/5%/10%</code> local schedules.</td>
+      <td>Right now we know our local schedules can be strong, but we do not yet know whether they are stronger because of better routing or simply because they are more aggressive than the paper default.</td>
+      <td>Matched <code>N</code>, matched target set, and both self and redesign channels reported.</td>
+    </tr>
+    <tr>
+      <td><strong>5</strong></td>
+      <td><strong>Hardware-normalized scaling pass</strong>: restate local H100 curves in A100-equivalent GPU-hours or rerun a small subset on the paper hardware class.</td>
+      <td>This reduces ambiguity in the x-axis when comparing to Figure 18 / Figure 19, which were reported on A100-era budgets.</td>
+      <td>One explicit hardware conversion rule attached to every scaling plot.</td>
+    </tr>
+    <tr>
+      <td><strong>6</strong></td>
+      <td><strong>Unique-success-first evaluation logs</strong>: log cumulative FoldSeek-unique self successes directly rather than only total successes.</td>
+      <td>This closes the biggest remaining metric gap between our scaling curves and the paper's public plots.</td>
+      <td>Every scaling run writes both cumulative total successes and cumulative unique self successes.</td>
+    </tr>
+  </table>
+  </div>
+  <p class="note">
+    <strong>Practical reading:</strong> until priorities 1&ndash;3 are complete, the right claim is that our local campaign explains <em>which intervention family helps which target</em>. It is not yet the right claim that we have already beaten the paper's headline scaling baselines on a fully matched benchmark.
+  </p>
+
   <!-- ─── Per-Target Scaling Figures (Figure 22-style) ─── -->
   <h3>Per-Target Scaling Figures (Figure 22-style): All Configs per Target</h3>
   <div class="callout warn">
@@ -3078,14 +3352,78 @@ Terminate: when unique success count plateaus
     <strong>Denominator:</strong> 1216 designs per run (much larger than Exp 24&ndash;27&rsquo;s N=8&ndash;32).
     <strong>Role:</strong> Large-N baselines to test whether default beam-search saturates or plateaus on new target variants.
   </p>
+  <div class="callout warn">
+    <p><strong>Important reading guardrail:</strong> <code>Exp 31</code> is <strong>not</strong> the main table for asking whether our interventions work.
+    That causal question is answered on the <strong>seen / training targets</strong>, where we already have matched local baselines from
+    Phase 0 and then explicit intervention follow-ups (noise, hallucination, MCTS+G&amp;H, refinement schedules). <code>Exp 31</code> instead asks a different question:
+    <strong>does the default policy transfer to held-out target variants?</strong></p>
+  </div>
   <div class="callout">
     <p><strong>Baseline setup, stated explicitly:</strong> <code>Exp 31</code> is the local deep-beam default scaled out on held-out targets,
     using <code>beam-search</code> with <code>beam_width=8</code>, <code>n_branch=3</code>, checkpoints
     <code>[0,65,130,200,270,340,400]</code>, and <code>num_redesign_seqs=8</code>. This matches the project&rsquo;s
     internal deep baseline family, but <strong>it is not identical to a single named paper baseline</strong>:
-    the paper&rsquo;s Table 10 is a 200-sample generative benchmark, and Figure 7 reports cumulative scaling curves on A100 over matched GPU budgets rather than this held-out <code>N=1216</code> prospective control.
+    the paper/config default in the repo is the sparser beam setting
+    <code>beam_width=4</code>, <code>n_branch=4</code>, checkpoints <code>[0,100,200,300,400]</code>, whereas our Phase 0/Exp 24/29/31
+    local deep baseline uses the denser custom schedule above. The paper&rsquo;s Table 10 is a 200-sample generative benchmark, and Figure 7 reports cumulative scaling curves on A100 over matched GPU budgets rather than this held-out <code>N=1216</code> prospective control.
     So the right interpretation is <strong>&ldquo;held-out local default control&rdquo;</strong>, not &ldquo;exact paper baseline reproduction.&rdquo;</p>
   </div>
+  <h4>Seen Targets: Do Interventions Beat the Baseline?</h4>
+  <p class="note">
+    Yes. The clearest evidence comes from targets where we have a completed local baseline and then a targeted follow-up on the
+    <strong>same target family</strong>. This is the right table for judging whether the new action set is scientifically useful.
+  </p>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Seen target</th><th>Local baseline</th><th>Best verified follow-up</th><th>What changed</th></tr>
+    <tr style="background:#d1fae5">
+      <td><strong>CD45</strong></td>
+      <td>Phase 0 deep: <strong>8/32 self</strong> (25.0%)</td>
+      <td><code>Exp 2/5</code> noise=0.20: <strong>15/32 self</strong> (46.9%)</td>
+      <td>Higher denoising noise helps this geometry-limited target. This is a direct baseline-to-intervention gain on a seen hard target.</td>
+    </tr>
+    <tr style="background:#d1fae5">
+      <td><strong>HER2_AAV</strong></td>
+      <td>Phase 0 deep: <strong>1/32 self</strong> (3.1%)</td>
+      <td><code>Exp 4</code> hallucination: <strong>21/32 self</strong> (65.6%)</td>
+      <td>Large rescue on the self channel. This is the strongest seen-target baseline-to-intervention jump in the whole page.</td>
+    </tr>
+    <tr style="background:#d1fae5">
+      <td><strong>BetV1</strong></td>
+      <td>Phase 0 deep: <strong>6/32 self</strong> (18.8%)</td>
+      <td><code>Exp 13b</code> noise+hallucination: <strong>11/32 self</strong> (34.4%)</td>
+      <td>Moderate but real gain. BetV1 is not as dramatic as HER2_AAV, but the intervention bundle still beats the default.</td>
+    </tr>
+    <tr style="background:#d1fae5">
+      <td><strong>SC2RBD</strong></td>
+      <td>Earlier beam-family baseline: <strong>0 self</strong></td>
+      <td><code>Exp 26</code> reward-shaped MCTS+G&amp;H: <strong>5/8 self</strong>, <strong>2/8 MPNN</strong></td>
+      <td>This is the cleanest example of a zero-hit target being opened by a new operator family.</td>
+    </tr>
+    <tr style="background:#d1fae5">
+      <td><strong>TNF&alpha;</strong></td>
+      <td>Earlier beam-family baseline: <strong>0 self</strong></td>
+      <td><code>Exp 25</code> msg5: <strong>4/8 self</strong>, <strong>1/8 MPNN</strong></td>
+      <td>Another zero-hit-to-nonzero transition, but on a much harder target family than the Phase 0 panel.</td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td><strong>H1</strong></td>
+      <td>Earlier beam-family baseline: <strong>0 self</strong></td>
+      <td><code>Exp 26</code> rws10: <strong>2/8 self</strong></td>
+      <td>Marginally opened, but still weak. This is improvement, not resolution.</td>
+    </tr>
+    <tr style="background:#fee2e2">
+      <td><strong>CbAgo</strong></td>
+      <td>Baseline: <strong>0 self</strong></td>
+      <td>All completed follow-ups remain <strong>0 self</strong></td>
+      <td>Useful negative control: not every target yields to the current action set.</td>
+    </tr>
+  </table>
+  </div>
+  <p class="note">
+    <strong>Bottom line:</strong> the project already has training-target baselines. Those are the correct reference for
+    <strong>effectiveness claims</strong>. <code>Exp 31</code> is needed for a separate question: whether a fixed default transfers to held-out variants before any routing.
+  </p>
   <div class="table-wrap">
   <table>
     <tr><th>Target</th><th>Source</th><th>Self</th><th>MPNN</th><th>Interpretation</th></tr>
