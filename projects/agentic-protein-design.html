@@ -2324,7 +2324,7 @@ Terminate: when unique success count plateaus
       <td><strong>03_PDL1_AAV</strong></td>
       <td>bindcraft_targets (PD-L1)</td>
       <td class="best">484/1216 (39.8%)</td>
-      <td class="best">588/1216 (48.4%)</td>
+      <td class="best">597/1216 (49.1%)</td>
       <td><strong>Saturated.</strong> Default beam scales.</td>
     </tr>
     <tr style="background:#fef3c7">
@@ -2338,7 +2338,7 @@ Terminate: when unique success count plateaus
       <td><strong>19_DerF21</strong></td>
       <td>bindcraft_targets (DerF21 variant)</td>
       <td class="best">568/1216 (46.7%)</td>
-      <td class="best">680/1216 (55.9%)</td>
+      <td class="best">688/1216 (56.6%)</td>
       <td><strong>Saturated.</strong> Default beam scales.</td>
     </tr>
     <tr style="background:#fee2e2">
@@ -2359,7 +2359,7 @@ Terminate: when unique success count plateaus
       <td><strong>32_PDL1_ALPHA</strong></td>
       <td>alpha_proteo_targets (5o45 cropped)</td>
       <td class="best">540/1216 (44.4%)</td>
-      <td class="best">747/1216 (61.4%)</td>
+      <td class="best">754/1216 (62.0%)</td>
       <td><strong>Saturated.</strong> Default beam scales.</td>
     </tr>
   </table>
@@ -2392,7 +2392,7 @@ Terminate: when unique success count plateaus
     mechanism and reliability experiments, then hard-target search and refinement, then agentic routing, then deferred
     future extensions.
   </p>
-  <p class="note">Status snapshot as of April 11, 2026: Exp 24, Exp 25, and Exp 26 are complete. The original Exp 27 batch is terminal (20 completed, 5 CrSAS6 pre-generation failures), and the corrected CrSAS6 rerun is complete. Exp 28 is partial/terminal (IL17A complete; H1/TNF&alpha;/SC2RBD aggregate eval outputs exist but are mixed final+lookahead artifact sets). Exp 29 was canceled before usable evaluation outputs. Exp 30 is in progress (6 timeouts, 1 failed early, 6 running, 1 pending). Exp 31 is in progress (2 completed, 4 running, 2 failed early). Exp 32 currently has 6 diagnostic timeouts, 2 diagnostic failures, and 8 dependency-gated controller jobs still pending; no Exp 32 evaluation directories exist yet.</p>
+  <p class="note">Status snapshot as of April 11, 2026: Exp 24, Exp 25, and Exp 26 are complete. The original Exp 27 batch is terminal (20 completed, 5 CrSAS6 pre-generation failures), and the corrected CrSAS6 rerun is complete. Exp 28 is complete (IL17A full eval at N=324; H1/TNF&alpha;/SC2RBD v2 eval-only reruns produced final-design counts, see Section 5c). <strong>Exp 29 v2 is running</strong> (6 long-running strategies; ~37h of data already accumulated for CD45 and ~35h for SC2RBD, tables in Section 5c). Exp 30 has generation timeouts across all 13 dirs; analysis-only recovery jobs resubmitted (SLURM 6896284&ndash;6896296). <strong>Exp 31 has 6/6 completed with full eval CSVs (N=1216 each, see Section 5c).</strong> Exp 32 diagnostic runs timed out; recovery submitted (SLURM 6896311&ndash;6896320).</p>
 
   <div class="table-wrap">
   <table>
@@ -2622,17 +2622,31 @@ Terminate: when unique success count plateaus
     </tr>
     <tr style="background:#fef3c7">
       <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
-      <td><strong>Exp 28: Paper Recipe Baseline (Sec I.4)</strong><br><span style="font-size:0.82rem;color:var(--muted)">H1, TNFalpha, IL17A, SC2RBD with the ICLR paper&rsquo;s exact very-hard-target recipe: MCTS N<sub>sim</sub>=20, &epsilon;=0.5, C=1.0, iPAE+pLDDT(0.5) reward, G&amp;H soft+greedy 5%</span></td>
+      <td><strong>Exp 28: Paper Recipe Baseline (Sec I.4)</strong><br><span style="font-size:0.82rem;color:var(--muted)">H1, TNFalpha, IL17A, SC2RBD with the ICLR paper&rsquo;s exact very-hard-target recipe: MCTS N<sub>sim</sub>=20, &epsilon;=0.5, C=1.0, iPAE+pLDDT(0.5) reward, G&amp;H soft+greedy 5%, <code>keep_lookahead_samples=true</code></span></td>
       <td>4/4</td>
-      <td><span class="tag tag-orange">Partial / Terminal</span></td>
-      <td style="font-size:0.82rem"><strong>Outcome:</strong> IL17A completed at <strong>0/324 self and 0/324 MPNN</strong>. For H1, TNF&alpha;, and SC2RBD the currently preserved aggregate outputs mix final and lookahead states, so this batch provides a paper-recipe sanity check but not a denominator-matched baseline against Exp 25/26.</td>
+      <td><span class="tag tag-green">Complete</span></td>
+      <td style="font-size:0.82rem"><strong>Final-design outcomes</strong> (fair comparison with Exp 25 which uses 4 final designs): IL17A 0/324 (all lookahead fail). H1 0/4 final. TNF&alpha; 2/4 final (1/4 MPNN). SC2RBD 1/4 final (1/640 MPNN-only lookahead). Eval-only v2 reruns (SLURM 6814221&ndash;6814223) completed after v1 <code>--wrap</code> bug was fixed.</td>
     </tr>
-    <tr style="background:#fee2e2">
-      <td style="text-align:center; font-size:1.1rem">&#9746;</td>
-      <td><strong>Exp 29: Scaling Curves</strong><br><span style="font-size:0.82rem;color:var(--muted)">initial Figure 19-style scaling attempt</span></td>
-      <td>0 usable outputs</td>
-      <td><span class="tag tag-red">Canceled</span></td>
-      <td style="font-size:0.82rem">The first scaling batch was canceled before it produced completed <code>exp29_*</code> evaluation directories, so no scaling tables are reported from that attempt.</td>
+    <tr style="background:#fef3c7">
+      <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
+      <td><strong>Exp 29 v2: Long-Running Scaling Curves</strong><br><span style="font-size:0.82rem;color:var(--muted)">6 continuous-generation jobs (48h walltime each) on CD45, SC2RBD, TNF&alpha;. v1 canceled (78 short jobs); v2 uses long-running loops with TSV logging.</span></td>
+      <td>6 running</td>
+      <td><span class="tag tag-orange">Running (~35-37h in)</span></td>
+      <td style="font-size:0.82rem"><strong>Running data from <code>scaling_curves/*_scaling_corrected.tsv</code>:</strong> CD45 noise=0.20: 540 self in 38h. CD45 default: 280 self / 257 MPNN in 37h. SC2RBD msg5: 30 self / 22 MPNN in 35h. SC2RBD e26: 7 self in 35h. TNF&alpha; msg5: 1 self in 32h. TNF&alpha; paper recipe: 0 in 29h. Full curves in Section 5c.</td>
+    </tr>
+    <tr style="background:#d1fae5">
+      <td style="text-align:center; font-size:1.1rem">&#9745;</td>
+      <td><strong>Exp 31: Held-Out Target Default Baselines</strong><br><span style="font-size:0.82rem;color:var(--muted)">6 held-out target variants with default beam-search at N=1216 designs each (much larger than Exp 24&ndash;27's N=8-32)</span></td>
+      <td>6/6</td>
+      <td><span class="tag tag-green">Done</span></td>
+      <td style="font-size:0.82rem"><strong>3 saturated</strong> (03_PDL1_AAV 484/1216, 19_DerF21 568/1216, 32_PDL1_ALPHA 540/1216). <strong>1 sequence-limited</strong> (28_HER2_AAV 0/1216 self, 31/1216 MPNN). <strong>1 zero-hit even at N=1216</strong> (26_CbAgo 0/1216 &mdash; confirms default beam cannot crack CbAgo at any N). <strong>1 partial</strong> (16_DerF7 variant 123/1216 = 10%).</td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
+      <td><strong>Exp 30 / Exp 32: Held-Out Diagnostics</strong><br><span style="font-size:0.82rem;color:var(--muted)">Exp 30: CD45/DerF7/DerF21 hotspot variants + REPACK variants. Exp 32: heldout agentic controller on same 6 targets as Exp 31.</span></td>
+      <td>21 timeout</td>
+      <td><span class="tag tag-orange">Recovery running</span></td>
+      <td style="font-size:0.82rem">All 13 Exp 30 and 8 Exp 32 diagnostic jobs timed out in generation before AF2 eval. Analysis-only recovery scripts resubmitted (SLURM 6896284&ndash;6896296 for Exp 30; 6896311&ndash;6896320 for Exp 32). Results pending.</td>
     </tr>
     <tr style="background:#e0f2fe">
       <td colspan="5" style="font-size:0.8rem; font-weight:600; color:#075985; padding:6px 12px;">
