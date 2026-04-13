@@ -2791,8 +2791,8 @@ Terminate: when unique success count plateaus
       <td><strong>CD45</strong></td>
       <td>Complexa = 0 MPNN, 0 MPNN-FI, 0 Self</td>
       <td>G&amp;H and G&amp;H w/ logit optimization both scale upward with GPU hours; the logit variant ends slightly higher in the plotted budget range.</td>
-      <td><code>Exp 2 noise=0.20</code>: 15/32 self, 0/32 MPNN. <code>Exp 29</code> scaling: 540 cumulative self successes vs 280 for default by ~37 GPUh.</td>
-      <td><strong>Mechanism differs.</strong> The paper's CD45 gain comes from hallucination-family scaling, while our strongest gain comes from a generation-stage noise intervention. Both show extra compute helps, but they are not the same recipe.</td>
+      <td><code>Exp 2 noise=0.20</code>: 15/32 self, 0/32 MPNN. <code>Exp 29</code> long-running scaling is withdrawn pending rerun because the published loop reused a fixed seed across iterations.</td>
+      <td><strong>Mechanism differs.</strong> The paper's CD45 gain comes from hallucination-family scaling, while our strongest verified local gain comes from a generation-stage noise intervention. Any long-horizon scaling statement is deferred until the rerun completes.</td>
     </tr>
     <tr>
       <td><strong>BetV1</strong></td>
@@ -2812,8 +2812,8 @@ Terminate: when unique success count plateaus
       <td><strong>SC2RBD</strong></td>
       <td>Complexa = 0 MPNN, 0 MPNN-FI, 0 Self</td>
       <td>BindCraft is the only clearly rising curve; G&amp;H variants remain near zero in the plotted range.</td>
-      <td><code>Exp 26 rw_pl050_softg5</code>: 5/8 self, 2/8 MPNN. <code>Exp 29</code> msg5 scaling: 30 cumulative self successes by ~35 GPUh.</td>
-      <td><strong>Local bundle is stronger than the paper's generative anchor</strong>, but SC2RBD is not a Figure 19 target and our best local bundle is not the same as the paper's Figure 18 methods.</td>
+      <td><code>Exp 26 rw_pl050_softg5</code>: 5/8 self, 2/8 MPNN. <code>Exp 29</code> msg5 long-running scaling is withdrawn pending rerun because the published loop reused a fixed seed across iterations.</td>
+      <td><strong>Local bundle is stronger than the paper's generative anchor</strong>, but the long-running SC2RBD scaling curve must be recomputed before any compute-scaling statement is made.</td>
     </tr>
   </table>
   </div>
@@ -2991,82 +2991,31 @@ Terminate: when unique success count plateaus
     </p>
   </div>
 
-  <h3>Exp 29 v2: Long-Running Scaling Curves (~37h per strategy)</h3>
-  <p class="note">
-    <strong>History:</strong> The first Exp 29 batch was 78 independent short jobs (cancelled, no usable outputs).
-    The v2 redesign uses <strong>6 long-running continuous-generation jobs</strong> (48h walltime each) that loop:
-    generate 4&ndash;32 designs &rarr; evaluate &rarr; log <code>(gpu_hours, cumulative_successes)</code> to TSV &rarr; repeat.
-    Data below is from <code>scaling_curves/*_scaling_corrected.tsv</code> (the original TSVs had a success-counting bug;
-    the <code>_corrected</code> versions were rebuilt from the actual evaluation CSVs).
-  </p>
-
-  <h4>CD45 (HARD): Default vs noise=0.20 at ~37 GPU-hours each</h4>
-  <div class="table-wrap">
-  <table>
-    <tr><th>GPU-hours</th>
-      <th colspan="2">noise=0.20 (ours)</th>
-      <th colspan="2">default (baseline)</th></tr>
-    <tr><th></th><th>Cum. Self</th><th>Cum. MPNN</th><th>Cum. Self</th><th>Cum. MPNN</th></tr>
-    <tr><td>~1h</td><td>15</td><td>1</td><td>8</td><td class="best">8</td></tr>
-    <tr><td>~5h</td><td>75</td><td>6</td><td>40</td><td>36</td></tr>
-    <tr><td>~10h</td><td>150</td><td>10</td><td>80</td><td>72</td></tr>
-    <tr><td>~20h</td><td>300</td><td>18</td><td>160</td><td>144</td></tr>
-    <tr><td>~30h</td><td>435</td><td>22</td><td>232</td><td>214</td></tr>
-    <tr><td>~37h (last)</td><td class="best">540</td><td>27</td><td>280</td><td class="best">257</td></tr>
-  </table>
-  </div>
-  <div class="card" style="border-left: 4px solid var(--green);">
-    <h4 style="font-size:0.95rem; margin-bottom:6px;">CD45 Scaling Analysis (continuous generation, 37 iterations)</h4>
+  <h3>Exp 29 v2: Long-Running Scaling Curves</h3>
+  <div class="card" style="border-left: 4px solid #f59e0b;">
+    <h4 style="font-size:0.95rem; margin-bottom:6px;">Withdrawn Pending Rerun</h4>
+    <p style="font-size:0.9rem; color:var(--text); line-height:1.7;">
+      The previously published Exp 29 long-running scaling curves for <strong>CD45</strong>, <strong>SC2RBD</strong>,
+      and <strong>TNF&alpha;</strong> have been withdrawn from interpretation. Audit on <strong>2026-04-13</strong>
+      found that <code>run_scaling_curve.sh</code> reused a fixed seed across iterations, so the loop did not generate
+      independent stochastic batches.
+    </p>
+    <p style="font-size:0.9rem; color:var(--text); line-height:1.7;">
+      The published TSVs also accumulated <em>raw pass counts</em> rather than FoldSeek-unique successes. As a result,
+      any slope, cumulative total, or comparison derived from those curves is currently unsupported and will be replaced
+      after the corrected rerun.
+    </p>
     <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
-      <li><strong>Both strategies scale linearly across 37 iterations.</strong> noise=0.20: 14.2 self/hour (540 self in 38h).
-      Default: 7.5 self/hour (280 self in 37h). <strong>No plateau visible after 37 iterations.</strong></li>
-      <li><strong>noise=0.20 produces ~1.93&times; more self successes</strong> than default at matched compute (540 vs 280).
-      But <strong>default produces ~9.5&times; more MPNN successes</strong> (257 vs 27). Confirms the Phase 1 noise/MPNN tradeoff at large N.</li>
-      <li><strong>Per-iteration counts remain perfectly deterministic</strong>: noise=0.20 produces 15/32 self every iteration; default produces 8/32 self every iteration. Any scaling gain is compute-driven, not variance-driven.</li>
+      <li><strong>Affected targets:</strong> CD45, SC2RBD, and TNF&alpha;.</li>
+      <li><strong>Affected claims:</strong> linear scaling, no-plateau behavior, per-hour rates, and all ratios derived from the withdrawn TSVs.</li>
+      <li><strong>Next step:</strong> rerun Exp 29 with iteration-specific seeds and report either explicitly labeled raw cumulative passes or a separate FoldSeek-unique post-process.</li>
     </ul>
   </div>
-
-  <h4>SC2RBD (VERY HARD): MCTS+G&amp;H Variants at ~35 GPU-hours each</h4>
-  <div class="table-wrap">
-  <table>
-    <tr><th>GPU-hours</th>
-      <th colspan="2">MCTS+G&amp;H msg5 (ours)</th>
-      <th colspan="2">MCTS+pLDDT+G&amp;H e26 (alt)</th></tr>
-    <tr><th></th><th>Cum. Self</th><th>Cum. MPNN</th><th>Cum. Self</th><th>Cum. MPNN</th></tr>
-    <tr><td>~1.5h</td><td>2</td><td>1</td><td>1</td><td>0</td></tr>
-    <tr><td>~6h</td><td>6</td><td>4</td><td>1</td><td>0</td></tr>
-    <tr><td>~15h</td><td>13</td><td>8</td><td>3</td><td>2</td></tr>
-    <tr><td>~25h</td><td>22</td><td>15</td><td>5</td><td>3</td></tr>
-    <tr><td>~35h (last)</td><td class="best">30</td><td class="best">22</td><td>7</td><td>4</td></tr>
-  </table>
-  </div>
-  <div class="card" style="border-left: 4px solid var(--green);">
-    <h4 style="font-size:0.95rem; margin-bottom:6px;">SC2RBD Scaling Analysis</h4>
-    <ul style="font-size:0.88rem; color:var(--muted); padding-left:16px; line-height:1.8;">
-      <li><strong>msg5 continues to scale at ~0.9 self/hour</strong>: 30 self successes in 35h on a target the paper reports 0 for.
-      No plateau visible. MPNN successes also accumulate (22 at 35h, ~67% of self successes).</li>
-      <li><strong>e26 (pLDDT reward + G&amp;H) underperforms msg5 by ~4.3&times; in continuous mode</strong> (7 vs 30 self at matched 35h).
-      The original single-run e26_04 result (5/8 = 62.5%) was a favorable seed. Long-running reveals msg5 is the more reliable strategy.</li>
-      <li><strong>Implication for the recommended routing:</strong> for zero-hit targets, prefer MCTS+G&amp;H (msg5) over MCTS+pLDDT+G&amp;H (e26) as the primary escalation, with e26 reserved as a fallback if msg5 fails.</li>
-    </ul>
-  </div>
-
-  <h4>TNF&alpha; (VERY HARD): Slower Iterations</h4>
-  <div class="table-wrap">
-  <table>
-    <tr><th>Config</th><th>Iters</th><th>GPU-hours</th><th>Cum. Self</th><th>Cum. MPNN</th><th>Note</th></tr>
-    <tr><td>msg5 (ours)</td><td>4</td><td>~32h</td><td>1</td><td>0</td><td>~8h per iter, ~0.03 self/h</td></tr>
-    <tr><td>paper recipe</td><td>1</td><td>~29h</td><td class="fail">0</td><td class="fail">0</td><td>Only 1 iter completed; paper recipe slower per iter due to <code>keep_lookahead_samples=true</code></td></tr>
-  </table>
-  </div>
-  <p class="note">TNF&alpha; iterations are expensive (~8&ndash;29h per iter due to large complex size). At matched ~30h,
-  our msg5 already finds 1 self success; the paper recipe has produced 0 self successes (despite generating 644 lookahead designs
-  in the single iteration). Scaling on TNF&alpha; requires much more compute than CD45 or SC2RBD.</p>
 
   <p class="note" style="margin-top:12px;">
     <strong>Figure 19 comparison (paper Sec I.4 reference):</strong> the paper reports 15 TNF&alpha; successes in 475 GPUh,
-    7 H1 in 604 GPUh, 1 IL17A in 387 GPUh. Our scaling curves are not yet at matched budget (we are at 30&ndash;37h),
-    so this is still a directional comparison rather than a head-to-head superiority claim.
+    7 H1 in 604 GPUh, 1 IL17A in 387 GPUh. Our previously shown Exp 29 long-running curves have been withdrawn pending rerun,
+    so the only supportable comparison here is the lower-budget single-run frontier evidence above.
   </p>
 
   <div class="callout warn">
@@ -3074,7 +3023,7 @@ Terminate: when unique success count plateaus
     <ul style="font-size:0.86rem; color:var(--muted); padding-left:18px; line-height:1.7; margin:0;">
       <li><strong>Comparable in target class:</strong> both the paper and our page treat <code>TNF&alpha;</code>, <code>H1</code>, and <code>IL17A</code> as the true very-hard regime where zero-hit defaults require MCTS-family search plus local refinement.</li>
       <li><strong>Comparable in qualitative lesson:</strong> local refinement is necessary, reward shaping alone is not enough, and very-hard targets demand much longer compute horizons than ordinary hard targets.</li>
-      <li><strong>Not yet comparable in headline metric:</strong> the paper reports cumulative unique self successes over roughly <code>387&ndash;604 GPUh</code>, while our current local evidence is mostly single-run <code>N=8</code> snapshots plus short scaling traces at <code>~30&ndash;37 GPUh</code>.</li>
+      <li><strong>Not yet comparable in headline metric:</strong> the paper reports cumulative unique self successes over roughly <code>387&ndash;604 GPUh</code>, while our current local evidence is mostly single-run <code>N=8</code> snapshots. The previous short scaling traces at <code>~30&ndash;37 GPUh</code> were withdrawn and are being rerun.</li>
       <li><strong>Closest local anchor:</strong> <code>Exp 28</code> is the nearest paper-recipe sanity check, but the preserved outputs mix final and lookahead states, so it is useful as a recipe check rather than as a clean matched benchmark.</li>
     </ul>
   </div>
@@ -3083,49 +3032,88 @@ Terminate: when unique success count plateaus
   <p class="note">
     The current page is strong on mechanism and routing, but a fair paper comparison still requires a small set of denominator-matched benchmarks. The plan below is ordered by scientific value rather than convenience.
   </p>
+
+  <div class="callout warn">
+    <p><strong>Audit (2026-04-13): comparability gap to paper Figs. 7/10/17/18/19.</strong> Our scaling figures and our paper-comparison cards are not yet on the same axis as the paper. Headline gaps:</p>
+    <ul style="font-size:0.86rem; color:var(--text); padding-left:18px; line-height:1.7; margin:6px 0 0;">
+      <li><strong>Methods family</strong>: Figs. 17/18 compare <em>G&amp;H</em>, <em>G&amp;H + logit-opt</em>, and <em>BindCraft</em>. We never run BindCraft or G&amp;H+logit-opt as our own local baselines, so our &ldquo;wins&rdquo; (e.g., CD45 noise=0.20) are <strong>not</strong> in the same method family as the paper figure.</li>
+      <li><strong>Hardware</strong>: paper x-axis is A100-hours; ours is H100-hours (~2&ndash;3&times; faster). No conversion is currently applied.</li>
+      <li><strong>Y-axis</strong>: paper uses FoldSeek-unique successes; our withdrawn Exp 29 v2 TSVs used raw pass counts and also reused a fixed seed across iterations, so those curves are no longer part of the evidence base.</li>
+      <li><strong>Budget</strong>: Fig. 19 is 387&ndash;604 GPUh; we are at 30&ndash;37 H100h on the same targets &mdash; ~10&times; short.</li>
+      <li><strong>Coverage</strong>: paper has 12 easy / 7 hard / 3 very-hard. Phase 0 covers 7/12 easy and 4/7 hard; later phases extend coverage but not under matched protocol.</li>
+    </ul>
+    <p style="margin-top:8px;"><strong>Until P0&ndash;P2 below land, the supportable claim is the internal one:</strong> our single-run intervention campaign shows real per-target wins (for example, CD45 25.0% &rarr; 46.9% under <code>noise=0.20</code>, HER2_AAV 3.1% &rarr; 65.6% under hallucination, and SC2RBD moving from zero to non-zero under MCTS+G&amp;H). Claims of beating <em>paper baselines</em> require matched reruns.</p>
+  </div>
+
   <div class="table-wrap">
   <table>
-    <tr><th>Priority</th><th>Experiment needed</th><th>Why it matters</th><th>Minimum acceptance criterion</th></tr>
+    <tr><th>Priority</th><th>Experiment</th><th>Why it matters</th><th>Acceptance criterion</th><th>Status</th></tr>
+    <tr style="background:#fef3c7">
+      <td><strong>P0</strong> <span class="tag tag-orange">new</span></td>
+      <td><strong>Minimal head-to-head on SC2RBD</strong>: run <em>(a) BindCraft default</em>, <em>(b) G&amp;H stage-4-only at 1% mutations (paper general default)</em>, and <em>(c) our msg5 (MCTS+G&amp;H)</em> on the same SC2RBD target, same H100 hardware, to ~30 H100h each. Y-axis: cumulative FoldSeek-unique self successes.</td>
+      <td>This is the smallest experiment that converts an internal-only win into a paper-baseline win. SC2RBD is where our single-run local bundle is strongest against the paper's zero anchor, so it is the most likely target to land a defensible head-to-head before scaling out.</td>
+      <td>One scaling plot with three curves on one target, FoldSeek-unique y-axis, H100 hours on the x-axis (annotated with A100-equivalent estimate per P3).</td>
+      <td>Planned (Exp 33d).</td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td><strong>P1</strong></td>
+      <td><strong>Figure 18-style scaling on matched targets</strong>: cumulative GPU-hour curves for <code>CD45</code>, <code>BetV1</code>, and <code>HER2_AAV</code> under paper-faithful <code>G&amp;H</code>, <code>G&amp;H w/ logit opt.</code>, and our local best intervention.</td>
+      <td>Isolates whether our target-specific wins are actually better than the paper's hallucination-family scaling, not just better than our local baseline snapshot.</td>
+      <td>Cumulative unique self-success TSVs on a shared x-axis (generation + evaluation GPU-hours), three methods per target.</td>
+      <td>Queued; reuses Exp 29 v2 loop infra.</td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td><strong>P2</strong></td>
+      <td><strong>Figure 19 matched scaling on very-hard targets</strong>: long-running curves for <code>TNF&alpha;</code>, <code>H1</code>, and <code>IL17A</code> using the paper Sec. I.4 recipe and our local best variant side by side.</td>
+      <td>Only fair way to claim our MCTS+G&amp;H bundle is stronger, weaker, or simply different from the paper's very-hard recipe.</td>
+      <td>Reach the first <code>100 GPUh</code> milestone per target with cumulative FoldSeek-unique self successes logged consistently. Stretch: 200 GPUh for TNF&alpha;.</td>
+      <td>Exp 28 is the recipe sanity check; needs continuous-loop rerun without lookahead-mixing.</td>
+    </tr>
+    <tr style="background:#dbeafe">
+      <td><strong>P3</strong> <span class="tag tag-blue">cheap, do first</span></td>
+      <td><strong>Hardware-normalized x-axis</strong>: add an explicit H100&rarr;A100 conversion factor (e.g., 2.5&times;) to every scaling plot's x-axis caption; optionally rerun the SC2RBD msg5 curve on a single A100 to anchor the conversion.</td>
+      <td>Largest visual unfairness in the current figures. Cheap to fix; immediately removes the strongest reviewer objection.</td>
+      <td>Every scaling figure caption states the conversion factor; one anchoring A100 rerun cited.</td>
+      <td>Caption update: this week. A100 anchor: opportunistic.</td>
+    </tr>
+    <tr style="background:#dbeafe">
+      <td><strong>P4</strong> <span class="tag tag-blue">cheap</span></td>
+      <td><strong>Re-audit Exp 29 v2 TSVs and downstream cards</strong>: confirm every published Self / MPNN scaling number now uses the <code>_corrected</code> TSVs, and add FoldSeek-unique counts (not just totals) to every scaling row.</td>
+      <td>Closes the metric-mismatch gap between our scaling curves and paper Figs. 17&ndash;19 without any new compute.</td>
+      <td>Every scaling row has <em>both</em> total and FoldSeek-unique cumulative columns; no cards reference the pre-bugfix TSVs.</td>
+      <td>Audit pending.</td>
+    </tr>
+    <tr style="background:#dbeafe">
+      <td><strong>P5</strong></td>
+      <td><strong>Easy-target coverage parity</strong>: confirm or rerun the 5 easy targets missing from Phase 0 (<code>BHRF1</code>, <code>BBF14</code>, <code>DerF21</code>, <code>Insulin</code>, <code>IL7RA</code>) at matched <code>N=32</code> deep-beam config so our 12-easy-target panel is complete.</td>
+      <td>Required before any &ldquo;averaged over 12 easy targets&rdquo; statement directly comparable to Fig. 7 / Fig. 17.</td>
+      <td>All 12 easy targets present in one consolidated table at matched <code>N</code> and matched config.</td>
+      <td>Most exist under <code>exp16/17_base</code>; needs re-grouping into a Phase-0-equivalent table.</td>
+    </tr>
     <tr>
-      <td><strong>1</strong></td>
-      <td><strong>Table 10 reproduction panel on repeated targets</strong>: rerun <code>CD45</code>, <code>BetV1</code>, <code>HER2_AAV</code>, <code>SC2RBD</code> with the paper's <code>200-sample</code> denominator and report FoldSeek-unique Self / MPNN / MPNN-FI.</td>
-      <td>This is the cleanest way to say whether our local interventions move paper-zero targets into a non-zero regime under the same benchmark protocol.</td>
+      <td><strong>P6</strong></td>
+      <td><strong>Table 10 reproduction panel on repeated targets</strong>: rerun <code>CD45</code>, <code>BetV1</code>, <code>HER2_AAV</code>, <code>SC2RBD</code> at the paper's <code>200-sample</code> denominator with FoldSeek-unique Self / MPNN / MPNN-FI.</td>
+      <td>Cleanest way to say whether our interventions move paper-zero targets into a non-zero regime under the same benchmark protocol. Lower priority than P0 only because it is a one-shot table rather than a scaling curve.</td>
       <td>One table with paper-faithful denominators and the same three output channels.</td>
+      <td>After P0 lands.</td>
     </tr>
     <tr>
-      <td><strong>2</strong></td>
-      <td><strong>Figure 18-style scaling on matched targets</strong>: run cumulative GPU-hour curves for <code>CD45</code>, <code>BetV1</code>, and <code>HER2_AAV</code> under paper-faithful <code>Generate &amp; Hallucinate</code>, <code>G&amp;H w/ logit opt.</code>, and our local best intervention.</td>
-      <td>This isolates whether our claimed target-specific wins are actually better than the paper's hallucination-family scaling, rather than only better than a local baseline snapshot.</td>
-      <td>Cumulative unique self-success TSVs on the same x-axis definition: generation + evaluation GPU-hours.</td>
-    </tr>
-    <tr>
-      <td><strong>3</strong></td>
-      <td><strong>Figure 19 matched scaling for very hard targets</strong>: long-running curves for <code>TNF&alpha;</code>, <code>H1</code>, and <code>IL17A</code> using the paper's Sec. I.4 recipe and our local best variant side by side.</td>
-      <td>This is the only fair way to claim that our MCTS-family bundle is stronger, weaker, or simply different from the paper's very-hard recipe.</td>
-      <td>Reach at least the first <code>100 GPUh</code> milestone per target with cumulative unique self successes logged consistently.</td>
-    </tr>
-    <tr>
-      <td><strong>4</strong></td>
+      <td><strong>P7</strong></td>
       <td><strong>Paper-faithful G&amp;H default sweep</strong>: exact stage-4-only <code>1%</code> mutation schedule on our repeated hard targets, alongside our <code>2%/5%/10%</code> local schedules.</td>
-      <td>Right now we know our local schedules can be strong, but we do not yet know whether they are stronger because of better routing or simply because they are more aggressive than the paper default.</td>
+      <td>Tells us whether our schedules are stronger because of better routing or simply because they are more aggressive than the paper default.</td>
       <td>Matched <code>N</code>, matched target set, and both self and redesign channels reported.</td>
-    </tr>
-    <tr>
-      <td><strong>5</strong></td>
-      <td><strong>Hardware-normalized scaling pass</strong>: restate local H100 curves in A100-equivalent GPU-hours or rerun a small subset on the paper hardware class.</td>
-      <td>This reduces ambiguity in the x-axis when comparing to Figure 18 / Figure 19, which were reported on A100-era budgets.</td>
-      <td>One explicit hardware conversion rule attached to every scaling plot.</td>
-    </tr>
-    <tr>
-      <td><strong>6</strong></td>
-      <td><strong>Unique-success-first evaluation logs</strong>: log cumulative FoldSeek-unique self successes directly rather than only total successes.</td>
-      <td>This closes the biggest remaining metric gap between our scaling curves and the paper's public plots.</td>
-      <td>Every scaling run writes both cumulative total successes and cumulative unique self successes.</td>
+      <td>Exp 33c (running) covers CD45/HER2/BetV1; extend to SC2RBD after P0.</td>
     </tr>
   </table>
   </div>
+
+  <div class="callout">
+    <p><strong>Sequencing rationale.</strong> P3 and P4 are caption / audit work and ship this week with no new compute. P0 is the smallest new compute item that produces a defensible paper-baseline comparison; if it lands, the page can switch from &ldquo;routing study&rdquo; framing to &ldquo;routing study + one head-to-head paper-baseline win.&rdquo; P1 and P2 generalize that win across targets and budgets. P5&ndash;P7 are completeness work that becomes useful only after P0&ndash;P2.</p>
+    <p style="margin-top:8px;"><strong>Claim discipline until P0 lands.</strong> Page captions should say &ldquo;outperforms our local baseline at matched H100-hours&rdquo; rather than &ldquo;outperforms paper baseline.&rdquo; The Exp 29 CD45 card and SC2RBD msg5 card are the two most at-risk; both should be re-read with this rule before any external sharing.</p>
+  </div>
+
   <p class="note">
-    <strong>Practical reading:</strong> until priorities 1&ndash;3 are complete, the right claim is that our local campaign explains <em>which intervention family helps which target</em>. It is not yet the right claim that we have already beaten the paper's headline scaling baselines on a fully matched benchmark.
+    <strong>Practical reading:</strong> until P0&ndash;P2 are complete, the right claim is that our local campaign explains <em>which intervention family helps which target</em>. It is not yet the right claim that we have already beaten the paper's headline scaling baselines on a fully matched benchmark.
   </p>
 
   <!-- ─── Per-Target Scaling Figures (Figure 22-style) ─── -->
@@ -3134,11 +3122,12 @@ Terminate: when unique success count plateaus
     <p><strong>Hardware caveat up front.</strong> Our runtime is on <strong>1&times; NVIDIA H100 80GB</strong>; the paper's Figure 22 is on <strong>1&times; NVIDIA A100</strong> (roughly 2&ndash;3&times; slower).
     Direct side-by-side overlay with Figure 22 therefore requires a ~2&ndash;3&times; hardware scaling factor and is NOT attempted here.
     Our x-axis is honest H100 wall-clock hours (generation + full AF2-Multimer evaluation including self and MPNN redesigns).
-    The y-axis is cumulative unique self-sequence successes using the pipeline's success filter
-    (iPAE&times;31 &le; 7.0 AND pLDDT &ge; 0.9 AND scRMSD<sub>C&alpha;</sub> &lt; 1.5 &Aring;).</p>
+    The y-axis is cumulative self-sequence passes under the pipeline's success filter
+    (iPAE&times;31 &le; 7.0 AND pLDDT &ge; 0.9 AND scRMSD<sub>C&alpha;</sub> &lt; 1.5 &Aring;). Exp 29 long-run overlays for CD45, SC2RBD,
+    and TNF&alpha; are currently withdrawn pending rerun.</p>
     <p><strong>Baseline clarification.</strong> Our <code>notto</code> is <code>algorithm=single-pass</code> with N=200 independent samples &mdash; this is <strong>not</strong>
-    the paper's <code>best-of-n</code> TTO method (which selects the top-reward sample among N), but for the unique-success y-axis used
-    here the two are methodologically equivalent: both count how many of N unguided samples pass the success filter.
+    the paper's <code>best-of-n</code> TTO method (which selects the top-reward sample among N). For the pass-count y-axis used
+    here, both are still unguided sampling baselines rather than guided search.
     A dedicated paper-style <code>best-of-n</code> run was performed in Exp 19 (<code>bon_r8/r16/r32</code>) only.</p>
   </div>
 
@@ -3149,11 +3138,23 @@ Terminate: when unique success count plateaus
   <div class="figure-grid" style="grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));">
     <div class="figure-card">
       <h4>SC2RBD (cracked via MCTS+G&amp;H)</h4>
-      <img src="agentic-figures/per_target_scaling/30_SC2RBD_SC2RBD.png" alt="SC2RBD per-target scaling" style="width:100%; border:1px solid var(--border); border-radius:4px;">
+      <div class="card" style="border-left:4px solid #f59e0b; min-height:220px;">
+        <h4 style="font-size:0.95rem; margin-bottom:6px;">Long-Run Overlay Withdrawn</h4>
+        <p style="font-size:0.88rem; color:var(--muted); line-height:1.7;">
+          The previously generated SC2RBD per-target scaling image included Exp 29 long-running overlays derived from a fixed-seed loop.
+          That overlay is not currently interpretable and will be regenerated after the independent-seed rerun.
+        </p>
+      </div>
     </div>
     <div class="figure-card">
       <h4>TNF&alpha; (cracked via MCTS+G&amp;H)</h4>
-      <img src="agentic-figures/per_target_scaling/38_TNFalpha_TNFalpha.png" alt="TNFalpha per-target scaling" style="width:100%; border:1px solid var(--border); border-radius:4px;">
+      <div class="card" style="border-left:4px solid #f59e0b; min-height:220px;">
+        <h4 style="font-size:0.95rem; margin-bottom:6px;">Long-Run Overlay Withdrawn</h4>
+        <p style="font-size:0.88rem; color:var(--muted); line-height:1.7;">
+          The previously generated TNF&alpha; per-target scaling image included Exp 29 long-running overlays derived from a fixed-seed loop.
+          That overlay is not currently interpretable and will be regenerated after the independent-seed rerun.
+        </p>
+      </div>
     </div>
     <div class="figure-card">
       <h4>H1 (cracked marginally via MCTS+G&amp;H)</h4>
@@ -3161,7 +3162,13 @@ Terminate: when unique success count plateaus
     </div>
     <div class="figure-card">
       <h4>CD45 (geometry-limited, cracked via noise=0.20)</h4>
-      <img src="agentic-figures/per_target_scaling/05_CD45_CD45.png" alt="CD45 per-target scaling" style="width:100%; border:1px solid var(--border); border-radius:4px;">
+      <div class="card" style="border-left:4px solid #f59e0b; min-height:220px;">
+        <h4 style="font-size:0.95rem; margin-bottom:6px;">Long-Run Overlay Withdrawn</h4>
+        <p style="font-size:0.88rem; color:var(--muted); line-height:1.7;">
+          The previously generated CD45 per-target scaling image included Exp 29 long-running overlays derived from a fixed-seed loop.
+          That overlay is not currently interpretable and will be regenerated after the independent-seed rerun.
+        </p>
+      </div>
     </div>
     <div class="figure-card">
       <h4>HER2_AAV (sequence-limited, cracked via hallucination)</h4>
@@ -3554,7 +3561,7 @@ Terminate: when unique success count plateaus
     mechanism and reliability experiments, then hard-target search and refinement, then agentic routing, then deferred
     future extensions.
   </p>
-  <p class="note">Status snapshot as of April 11, 2026: Exp 24, Exp 25, and Exp 26 are complete. The original Exp 27 batch is terminal (20 completed, 5 CrSAS6 pre-generation failures), and the corrected CrSAS6 rerun is complete. Exp 28 is complete (IL17A full eval at N=324; H1/TNF&alpha;/SC2RBD v2 eval-only reruns produced final-design counts, see Section 6). <strong>Exp 29 v2 is running</strong> (6 long-running strategies; ~37h of data already accumulated for CD45 and ~35h for SC2RBD, tables in Section 6). Exp 30 has generation timeouts across all 13 dirs; analysis-only recovery jobs resubmitted (SLURM 6896284&ndash;6896296). <strong>Exp 31 has 6/6 completed with full eval CSVs (N=1216 each, see Section 6).</strong> Exp 32 diagnostic runs timed out; recovery submitted (SLURM 6896311&ndash;6896320).</p>
+  <p class="note">Status snapshot as of April 11, 2026: Exp 24, Exp 25, and Exp 26 are complete. The original Exp 27 batch is terminal (20 completed, 5 CrSAS6 pre-generation failures), and the corrected CrSAS6 rerun is complete. Exp 28 is complete (IL17A full eval at N=324; H1/TNF&alpha;/SC2RBD v2 eval-only reruns produced final-design counts, see Section 6). <strong>Exp 29 v2 long-running scaling is withdrawn pending rerun</strong> after audit found fixed-seed reuse across iterations. Exp 30 has generation timeouts across all 13 dirs; analysis-only recovery jobs resubmitted (SLURM 6896284&ndash;6896296). <strong>Exp 31 has 6/6 completed with full eval CSVs (N=1216 each, see Section 6).</strong> Exp 32 diagnostic runs timed out; recovery submitted (SLURM 6896311&ndash;6896320).</p>
 
   <div class="table-wrap">
   <table>
@@ -3793,8 +3800,8 @@ Terminate: when unique success count plateaus
       <td style="text-align:center; font-size:1.1rem; color:#d97706">&#9654;</td>
       <td><strong>Exp 29 v2: Long-Running Scaling Curves</strong><br><span style="font-size:0.82rem;color:var(--muted)">6 continuous-generation jobs (48h walltime each) on CD45, SC2RBD, TNF&alpha;. v1 canceled (78 short jobs); v2 uses long-running loops with TSV logging.</span></td>
       <td>6 running</td>
-      <td><span class="tag tag-orange">Running (~35-37h in)</span></td>
-      <td style="font-size:0.82rem"><strong>Running data from <code>scaling_curves/*_scaling_corrected.tsv</code>:</strong> CD45 noise=0.20: 540 self in 38h. CD45 default: 280 self / 257 MPNN in 37h. SC2RBD msg5: 30 self / 22 MPNN in 35h. SC2RBD e26: 7 self in 35h. TNF&alpha; msg5: 1 self in 32h. TNF&alpha; paper recipe: 0 in 29h. Full curves in Section 6.</td>
+      <td><span class="tag tag-orange">Withdrawn pending rerun</span></td>
+      <td style="font-size:0.82rem"><strong>Status update:</strong> Exp 29 long-running scaling outputs are currently <strong>withdrawn pending rerun</strong>. Audit on 2026-04-13 found fixed-seed reuse across iterations, so the published TSV curves are not independent scaling traces. Section 6 now preserves only a placeholder and rerun plan.</td>
     </tr>
     <tr style="background:#d1fae5">
       <td style="text-align:center; font-size:1.1rem">&#9745;</td>
