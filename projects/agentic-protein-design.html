@@ -2243,6 +2243,161 @@ Terminate: when unique success count plateaus
     so this is still a directional comparison rather than a head-to-head superiority claim.
   </p>
 
+  <!-- ─── Per-Target Scaling Figures (Figure 22-style) ─── -->
+  <h3>Per-Target Scaling Figures (Figure 22-style): All Configs per Target</h3>
+  <div class="callout warn">
+    <p><strong>Hardware caveat up front.</strong> Our runtime is on <strong>1&times; NVIDIA H100 80GB</strong>; the paper's Figure 22 is on <strong>1&times; NVIDIA A100</strong> (roughly 2&ndash;3&times; slower).
+    Direct side-by-side overlay with Figure 22 therefore requires a ~2&ndash;3&times; hardware scaling factor and is NOT attempted here.
+    Our x-axis is honest H100 wall-clock hours (generation + full AF2-Multimer evaluation including self and MPNN redesigns).
+    The y-axis is cumulative unique self-sequence successes using the pipeline's success filter
+    (iPAE&times;31 &le; 7.0 AND pLDDT &ge; 0.9 AND scRMSD<sub>C&alpha;</sub> &lt; 1.5 &Aring;).</p>
+    <p><strong>Baseline clarification.</strong> Our <code>notto</code> is <code>algorithm=single-pass</code> with N=200 independent samples &mdash; this is <strong>not</strong>
+    the paper's <code>best-of-n</code> TTO method (which selects the top-reward sample among N), but for the unique-success y-axis used
+    here the two are methodologically equivalent: both count how many of N unguided samples pass the success filter.
+    A dedicated paper-style <code>best-of-n</code> run was performed in Exp 19 (<code>bon_r8/r16/r32</code>) only.</p>
+  </div>
+
+  <h4 style="margin:16px 0 8px;">Figure N: Per-Target Scaling Grid (All 28 Targets)</h4>
+  <p class="note">One panel per target. Markers = single completed runs. Lines = Exp 29 v2 long-running continuous-generation curves (CD45, SC2RBD, TNF&alpha; only). Marker color/shape encodes config family; see individual per-target figures for legends.</p>
+  <img src="agentic-figures/per_target_scaling/_all_targets_grid.png" alt="Per-target scaling grid (all 28 targets)" style="width:100%; max-width:1200px; border:1px solid var(--border); border-radius:8px; margin-bottom:16px;">
+  <div class="figure-caption"><strong>What is plotted:</strong> summary grid of per-target scaling across all 28 targets we have data on (11 Phase 0 + 11 Phase 2 + 6 held-out Exp 31 variants). <strong>X-axis:</strong> H100 GPU-hours (wall-clock, includes generation + full AF2-Multimer evaluation). <strong>Y-axis:</strong> cumulative unique self-sequence successes under the pipeline's 3-criterion filter. <strong>Markers:</strong> one per single completed run across all our experiments (Phase 0 sweep, Phase 1 ablations Exp 1&ndash;13, Phase 2 Exp 20&ndash;27, Exp 28 paper recipe, Exp 31 held-out baselines). <strong>Lines:</strong> Exp 29 v2 scaling curves showing cumulative successes across iterations. <strong>Panel titles</strong> show target name + our empirical difficulty class (derived from this data, not paper classification). <strong>Interpretation boundary:</strong> direct overlay with paper Fig. 22 requires ~2&ndash;3&times; A100/H100 hardware scaling factor.</div>
+
+  <h4 style="margin:20px 0 8px;">Individual Per-Target Figures (Self-Contained Captions)</h4>
+  <p class="note">Each figure below is a standalone per-target scaling plot showing every config we ran on that target, with an embedded caption below the axes that fully explains the data sources and interpretation boundary. Figures are grouped by difficulty class.</p>
+
+  <h5 style="margin:12px 0 4px; font-size:0.9rem;">Cracked / Solvable Hard Targets</h5>
+  <div class="figure-grid" style="grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));">
+    <div class="figure-card">
+      <h4>SC2RBD (cracked via MCTS+G&amp;H)</h4>
+      <img src="agentic-figures/per_target_scaling/30_SC2RBD_SC2RBD.png" alt="SC2RBD per-target scaling" style="width:100%; border:1px solid var(--border); border-radius:4px;">
+    </div>
+    <div class="figure-card">
+      <h4>TNF&alpha; (cracked via MCTS+G&amp;H)</h4>
+      <img src="agentic-figures/per_target_scaling/38_TNFalpha_TNFalpha.png" alt="TNFalpha per-target scaling" style="width:100%; border:1px solid var(--border); border-radius:4px;">
+    </div>
+    <div class="figure-card">
+      <h4>H1 (cracked marginally via MCTS+G&amp;H)</h4>
+      <img src="agentic-figures/per_target_scaling/35_H1_H1.png" alt="H1 per-target scaling" style="width:100%; border:1px solid var(--border); border-radius:4px;">
+    </div>
+    <div class="figure-card">
+      <h4>CD45 (geometry-limited, cracked via noise=0.20)</h4>
+      <img src="agentic-figures/per_target_scaling/05_CD45_CD45.png" alt="CD45 per-target scaling" style="width:100%; border:1px solid var(--border); border-radius:4px;">
+    </div>
+    <div class="figure-card">
+      <h4>HER2_AAV (sequence-limited, cracked via hallucination)</h4>
+      <img src="agentic-figures/per_target_scaling/27_HER2_AAV_HER2_AAV.png" alt="HER2_AAV per-target scaling" style="width:100%; border:1px solid var(--border); border-radius:4px;">
+    </div>
+    <div class="figure-card">
+      <h4>BetV1 (hard, partial via hallucination)</h4>
+      <img src="agentic-figures/per_target_scaling/23_BetV1_BetV1.png" alt="BetV1 per-target scaling" style="width:100%; border:1px solid var(--border); border-radius:4px;">
+    </div>
+  </div>
+
+  <h5 style="margin:12px 0 4px; font-size:0.9rem;">Still Unsolved</h5>
+  <div class="figure-grid" style="grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));">
+    <div class="figure-card">
+      <h4>CbAgo (zero-hit even at N=1216)</h4>
+      <img src="agentic-figures/per_target_scaling/25_CbAgo_CbAgo.png" alt="CbAgo per-target scaling" style="width:100%; border:1px solid var(--border); border-radius:4px;">
+    </div>
+    <div class="figure-card">
+      <h4>IL17A (0 self, 1 MPNN-only)</h4>
+      <img src="agentic-figures/per_target_scaling/37_IL17A_IL17A.png" alt="IL17A per-target scaling" style="width:100%; border:1px solid var(--border); border-radius:4px;">
+    </div>
+  </div>
+
+  <h5 style="margin:12px 0 4px; font-size:0.9rem;">Saturated / Easy-to-Medium Targets</h5>
+  <div class="figure-grid" style="grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));">
+    <div class="figure-card">
+      <h4>PD1</h4>
+      <img src="agentic-figures/per_target_scaling/01_PD1_PD1.png" alt="PD1" style="width:100%; border:1px solid var(--border); border-radius:4px;">
+    </div>
+    <div class="figure-card">
+      <h4>PD-L1</h4>
+      <img src="agentic-figures/per_target_scaling/02_PDL1_PD-L1.png" alt="PD-L1" style="width:100%; border:1px solid var(--border); border-radius:4px;">
+    </div>
+    <div class="figure-card">
+      <h4>IFNAR2</h4>
+      <img src="agentic-figures/per_target_scaling/04_IFNAR2_IFNAR2.png" alt="IFNAR2" style="width:100%; border:1px solid var(--border); border-radius:4px;">
+    </div>
+    <div class="figure-card">
+      <h4>TrkA</h4>
+      <img src="agentic-figures/per_target_scaling/33_TrkA_TrkA.png" alt="TrkA" style="width:100%; border:1px solid var(--border); border-radius:4px;">
+    </div>
+    <div class="figure-card">
+      <h4>Claudin1</h4>
+      <img src="agentic-figures/per_target_scaling/12_Claudin1_Claudin1.png" alt="Claudin1" style="width:100%; border:1px solid var(--border); border-radius:4px;">
+    </div>
+    <div class="figure-card">
+      <h4>CrSAS6</h4>
+      <img src="agentic-figures/per_target_scaling/14_CrSAS6_CrSAS6.png" alt="CrSAS6" style="width:100%; border:1px solid var(--border); border-radius:4px;">
+    </div>
+    <div class="figure-card">
+      <h4>DerF7</h4>
+      <img src="agentic-figures/per_target_scaling/15_DerF7_DerF7.png" alt="DerF7" style="width:100%; border:1px solid var(--border); border-radius:4px;">
+    </div>
+    <div class="figure-card">
+      <h4>SpCas9</h4>
+      <img src="agentic-figures/per_target_scaling/24_SpCas9_SpCas9.png" alt="SpCas9" style="width:100%; border:1px solid var(--border); border-radius:4px;">
+    </div>
+    <div class="figure-card">
+      <h4>BBF14</h4>
+      <img src="agentic-figures/per_target_scaling/13_BBF14_BBF14.png" alt="BBF14" style="width:100%; border:1px solid var(--border); border-radius:4px;">
+    </div>
+    <div class="figure-card">
+      <h4>DerF21</h4>
+      <img src="agentic-figures/per_target_scaling/18_DerF21_DerF21.png" alt="DerF21" style="width:100%; border:1px solid var(--border); border-radius:4px;">
+    </div>
+    <div class="figure-card">
+      <h4>BHRF1</h4>
+      <img src="agentic-figures/per_target_scaling/29_BHRF1_BHRF1.png" alt="BHRF1" style="width:100%; border:1px solid var(--border); border-radius:4px;">
+    </div>
+    <div class="figure-card">
+      <h4>IL7RA</h4>
+      <img src="agentic-figures/per_target_scaling/31_IL7RA_IL7RA.png" alt="IL7RA" style="width:100%; border:1px solid var(--border); border-radius:4px;">
+    </div>
+    <div class="figure-card">
+      <h4>Insulin</h4>
+      <img src="agentic-figures/per_target_scaling/34_Insulin_Insulin.png" alt="Insulin" style="width:100%; border:1px solid var(--border); border-radius:4px;">
+    </div>
+    <div class="figure-card">
+      <h4>VEGFA</h4>
+      <img src="agentic-figures/per_target_scaling/36_VEGFA_VEGFA.png" alt="VEGFA" style="width:100%; border:1px solid var(--border); border-radius:4px;">
+    </div>
+  </div>
+
+  <h5 style="margin:12px 0 4px; font-size:0.9rem;">Held-Out Target Variants (Exp 31, N=1216)</h5>
+  <div class="figure-grid" style="grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));">
+    <div class="figure-card">
+      <h4>PD-L1 (AAV variant)</h4>
+      <img src="agentic-figures/per_target_scaling/03_PDL1_AAV_PD-L1_AAV.png" alt="PDL1 AAV" style="width:100%; border:1px solid var(--border); border-radius:4px;">
+    </div>
+    <div class="figure-card">
+      <h4>DerF7 (variant)</h4>
+      <img src="agentic-figures/per_target_scaling/16_DerF7_DerF7_variant.png" alt="DerF7 variant" style="width:100%; border:1px solid var(--border); border-radius:4px;">
+    </div>
+    <div class="figure-card">
+      <h4>DerF21 (variant)</h4>
+      <img src="agentic-figures/per_target_scaling/19_DerF21_DerF21_variant.png" alt="DerF21 variant" style="width:100%; border:1px solid var(--border); border-radius:4px;">
+    </div>
+    <div class="figure-card">
+      <h4>CbAgo (variant)</h4>
+      <img src="agentic-figures/per_target_scaling/26_CbAgo_CbAgo_variant.png" alt="CbAgo variant" style="width:100%; border:1px solid var(--border); border-radius:4px;">
+    </div>
+    <div class="figure-card">
+      <h4>HER2_AAV (variant)</h4>
+      <img src="agentic-figures/per_target_scaling/28_HER2_AAV_HER2_AAV_variant.png" alt="HER2 variant" style="width:100%; border:1px solid var(--border); border-radius:4px;">
+    </div>
+    <div class="figure-card">
+      <h4>PD-L1 (alpha variant)</h4>
+      <img src="agentic-figures/per_target_scaling/32_PDL1_ALPHA_PD-L1_alpha.png" alt="PDL1 alpha" style="width:100%; border:1px solid var(--border); border-radius:4px;">
+    </div>
+  </div>
+
+  <p class="note">
+    Figures generated by <code>script_utils/per_target_scaling_plots.py</code> from the 470 eval directories (166 unique runs after excluding Exp 29 iteration dirs) and the 6 Exp 29 v2 scaling TSVs.
+    Each per-target PNG embeds a self-contained caption describing the x-axis hardware, y-axis metric, all config labels, and the best result per target.
+  </p>
+
   <h3>Exp 28: Paper Recipe Baseline (Partial)</h3>
   <div class="table-wrap">
   <table>
