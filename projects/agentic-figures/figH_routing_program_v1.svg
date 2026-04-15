@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="980" viewBox="0 0 1400 980" role="img" aria-labelledby="title desc">
+  <title id="title">Figure H: Draft Routing Decision Tree — Global Inference Program v1</title>
+  <desc id="desc">A draft decision tree that routes targets to default deep beam, hallucination, noise, mixed bundle, or MCTS bundles based on audited baseline diagnostic signals plus a small number of transfer hypotheses.</desc>
+  <defs>
+    <style>
+      .bg { fill: #f8fafc; }
+      .title { font: 700 34px Georgia, serif; fill: #111827; }
+      .subtitle { font: 400 18px Georgia, serif; fill: #374151; }
+      .box { rx: 18; ry: 18; stroke: #cbd5e1; stroke-width: 2; }
+      .q { fill: #eff6ff; }
+      .act { fill: #f0fdf4; }
+      .warn { fill: #fff7ed; }
+      .danger { fill: #fef2f2; }
+      .text { font: 600 19px Georgia, serif; fill: #111827; }
+      .small { font: 400 15px Georgia, serif; fill: #374151; }
+      .label { font: 700 16px Georgia, serif; fill: #0f172a; }
+      .arrow { stroke: #64748b; stroke-width: 3; fill: none; marker-end: url(#arrowhead); }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#64748b" />
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1400" height="980" />
+  <text class="title" x="700" y="52" text-anchor="middle">Figure H: Routing Decision Tree — Draft Global Inference Program v1</text>
+  <text class="subtitle" x="700" y="84" text-anchor="middle">Built from the audited baseline matrix, but still mixing exact evidence and transfer hypotheses</text>
+
+  <rect class="box q" x="470" y="120" width="460" height="105" />
+  <text class="text" x="700" y="158" text-anchor="middle">Start from the audited baseline diagnostic row</text>
+  <text class="small" x="700" y="186" text-anchor="middle">Use self pass, MPNN pass, iPAE pass, pLDDT pass, and paper class</text>
+
+  <rect class="box q" x="470" y="280" width="460" height="108" />
+  <text class="text" x="700" y="320" text-anchor="middle">Q1. Is baseline self success already strong?</text>
+  <text class="small" x="700" y="348" text-anchor="middle">Rule: self pass ≥ 40%  →  treat as default-favored for the 2h benchmark</text>
+
+  <rect class="box act" x="980" y="255" width="330" height="120" />
+  <text class="text" x="1145" y="296" text-anchor="middle">Action A: Default deep beam</text>
+  <text class="small" x="1145" y="326" text-anchor="middle">beam-search, bw=8, n_branch=3</text>
+  <text class="small" x="1145" y="348" text-anchor="middle">checkpoints [0,65,130,200,270,340,400]</text>
+  <text class="small" x="1145" y="370" text-anchor="middle">Examples: PDL1, PD1, IFNAR2, DerF21-variant</text>
+
+  <rect class="box q" x="470" y="445" width="460" height="110" />
+  <text class="text" x="700" y="485" text-anchor="middle">Q2. Is there a strong sequence signal?</text>
+  <text class="small" x="700" y="514" text-anchor="middle">Rule: MPNN - self ≥ 10pp, or self = 0 and MPNN &gt; 0</text>
+
+  <rect class="box act" x="980" y="430" width="330" height="128" />
+  <text class="text" x="1145" y="470" text-anchor="middle">Action B: Hallucination branch (draft)</text>
+  <text class="small" x="1145" y="500" text-anchor="middle">beam-search + sequence_hallucination</text>
+  <text class="small" x="1145" y="522" text-anchor="middle">soft = false, greedy = true, greedy_percentage = 5</text>
+  <text class="small" x="1145" y="544" text-anchor="middle">Example: HER2_AAV (variant is a transfer test)</text>
+
+  <rect class="box q" x="470" y="615" width="460" height="110" />
+  <text class="text" x="700" y="654" text-anchor="middle">Q3. Is geometry present but interface quality still weak?</text>
+  <text class="small" x="700" y="683" text-anchor="middle">Rule: iPAE pass &lt; 50% and pLDDT pass &gt; 50%</text>
+
+  <rect class="box act" x="980" y="605" width="330" height="116" />
+  <text class="text" x="1145" y="644" text-anchor="middle">Action C: Noise = 0.20</text>
+  <text class="small" x="1145" y="674" text-anchor="middle">default deep beam + bb/local latent noise = 0.20</text>
+  <text class="small" x="1145" y="696" text-anchor="middle">Example: CD45</text>
+
+  <rect class="box q" x="470" y="790" width="460" height="110" />
+  <text class="text" x="700" y="828" text-anchor="middle">Q4. Is the target still closed under baseline?</text>
+  <text class="small" x="700" y="857" text-anchor="middle">Rule: self = 0 and MPNN = 0</text>
+
+  <rect class="box warn" x="70" y="770" width="320" height="144" />
+  <text class="text" x="230" y="810" text-anchor="middle">Action D: Mixed branch (draft)</text>
+  <text class="small" x="230" y="840" text-anchor="middle">default deep beam + noise = 0.20 +</text>
+  <text class="small" x="230" y="862" text-anchor="middle">sequence_hallucination soft + greedy5</text>
+  <text class="small" x="230" y="890" text-anchor="middle">Example: BetV1</text>
+
+  <rect class="box danger" x="980" y="770" width="330" height="150" />
+  <text class="text" x="1145" y="806" text-anchor="middle">Action E: MCTS frontier branch (draft)</text>
+  <text class="small" x="1145" y="834" text-anchor="middle">Hard zero-hit  →  msg5</text>
+  <text class="small" x="1145" y="856" text-anchor="middle">dense40 MCTS + soft + greedy5</text>
+  <text class="small" x="1145" y="884" text-anchor="middle">Very Hard zero-hit  →  standardized rws5</text>
+  <text class="small" x="1145" y="906" text-anchor="middle">MCTS + pLDDT reward + soft + greedy5</text>
+
+  <line class="arrow" x1="700" y1="225" x2="700" y2="280" />
+  <line class="arrow" x1="930" y1="334" x2="980" y2="315" />
+  <line class="arrow" x1="700" y1="388" x2="700" y2="445" />
+  <line class="arrow" x1="930" y1="500" x2="980" y2="494" />
+  <line class="arrow" x1="700" y1="555" x2="700" y2="615" />
+  <line class="arrow" x1="930" y1="670" x2="980" y2="663" />
+  <line class="arrow" x1="700" y1="725" x2="700" y2="790" />
+  <line class="arrow" x1="470" y1="845" x2="390" y2="845" />
+  <line class="arrow" x1="930" y1="845" x2="980" y2="845" />
+
+  <text class="label" x="948" y="304">Yes</text>
+  <text class="label" x="948" y="485">Yes</text>
+  <text class="label" x="948" y="654">Yes</text>
+  <text class="label" x="942" y="836">Yes</text>
+  <text class="label" x="408" y="836">No</text>
+
+  <text class="small" x="700" y="946" text-anchor="middle">This is a draft fixed program for benchmark design review, not a claim that the tree is already validated.</text>
+</svg>

@@ -154,10 +154,14 @@
   <ol>
     <li><a href="#read-first">Read This First</a></li>
     <li><a href="#paper-taxonomy">Paper Taxonomy: Easy / Hard / Very Hard</a></li>
+    <li><a href="#phase0-tables">Phase 0 Baseline Search Tables</a></li>
+    <li><a href="#bottleneck-matrix">Per-Target Bottleneck Analysis</a></li>
     <li><a href="#local-results">Audited Local Results Map</a></li>
     <li><a href="#frontier">Frontier Targets: What Is Actually Verified</a></li>
     <li><a href="#comparison-rules">How to Compare This Page to the Paper</a></li>
     <li><a href="#experiment-map">Experiment Family Map</a></li>
+    <li><a href="#routing-program">Figure H: Draft Routing Program</a></li>
+    <li><a href="#twohour-benchmark">Benchmark Redesign Notes</a></li>
     <li><a href="#next-steps">Companion Plan</a></li>
   </ol>
 </div>
@@ -245,13 +249,651 @@
     </table>
   </div>
 
-  <div class="callout">
+<div class="callout">
     <p><strong>Important correction.</strong> <code>SC2RBD</code> is a <strong>Hard</strong> target in the paper. It appears in <strong>Table 10</strong> and the hard-target <strong>Figure 18</strong> context. It is <strong>not</strong> a Section I.4 / Figure 19 Very Hard target.</p>
   </div>
 </div>
 
+<div class="section" id="phase0-tables">
+  <h2>3. Phase 0 Baseline Search Tables</h2>
+
+  <p>
+    The original project began with a clean 11-target baseline sweep over three local search settings:
+    <code>notto</code>, <code>deep</code>, and <code>wide</code>. These tables are restored here because they remain the
+    simplest direct evidence that inference-time search already changes outcomes before any target-specific intervention.
+  </p>
+
+  <div class="callout warn">
+    <p><strong>Audit rule.</strong> These Phase 0 tables are now rebuilt from the preserved local sweep directories under <code>evaluation_results/</code>. The class column below uses the <strong>paper taxonomy</strong>, not the old local tier labels from the archived page.</p>
+  </div>
+
+  <h3>Configurations</h3>
+  <div class="table-wrap">
+    <table>
+      <tr><th>Config</th><th>Algorithm</th><th>nsamples</th><th>beam_width</th><th>n_branch</th><th>Checkpoints</th><th>Finals / Run</th></tr>
+      <tr><td><strong>notto</strong></td><td>single-pass (no TTO)</td><td>200</td><td>--</td><td>--</td><td>--</td><td>200</td></tr>
+      <tr><td><strong>wide</strong></td><td>beam-search</td><td>2</td><td>16</td><td>4</td><td>[0,100,250,400]</td><td>32</td></tr>
+      <tr><td><strong>deep</strong></td><td>beam-search</td><td>4</td><td>8</td><td>3</td><td>[0,65,130,200,270,340,400]</td><td>32</td></tr>
+    </table>
+  </div>
+  <p class="note">
+    <strong>How to read this config table:</strong> <code>notto</code> is our local no-TTO baseline and should not be confused with the paper&rsquo;s <code>best-of-n</code> terminology.
+    In the currently preserved local sweep, <code>notto</code> contributes <strong>200 independent random trajectories</strong> on every target.
+    <code>wide</code> spends compute on a larger beam with fewer pruning decisions; <code>deep</code> spends compute on a smaller beam with more frequent pruning.
+    All beam-search configs in this sweep contribute <strong>32 evaluated final designs</strong> per run.
+  </p>
+
+  <h3>Generation-Stage AF2 iPAE (Lower = Better Binding)</h3>
+  <p class="note">
+    iPAE = interface Predicted Aligned Error from AF2 multimer, normalized to 0-1 in the local CSVs
+    (multiply by 31 for the raw Angstrom-scale value). Success threshold: <strong>ipAE &lt; 7.0 A</strong>.
+    "Mean" = average across all samples; "Best" = minimum iPAE (best single sample). Green = best config per target on that metric.
+  </p>
+  <div class="table-wrap">
+    <table>
+      <tr>
+        <th>Target</th><th>Paper Class</th>
+        <th colspan="2">notto (N=200)</th>
+        <th colspan="2">deep</th>
+        <th colspan="2">wide</th>
+      </tr>
+      <tr>
+        <th></th><th></th>
+        <th>Mean</th><th>Best</th>
+        <th>Mean</th><th>Best</th>
+        <th>Mean</th><th>Best</th>
+      </tr>
+      <tr>
+        <td>TrkA</td><td><span class="tag tag-green">Easy</span></td>
+        <td>0.520</td><td>0.133</td>
+        <td class="best">0.145</td><td>0.136</td>
+        <td>0.147</td><td class="best">0.126</td>
+      </tr>
+      <tr>
+        <td>IFNAR2</td><td><span class="tag tag-green">Easy</span></td>
+        <td>0.469</td><td>0.145</td>
+        <td>0.153</td><td>0.148</td>
+        <td class="best">0.152</td><td class="best">0.142</td>
+      </tr>
+      <tr>
+        <td>PD1</td><td><span class="tag tag-green">Easy</span></td>
+        <td>0.569</td><td>0.158</td>
+        <td class="best">0.157</td><td class="best">0.135</td>
+        <td>0.168</td><td>0.149</td>
+      </tr>
+      <tr>
+        <td>PDL1</td><td><span class="tag tag-green">Easy</span></td>
+        <td>0.504</td><td>0.177</td>
+        <td>0.187</td><td>0.173</td>
+        <td class="best">0.183</td><td class="best">0.165</td>
+      </tr>
+      <tr>
+        <td>CrSAS6</td><td><span class="tag tag-green">Easy</span></td>
+        <td>0.748</td><td>0.183</td>
+        <td>0.200</td><td class="best">0.159</td>
+        <td class="best">0.185</td><td>0.170</td>
+      </tr>
+      <tr>
+        <td>DerF7</td><td><span class="tag tag-green">Easy</span></td>
+        <td>0.539</td><td>0.204</td>
+        <td>0.199</td><td>0.184</td>
+        <td class="best">0.198</td><td class="best">0.178</td>
+      </tr>
+      <tr>
+        <td>SpCas9</td><td><span class="tag tag-orange">Hard</span></td>
+        <td>0.718</td><td>0.195</td>
+        <td>0.229</td><td class="best">0.171</td>
+        <td class="best">0.222</td><td>0.184</td>
+      </tr>
+      <tr>
+        <td>Claudin1</td><td><span class="tag tag-green">Easy</span></td>
+        <td>0.630</td><td>0.212</td>
+        <td class="best">0.210</td><td class="best">0.195</td>
+        <td>0.229</td><td>0.206</td>
+      </tr>
+      <tr>
+        <td>CD45</td><td><span class="tag tag-orange">Hard</span></td>
+        <td>0.813</td><td>0.261</td>
+        <td class="best">0.299</td><td class="best">0.173</td>
+        <td>0.430</td><td>0.194</td>
+      </tr>
+      <tr>
+        <td>HER2_AAV</td><td><span class="tag tag-orange">Hard</span></td>
+        <td>0.810</td><td>0.246</td>
+        <td class="best">0.235</td><td class="best">0.218</td>
+        <td>0.314</td><td>0.256</td>
+      </tr>
+      <tr>
+        <td>BetV1</td><td><span class="tag tag-orange">Hard</span></td>
+        <td>0.843</td><td>0.285</td>
+        <td class="best">0.692</td><td class="best">0.220</td>
+        <td>0.891</td><td>0.862</td>
+      </tr>
+    </table>
+  </div>
+  <p class="note">
+    These numbers were re-read directly from the preserved local sweep directories. In the current source-of-truth files, all <code>notto</code> rows use <strong>N=200</strong> and all <code>deep</code> / <code>wide</code> rows use <strong>N=32</strong>.
+  </p>
+
+  <h3>Evaluation Pass Rates (After AF2 Refolding + ProteinMPNN Redesign)</h3>
+  <p class="note">
+    Success = <strong>ipAE &lt; 7.0 A</strong> AND <strong>pLDDT &ge; 0.9</strong> AND <strong>scRMSD &lt; 1.5 A</strong>.
+    <code>self</code> = the model&rsquo;s co-designed sequence.
+    <code>mpnn</code> = ProteinMPNN redesign on the same backbone.
+    Pass rate = fraction of samples meeting all three criteria simultaneously.
+  </p>
+  <div class="table-wrap">
+    <table>
+      <tr><th>Target</th><th>Paper Class</th><th colspan="2">notto</th><th colspan="2">deep</th><th colspan="2">wide</th></tr>
+      <tr><th></th><th></th><th>Self</th><th>MPNN</th><th>Self</th><th>MPNN</th><th>Self</th><th>MPNN</th></tr>
+      <tr>
+        <td>TrkA</td><td><span class="tag tag-green">Easy</span></td>
+        <td>7.5%</td><td>18.0%</td>
+        <td class="best">100%</td><td class="best">93.8%</td>
+        <td class="best">100%</td><td>90.6%</td>
+      </tr>
+      <tr>
+        <td>IFNAR2</td><td><span class="tag tag-green">Easy</span></td>
+        <td>24.0%</td><td>38.0%</td>
+        <td class="best">100%</td><td class="best">100%</td>
+        <td class="best">100%</td><td>96.9%</td>
+      </tr>
+      <tr>
+        <td>PD1</td><td><span class="tag tag-green">Easy</span></td>
+        <td>8.5%</td><td>17.5%</td>
+        <td class="best">100%</td><td>68.8%</td>
+        <td class="best">100%</td><td class="best">87.5%</td>
+      </tr>
+      <tr>
+        <td>PDL1</td><td><span class="tag tag-green">Easy</span></td>
+        <td>7.5%</td><td>10.5%</td>
+        <td class="best">100%</td><td>37.5%</td>
+        <td class="best">100%</td><td class="best">81.2%</td>
+      </tr>
+      <tr>
+        <td>CrSAS6</td><td><span class="tag tag-green">Easy</span></td>
+        <td>4.0%</td><td>4.5%</td>
+        <td>75.0%</td><td>25.0%</td>
+        <td class="best">100%</td><td class="best">62.5%</td>
+      </tr>
+      <tr>
+        <td>DerF7</td><td><span class="tag tag-green">Easy</span></td>
+        <td>4.0%</td><td>12.0%</td>
+        <td class="best">100%</td><td>84.4%</td>
+        <td class="best">100%</td><td class="best">100%</td>
+      </tr>
+      <tr>
+        <td>SpCas9</td><td><span class="tag tag-orange">Hard</span></td>
+        <td>2.5%</td><td>1.5%</td>
+        <td class="best">50.0%</td><td class="best">46.9%</td>
+        <td>37.5%</td><td>21.9%</td>
+      </tr>
+      <tr>
+        <td>Claudin1</td><td><span class="tag tag-green">Easy</span></td>
+        <td>0.5%</td><td>1.5%</td>
+        <td class="best">100%</td><td class="best">37.5%</td>
+        <td>21.9%</td><td>31.2%</td>
+      </tr>
+      <tr>
+        <td>CD45</td><td><span class="tag tag-orange">Hard</span></td>
+        <td class="fail">0%</td><td class="fail">0%</td>
+        <td class="best">25.0%</td><td class="best">15.6%</td>
+        <td>9.4%</td><td class="fail">0%</td>
+      </tr>
+      <tr>
+        <td>HER2_AAV</td><td><span class="tag tag-orange">Hard</span></td>
+        <td class="fail">0%</td><td class="fail">0%</td>
+        <td>3.1%</td><td class="best">31.2%</td>
+        <td class="fail">0%</td><td class="fail">0%</td>
+      </tr>
+      <tr>
+        <td>BetV1</td><td><span class="tag tag-orange">Hard</span></td>
+        <td class="fail">0%</td><td class="fail">0%</td>
+        <td>18.8%</td><td class="fail">0%</td>
+        <td class="fail">0%</td><td class="fail">0%</td>
+      </tr>
+    </table>
+  </div>
+  <p class="note">
+    <strong>Key baseline takeaway:</strong> unguided sampling is weakest on the difficult end of the panel, but even within beam search there is no universal winner.
+    Deep and wide split the wins across targets, and <code>notto</code> never wins on the self-pass metric in this 11-target sweep.
+  </p>
+</div>
+
+<div class="section" id="bottleneck-matrix">
+  <h2>4. Per-Target Bottleneck Analysis (28 Local Target Entries, Baseline / Default Diagnostics)</h2>
+
+  <p>
+    This table is now a strictly audited <strong>baseline-diagnostic matrix</strong>. The title is historical:
+    it covers <strong>28 local target entries</strong> rather than 28 paper benchmark proteins. The matrix uses only source-of-truth
+    baseline rows and moves intervention details to the smaller audited summaries in Sections 5 and 6.
+  </p>
+
+  <div class="callout warn">
+    <p><strong>How to read this matrix.</strong> The <strong>Paper Class / Baseline Source</strong> column tells you whether the row is a paper Easy / Hard / Very Hard target or a heldout local benchmark entry. Every number in the table below was recomputed directly from the preserved <code>binder_results_search_binder_local_pipeline_0.csv</code> and cluster outputs for the named baseline directory.</p>
+  </div>
+
+  <p class="note">
+    <strong>Baseline source varies by row:</strong> Phase 0 targets use <code>sweep_deep</code> at <strong>N=32</strong>;
+    the added diagnostic panel uses <code>Exp 16/17 base</code> at <strong>N=32</strong>;
+    heldout variants use <code>Exp 31 base</code> at <strong>N=1216</strong>.
+    Success is recomputed as <code>self_complex_i_pAE ≤ 7/31</code>, <code>self_complex_pLDDT ≥ 0.9</code>, and <code>self_binder_scRMSD_ca &lt; 1.5</code>.
+    <code>Self unique / total</code> uses the distinct FoldSeek cluster count among successful self-sequence binders.
+    Bottleneck rule: <code>self ≥ 80%</code> → None; <code>gap &gt; +10pp</code> → Sequence; <code>iPAE &lt; 50% and pLDDT &gt; 50%</code> → iPAE (geometry);
+    <code>pLDDT &lt; 50% and iPAE &gt; 50%</code> → pLDDT (sequence); <code>both &lt; 30%</code> → Both low; else → Mixed.
+  </p>
+
+  <div class="table-wrap" style="overflow-x:auto;">
+    <table style="font-size:0.78rem;">
+      <tr>
+        <th>Target</th><th>Paper Class / Baseline Source</th><th>N</th>
+        <th>iPAE pass</th><th>pLDDT pass</th><th>scRMSD pass</th>
+        <th>Self (n/N)</th><th>Self unique / total</th><th>MPNN (n/N)</th><th>Gap</th>
+        <th>Bottleneck (baseline)</th>
+        <th style="min-width:260px;">Audited follow-up on this page</th>
+      </tr>
+      <tr>
+        <td><strong>PD1</strong></td>
+        <td><span class="tag tag-green">Easy</span><br><span style="font-size:0.7rem; color:var(--muted)">Phase 0 deep beam</span></td>
+        <td><strong>32</strong></td>
+        <td>32/32 (100%)</td>
+        <td>32/32 (100%)</td>
+        <td>32/32 (100%)</td>
+        <td>32/32 (100%)</td>
+        <td>7/32</td>
+        <td>22/32 (69%)</td>
+        <td style="color:var(--red)">-31pp</td>
+        <td>None (saturated)</td>
+        <td style="font-size:0.72rem; line-height:1.45;">Baseline only</td>
+      </tr>
+      <tr>
+        <td><strong>PDL1</strong></td>
+        <td><span class="tag tag-green">Easy</span><br><span style="font-size:0.7rem; color:var(--muted)">Phase 0 deep beam</span></td>
+        <td><strong>32</strong></td>
+        <td>32/32 (100%)</td>
+        <td>32/32 (100%)</td>
+        <td>32/32 (100%)</td>
+        <td>32/32 (100%)</td>
+        <td>4/32</td>
+        <td>12/32 (38%)</td>
+        <td style="color:var(--red)">-62pp</td>
+        <td>None (saturated)</td>
+        <td style="font-size:0.72rem; line-height:1.45;">See Section 5 for default-favored comparisons</td>
+      </tr>
+      <tr>
+        <td><strong>IFNAR2</strong></td>
+        <td><span class="tag tag-green">Easy</span><br><span style="font-size:0.7rem; color:var(--muted)">Phase 0 deep beam</span></td>
+        <td><strong>32</strong></td>
+        <td>32/32 (100%)</td>
+        <td>32/32 (100%)</td>
+        <td>32/32 (100%)</td>
+        <td>32/32 (100%)</td>
+        <td>7/32</td>
+        <td>32/32 (100%)</td>
+        <td>0pp</td>
+        <td>None (saturated)</td>
+        <td style="font-size:0.72rem; line-height:1.45;">Baseline only</td>
+      </tr>
+      <tr>
+        <td><strong>CD45</strong></td>
+        <td><span class="tag tag-orange">Hard</span><br><span style="font-size:0.7rem; color:var(--muted)">Phase 0 deep beam</span></td>
+        <td><strong>32</strong></td>
+        <td>8/32 (25%)</td>
+        <td>30/32 (94%)</td>
+        <td>32/32 (100%)</td>
+        <td>8/32 (25%)</td>
+        <td>1/8</td>
+        <td>5/32 (16%)</td>
+        <td style="color:var(--red)">-9pp</td>
+        <td>iPAE (geometry)</td>
+        <td style="font-size:0.72rem; line-height:1.45;">See Section 5 (noise=0.20)</td>
+      </tr>
+      <tr>
+        <td><strong>Claudin1</strong></td>
+        <td><span class="tag tag-green">Easy</span><br><span style="font-size:0.7rem; color:var(--muted)">Phase 0 deep beam</span></td>
+        <td><strong>32</strong></td>
+        <td>32/32 (100%)</td>
+        <td>32/32 (100%)</td>
+        <td>32/32 (100%)</td>
+        <td>32/32 (100%)</td>
+        <td>6/32</td>
+        <td>12/32 (38%)</td>
+        <td style="color:var(--red)">-62pp</td>
+        <td>None (saturated)</td>
+        <td style="font-size:0.72rem; line-height:1.45;">Baseline only</td>
+      </tr>
+      <tr>
+        <td><strong>CrSAS6</strong></td>
+        <td><span class="tag tag-green">Easy</span><br><span style="font-size:0.7rem; color:var(--muted)">Phase 0 deep beam</span></td>
+        <td><strong>32</strong></td>
+        <td>24/32 (75%)</td>
+        <td>32/32 (100%)</td>
+        <td>32/32 (100%)</td>
+        <td>24/32 (75%)</td>
+        <td>4/24</td>
+        <td>8/32 (25%)</td>
+        <td style="color:var(--red)">-50pp</td>
+        <td>Mixed</td>
+        <td style="font-size:0.72rem; line-height:1.45;">Follow-up exists, but baseline already strong</td>
+      </tr>
+      <tr>
+        <td><strong>DerF7</strong></td>
+        <td><span class="tag tag-green">Easy</span><br><span style="font-size:0.7rem; color:var(--muted)">Phase 0 deep beam</span></td>
+        <td><strong>32</strong></td>
+        <td>32/32 (100%)</td>
+        <td>32/32 (100%)</td>
+        <td>32/32 (100%)</td>
+        <td>32/32 (100%)</td>
+        <td>6/32</td>
+        <td>27/32 (84%)</td>
+        <td style="color:var(--red)">-16pp</td>
+        <td>None (saturated)</td>
+        <td style="font-size:0.72rem; line-height:1.45;">Baseline only</td>
+      </tr>
+      <tr>
+        <td><strong>BetV1</strong></td>
+        <td><span class="tag tag-orange">Hard</span><br><span style="font-size:0.7rem; color:var(--muted)">Phase 0 deep beam</span></td>
+        <td><strong>32</strong></td>
+        <td>6/32 (19%)</td>
+        <td>8/32 (25%)</td>
+        <td>30/32 (94%)</td>
+        <td>6/32 (19%)</td>
+        <td>1/6</td>
+        <td>0/32 (0%)</td>
+        <td style="color:var(--red)">-19pp</td>
+        <td>Both low</td>
+        <td style="font-size:0.72rem; line-height:1.45;">See Section 5 (noise+hallucination bundle)</td>
+      </tr>
+      <tr>
+        <td><strong>SpCas9</strong></td>
+        <td><span class="tag tag-orange">Hard</span><br><span style="font-size:0.7rem; color:var(--muted)">Phase 0 deep beam</span></td>
+        <td><strong>32</strong></td>
+        <td>16/32 (50%)</td>
+        <td>16/32 (50%)</td>
+        <td>32/32 (100%)</td>
+        <td>16/32 (50%)</td>
+        <td>2/16</td>
+        <td>15/32 (47%)</td>
+        <td style="color:var(--red)">-3pp</td>
+        <td>Mixed</td>
+        <td style="font-size:0.72rem; line-height:1.45;">Refinement family explored later</td>
+      </tr>
+      <tr>
+        <td><strong>HER2_AAV</strong></td>
+        <td><span class="tag tag-orange">Hard</span><br><span style="font-size:0.7rem; color:var(--muted)">Phase 0 deep beam</span></td>
+        <td><strong>32</strong></td>
+        <td>16/32 (50%)</td>
+        <td>7/32 (22%)</td>
+        <td>32/32 (100%)</td>
+        <td>1/32 (3%)</td>
+        <td>—/1</td>
+        <td>10/32 (31%)</td>
+        <td style="color:var(--green)">+28pp</td>
+        <td>Sequence (MPNN≫Self)</td>
+        <td style="font-size:0.72rem; line-height:1.45;">See Section 5 (hallucination)</td>
+      </tr>
+      <tr>
+        <td><strong>TrkA</strong></td>
+        <td><span class="tag tag-green">Easy</span><br><span style="font-size:0.7rem; color:var(--muted)">Phase 0 deep beam</span></td>
+        <td><strong>32</strong></td>
+        <td>32/32 (100%)</td>
+        <td>32/32 (100%)</td>
+        <td>32/32 (100%)</td>
+        <td>32/32 (100%)</td>
+        <td>4/32</td>
+        <td>30/32 (94%)</td>
+        <td style="color:var(--red)">-6pp</td>
+        <td>None (saturated)</td>
+        <td style="font-size:0.72rem; line-height:1.45;">Baseline only</td>
+      </tr>
+      <tr>
+        <td><strong>BHRF1</strong></td>
+        <td><span class="tag tag-green">Easy</span><br><span style="font-size:0.7rem; color:var(--muted)">Exp 16/17 base</span></td>
+        <td><strong>32</strong></td>
+        <td>32/32 (100%)</td>
+        <td>32/32 (100%)</td>
+        <td>32/32 (100%)</td>
+        <td>32/32 (100%)</td>
+        <td>4/32</td>
+        <td>32/32 (100%)</td>
+        <td>0pp</td>
+        <td>None (saturated)</td>
+        <td style="font-size:0.72rem; line-height:1.45;">Baseline only</td>
+      </tr>
+      <tr>
+        <td><strong>SC2RBD</strong></td>
+        <td><span class="tag tag-orange">Hard</span><br><span style="font-size:0.7rem; color:var(--muted)">Exp 16/17 base</span></td>
+        <td><strong>32</strong></td>
+        <td>0/32 (0%)</td>
+        <td>0/32 (0%)</td>
+        <td>25/32 (78%)</td>
+        <td>0/32 (0%)</td>
+        <td>—</td>
+        <td>0/32 (0%)</td>
+        <td>0pp</td>
+        <td>Both low</td>
+        <td style="font-size:0.72rem; line-height:1.45;">See Section 6 (MCTS + refinement opens)</td>
+      </tr>
+      <tr>
+        <td><strong>VEGFA</strong></td>
+        <td><span class="tag tag-orange">Hard</span><br><span style="font-size:0.7rem; color:var(--muted)">Exp 16/17 base</span></td>
+        <td><strong>32</strong></td>
+        <td>28/32 (88%)</td>
+        <td>25/32 (78%)</td>
+        <td>32/32 (100%)</td>
+        <td>21/32 (66%)</td>
+        <td>4/21</td>
+        <td>21/32 (66%)</td>
+        <td>0pp</td>
+        <td>Mixed</td>
+        <td style="font-size:0.72rem; line-height:1.45;">Agentic/default scaling tested later</td>
+      </tr>
+      <tr>
+        <td><strong>BBF14</strong></td>
+        <td><span class="tag tag-green">Easy</span><br><span style="font-size:0.7rem; color:var(--muted)">Exp 17 base</span></td>
+        <td><strong>32</strong></td>
+        <td>24/32 (75%)</td>
+        <td>24/32 (75%)</td>
+        <td>29/32 (91%)</td>
+        <td>24/32 (75%)</td>
+        <td>3/24</td>
+        <td>24/32 (75%)</td>
+        <td>0pp</td>
+        <td>Mixed</td>
+        <td style="font-size:0.72rem; line-height:1.45;">Baseline only</td>
+      </tr>
+      <tr>
+        <td><strong>DerF21</strong></td>
+        <td><span class="tag tag-green">Easy</span><br><span style="font-size:0.7rem; color:var(--muted)">Exp 17 base</span></td>
+        <td><strong>32</strong></td>
+        <td>24/32 (75%)</td>
+        <td>24/32 (75%)</td>
+        <td>32/32 (100%)</td>
+        <td>24/32 (75%)</td>
+        <td>3/24</td>
+        <td>29/32 (91%)</td>
+        <td style="color:var(--green)">+16pp</td>
+        <td>Sequence (MPNN≫Self)</td>
+        <td style="font-size:0.72rem; line-height:1.45;">Baseline only</td>
+      </tr>
+      <tr>
+        <td><strong>CbAgo</strong></td>
+        <td><span class="tag tag-orange">Hard</span><br><span style="font-size:0.7rem; color:var(--muted)">Exp 17 base</span></td>
+        <td><strong>32</strong></td>
+        <td>0/32 (0%)</td>
+        <td>0/32 (0%)</td>
+        <td>32/32 (100%)</td>
+        <td>0/32 (0%)</td>
+        <td>—</td>
+        <td>0/32 (0%)</td>
+        <td>0pp</td>
+        <td>Both low</td>
+        <td style="font-size:0.72rem; line-height:1.45;">See Section 6 (still closed)</td>
+      </tr>
+      <tr>
+        <td><strong>IL7RA</strong></td>
+        <td><span class="tag tag-green">Easy</span><br><span style="font-size:0.7rem; color:var(--muted)">Exp 17 base</span></td>
+        <td><strong>32</strong></td>
+        <td>30/32 (94%)</td>
+        <td>27/32 (84%)</td>
+        <td>32/32 (100%)</td>
+        <td>27/32 (84%)</td>
+        <td>3/27</td>
+        <td>17/32 (53%)</td>
+        <td style="color:var(--red)">-31pp</td>
+        <td>None (saturated)</td>
+        <td style="font-size:0.72rem; line-height:1.45;">Refinement family explored later</td>
+      </tr>
+      <tr>
+        <td><strong>Insulin</strong></td>
+        <td><span class="tag tag-green">Easy</span><br><span style="font-size:0.7rem; color:var(--muted)">Exp 17 base</span></td>
+        <td><strong>32</strong></td>
+        <td>32/32 (100%)</td>
+        <td>14/32 (44%)</td>
+        <td>32/32 (100%)</td>
+        <td>14/32 (44%)</td>
+        <td>2/14</td>
+        <td>14/32 (44%)</td>
+        <td>0pp</td>
+        <td>pLDDT (sequence)</td>
+        <td style="font-size:0.72rem; line-height:1.45;">Refinement family explored later</td>
+      </tr>
+      <tr>
+        <td><strong>H1</strong></td>
+        <td><span class="tag tag-red">Very Hard</span><br><span style="font-size:0.7rem; color:var(--muted)">Exp 17 base</span></td>
+        <td><strong>32</strong></td>
+        <td>0/32 (0%)</td>
+        <td>16/32 (50%)</td>
+        <td>3/32 (9%)</td>
+        <td>0/32 (0%)</td>
+        <td>—</td>
+        <td>0/32 (0%)</td>
+        <td>0pp</td>
+        <td>Mixed</td>
+        <td style="font-size:0.72rem; line-height:1.45;">See Section 6 (marginally opened)</td>
+      </tr>
+      <tr>
+        <td><strong>IL17A</strong></td>
+        <td><span class="tag tag-red">Very Hard</span><br><span style="font-size:0.7rem; color:var(--muted)">Exp 17 base</span></td>
+        <td><strong>32</strong></td>
+        <td>0/32 (0%)</td>
+        <td>0/32 (0%)</td>
+        <td>23/32 (72%)</td>
+        <td>0/32 (0%)</td>
+        <td>—</td>
+        <td>0/32 (0%)</td>
+        <td>0pp</td>
+        <td>Both low</td>
+        <td style="font-size:0.72rem; line-height:1.45;">See Section 6 (still closed on self)</td>
+      </tr>
+      <tr>
+        <td><strong>TNF&alpha;</strong></td>
+        <td><span class="tag tag-red">Very Hard</span><br><span style="font-size:0.7rem; color:var(--muted)">Exp 17 base</span></td>
+        <td><strong>32</strong></td>
+        <td>0/32 (0%)</td>
+        <td>0/32 (0%)</td>
+        <td>32/32 (100%)</td>
+        <td>0/32 (0%)</td>
+        <td>—</td>
+        <td>0/32 (0%)</td>
+        <td>0pp</td>
+        <td>Both low</td>
+        <td style="font-size:0.72rem; line-height:1.45;">See Section 6 (locally opened)</td>
+      </tr>
+      <tr>
+        <td><strong>PDL1-AAV (heldout)</strong></td>
+        <td><span class="tag tag-blue">Heldout</span><br><span style="font-size:0.7rem; color:var(--muted)">Exp 31 base</span></td>
+        <td><strong>1216</strong></td>
+        <td>511/1216 (42%)</td>
+        <td>561/1216 (46%)</td>
+        <td>1198/1216 (99%)</td>
+        <td>484/1216 (40%)</td>
+        <td>12/484</td>
+        <td>588/1216 (48%)</td>
+        <td style="color:var(--green)">+9pp</td>
+        <td>Mixed</td>
+        <td style="font-size:0.72rem; line-height:1.45;">Heldout baseline only</td>
+      </tr>
+      <tr>
+        <td><strong>DerF7-variant (heldout)</strong></td>
+        <td><span class="tag tag-blue">Heldout</span><br><span style="font-size:0.7rem; color:var(--muted)">Exp 31 base</span></td>
+        <td><strong>1216</strong></td>
+        <td>123/1216 (10%)</td>
+        <td>876/1216 (72%)</td>
+        <td>1199/1216 (99%)</td>
+        <td>123/1216 (10%)</td>
+        <td>3/123</td>
+        <td>193/1216 (16%)</td>
+        <td style="color:var(--green)">+6pp</td>
+        <td>iPAE (geometry)</td>
+        <td style="font-size:0.72rem; line-height:1.45;">Heldout baseline only</td>
+      </tr>
+      <tr>
+        <td><strong>DerF21-variant (heldout)</strong></td>
+        <td><span class="tag tag-blue">Heldout</span><br><span style="font-size:0.7rem; color:var(--muted)">Exp 31 base</span></td>
+        <td><strong>1216</strong></td>
+        <td>626/1216 (51%)</td>
+        <td>604/1216 (50%)</td>
+        <td>971/1216 (80%)</td>
+        <td>568/1216 (47%)</td>
+        <td>25/568</td>
+        <td>680/1216 (56%)</td>
+        <td style="color:var(--green)">+9pp</td>
+        <td>pLDDT (sequence)</td>
+        <td style="font-size:0.72rem; line-height:1.45;">Heldout baseline only</td>
+      </tr>
+      <tr>
+        <td><strong>CbAgo-variant (heldout)</strong></td>
+        <td><span class="tag tag-blue">Heldout</span><br><span style="font-size:0.7rem; color:var(--muted)">Exp 31 base</span></td>
+        <td><strong>1216</strong></td>
+        <td>0/1216 (0%)</td>
+        <td>91/1216 (7%)</td>
+        <td>1181/1216 (97%)</td>
+        <td>0/1216 (0%)</td>
+        <td>—</td>
+        <td>0/1216 (0%)</td>
+        <td>0pp</td>
+        <td>Both low</td>
+        <td style="font-size:0.72rem; line-height:1.45;">Heldout baseline only</td>
+      </tr>
+      <tr>
+        <td><strong>HER2_AAV-variant (heldout)</strong></td>
+        <td><span class="tag tag-blue">Heldout</span><br><span style="font-size:0.7rem; color:var(--muted)">Exp 31 base</span></td>
+        <td><strong>1216</strong></td>
+        <td>0/1216 (0%)</td>
+        <td>87/1216 (7%)</td>
+        <td>1184/1216 (97%)</td>
+        <td>0/1216 (0%)</td>
+        <td>—</td>
+        <td>31/1216 (3%)</td>
+        <td style="color:var(--green)">+3pp</td>
+        <td>Both low</td>
+        <td style="font-size:0.72rem; line-height:1.45;">Heldout baseline only</td>
+      </tr>
+      <tr>
+        <td><strong>PDL1-ALPHA (heldout)</strong></td>
+        <td><span class="tag tag-blue">Heldout</span><br><span style="font-size:0.7rem; color:var(--muted)">Exp 31 base</span></td>
+        <td><strong>1216</strong></td>
+        <td>692/1216 (57%)</td>
+        <td>564/1216 (46%)</td>
+        <td>1198/1216 (99%)</td>
+        <td>540/1216 (44%)</td>
+        <td>24/540</td>
+        <td>747/1216 (61%)</td>
+        <td style="color:var(--green)">+17pp</td>
+        <td>Sequence (MPNN≫Self)</td>
+        <td style="font-size:0.72rem; line-height:1.45;">Heldout baseline only</td>
+      </tr>
+    </table>
+  </div>
+  <p class="note">
+    <strong>Comparison caution:</strong> this matrix is a local diagnostic object, not a paper-faithful benchmark table.
+    Use it to reason about baseline failure mode and routing signal; use Sections 5 and 6 for the smaller audited intervention summaries.
+  </p>
+</div>
+
 <div class="section" id="local-results">
-  <h2>3. Audited Local Results Map</h2>
+  <h2>5. Audited Local Results Map</h2>
 
   <p>
     The table below is the new core summary for repeated local targets. It is intentionally smaller than the previous "all 28 targets" table.
@@ -277,7 +919,7 @@
       <tr>
         <td><strong>HER2_AAV</strong></td>
         <td><span class="tag tag-orange">Hard</span></td>
-        <td>Repeated base runs reproduce <strong>1/32 self</strong> and <strong>14/32 MPNN</strong>.</td>
+        <td>Repeated base runs reproduce <strong>1/32 self</strong> and <strong>10-14/32 MPNN</strong>. The paired <code>Exp 4b no-hallucination</code> control is <strong>1/32 self</strong> and <strong>14/32 MPNN</strong>.</td>
         <td><code>Exp 4 hallucination</code> reaches <strong>21/32 self</strong> and <strong>15/32 MPNN</strong>. Later <code>Exp 27</code> schedule sweeps hit <strong>16/16 self</strong> in short refinement-only runs.</td>
         <td>Strongest local sequence-sensitive case. The backbone often exists, but the original co-designed sequence is weak.</td>
       </tr>
@@ -304,7 +946,7 @@
 </div>
 
 <div class="section" id="frontier">
-  <h2>4. Frontier Targets: What Is Actually Verified</h2>
+  <h2>6. Frontier Targets: What Is Actually Verified</h2>
 
   <p>
     The previous page used the phrase "zero-hit frontier" too loosely. This section now reports only the hard / very-hard frontier targets whose local run summaries were re-audited against run-level files.
@@ -358,12 +1000,12 @@
   </div>
 
   <p class="note">
-    Denominators in this section come directly from each run&rsquo;s <code>sample_counts_search_binder_local_pipeline.csv</code> file. This is why some frontier rows use <code>N=8</code> and others use <code>N=32</code>: the page now reports the run-specific denominator instead of forcing one global number.
+    Denominators in this section come directly from the audited <code>binder_results_search_binder_local_pipeline_0.csv</code> row count for each run. This is why some frontier rows use <code>N=8</code> and others use <code>N=32</code>: the page now reports the run-specific evaluated denominator instead of forcing one global number.
   </p>
 </div>
 
 <div class="section" id="comparison-rules">
-  <h2>5. How to Compare This Page to the Paper</h2>
+  <h2>7. How to Compare This Page to the Paper</h2>
 
   <div class="card-grid">
     <div class="card">
@@ -426,7 +1068,7 @@
 </div>
 
 <div class="section" id="experiment-map">
-  <h2>6. Experiment Family Map</h2>
+  <h2>8. Experiment Family Map</h2>
 
   <p>
     The old page tried to tell the whole story in one set of giant figures. This rebuild instead groups experiments by question.
@@ -471,6 +1113,12 @@
         <td>Moved to the companion plan / benchmark story</td>
       </tr>
       <tr>
+        <td><strong>Fixed-budget global program benchmark</strong></td>
+        <td><code>Exp 34</code></td>
+        <td>Draft 2h default-vs-routed benchmark for the global program idea</td>
+        <td><span class="warn-text">Initial launch canceled on 2026-04-15</span> after a fairness/config audit found unresolved design issues</td>
+      </tr>
+      <tr>
         <td><strong>Withdrawn long-run scaling</strong></td>
         <td><code>Exp 29</code></td>
         <td>Continuous scaling curves for CD45 / SC2RBD / TNF&alpha;</td>
@@ -480,8 +1128,130 @@
   </div>
 </div>
 
+<div class="section" id="routing-program">
+  <h2>9. Figure H: Draft Routing Decision Tree &mdash; Global Inference Program v1 (Under Review)</h2>
+
+  <p>
+    The archived page used a lightweight routing sketch derived from the original 11-target panel. The updated figure below is a
+    <strong>draft standardized program</strong> built from the audited baseline matrix in Section 4. It should be read as a
+    benchmark hypothesis, not as a fully validated controller.
+  </p>
+
+  <img src="/projects/agentic-figures/figH_routing_program_v1.svg" alt="Draft routing decision tree for the global inference program" style="width:100%; max-width:1100px; border:1px solid var(--border); border-radius:10px; background:#fff; display:block; margin:20px auto;">
+  <p class="note">
+    <strong>Reading rule.</strong> This figure now represents a <strong>draft human-designed global inference program</strong>.
+    It mixes (i) exact same-target evidence such as <code>CD45 -> noise</code>, <code>HER2_AAV -> hallucination</code>, and
+    <code>SC2RBD -> MCTS frontier bundle</code> with (ii) standardized branch choices and transfer hypotheses for heldout or still-closed targets.
+    It is useful as a planning object, but it is <strong>not yet benchmark-ready</strong>.
+  </p>
+
+  <div class="callout warn">
+    <p><strong>Why this section is marked draft.</strong> A closer audit found three mismatches that matter for benchmarking: some target assignments are transfer hypotheses rather than same-target verified wins; the current hallucination branch in Program v1 is not an exact replay of the strongest <code>HER2_AAV</code> run; and the standardized very-hard branch uses one shared <code>rws5</code> setting even though the best local settings differ across <code>H1</code>, <code>TNF&alpha;</code>, and <code>IL17A</code>.</p>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <tr>
+        <th>Bundle</th>
+        <th>Program v1 Standardized Setting</th>
+        <th>Illustrative Assignments</th>
+        <th>Evidence Anchor / Caveat</th>
+      </tr>
+      <tr>
+        <td><strong>Default deep beam</strong></td>
+        <td><code>beam-search</code>, <code>beam_width=8</code>, <code>n_branch=3</code>, checkpoints <code>[0,65,130,200,270,340,400]</code></td>
+        <td>PD1, PDL1, IFNAR2, Claudin1, CrSAS6, DerF7, SpCas9, TrkA, BHRF1, VEGFA, BBF14, DerF21, IL7RA, Insulin, PDL1-AAV, DerF21-variant, PDL1-ALPHA</td>
+        <td>Baseline already strong or mixed enough that v1 keeps the safe default.</td>
+      </tr>
+      <tr>
+        <td><strong>Noise 0.20</strong></td>
+        <td>Default deep beam + <code>bb_ca.sc_scale_noise=0.2</code> and <code>local_latents.sc_scale_noise=0.2</code></td>
+        <td>CD45, DerF7-variant</td>
+        <td><code>CD45</code> is a verified same-target positive case. <code>DerF7-variant</code> is a transfer hypothesis from its geometry-limited baseline signature, not a verified same-target win.</td>
+      </tr>
+      <tr>
+        <td><strong>Hallucination branch</strong></td>
+        <td><code>beam-search</code>, checkpoints <code>[0,65,130,200,270,340,400]</code>, <code>beam_width=4</code>, <code>n_branch=4</code>, plus <code>sequence_hallucination</code> with <code>soft=false</code>, <code>greedy=true</code>, <code>greedy_percentage=5</code></td>
+        <td>HER2_AAV, HER2_AAV-variant</td>
+        <td><code>HER2_AAV</code> is a strong same-target positive case for hallucination <em>as a family</em>, but the exact strongest local run was <code>Exp 4</code> with <code>deep beam (8,3)</code>, <code>soft=true</code>, and the default <code>greedy_percentage=1</code>. The Program v1 branch shown here is a standardized draft, not an exact replay.</td>
+      </tr>
+      <tr>
+        <td><strong>Mixed bundle</strong></td>
+        <td>Default deep beam + noise 0.20 + <code>sequence_hallucination</code> with <code>soft=true</code>, <code>greedy=true</code>, <code>n_temp_iters=45</code>, <code>n_hard_iters=5</code>, <code>n_greedy_iters=15</code>, <code>greedy_percentage=5</code></td>
+        <td>BetV1</td>
+        <td><code>BetV1</code> does improve most cleanly under a bundled intervention, but the strongest local run (<code>Exp 13b</code>) used the default <code>greedy_percentage=1</code>. The 5% version shown here is again a standardized draft choice.</td>
+      </tr>
+      <tr>
+        <td><strong>MCTS + G&amp;H msg5</strong></td>
+        <td><code>mcts</code>, dense checkpoints <code>[0,50,100,150,200,250,300,350,400]</code>, <code>n_simulations=40</code>, <code>exploration_prob=0.3</code>, <code>exploration_constant=0.5</code>, plus soft+greedy hallucination at 5%</td>
+        <td>SC2RBD, CbAgo, CbAgo-variant</td>
+        <td><code>SC2RBD</code> is a verified positive same-target case. <code>CbAgo</code> and the heldout variant remain closed locally, so those assignments are best interpreted as exploratory hard-zero-hit placements or negative controls, not evidence-backed wins.</td>
+      </tr>
+      <tr>
+        <td><strong>MCTS + pLDDT + G&amp;H rws5</strong></td>
+        <td><code>msg5</code> + <code>reward_weights.i_pae=-1.0</code> and <code>reward_weights.plddt=0.5</code></td>
+        <td>H1, IL17A, TNF&alpha;</td>
+        <td>This is a standardized paper-inspired very-hard branch. It is <strong>not</strong> the exact local best for every target: <code>H1</code> was strongest under <code>rw_pl075_softg10</code>, <code>TNF&alpha;</code> under <code>msg5</code>, and <code>IL17A</code> never reached a self success locally.</td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<div class="section" id="twohour-benchmark">
+  <h2>10. Benchmark Redesign Notes: Why the First 2-Hour Draft Was Canceled</h2>
+
+  <p>
+    A first <strong>2-hour per target</strong> benchmark draft was launched on April 15, 2026 and then canceled after review.
+    The main issue was not the idea of a fixed-budget benchmark itself; it was that the first draft mixed a clean compute cap with
+    branch settings and target assignments that were not yet aligned tightly enough with the audited evidence base.
+  </p>
+
+  <div class="table-wrap">
+    <table>
+      <tr>
+        <th>Issue Found in the First Draft</th>
+        <th>Why It Matters</th>
+        <th>Required Fix Before Rerun</th>
+      </tr>
+      <tr>
+        <td><strong>2h was a timeout cap, not guaranteed realized compute</strong></td>
+        <td>Some branches can finish well under 2 hours, while others naturally run much longer. The original draft therefore risked comparing different realized GPU-hours under the same timeout ceiling.</td>
+        <td>Use measured realized GPU-hours in the comparison, or tune each branch so both control and routed arms reliably saturate the same budget.</td>
+      </tr>
+      <tr>
+        <td><strong>Several routed branches were standardized drafts, not exact evidence-matched replays</strong></td>
+        <td>The current hallucination and mixed branches used <code>greedy_percentage=5</code>, even though the strongest local HER2_AAV and BetV1 evidence came from runs with the default <code>greedy_percentage=1</code>. The very-hard branch also standardized on <code>rws5</code> despite target-specific local differences.</td>
+        <td>Decide explicitly whether the benchmark tests <em>exact audited replays</em> or a <em>standardized global program</em>, then describe that choice consistently in both the figure and the launch script.</td>
+      </tr>
+      <tr>
+        <td><strong>Some target assignments were transfer hypotheses</strong></td>
+        <td><code>CD45 -> noise</code>, <code>HER2_AAV -> hallucination</code>, and <code>SC2RBD -> MCTS</code> have direct same-target support, but assignments such as <code>DerF7-variant -> noise</code>, <code>HER2_AAV-variant -> hallucination</code>, and <code>CbAgo -> msg5</code> were extrapolations or negative controls.</td>
+        <td>Either split the benchmark into <em>same-target validated</em> and <em>transfer</em> subsets, or keep the full panel but report those rows explicitly as transfer tests rather than as audited wins.</td>
+      </tr>
+      <tr>
+        <td><strong>The initial launch is no longer part of the empirical record</strong></td>
+        <td>The submitted <code>Exp 34</code> jobs were canceled before results were used, so the page should not imply that a clean benchmark has already been run.</td>
+        <td>Record <code>Exp 34</code> as a canceled draft benchmark, then relaunch only after the contract above is rewritten and checked.</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="callout">
+    <p><strong>What remains valid.</strong> The idea of a fixed-budget benchmark is still the right next step. The audited page now simply distinguishes the <strong>results record</strong> from a <strong>benchmark design that is still being cleaned up</strong>.</p>
+  </div>
+
+  <div class="callout warn">
+    <p><strong>Current status.</strong> The initial <code>Exp 34</code> launch from <strong>2026-04-15</strong> was canceled after review. This page will only report a rerun after the benchmark contract, standardized branch definitions, and transfer-vs-validated split are all rewritten explicitly.</p>
+  </div>
+
+  <p class="note">
+    A cleaner rerun would compare <strong>default control</strong> versus either (i) an exact audited replay program or (ii) a deliberately standardized global program, always reporting
+    <strong>FoldSeek-unique successful self binders</strong> under matched realized compute.
+  </p>
+</div>
+
 <div class="section" id="next-steps">
-  <h2>7. Companion Plan</h2>
+  <h2>11. Companion Plan</h2>
 
   <div class="callout">
     <p><strong>This page is now the audited results record.</strong> The forward-looking AutoResearch / Meta-Harness / tool-using LLM plan lives on the companion page so that planning notes do not get mixed into the verified empirical record here.</p>

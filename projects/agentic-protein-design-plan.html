@@ -167,6 +167,7 @@
         <li><a href="#autoresearch-related" style="font-size:0.85rem">Related work (Latent-Y caveat)</a></li>
         <li><a href="#autoresearch-novelty" style="font-size:0.85rem">Novelty angles in priority order</a></li>
         <li><a href="#autoresearch-contract" style="font-size:0.85rem">Action space, frozen surfaces, Goodhart guards</a></li>
+        <li><a href="#autoresearch-v2-benchmark" style="font-size:0.85rem">Claim-grade benchmark v2 (current contract)</a></li>
         <li><a href="#autoresearch-phases" style="font-size:0.85rem">Concrete phases A&ndash;D and ship list</a></li>
         <li><a href="#autoresearch-risks" style="font-size:0.85rem">Risks, kill criteria, budget</a></li>
       </ul>
@@ -351,6 +352,92 @@
       <li>Cherry-pick across attempts after seeing the test evaluator. Held-out re-evaluation is mandatory before any reported number.</li>
     </ul>
   </div>
+
+  <h3 id="autoresearch-v2-benchmark">0.4b Claim-grade benchmark v2 (current contract)</h3>
+
+  <div class="callout">
+    <p><strong>What changed on 2026-04-15.</strong> The first broad 28-target global-program benchmark draft (<code>Exp 34</code>) was canceled because it mixed <strong>exact same-target replays</strong> with <strong>transfer hypotheses</strong>, and compared arms by <strong>timeout cap</strong> instead of <strong>realized compute</strong>. The current benchmark contract is intentionally smaller and stricter.</p>
+  </div>
+
+  <div class="table-wrap">
+  <table>
+    <tr>
+      <th style="width:15%">Target</th>
+      <th style="width:15%">Paper class</th>
+      <th style="width:18%">Control arm (exact replay)</th>
+      <th style="width:22%">Routed arm (exact replay)</th>
+      <th style="width:15%">Historical runtime</th>
+      <th style="width:15%">Why included</th>
+    </tr>
+    <tr>
+      <td><strong>CD45</strong></td>
+      <td>Hard</td>
+      <td>Phase 0 deep baseline (<code>exp11a_base_r2</code>)</td>
+      <td><code>deep + noise=0.20</code> (<code>exp2_noise0p20</code>)</td>
+      <td>70.1 min control; 59.5 min routed</td>
+      <td>Same-target validated win with budget-compatible replay.</td>
+    </tr>
+    <tr>
+      <td><strong>HER2_AAV</strong></td>
+      <td>Hard</td>
+      <td>Phase 0 deep baseline (<code>exp11d_base_r3</code>)</td>
+      <td><code>Exp 4</code> hallucination family</td>
+      <td>83.3 min control; 150.7 min routed</td>
+      <td>Same-target validated sequence-refinement win.</td>
+    </tr>
+    <tr>
+      <td><strong>BetV1</strong></td>
+      <td>Hard</td>
+      <td>Phase 0 deep baseline (<code>exp11g_base_r2</code>)</td>
+      <td><code>Exp 13b</code> noise + hallucination family</td>
+      <td>79.5 min control; 141.5 min routed</td>
+      <td>Same-target validated mixed-bundle win.</td>
+    </tr>
+    <tr>
+      <td><strong>SC2RBD</strong></td>
+      <td>Hard</td>
+      <td><code>Exp 16d</code> deep baseline</td>
+      <td><code>Exp 26 rw_pl050_softg5</code></td>
+      <td>80.8 min control; 186.2 min routed</td>
+      <td>Same-target validated hard-target opening with budget-compatible replay.</td>
+    </tr>
+  </table>
+  </div>
+
+  <div class="table-wrap">
+  <table>
+    <tr>
+      <th style="width:24%">Rule</th>
+      <th style="width:76%">Benchmark v2 contract</th>
+    </tr>
+    <tr>
+      <td><strong>Scope</strong></td>
+      <td>Only four <strong>same-target positive-evidence</strong> cases are included: <code>CD45</code>, <code>HER2_AAV</code>, <code>BetV1</code>, <code>SC2RBD</code>. No held-out variants, no transfer assignments, and no paper very-hard targets.</td>
+    </tr>
+    <tr>
+      <td><strong>Excluded for now</strong></td>
+      <td><code>H1</code>, <code>TNF&alpha;</code>, <code>IL17A</code>, and <code>CbAgo</code> are excluded because their best exact replays are too expensive for a clean small-budget benchmark. Historically, <code>H1</code> is ~1617.4 min and <code>TNF&alpha;</code> is ~972.8 min.</td>
+    </tr>
+    <tr>
+      <td><strong>Budget</strong></td>
+      <td>Each target-arm gets <strong>8 realized H100-hours</strong>, not a 2h timeout cap. Timeout is only a safety ceiling; comparison is made on the largest seed-prefix whose cumulative realized runtime is <strong>&le; 8.0h</strong>.</td>
+    </tr>
+    <tr>
+      <td><strong>Metric</strong></td>
+      <td>Primary metric is <strong>FoldSeek-unique successful self binders</strong>, pooled across the kept runs. We do <strong>not</strong> sum per-run unique counts. All successful self binders are pooled and reclustered once.</td>
+    </tr>
+    <tr>
+      <td><strong>Run structure</strong></td>
+      <td>Calibration first: one seed per target-arm to confirm exact replay fidelity and measure runtime. Main pass second: repeated independent runs with explicit ascending seeds, trimmed back to the largest realized-budget prefix.</td>
+    </tr>
+    <tr>
+      <td><strong>Results-page policy</strong></td>
+      <td><a href="/projects/agentic-protein-design.html">agentic-protein-design.html</a> remains the audited empirical record. Its Sections 8&ndash;10 stay marked as <strong>draft / canceled / under review</strong> until benchmark v2 finishes and pooled clustering analysis exists.</td>
+    </tr>
+  </table>
+  </div>
+
+  <p class="note">This benchmark is intentionally narrow. The claim is: <strong>a fixed human-designed inference program can beat the default baseline on audited hard targets under matched realized compute</strong>. A later <strong>v3</strong> benchmark can test transfer on held-out variants, and a separate <strong>v4</strong> benchmark can test the paper&rsquo;s very-hard regime with larger budgets.</p>
 
   <h3 id="autoresearch-phases">0.5 Concrete phases (~6 weeks, ~1200 H100h)</h3>
 
