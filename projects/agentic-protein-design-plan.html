@@ -391,6 +391,7 @@
       <li><a href="#contracts">Executable Contracts</a></li>
       <li><a href="#retrieval">Free Retrieval and Analysis Stack</a></li>
       <li><a href="#target-analysis">Target-Side Hardness Priors</a></li>
+      <li><a href="#ultimate-goal">Ultimate Agent Goal</a></li>
       <li><a href="#actions">Executable TTO Action Space</a></li>
       <li><a href="#replay-results">Historical Replay Result</a></li>
       <li><a href="#evaluation">Evaluation Ladder</a></li>
@@ -842,10 +843,83 @@ optional local PDF / note cache</code></pre>
       <code>flexibility_risk</code>, <code>hotspot_accessibility_risk</code>, <code>state_uncertainty_risk</code>, and
       <code>geometry_burden_risk</code>, plus a short list of top structural reasons.
     </p>
+
+    <div class="callout">
+      <p><strong>Important nuance.</strong> These four target-side groups are not the final goal. They are the current best human-designed scaffold for cold-start target understanding. The long-term goal is for the agent itself to decide which of these questions matter for a given target and which tool outputs it needs next.</p>
+    </div>
+  </div>
+
+  <div class="section" id="ultimate-goal">
+    <h2>7. Ultimate Agent Goal</h2>
+
+    <p>
+      The ideal system is not one where the human permanently hard-codes a checklist such as
+      <code>flexibility_risk</code> or <code>hotspot_accessibility_risk</code> and the LLM passively consumes it.
+      The ideal system is more agentic:
+      <strong>the model should infer what information is missing, decide which tool to call, read the result, and update its hypothesis.</strong>
+    </p>
+
+    <div class="card-grid">
+      <div class="card">
+        <span class="tag tag-gold">Current practical mode</span>
+        <h3>Human-designed scaffold</h3>
+        <p>
+          The current plan uses structured target-side fields because they are auditable, cheap, and reproducible.
+          They give the controller a disciplined starting point for cold-start reasoning.
+        </p>
+      </div>
+      <div class="card">
+        <span class="tag tag-accent">Ultimate mode</span>
+        <h3>Tool-using information seeker</h3>
+        <p>
+          The long-term controller should look at a target, recognize uncertainty, ask what information would reduce that uncertainty,
+          and then choose retrieval or analysis tools accordingly.
+        </p>
+      </div>
+    </div>
+
+    <h3>What the mature loop should do</h3>
+    <div class="table-wrap">
+      <table>
+        <tr>
+          <th style="width: 22%;">Step</th>
+          <th style="width: 38%;">Agent question</th>
+          <th style="width: 40%;">Expected behavior</th>
+        </tr>
+        <tr>
+          <td><strong>1. Initial read</strong></td>
+          <td>What about this target is currently unknown?</td>
+          <td>Identify gaps such as flexibility, hotspot exposure, multistate ambiguity, or literature uncertainty.</td>
+        </tr>
+        <tr>
+          <td><strong>2. Tool choice</strong></td>
+          <td>Which evidence would reduce the most uncertainty?</td>
+          <td>Call retrieval, structure-analysis, alias expansion, AFDB lookup, or optional ensemble tools as needed.</td>
+        </tr>
+        <tr>
+          <td><strong>3. Hypothesis update</strong></td>
+          <td>Given the new evidence, what seems to be the main target-side burden?</td>
+          <td>Update the target hypothesis rather than restating generic biology.</td>
+        </tr>
+        <tr>
+          <td><strong>4. First action</strong></td>
+          <td>Under the current budget, what first TTO action is now most justified?</td>
+          <td>Emit one executable <code>TTOActionProposal</code> plus the expected observable.</td>
+        </tr>
+      </table>
+    </div>
+
+    <h3>Why the current structured fields still matter</h3>
+    <p>
+      Even in that more agentic future, a constrained tool registry and structured outputs are still necessary.
+      The model should be free to decide <em>what it needs to know</em>, but not free to emit unauditable or non-executable actions.
+      So the right end state is:
+      <strong>agent decides what to ask for, while tools and output contracts remain constrained.</strong>
+    </p>
   </div>
 
   <div class="section" id="actions">
-    <h2>7. Executable TTO Action Space</h2>
+    <h2>8. Executable TTO Action Space</h2>
 
     <p>
       The action space must stay aligned with what can actually be launched. If the current stack cannot execute an action
@@ -903,7 +977,7 @@ optional local PDF / note cache</code></pre>
   </div>
 
   <div class="section" id="replay-results">
-    <h2>8. Historical Replay Result</h2>
+    <h2>9. Historical Replay Result</h2>
 
     <div class="callout warn">
       <p><strong>Important boundary.</strong> The following result is a <strong>historical replay / follow-up decision</strong> benchmark. It is not a cold-start benchmark. The agent was given same-target local summaries and seeded diagnostics derived from completed human-designed runs.</p>
@@ -989,7 +1063,7 @@ optional local PDF / note cache</code></pre>
   </div>
 
   <div class="section" id="evaluation">
-    <h2>9. Evaluation Ladder</h2>
+    <h2>10. Evaluation Ladder</h2>
 
     <div class="card-grid">
       <div class="card">
@@ -1038,7 +1112,7 @@ optional local PDF / note cache</code></pre>
   </div>
 
   <div class="section" id="status">
-    <h2>10. Current Implementation Status</h2>
+    <h2>11. Current Implementation Status</h2>
 
     <div class="checklist">
       <div class="checklist-item">
@@ -1077,7 +1151,7 @@ optional local PDF / note cache</code></pre>
   </div>
 
   <div class="section" id="next">
-    <h2>11. Cold-Start Next Step</h2>
+    <h2>12. Cold-Start Next Step</h2>
 
     <p>
       The most rigorous next move is now <strong>cold-start target understanding</strong>. Build round-0 inputs that contain
