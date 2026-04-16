@@ -391,9 +391,10 @@
       <li><a href="#contracts">Executable Contracts</a></li>
       <li><a href="#retrieval">Free Retrieval and Analysis Stack</a></li>
       <li><a href="#actions">Executable TTO Action Space</a></li>
+      <li><a href="#replay-results">Historical Replay Result</a></li>
       <li><a href="#evaluation">Evaluation Ladder</a></li>
       <li><a href="#status">Current Implementation Status</a></li>
-      <li><a href="#next">Immediate Next Experiment</a></li>
+      <li><a href="#next">Cold-Start Next Step</a></li>
     </ol>
   </div>
 
@@ -415,11 +416,15 @@
       </div>
       <div class="status-row">
         <div class="label">What literature does</div>
-        <div class="value">It enriches target context. It does <strong>not</strong> override strong same-target local trace evidence, and it does not replace deterministic diagnostic signals.</div>
+        <div class="value">It enriches target context. In replay it should not override same-target local trace evidence. In cold-start it becomes one of the main target-specific evidence sources.</div>
       </div>
       <div class="status-row">
         <div class="label">What success means</div>
         <div class="value">Better next-step decisions under matched budget, then eventually better hits-per-GPU-hour or matched-budget unique successes than static or rule-based baselines.</div>
+      </div>
+      <div class="status-row">
+        <div class="label">Current clarification</div>
+        <div class="value">Historical replay and cold-start target understanding are now treated as two different benchmarks. The replay result is useful, but it is not evidence of round-0 target understanding.</div>
       </div>
     </div>
 
@@ -459,7 +464,7 @@
     </div>
 
     <div class="callout warn">
-      <p><strong>Bottom line.</strong> The plan is now rigorous enough to support a real offline replay controller and a live two-round pilot. The remaining hard part is not the architecture. It is wiring the controller into real target episodes and comparing it honestly against the existing rule-based baseline.</p>
+      <p><strong>Bottom line.</strong> The plan is now rigorous enough to support both a real offline replay controller and a stricter cold-start benchmark. The main remaining work is not architecture; it is keeping those two evaluation modes separate and comparing each honestly against the right baseline.</p>
     </div>
   </div>
 
@@ -649,10 +654,10 @@
       <div class="card">
         <span class="tag tag-blue">Free API</span>
         <h3>Europe PMC retrieval</h3>
-        <p>
-          The retrieval prototype queries the free Europe PMC REST API, stores query provenance, and returns compact records
-          with titles, abstracts, IDs, citation counts, and landing pages. This is the correct first retrieval tool because it is auditable and cost-free.
-        </p>
+      <p>
+        The retrieval prototype queries the free Europe PMC REST API, stores query provenance, and returns compact records
+        with titles, abstracts, IDs, citation counts, and landing pages. This is the correct first retrieval tool because it is auditable and cost-free.
+      </p>
       </div>
       <div class="card">
         <span class="tag tag-green">Local analysis</span>
@@ -696,7 +701,7 @@
           <td><code>build_diagnostic_sidecar.py</code></td>
           <td>Run artifact parsing</td>
           <td>Target diagnostic summary</td>
-          <td>Extracts the actual same-target TTO evidence</td>
+          <td>Used only after at least one same-target round exists; not allowed in cold-start mode</td>
         </tr>
         <tr>
           <td><code>build_tto_state.py</code></td>
@@ -779,8 +784,94 @@
     </div>
   </div>
 
+  <div class="section" id="replay-results">
+    <h2>7. Historical Replay Result</h2>
+
+    <div class="callout warn">
+      <p><strong>Important boundary.</strong> The following result is a <strong>historical replay / follow-up decision</strong> benchmark. It is not a cold-start benchmark. The agent was given same-target local summaries and seeded diagnostics derived from completed human-designed runs.</p>
+    </div>
+
+    <p>
+      Before moving to cold-start target understanding, the pipeline was tested in replay mode: feed Gemma 4 31B a compact
+      <code>TTOState</code> plus a <code>TargetContextBundle</code>, both built from existing target summaries, and ask for one
+      executable <code>TTOActionProposal</code>. This benchmark answers a narrow question:
+      <strong>does the LLM follow the same broad routing logic that the human-designed campaign already discovered?</strong>
+    </p>
+
+    <h3>What the replay input actually contained</h3>
+    <div class="table-wrap">
+      <table>
+        <tr>
+          <th style="width: 24%;">Artifact</th>
+          <th style="width: 40%;">What went in</th>
+          <th style="width: 36%;">Interpretation</th>
+        </tr>
+        <tr>
+          <td><strong><code>TargetContextBundle</code></strong></td>
+          <td>Structure summary, hotspots, and a short human-authored same-target note summarizing the local lesson.</td>
+          <td>Useful for replay, but not acceptable for round-0 cold-start because it leaks the answer.</td>
+        </tr>
+        <tr>
+          <td><strong><code>TTOState</code></strong></td>
+          <td>Budget, round index, attempted operators, and a seeded <code>diagnostic_state</code> with self success, MPNN success, geometry pass, and dominant failure mode.</td>
+          <td>This is explicitly same-target local evidence derived from completed runs.</td>
+        </tr>
+        <tr>
+          <td><strong>Prompt</strong></td>
+          <td>Allowed action registry, evidence hierarchy, JSON output contract, and one-action-only instruction.</td>
+          <td>Constrained the model to produce a compiler-ready next step.</td>
+        </tr>
+      </table>
+    </div>
+
+    <h3>What Gemma 4 31B proposed</h3>
+    <div class="table-wrap">
+      <table>
+        <tr>
+          <th style="width: 17%;">Target</th>
+          <th style="width: 23%;">Replay input signal</th>
+          <th style="width: 18%;">Gemma proposal</th>
+          <th style="width: 18%;">Human-designed conclusion</th>
+          <th style="width: 24%;">Alignment</th>
+        </tr>
+        <tr>
+          <td><strong>PDL1</strong></td>
+          <td><code>self_success_rate = 1.0</code>, <code>dominant_failure_mode = saturated_or_default_favored</code>, notes that high noise and hallucination hurt</td>
+          <td><code>scale-default</code></td>
+          <td>Do not over-escalate an already open easy target</td>
+          <td><span class="tag tag-green">High</span> The model correctly stayed conservative and rejected noise, hallucination, and heavier search.</td>
+        </tr>
+        <tr>
+          <td><strong>CD45</strong></td>
+          <td>Low self success, high binder RMSD pass, poor interface geometry, geometry-limited label, note that noise helped</td>
+          <td><code>stochastic-beam-search</code><br><span class="note-like">fallback: <code>diverse-beam-search</code></span></td>
+          <td>Open geometry before trying sequence-focused refinement</td>
+          <td><span class="tag tag-green">High</span> The model identified a geometry bottleneck and chose a search-opening action rather than hallucination.</td>
+        </tr>
+        <tr>
+          <td><strong>SC2RBD</strong></td>
+          <td>Zero-hit state, geometry-limited-zero-hit label, note that beam-family runs remained closed</td>
+          <td><code>mcts</code><br><span class="note-like">fallback: <code>diverse-beam-search</code></span></td>
+          <td>Escalate earlier to heavier search for a frontier target</td>
+          <td><span class="tag tag-green">High</span> The model matched the intended escalation logic and did not waste another default-style round.</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Replay takeaway</h3>
+      <p>
+        In replay mode, Gemma 4 31B aligned well with the existing human-designed routing logic on all three targets:
+        <code>PDL1 -&gt; stay conservative</code>, <code>CD45 -&gt; open geometry</code>, <code>SC2RBD -&gt; escalate to MCTS</code>.
+        That is encouraging, but it should be interpreted narrowly. It shows that the model can read a compact same-target
+        state and reproduce the broad conclusion. It does <strong>not</strong> yet show that the model can infer those
+        strategies from the target alone.
+      </p>
+    </div>
+  </div>
+
   <div class="section" id="evaluation">
-    <h2>7. Evaluation Ladder</h2>
+    <h2>8. Evaluation Ladder</h2>
 
     <div class="card-grid">
       <div class="card">
@@ -791,40 +882,45 @@
       <div class="card">
         <span class="tag tag-blue">Phase 1</span>
         <h3>Target context enrichment</h3>
-        <p>Build real <code>TargetContextBundle</code> artifacts for <code>PDL1</code>, <code>CD45</code>, and <code>SC2RBD</code>.</p>
+        <p>Build real <code>TargetContextBundle</code> artifacts for <code>PDL1</code>, <code>CD45</code>, and <code>SC2RBD</code> without leaking same-target local outcomes into the notes.</p>
       </div>
       <div class="card">
         <span class="tag tag-blue">Phase 2</span>
+        <h3>Cold-start benchmark</h3>
+        <p>Give Gemma 4 31B only target-derived context plus budget and ask for the first TTO action. No same-target local traces are allowed.</p>
+      </div>
+      <div class="card">
+        <span class="tag tag-blue">Phase 3</span>
         <h3>Offline replay benchmark</h3>
         <p>Ask Gemma 4 31B to choose the next action for completed episodes under matched budget, then score action regret and routing accuracy.</p>
       </div>
       <div class="card">
-        <span class="tag tag-gold">Phase 3</span>
+        <span class="tag tag-gold">Phase 4</span>
         <h3>First-campaign planning</h3>
-        <p>Allow small round-0 budget splits, but only after the offline routing benchmark is working.</p>
+        <p>Allow small round-0 budget splits, but only after cold-start first-action quality is working.</p>
       </div>
       <div class="card">
-        <span class="tag tag-orange">Phase 4</span>
+        <span class="tag tag-orange">Phase 5</span>
         <h3>Live two-round controller</h3>
         <p>Run one real state-action-outcome loop twice and compare against static default and current rule-based routing.</p>
       </div>
       <div class="card">
-        <span class="tag tag-green">Phase 5</span>
+        <span class="tag tag-green">Phase 6</span>
         <h3>Retrieval ablations</h3>
-        <p>Compare no enrichment vs structure-only vs structure+literature vs structure+literature+prior episodes.</p>
+        <p>Compare no enrichment vs structure-only vs structure+literature vs structure+literature+prior episodes, separately for cold-start and replay.</p>
       </div>
     </div>
 
     <h3>Primary metrics</h3>
     <ul>
       <li><strong>Scientific:</strong> hits per GPU hour or matched-budget unique successes.</li>
-      <li><strong>Agentic:</strong> offline routing accuracy, action regret under matched budget, and confidence calibration.</li>
+      <li><strong>Agentic:</strong> cold-start first-action quality, offline routing accuracy, action regret under matched budget, and confidence calibration.</li>
       <li><strong>Ablation:</strong> gain from context enrichment and retrieval over local-trace-only routing.</li>
     </ul>
   </div>
 
   <div class="section" id="status">
-    <h2>8. Current Implementation Status</h2>
+    <h2>9. Current Implementation Status</h2>
 
     <div class="checklist">
       <div class="checklist-item">
@@ -844,8 +940,12 @@
         <div><strong>Minimum tests pass.</strong> The current contract and retrieval tests pass locally, so the execution path is no longer just prose.</div>
       </div>
       <div class="checklist-item">
+        <span class="check yes">✓</span>
+        <div><strong>Replay runner exists and has executed.</strong> Gemma 4 31B replay runs for <code>PDL1</code>, <code>CD45</code>, and <code>SC2RBD</code> completed successfully and produced valid <code>TTOActionProposal</code> outputs.</div>
+      </div>
+      <div class="checklist-item">
         <span class="check mid">◐</span>
-        <div><strong>What is still missing:</strong> a real prompt runner that reads the new <code>TTOState</code> contract and emits a validated <code>TTOActionProposal</code> for offline replay episodes.</div>
+        <div><strong>Cold-start mode is not wired yet.</strong> The current replay inputs still include same-target human-authored notes and seeded diagnostics, so they do not test round-0 target understanding.</div>
       </div>
       <div class="checklist-item">
         <span class="check mid">◐</span>
@@ -854,17 +954,58 @@
     </div>
 
     <div class="callout">
-      <p><strong>Interpretation.</strong> The architecture is no longer hand-wavy. The remaining work is integration: real target episodes, real Gemma controller prompts, and honest benchmark comparison against the rule-based baseline.</p>
+      <p><strong>Interpretation.</strong> The architecture is no longer hand-wavy. Replay has now been demonstrated. The remaining methodological step is to remove same-target leakage and test whether the model can form a useful first action from target-derived evidence alone.</p>
     </div>
   </div>
 
   <div class="section" id="next">
-    <h2>9. Immediate Next Experiment</h2>
+    <h2>10. Cold-Start Next Step</h2>
 
     <p>
-      The most rigorous next move is still <strong>offline replay first</strong>. Build real context bundles and states
-      for a three-target panel, then ask Gemma 4 31B to choose the next TTO action under matched budget.
+      The most rigorous next move is now <strong>cold-start target understanding</strong>. Build round-0 inputs that contain
+      only target-derived context and budget, then ask Gemma 4 31B for the <strong>first</strong> TTO action without any
+      same-target local result summaries.
     </p>
+
+    <div class="diagram-shell">
+      <div class="diagram-stage">
+        <div class="stack">
+          <div class="diagram-node context">
+            <h4>Cold-Start Inputs</h4>
+            <p>Target structure, known hotspots, deterministic structure/sequence analysis, free literature retrieval, and fixed budget.</p>
+          </div>
+          <div class="diagram-arrow">↓</div>
+          <div class="diagram-node context">
+            <h4>Forbidden at Round 0</h4>
+            <p>No same-target sweep summaries, no same-target diagnostic sidecars, no human-authored notes such as “default-favored” or “noise helps.”</p>
+          </div>
+        </div>
+
+        <div class="diagram-arrow">→</div>
+
+        <div class="stack">
+          <div class="diagram-node llm">
+            <h4>Gemma 4 31B Cold-Start Planner</h4>
+            <p>The model receives a <code>ColdStartTTOState</code> and must choose one first executable action with a falsifiable hypothesis.</p>
+          </div>
+          <div class="diagram-arrow">↓</div>
+          <div class="diagram-node compile">
+            <h4>Compiler and Validator</h4>
+            <p>The action is compiled only if it matches the executable registry and budget rules.</p>
+          </div>
+        </div>
+
+        <div class="diagram-arrow">→</div>
+
+        <div class="stack">
+          <div class="diagram-node outcome">
+            <h4>First Real TTO Run</h4>
+            <p>The proposal becomes the first same-target evidence. Only after this step does replay/follow-up mode begin to exist.</p>
+          </div>
+        </div>
+      </div>
+      <p class="diagram-caption">Cold-start and replay answer different questions. The page now treats them as separate benchmarks.</p>
+    </div>
 
     <div class="table-wrap">
       <table>
@@ -876,46 +1017,43 @@
         </tr>
         <tr>
           <td><strong>PDL1</strong></td>
-          <td>Easy / default-favored target</td>
-          <td>Avoid unnecessary escalation</td>
-          <td>Negative control for over-reactive agent behavior</td>
+          <td>Structured target with abundant literature</td>
+          <td>See whether the model infers a conservative first move without being told it is easy</td>
+          <td>Tests whether the agent can resist inventing unnecessary complexity on a target that looks tractable</td>
         </tr>
         <tr>
           <td><strong>CD45</strong></td>
-          <td>Geometry-limited hard target</td>
-          <td>Prefer geometry-opening search before sequence-focused refinement</td>
-          <td>Tests whether the controller reads diagnostic structure correctly</td>
+          <td>Likely geometry-sensitive hard target</td>
+          <td>See whether the model prefers search-opening actions over premature sequence refinement</td>
+          <td>Tests whether structural context alone can suggest a geometry bottleneck hypothesis</td>
         </tr>
         <tr>
           <td><strong>SC2RBD</strong></td>
-          <td>Zero-hit hard frontier target</td>
-          <td>Escalate earlier to heavier search such as MCTS</td>
-          <td>Tests whether the agent spends budget aggressively when beam-family actions remain closed</td>
+          <td>Frontier-like target with rich external biology context</td>
+          <td>See whether the model proposes an earlier aggressive search action under uncertainty</td>
+          <td>Tests whether literature and structural context can justify stronger first-round escalation</td>
         </tr>
       </table>
     </div>
 
-    <h3>Working command skeleton</h3>
+    <h3>Cold-start command skeleton</h3>
     <pre><code># 1. Free retrieval
 python script_utils/retrieve_target_literature.py ...
 
 # 2. Target context enrichment
 python script_utils/build_target_context_bundle.py ...
 
-# 3. Diagnostic summary from existing runs
-python script_utils/build_diagnostic_sidecar.py ...
+# 3. Cold-start state without same-target results
+#    build ColdStartTTOState from context + budget only
 
-# 4. Compact TTO state
-python script_utils/build_tto_state.py ...
-
-# 5. Gemma 4 31B prompt -> TTOActionProposal
-# 6. Compile and validate
+# 4. Gemma 4 31B prompt -> first TTOActionProposal
+# 5. Compile and validate
 python script_utils/compile_tto_action.py ...
 
-# 7. Replay or live launch</code></pre>
+# 6. First real run</code></pre>
 
     <div class="callout warn">
-      <p><strong>Do not skip the replay benchmark.</strong> If the controller cannot beat or match the current rule-based policy on offline replay, it is not ready to spend new GPU budget in a live loop.</p>
+      <p><strong>Methodological rule.</strong> Do not call a result “target understanding” if the input already contains same-target human-designed conclusions. Replay remains useful, but it is a different benchmark.</p>
     </div>
   </div>
 
