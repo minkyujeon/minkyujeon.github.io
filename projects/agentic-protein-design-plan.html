@@ -390,6 +390,7 @@
       <li><a href="#diagram">Pipeline Diagram</a></li>
       <li><a href="#contracts">Executable Contracts</a></li>
       <li><a href="#retrieval">Free Retrieval and Analysis Stack</a></li>
+      <li><a href="#target-analysis">Target-Side Hardness Priors</a></li>
       <li><a href="#actions">Executable TTO Action Space</a></li>
       <li><a href="#replay-results">Historical Replay Result</a></li>
       <li><a href="#evaluation">Evaluation Ladder</a></li>
@@ -770,8 +771,81 @@ optional local PDF / note cache</code></pre>
     </div>
   </div>
 
+  <div class="section" id="target-analysis">
+    <h2>6. Target-Side Hardness Priors</h2>
+
+    <p>
+      When hard targets show low interface metrics such as <code>iPAE</code> and <code>pLDDT</code>, the useful cold-start
+      question is not simply “is this target hard?” The better question is:
+      <strong>what target-side properties make interface formation likely to be unstable, ambiguous, or state-dependent?</strong>
+    </p>
+
+    <div class="callout">
+      <p><strong>Interpretation rule.</strong> These priors are not meant to replace actual same-target runs. They are meant to provide a rational prior for the <em>first</em> TTO action before any same-target evidence exists.</p>
+    </div>
+
+    <h3>Proxy groups worth extracting</h3>
+    <div class="table-wrap">
+      <table>
+        <tr>
+          <th style="width: 20%;">Proxy group</th>
+          <th style="width: 38%;">Example fields</th>
+          <th style="width: 42%;">Why it matters for hard targets</th>
+        </tr>
+        <tr>
+          <td><strong>Flexibility / state uncertainty</strong></td>
+          <td>missing residues near hotspot, B-factor summary, altloc fraction, loop fraction, multi-structure hotspot RMSD, AFDB hotspot pLDDT, optional BioEmu hotspot RMSF</td>
+          <td>High target flexibility can make the hotspot poorly defined, so low interface metrics may reflect target heterogeneity rather than only poor search.</td>
+        </tr>
+        <tr>
+          <td><strong>Hotspot accessibility difficulty</strong></td>
+          <td>hotspot patch compactness, surface exposure proxy, recessedness / depth proxy, fragmentation, distance span, neighbor density</td>
+          <td>A diffuse, fragmented, or partially buried hotspot is harder to hit with a compact de novo binder and may justify broader search at round 0.</td>
+        </tr>
+        <tr>
+          <td><strong>Biochemical occlusion</strong></td>
+          <td>glycosylation near hotspot, PTM warning, disulfide-rich neighborhood, multimer overlap, receptor overlap, membrane proximity</td>
+          <td>The hotspot may be nominally known but practically difficult to access because the local biochemical context blocks or constrains binding.</td>
+        </tr>
+        <tr>
+          <td><strong>Interface geometry burden</strong></td>
+          <td>multichain requirement, discontinuous hotspot segments, local curvature proxy, required contact span, charge heterogeneity, hydrophobic patch fraction</td>
+          <td>Targets that require broad or discontinuous contact geometry are more likely to need exploration-heavy first actions.</td>
+        </tr>
+      </table>
+    </div>
+
+    <h3>Cheap defaults vs advanced optional tools</h3>
+    <div class="table-wrap">
+      <table>
+        <tr>
+          <th style="width: 22%;">Tier</th>
+          <th style="width: 38%;">Tools</th>
+          <th style="width: 40%;">Role</th>
+        </tr>
+        <tr>
+          <td><strong>Cheap / default</strong></td>
+          <td>PDB/mmCIF parsing, DSSP-style secondary structure, solvent accessibility, residue-neighborhood counts, local curvature / compactness proxies, literature claim extraction</td>
+          <td>Should be the default cold-start layer because these are inexpensive and deterministic.</td>
+        </tr>
+        <tr>
+          <td><strong>Advanced / optional</strong></td>
+          <td>AFDB lookup, multiple experimental structures, BioEmu target ensembles, MD-derived mobility summaries, curated PTM / glycan annotation</td>
+          <td>Useful when state uncertainty is the main suspected difficulty, but should remain additive rather than mandatory.</td>
+        </tr>
+      </table>
+    </div>
+
+    <h3>How these should reach the LLM</h3>
+    <p>
+      The controller should not receive dozens of raw proxy values. The builder should collapse them into compact risk summaries such as:
+      <code>flexibility_risk</code>, <code>hotspot_accessibility_risk</code>, <code>state_uncertainty_risk</code>, and
+      <code>geometry_burden_risk</code>, plus a short list of top structural reasons.
+    </p>
+  </div>
+
   <div class="section" id="actions">
-    <h2>6. Executable TTO Action Space</h2>
+    <h2>7. Executable TTO Action Space</h2>
 
     <p>
       The action space must stay aligned with what can actually be launched. If the current stack cannot execute an action
@@ -829,7 +903,7 @@ optional local PDF / note cache</code></pre>
   </div>
 
   <div class="section" id="replay-results">
-    <h2>7. Historical Replay Result</h2>
+    <h2>8. Historical Replay Result</h2>
 
     <div class="callout warn">
       <p><strong>Important boundary.</strong> The following result is a <strong>historical replay / follow-up decision</strong> benchmark. It is not a cold-start benchmark. The agent was given same-target local summaries and seeded diagnostics derived from completed human-designed runs.</p>
@@ -915,7 +989,7 @@ optional local PDF / note cache</code></pre>
   </div>
 
   <div class="section" id="evaluation">
-    <h2>8. Evaluation Ladder</h2>
+    <h2>9. Evaluation Ladder</h2>
 
     <div class="card-grid">
       <div class="card">
@@ -964,7 +1038,7 @@ optional local PDF / note cache</code></pre>
   </div>
 
   <div class="section" id="status">
-    <h2>9. Current Implementation Status</h2>
+    <h2>10. Current Implementation Status</h2>
 
     <div class="checklist">
       <div class="checklist-item">
@@ -1003,7 +1077,7 @@ optional local PDF / note cache</code></pre>
   </div>
 
   <div class="section" id="next">
-    <h2>10. Cold-Start Next Step</h2>
+    <h2>11. Cold-Start Next Step</h2>
 
     <p>
       The most rigorous next move is now <strong>cold-start target understanding</strong>. Build round-0 inputs that contain
