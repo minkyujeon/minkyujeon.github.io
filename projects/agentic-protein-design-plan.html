@@ -645,38 +645,38 @@
     <h2>5. Free Retrieval and Analysis Stack</h2>
 
     <p>
-      Literature retrieval is useful if it is <strong>structured, free, and subordinate to local evidence</strong>.
-      The first version should therefore use a local-first stack: retrieve from free APIs, compress into compact summaries,
-      combine with structure and sequence analysis, and then pass that into the LLM.
+      Literature retrieval is useful only if it is <strong>structured, multi-source, and compressed into decision-facing fields</strong>.
+      The goal is not to dump papers into the prompt. The goal is to build a compact target-context object that helps the
+      model form a first TTO hypothesis.
     </p>
 
     <div class="card-grid">
       <div class="card">
         <span class="tag tag-blue">Free API</span>
-        <h3>Europe PMC retrieval</h3>
-      <p>
-        The retrieval prototype queries the free Europe PMC REST API, stores query provenance, and returns compact records
-        with titles, abstracts, IDs, citation counts, and landing pages. This is the correct first retrieval tool because it is auditable and cost-free.
-      </p>
+        <h3>Multi-source paper search</h3>
+        <p>
+          The next retrieval layer should aggregate <strong>PubMed</strong>, <strong>PMC / Europe PMC</strong>,
+          <strong>bioRxiv / medRxiv</strong>, <strong>arXiv</strong>, and optional local PDF caches, then deduplicate and rerank before anything reaches the model.
+        </p>
       </div>
       <div class="card">
         <span class="tag tag-green">Local analysis</span>
         <h3>Structure and sequence parsing</h3>
         <p>
-          Target structures are parsed into chain lengths, hotspot coverage, multichain flags, residue neighborhoods, and compact summaries before they reach the model.
-          The goal is evidence compression, not raw coordinate dumping.
+          Target structures should be parsed into chain lengths, hotspot coverage, residue neighborhoods, surface / loop proxies,
+          multichain flags, and structural risk flags before they reach the model. The goal is evidence compression, not raw coordinate dumping.
         </p>
       </div>
       <div class="card">
         <span class="tag tag-gold">Control principle</span>
-        <h3>Literature should not outrank trace evidence</h3>
+        <h3>Field contract comes first</h3>
         <p>
-          The controller should prefer same-target run evidence first, then target-specific context, then literature priors, and only then cross-target transfer heuristics.
+          Before expanding retrieval breadth, the project should fix exactly which identity, structure, hotspot, and literature-claim fields are allowed into the LLM context.
         </p>
       </div>
     </div>
 
-    <h3>Recommended local-first tool order</h3>
+    <h3>Recommended multi-source tool order</h3>
     <div class="table-wrap">
       <table>
         <tr>
@@ -689,13 +689,13 @@
           <td><code>retrieve_target_literature.py</code></td>
           <td>Target-conditioned literature retrieval</td>
           <td><code>TargetLiteratureRetrieval</code></td>
-          <td>Free, structured, and cached by query</td>
+          <td>Should expand from Europe PMC-only to PubMed / PMC / bioRxiv / arXiv aggregation with dedup and rerank</td>
         </tr>
         <tr>
           <td><code>build_target_context_bundle.py</code></td>
           <td>Context enrichment</td>
           <td><code>TargetContextBundle</code></td>
-          <td>Merges hotspots, structures, notes, and literature summaries</td>
+          <td>Merges target identity, hotspots, structures, sequence features, risk flags, and literature claims</td>
         </tr>
         <tr>
           <td><code>build_diagnostic_sidecar.py</code></td>
@@ -712,17 +712,61 @@
       </table>
     </div>
 
-    <h3>Example free retrieval command</h3>
-    <pre><code>python script_utils/retrieve_target_literature.py \
-  --target-id 02_PDL1 \
-  --query "PD-L1 binder epitope" \
-  --query "CD274 structure interface immune checkpoint" \
-  --page-size 6 \
-  --has-abstract-only \
-  --output /tmp/pdl1_literature.json</code></pre>
+    <h3>What should actually go into the LLM context</h3>
+    <div class="table-wrap">
+      <table>
+        <tr>
+          <th style="width: 24%;">Field group</th>
+          <th style="width: 38%;">Examples</th>
+          <th style="width: 38%;">Why it matters</th>
+        </tr>
+        <tr>
+          <td><strong>Target identity</strong></td>
+          <td><code>display_name</code>, aliases, gene/protein synonyms, chain IDs, total residues</td>
+          <td>Necessary for query expansion, deduplication, and exact-match literature reranking.</td>
+        </tr>
+        <tr>
+          <td><strong>Hotspot context</strong></td>
+          <td><code>known_hotspots</code>, hotspot residue types, local neighbor density, surface / loop proxy</td>
+          <td>Helps the agent reason about accessibility, geometry, and whether simple beam search is likely to be enough.</td>
+        </tr>
+        <tr>
+          <td><strong>Structure summary</strong></td>
+          <td>chain lengths, multichain flag, hotspot coverage, residue composition, optional secondary-structure context</td>
+          <td>Provides the minimum structural picture without dumping raw coordinates.</td>
+        </tr>
+        <tr>
+          <td><strong>Structural risk flags</strong></td>
+          <td>conformation-sensitive, long flexible loop, glycan/PTM warning, interface accessibility warning</td>
+          <td>These are the strongest cold-start hints for whether the first action should be conservative or exploration-heavy.</td>
+        </tr>
+        <tr>
+          <td><strong>Literature retrieval summary</strong></td>
+          <td>source, PMID/DOI/arXiv id, title, year, query, exact-match flag, why-kept</td>
+          <td>Keeps provenance auditable and prevents the model from treating all papers as equally relevant.</td>
+        </tr>
+        <tr>
+          <td><strong>Literature claims</strong></td>
+          <td>interface/epitope claims, conformation/state claims, known binder precedent, negative constraints</td>
+          <td>The model should reason over claims, not over raw abstract text.</td>
+        </tr>
+        <tr>
+          <td><strong>Decision-facing summary</strong></td>
+          <td><code>compact_facts</code>, warnings, structural hypotheses, cross-target priors if allowed</td>
+          <td>This is the final compressed context that should directly support the first TTO hypothesis.</td>
+        </tr>
+      </table>
+    </div>
+
+    <h3>Cold-start retrieval sources</h3>
+    <pre><code>PubMed
+PMC / Europe PMC
+bioRxiv / medRxiv
+arXiv
+optional local PDF / note cache</code></pre>
 
     <div class="callout warn">
-      <p><strong>Do not start with unrestricted browsing.</strong> The first retrieval version should use structured API queries and explicit caching, otherwise the benchmark quickly becomes non-reproducible.</p>
+      <p><strong>Do not start with unrestricted browsing or raw abstract dumps.</strong> The retrieval layer should normalize, deduplicate, rerank, and compress evidence into explicit fields and claims before the model sees it.</p>
     </div>
   </div>
 
