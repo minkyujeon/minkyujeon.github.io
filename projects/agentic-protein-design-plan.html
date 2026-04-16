@@ -25,6 +25,8 @@
     --red-light: #fee2e2;
     --gold: #92400e;
     --gold-light: #fef3c7;
+    --purple: #6d28d9;
+    --purple-light: #ede9fe;
     --code-bg: #eef2f7;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -46,14 +48,14 @@
   .hero .breadcrumb { font-size: 0.85rem; color: #94a3b8; margin-bottom: 16px; }
   .hero .breadcrumb a { color: #99f6e4; text-decoration: none; }
   .hero h1 {
-    font-size: 2.3rem;
+    font-size: 2.36rem;
     font-weight: 800;
     line-height: 1.18;
     margin-bottom: 14px;
-    max-width: 860px;
+    max-width: 900px;
   }
   .hero .subtitle {
-    max-width: 860px;
+    max-width: 900px;
     color: #d7e3f3;
     font-size: 1.05rem;
     line-height: 1.65;
@@ -81,6 +83,7 @@
   .tag-orange { background: var(--orange-light); color: var(--orange); }
   .tag-red { background: var(--red-light); color: var(--red); }
   .tag-gold { background: var(--gold-light); color: var(--gold); }
+  .tag-purple { background: var(--purple-light); color: var(--purple); }
   .main { max-width: 1040px; margin: 0 auto; padding: 34px 24px 88px; }
   .page-nav {
     display: flex;
@@ -105,7 +108,7 @@
     color: var(--accent-dark);
     border-color: #99f6e4;
   }
-  .toc, .card, .diagram-shell, .callout, .checklist, .status-board {
+  .toc, .card, .diagram-shell, .callout, .checklist, .status-board, .draft-block {
     background: rgba(255, 255, 255, 0.9);
     border: 1px solid var(--border);
     border-radius: 16px;
@@ -150,11 +153,16 @@
     margin-bottom: 12px;
   }
   .section li { margin-bottom: 5px; }
+  .lede {
+    font-size: 1.02rem;
+    color: var(--text);
+    margin-bottom: 14px;
+  }
   .card {
     padding: 22px 24px;
     margin-bottom: 16px;
   }
-  .card-grid {
+  .card-grid, .two-up {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 16px;
@@ -225,7 +233,7 @@
   }
   .status-row {
     display: grid;
-    grid-template-columns: 180px 1fr;
+    grid-template-columns: 210px 1fr;
     border-bottom: 1px solid #edf2f7;
   }
   .status-row:last-child { border-bottom: none; }
@@ -238,6 +246,21 @@
   .status-row .value {
     padding: 14px 16px;
     color: var(--muted);
+  }
+  .draft-block {
+    padding: 20px 22px;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, rgba(219, 234, 254, 0.42), rgba(255, 255, 255, 0.96));
+  }
+  .draft-block p:last-child { margin-bottom: 0; }
+  .draft-block .mini-label {
+    display: inline-block;
+    margin-bottom: 10px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--blue);
   }
   .diagram-shell {
     padding: 26px;
@@ -279,6 +302,7 @@
   .diagram-node.llm { border-left: 5px solid var(--accent); }
   .diagram-node.compile { border-left: 5px solid var(--gold); }
   .diagram-node.outcome { border-left: 5px solid var(--green); }
+  .diagram-node.memory { border-left: 5px solid var(--purple); }
   .diagram-arrow {
     text-align: center;
     color: var(--accent-dark);
@@ -334,9 +358,13 @@
   }
   .footer a { color: var(--accent-dark); text-decoration: none; }
   @media (min-width: 880px) {
-    .diagram-stage {
+    .diagram-stage.default {
       grid-template-columns: 1.1fr 80px 1.1fr 80px 1.1fr;
       align-items: center;
+    }
+    .diagram-stage.wide {
+      grid-template-columns: 1fr 56px 1fr 56px 1fr 56px 1fr;
+      align-items: start;
     }
     .diagram-stage .stack {
       display: grid;
@@ -348,7 +376,11 @@
     }
   }
   @media (max-width: 879px) {
-    .diagram-stage { grid-template-columns: 1fr; }
+    .diagram-stage,
+    .diagram-stage.default,
+    .diagram-stage.wide {
+      grid-template-columns: 1fr;
+    }
     .status-row { grid-template-columns: 1fr; }
   }
 </style>
@@ -358,18 +390,18 @@
 <div class="hero">
   <div class="container">
     <div class="breadcrumb"><a href="/">Minkyu Jeon</a> / <a href="/projects/">Projects</a> / <a href="/projects/agentic-protein-design.html">Agentic Protein Design</a></div>
-    <h1>Agentic Inference-Time Scaling for Proteina-Complexa</h1>
+    <h1>Inference Software Search for Agentic Protein Design</h1>
     <p class="subtitle">
-      Revised working plan for a <strong>fixed-weight Proteina-Complexa model</strong>: enrich target context with
-      free literature retrieval and structural analysis, convert local traces into a compact state, let a local
-      <strong>Gemma 4 31B</strong> model propose the next executable TTO action, then compile and validate that action
-      before any GPU time is spent.
+      Revised plan for a <strong>frozen protein generator checkpoint</strong>: search over executable local inference
+      software, let an LLM write and mutate bounded program code, inject ideas from literature and prior runs, execute
+      those programs in a reproducible sandbox, and improve them with tree search under a matched-budget biological score.
     </p>
     <div class="meta">
       <span>Minkyu Jeon</span>
       <span>Princeton University</span>
-      <span>April 15, 2026</span>
-      <span><span class="tag tag-accent">Agentic TTO v2</span></span>
+      <span>April 16, 2026</span>
+      <span><span class="tag tag-accent">Frozen Checkpoint</span></span>
+      <span><span class="tag tag-purple">Mutable Inference Software</span></span>
     </div>
   </div>
 </div>
@@ -385,183 +417,236 @@
   <div class="toc">
     <h3>Contents</h3>
     <ol>
-      <li><a href="#read-first">Read This First</a></li>
-      <li><a href="#thesis">Thesis and System Boundary</a></li>
-      <li><a href="#diagram">Pipeline Diagram</a></li>
-      <li><a href="#contracts">Executable Contracts</a></li>
-      <li><a href="#retrieval">Free Retrieval and Analysis Stack</a></li>
-      <li><a href="#target-analysis">Target-Side Hardness Priors</a></li>
-      <li><a href="#ultimate-goal">Ultimate Agent Goal</a></li>
-      <li><a href="#actions">Executable TTO Action Space</a></li>
-      <li><a href="#replay-results">Historical Replay Result</a></li>
-      <li><a href="#evaluation">Evaluation Ladder</a></li>
-      <li><a href="#status">Current Implementation Status</a></li>
-      <li><a href="#next">Cold-Start Next Step</a></li>
+      <li><a href="#diagnosis">Objective Diagnosis</a></li>
+      <li><a href="#thesis">Revised Thesis and Boundary</a></li>
+      <li><a href="#framing">Intro and Contributions Draft</a></li>
+      <li><a href="#diagram">System Diagram</a></li>
+      <li><a href="#bundle">Search Object: Local Inference Program</a></li>
+      <li><a href="#loop">Search Loop and Paper Mapping</a></li>
+      <li><a href="#human">Human Design and Idea Injection</a></li>
+      <li><a href="#evaluation">Evaluation and Baselines</a></li>
+      <li><a href="#plan">Implementation Plan</a></li>
+      <li><a href="#status">Current Status and Immediate Next Step</a></li>
     </ol>
   </div>
 
-  <div class="section" id="read-first">
-    <h2>1. Read This First</h2>
+  <div class="section" id="diagnosis">
+    <h2>1. Objective Diagnosis</h2>
+
+    <p class="lede">
+      The earlier controller-centric plan was rigorous, auditable, and useful for replay analysis, but it was too narrow
+      to capture the real opportunity opened by the empirical-software paper. The stronger object is not a one-step
+      TTO router. It is a <strong>bounded search over executable inference software</strong> built around a frozen
+      checkpoint.
+    </p>
 
     <div class="callout">
-      <p><strong>Core decision:</strong> the right object is not a generic protein-research agent and not a binder generator. The right object is an <strong>agentic TTO controller</strong> around a fixed Proteina-Complexa model.</p>
+      <p><strong>Bottom line.</strong> The plan is now clear enough to support a stronger paper: freeze the generator
+      checkpoint and evaluator, let the LLM mutate bounded local inference programs, inject ideas from literature and
+      prior programs, execute each candidate under matched budget, and use tree search to improve the program archive
+      over time.</p>
     </div>
 
     <div class="status-board">
       <div class="status-row">
-        <div class="label">What is fixed</div>
-        <div class="value">Proteina-Complexa checkpoint, evaluation criteria, SLURM environment, and the real search / refinement operators that already exist in the local stack.</div>
+        <div class="label">What was strong</div>
+        <div class="value">The earlier plan already had good discipline around budget matching, deterministic compilation, replay versus cold-start separation, and structured diagnostics.</div>
       </div>
       <div class="status-row">
-        <div class="label">What the agent changes</div>
-        <div class="value">Which TTO operator to run next, how to use budget, when to escalate, and how target-specific context should influence that decision.</div>
+        <div class="label">What was too narrow</div>
+        <div class="value">A planner that emits only the next operator leaves too much value on the table. It cannot express trajectory control, post-generation repair, cross-framework recombination, or target-specific orchestration logic.</div>
       </div>
       <div class="status-row">
-        <div class="label">What literature does</div>
-        <div class="value">It enriches target context. In replay it should not override same-target local trace evidence. In cold-start it becomes one of the main target-specific evidence sources.</div>
+        <div class="label">Correct fixed boundary</div>
+        <div class="value">Freeze the model checkpoint, budget, evaluation harness, and safety constraints. Do not freeze one specific codebase if that prevents meaningful inference-software search.</div>
       </div>
       <div class="status-row">
-        <div class="label">What success means</div>
-        <div class="value">Better next-step decisions under matched budget, then eventually better hits-per-GPU-hour or matched-budget unique successes than static or rule-based baselines.</div>
+        <div class="label">Correct mutable boundary</div>
+        <div class="value">Mutate only bounded inference software around the checkpoint: scouting logic, trajectory branching, diagnostics, refinement calls, reranking, escalation rules, and stopping logic.</div>
       </div>
       <div class="status-row">
-        <div class="label">Current clarification</div>
-        <div class="value">Historical replay and cold-start target understanding are now treated as two different benchmarks. The replay result is useful, but it is not evidence of round-0 target understanding.</div>
+        <div class="label">Main scientific opportunity</div>
+        <div class="value">Recombination is real here. Complexa-native TTO, BindCraft-style post-generation repair, hallucination, and diffusion-trajectory control can be treated as reusable executable motifs rather than isolated baselines.</div>
+      </div>
+      <div class="status-row">
+        <div class="label">Main risk</div>
+        <div class="value">If mutable code is unconstrained, compute will explode and attribution will collapse. The project therefore needs a bounded program API and a fixed matched-budget score before any serious search loop is run.</div>
       </div>
     </div>
-
-    <h3>Concrete evaluation of the current plan</h3>
 
     <div class="card-grid">
       <div class="card">
         <span class="tag tag-green">Strong</span>
-        <h3>Correct unit of decision</h3>
-        <p>The agent is judged on <code>state -&gt; diagnosis -&gt; next action -&gt; outcome</code>, not on vague biological commentary and not on one-shot binder generation.</p>
+        <h3>Local execution unit</h3>
+        <p>The right node is still a local target-specific inference program. That keeps evaluation concrete and prevents the search object from becoming too vague.</p>
       </div>
       <div class="card">
         <span class="tag tag-green">Strong</span>
-        <h3>Deterministic boundaries</h3>
-        <p>Context enrichment, state building, compilation, and validation are deterministic. The LLM owns only the diagnosis and next-action proposal stage.</p>
-      </div>
-      <div class="card">
-        <span class="tag tag-green">Strong</span>
-        <h3>Executable action space</h3>
-        <p>The controller proposes only real actions already tied to the local stack: beam variants, MCTS, sequence hallucination, reranking, or stop/collect-more-data.</p>
+        <h3>Paper alignment</h3>
+        <p>The plan now matches the empirical-software paper much more closely: idea injection, code mutation, sandbox execution, scoring, tree search, and backpropagation.</p>
       </div>
       <div class="card">
         <span class="tag tag-orange">Needs discipline</span>
-        <h3>Literature as enrichment, not master signal</h3>
-        <p>The plan stays correct only if target-specific literature remains a context layer below same-target local evidence. Otherwise the controller will overfit to generic biology.</p>
+        <h3>Bounded mutable scope</h3>
+        <p>The LLM should not edit arbitrary project code. It should write a constrained local program bundle that calls into a frozen model and an audited evaluator.</p>
       </div>
       <div class="card">
         <span class="tag tag-orange">Needs discipline</span>
-        <h3>Local-first retrieval stack</h3>
-        <p>Free web retrieval should start with structured Europe PMC queries and local note caches, not unrestricted browsing. The goal is auditable retrieval, not chatty search.</p>
+        <h3>Replay is no longer the main story</h3>
+        <p>Replay remains useful, but it becomes a debugging benchmark. The main result should be matched-budget improvement from searched inference programs.</p>
       </div>
-      <div class="card">
-        <span class="tag tag-green">Now concrete</span>
-        <h3>Contracts exist</h3>
-        <p>The project now has concrete schemas and scripts for <code>TargetContextBundle</code>, <code>TTOState</code>, <code>TTOActionProposal</code>, and <code>TTO Run Manifest</code>.</p>
-      </div>
-    </div>
-
-    <div class="callout warn">
-      <p><strong>Bottom line.</strong> The plan is now rigorous enough to support both a real offline replay controller and a stricter cold-start benchmark. The main remaining work is not architecture; it is keeping those two evaluation modes separate and comparing each honestly against the right baseline.</p>
     </div>
   </div>
 
   <div class="section" id="thesis">
-    <h2>2. Thesis and System Boundary</h2>
+    <h2>2. Revised Thesis and Boundary</h2>
 
-    <p>
-      The central thesis is narrow and testable: <strong>an LLM can improve inference-time scaling in Proteina-Complexa
-      by choosing better test-time actions</strong>. The model does not need to generate protein binders directly. It needs
-      to read a compact, tool-grounded state and propose the next executable TTO move under a fixed budget.
+    <p class="lede">
+      The central thesis is now: <strong>protein binder design can be cast as a scorable search over local inference
+      software built around a frozen protein-generation checkpoint.</strong> The LLM is not just a planner. It is a
+      proposal, mutation, and recombination engine over bounded executable programs.
     </p>
+
+    <div class="callout">
+      <p><strong>Core framing.</strong> The project should be described as <strong>fixed foundation model, mutable
+      inference software</strong>. The search object is a local inference program. Cross-target transfer enters through
+      reusable motifs and prior programs, not by replacing local execution with a single global policy.</p>
+    </div>
 
     <div class="table-wrap">
       <table>
         <tr>
-          <th style="width: 24%;">Surface</th>
-          <th style="width: 38%;">Fixed</th>
-          <th style="width: 38%;">Variable / agent-controlled</th>
+          <th style="width: 22%;">Surface</th>
+          <th style="width: 36%;">Fixed</th>
+          <th style="width: 42%;">Mutable / searched</th>
         </tr>
         <tr>
-          <td><strong>Model layer</strong></td>
-          <td>Proteina-Complexa checkpoint, evaluation script, success thresholds</td>
-          <td>None in v1 of the controller</td>
+          <td><strong>Foundation model</strong></td>
+          <td>Checkpoint weights, model I/O interface, reproducibility constraints</td>
+          <td>None. The checkpoint is the experimental anchor.</td>
         </tr>
         <tr>
-          <td><strong>TTO layer</strong></td>
-          <td>Real search families already in the stack</td>
-          <td>Which operator to run, whether to escalate, when to stop</td>
+          <td><strong>Inference software</strong></td>
+          <td>Bounded API and allowed imports</td>
+          <td>Scouting logic, trajectory branching, diagnostics, refinement calls, reranking, escalation, and stopping.</td>
         </tr>
         <tr>
-          <td><strong>Context layer</strong></td>
-          <td>Known hotspots, local structures, prior run artifacts</td>
-          <td>Whether to enrich with literature snippets, prior episode retrieval, and structure/sequence analysis</td>
+          <td><strong>Auxiliary methods</strong></td>
+          <td>Allow-list of permitted external methods</td>
+          <td>Whether and how to invoke BindCraft-style repair, hallucination-style rescue, physics reranking, or literature-derived trajectory ideas.</td>
         </tr>
         <tr>
-          <td><strong>Budget layer</strong></td>
-          <td>Total GPU budget and hardware availability</td>
-          <td>Budget split across initial arms or later rounds</td>
+          <td><strong>Evaluation</strong></td>
+          <td>Matched-budget evaluator, success thresholds, logging format</td>
+          <td>None. Candidates compete under the same score definition.</td>
+        </tr>
+        <tr>
+          <td><strong>Idea sources</strong></td>
+          <td>Literature retrieval stack, archive schema, expert-hint format</td>
+          <td>Which ideas are injected into the next mutation prompt and how they are recombined.</td>
         </tr>
       </table>
     </div>
 
     <div class="card">
-      <h3>Why the nanobody paper still matters</h3>
+      <h3>Why this boundary is stronger</h3>
       <p>
-        The agent-guided nanobody work is relevant for one reason only: it uses the LLM as an <strong>orchestration
-        layer over deterministic evidence</strong>. That division of labor transfers well. Its domain-specific wet-lab
-        funnel, hotspot discovery logic, and candidate-selection details do not need to be copied literally.
+        Freezing the checkpoint creates a fair scientific comparison while leaving enough freedom for the search to matter.
+        If the codebase itself is treated as sacred, the search space becomes too narrow. If the foundation model is mutable,
+        attribution collapses. Freezing the generator but searching over surrounding inference software is the right balance.
       </p>
+    </div>
+  </div>
+
+  <div class="section" id="framing">
+    <h2>3. Intro and Contributions Draft</h2>
+
+    <div class="two-up">
+      <div class="draft-block">
+        <span class="mini-label">Draft Intro</span>
+        <p>
+          Recent work has shown that large language models can search over program space by proposing, executing, and
+          revising code under an automated score. We adapt this idea to protein binder design by treating inference-time
+          control around a frozen protein-generation checkpoint as executable empirical software. Instead of asking an LLM
+          only to choose the next operator, we ask it to write, mutate, and recombine local inference programs that
+          allocate budget, control diffusion trajectories, invoke post-generation refinement, summarize diagnostics, and
+          decide when to escalate or stop. Each candidate program is executed in a reproducible sandbox and scored by
+          matched-budget biological outcomes. Tree search then uses these scores and structured failure metadata to decide
+          which program to mutate next. This framing turns agentic protein design from a vague planning problem into a
+          concrete, auditable search over inference software.
+        </p>
+      </div>
+
+      <div class="draft-block">
+        <span class="mini-label">Draft Contributions</span>
+        <ul>
+          <li>We formulate protein binder inference-time optimization as a <strong>scorable search over local inference programs</strong> built around a frozen checkpoint.</li>
+          <li>We introduce a bounded mutable program interface spanning scouting, trajectory control, diagnostics, refinement, reranking, escalation, and stopping.</li>
+          <li>We enable <strong>code-level mutation and recombination</strong> across reusable motifs drawn from Complexa-native TTO, BindCraft-style repair, hallucination, and literature-derived trajectory control.</li>
+          <li>We pair scalar program scores with a <strong>diagnostic sidecar</strong> that preserves geometry, sequence, physics, and redesign-limited failure modes during search.</li>
+          <li>We evaluate the system under replay, cold-start, and live matched-budget settings using unique successes, efficiency, regret, and ablations over recombination and retrieval.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>Paper-level consequence.</strong> This is no longer just a routing paper. The main story becomes
+      <strong>LLM-guided search over inference software</strong>, with replay accuracy treated as a secondary diagnostic rather than the main endpoint.</p>
     </div>
   </div>
 
   <div class="section" id="diagram">
-    <h2>3. Pipeline Diagram</h2>
+    <h2>4. System Diagram</h2>
 
     <div class="diagram-shell">
-      <div class="diagram-stage">
+      <div class="diagram-stage wide">
         <div class="stack">
           <div class="diagram-node fixed">
-            <h4>Fixed Assets</h4>
-            <p>Proteina-Complexa checkpoint, success metric, evaluation script, per-target compute budget, and SLURM execution environment.</p>
+            <h4>Problem Setting</h4>
+            <p>Frozen checkpoint, target protein, allowed auxiliary methods, matched-budget evaluator, and reproducibility constraints.</p>
           </div>
-          <div class="diagram-arrow">↓</div>
           <div class="diagram-node context">
-            <h4>Stage A0: Context Enrichment</h4>
-            <p>Known hotspots, target structures, free literature retrieval, local notes, sequence analysis, and structure analysis produce a <code>TargetContextBundle</code>.</p>
+            <h4>Idea Sources</h4>
+            <p>Literature, prior successful and failed programs, expert hints, and cross-framework motifs from Complexa TTO, BindCraft, hallucination, and trajectory-control papers.</p>
             <div class="pill-row">
-              <span class="mini-pill">Europe PMC</span>
-              <span class="mini-pill">Biopython-style parsing</span>
-              <span class="mini-pill">Local notes</span>
+              <span class="mini-pill">Literature</span>
+              <span class="mini-pill">Episode archive</span>
+              <span class="mini-pill">Expert hints</span>
             </div>
           </div>
-          <div class="diagram-arrow">↓</div>
-          <div class="diagram-node context">
-            <h4>Stage A: State Builder</h4>
-            <p>Prior run CSVs, diagnostic sidecars, attempted operators, and budget metadata are compressed into a compact <code>TTOState</code>.</p>
-          </div>
         </div>
 
         <div class="diagram-arrow">→</div>
 
         <div class="stack">
+          <div class="diagram-node memory">
+            <h4>Program Tree</h4>
+            <p>Each node is one local target-specific inference program, not a vague action label and not a global controller.</p>
+          </div>
           <div class="diagram-node llm">
-            <h4>Stage B: Gemma 4 31B</h4>
-            <p>The LLM reads the state, forms a bottleneck hypothesis, and emits a single structured <code>TTOActionProposal</code> with evidence, confidence, and fallback.</p>
+            <h4>Proposal / Mutation Agent</h4>
+            <p>The LLM writes or rewrites bounded program code using the current best program, injected ideas, and diagnostic traces.</p>
           </div>
-          <div class="diagram-arrow">↓</div>
           <div class="diagram-node compile">
-            <h4>Stage C: Deterministic Compiler + Validator</h4>
-            <p>The proposed action is accepted only if it matches the operator registry, target ID, round index, and positive remaining budget. Output: exact Hydra overrides and <code>TTO Run Manifest</code>.</p>
+            <h4>Compiler + Safety Validator</h4>
+            <p>Program bundle is accepted only if it respects the API contract, import allow-list, budget rules, and logging requirements.</p>
           </div>
-          <div class="diagram-arrow">↓</div>
+        </div>
+
+        <div class="diagram-arrow">→</div>
+
+        <div class="stack">
+          <div class="diagram-node context">
+            <h4>Execution Sandbox</h4>
+            <p>Run the candidate program on the frozen generator: scout, branch, refine, rerank, escalate, or stop.</p>
+          </div>
+          <div class="diagram-node context">
+            <h4>Structured Program Stages</h4>
+            <p>Pre-generation control, in-trajectory control, post-generation refinement, and selection logic all live inside the mutable program bundle.</p>
+          </div>
           <div class="diagram-node outcome">
-            <h4>Stage D: Run, Summarize, Reflect</h4>
-            <p>Proteina-Complexa runs, evaluation outputs are summarized, and the next trace episode is written for replay or live control.</p>
+            <h4>Matched-Budget Evaluation</h4>
+            <p>Compute unique successes, efficiency, diversity, runtime validity, and any other fixed outcome metrics.</p>
           </div>
         </div>
 
@@ -569,607 +654,158 @@
 
         <div class="stack">
           <div class="diagram-node outcome">
-            <h4>Episode Store / Memory</h4>
-            <p>Each round stores state, diagnosis, action, outcome, and reflection. This supports offline replay first and live control later.</p>
+            <h4>RankScore + Diagnostic Sidecar</h4>
+            <p>Collapse outcomes to a scalar tree-search score while preserving structured failure metadata for future mutations.</p>
           </div>
-          <div class="diagram-arrow">↓</div>
-          <div class="diagram-node fixed">
-            <h4>Comparison Baselines</h4>
-            <p>Static default policy and existing rule-based routing policy stay in the loop as the real baselines to beat.</p>
+          <div class="diagram-node memory">
+            <h4>Tree Search Controller</h4>
+            <p>Use PUCT or related search to select which node to expand next and backpropagate visits, rewards, and metadata.</p>
+          </div>
+          <div class="diagram-node memory">
+            <h4>Recipe Library and Episode Archive</h4>
+            <p>Promising motifs become reusable priors for future targets, but execution and scoring remain local and target-specific.</p>
           </div>
         </div>
       </div>
-      <p class="diagram-caption">
-        The crucial architectural choice is that <strong>only the diagnosis / action proposal stage is LLM-owned</strong>.
-        Everything else is deterministic, auditable, and replayable.
-      </p>
-    </div>
-  </div>
-
-  <div class="section" id="contracts">
-    <h2>4. Executable Contracts</h2>
-
-    <p>
-      The plan is only real if every stage emits a compact artifact that the next stage can consume without human interpretation.
-      The current working execution spec is centered on four required objects.
-    </p>
-
-    <div class="table-wrap">
-      <table>
-        <tr>
-          <th style="width: 22%;">Artifact</th>
-          <th style="width: 42%;">What it contains</th>
-          <th style="width: 36%;">Why it matters</th>
-        </tr>
-        <tr>
-          <td><strong>TargetLiteratureRetrieval</strong></td>
-          <td>Structured results from free Europe PMC queries: title, abstract, year, citation count, DOI/PMID/PMCID, and query provenance.</td>
-          <td>Gives target-specific prior context without forcing raw browsing into the LLM prompt.</td>
-        </tr>
-        <tr>
-          <td><strong>TargetContextBundle</strong></td>
-          <td>Hotspot-aware structure summaries, chain counts, chain lengths, compact local notes, and optional retrieved literature summaries.</td>
-          <td>Bridges biology / structure information into the routing stack.</td>
-        </tr>
-        <tr>
-          <td><strong>TTOState</strong></td>
-          <td>Target context summary + diagnostic summary + attempted operators + budget state + provenance.</td>
-          <td>Defines the exact LLM input for a routing decision.</td>
-        </tr>
-        <tr>
-          <td><strong>TTOActionProposal</strong></td>
-          <td>Diagnosis label, bottleneck hypothesis, recommended next action, fallback, expected observable, confidence, and evidence.</td>
-          <td>Forces the LLM to make one falsifiable, executable recommendation.</td>
-        </tr>
-        <tr>
-          <td><strong>TTO Run Manifest</strong></td>
-          <td>Exact Hydra overrides, run name, run directory, nsamples, and compile-time validation flags.</td>
-          <td>Eliminates ambiguous interpretation of LLM prose before launch.</td>
-        </tr>
-      </table>
-    </div>
-
-    <pre><code>TargetLiteratureRetrieval
-  -> TargetContextBundle
-  -> TTOState
-  -> Gemma 4 31B
-  -> TTOActionProposal
-  -> TTO Run Manifest
-  -> Proteina-Complexa run
-  -> TraceEpisode</code></pre>
-
-    <div class="callout">
-      <p><strong>Hard rule.</strong> The compile step must fail closed. Invalid actions are rejected. They are never silently mapped to a nearby action.</p>
-    </div>
-  </div>
-
-  <div class="section" id="retrieval">
-    <h2>5. Free Retrieval and Analysis Stack</h2>
-
-    <p>
-      Literature retrieval is useful only if it is <strong>structured, multi-source, and compressed into decision-facing fields</strong>.
-      The goal is not to dump papers into the prompt. The goal is to build a compact target-context object that helps the
-      model form a first TTO hypothesis.
-    </p>
-
-    <div class="card-grid">
-      <div class="card">
-        <span class="tag tag-blue">Free API</span>
-        <h3>Multi-source paper search</h3>
-        <p>
-          The next retrieval layer should aggregate <strong>PubMed</strong>, <strong>PMC / Europe PMC</strong>,
-          <strong>bioRxiv / medRxiv</strong>, <strong>arXiv</strong>, and optional local PDF caches, then deduplicate and rerank before anything reaches the model.
-        </p>
-      </div>
-      <div class="card">
-        <span class="tag tag-green">Local analysis</span>
-        <h3>Structure and sequence parsing</h3>
-        <p>
-          Target structures should be parsed into chain lengths, hotspot coverage, residue neighborhoods, surface / loop proxies,
-          multichain flags, and structural risk flags before they reach the model. The goal is evidence compression, not raw coordinate dumping.
-        </p>
-      </div>
-      <div class="card">
-        <span class="tag tag-gold">Control principle</span>
-        <h3>Field contract comes first</h3>
-        <p>
-          Before expanding retrieval breadth, the project should fix exactly which identity, structure, hotspot, and literature-claim fields are allowed into the LLM context.
-        </p>
-      </div>
-    </div>
-
-    <h3>Recommended multi-source tool order</h3>
-    <div class="table-wrap">
-      <table>
-        <tr>
-          <th style="width: 24%;">Tool</th>
-          <th style="width: 28%;">Role</th>
-          <th style="width: 24%;">Output</th>
-          <th style="width: 24%;">Why it belongs</th>
-        </tr>
-        <tr>
-          <td><code>retrieve_target_literature.py</code></td>
-          <td>Target-conditioned literature retrieval</td>
-          <td><code>TargetLiteratureRetrieval</code></td>
-          <td>Should expand from Europe PMC-only to PubMed / PMC / bioRxiv / arXiv aggregation with dedup and rerank</td>
-        </tr>
-        <tr>
-          <td><code>build_target_context_bundle.py</code></td>
-          <td>Context enrichment</td>
-          <td><code>TargetContextBundle</code></td>
-          <td>Merges target identity, hotspots, structures, sequence features, risk flags, and literature claims</td>
-        </tr>
-        <tr>
-          <td><code>build_diagnostic_sidecar.py</code></td>
-          <td>Run artifact parsing</td>
-          <td>Target diagnostic summary</td>
-          <td>Used only after at least one same-target round exists; not allowed in cold-start mode</td>
-        </tr>
-        <tr>
-          <td><code>build_tto_state.py</code></td>
-          <td>State compilation</td>
-          <td><code>TTOState</code></td>
-          <td>Defines the exact LLM input contract</td>
-        </tr>
-      </table>
-    </div>
-
-    <h3>What should actually go into the LLM context</h3>
-    <div class="table-wrap">
-      <table>
-        <tr>
-          <th style="width: 24%;">Field group</th>
-          <th style="width: 38%;">Examples</th>
-          <th style="width: 38%;">Why it matters</th>
-        </tr>
-        <tr>
-          <td><strong>Target identity</strong></td>
-          <td><code>display_name</code>, aliases, gene/protein synonyms, chain IDs, total residues</td>
-          <td>Necessary for query expansion, deduplication, and exact-match literature reranking.</td>
-        </tr>
-        <tr>
-          <td><strong>Hotspot context</strong></td>
-          <td><code>known_hotspots</code>, hotspot residue types, local neighbor density, surface / loop proxy</td>
-          <td>Helps the agent reason about accessibility, geometry, and whether simple beam search is likely to be enough.</td>
-        </tr>
-        <tr>
-          <td><strong>Structure summary</strong></td>
-          <td>chain lengths, multichain flag, hotspot coverage, residue composition, optional secondary-structure context</td>
-          <td>Provides the minimum structural picture without dumping raw coordinates.</td>
-        </tr>
-        <tr>
-          <td><strong>Structural risk flags</strong></td>
-          <td>conformation-sensitive, long flexible loop, glycan/PTM warning, interface accessibility warning</td>
-          <td>These are the strongest cold-start hints for whether the first action should be conservative or exploration-heavy.</td>
-        </tr>
-        <tr>
-          <td><strong>Literature retrieval summary</strong></td>
-          <td>source, PMID/DOI/arXiv id, title, year, query, exact-match flag, why-kept</td>
-          <td>Keeps provenance auditable and prevents the model from treating all papers as equally relevant.</td>
-        </tr>
-        <tr>
-          <td><strong>Literature claims</strong></td>
-          <td>interface/epitope claims, conformation/state claims, known binder precedent, negative constraints</td>
-          <td>The model should reason over claims, not over raw abstract text.</td>
-        </tr>
-        <tr>
-          <td><strong>Decision-facing summary</strong></td>
-          <td><code>compact_facts</code>, warnings, structural hypotheses, cross-target priors if allowed</td>
-          <td>This is the final compressed context that should directly support the first TTO hypothesis.</td>
-        </tr>
-      </table>
-    </div>
-
-    <h3>Cold-start retrieval sources</h3>
-    <pre><code>PubMed
-PMC / Europe PMC
-bioRxiv / medRxiv
-arXiv
-optional local PDF / note cache</code></pre>
-
-    <div class="callout warn">
-      <p><strong>Do not start with unrestricted browsing or raw abstract dumps.</strong> The retrieval layer should normalize, deduplicate, rerank, and compress evidence into explicit fields and claims before the model sees it.</p>
-    </div>
-  </div>
-
-  <div class="section" id="target-analysis">
-    <h2>6. Target-Side Hardness Priors</h2>
-
-    <p>
-      When hard targets show low interface metrics such as <code>iPAE</code> and <code>pLDDT</code>, the useful cold-start
-      question is not simply “is this target hard?” The better question is:
-      <strong>what target-side properties make interface formation likely to be unstable, ambiguous, or state-dependent?</strong>
-    </p>
-
-    <div class="callout">
-      <p><strong>Interpretation rule.</strong> These priors are not meant to replace actual same-target runs. They are meant to provide a rational prior for the <em>first</em> TTO action before any same-target evidence exists.</p>
-    </div>
-
-    <h3>Proxy groups worth extracting</h3>
-    <div class="table-wrap">
-      <table>
-        <tr>
-          <th style="width: 20%;">Proxy group</th>
-          <th style="width: 38%;">Example fields</th>
-          <th style="width: 42%;">Why it matters for hard targets</th>
-        </tr>
-        <tr>
-          <td><strong>Flexibility / state uncertainty</strong></td>
-          <td>missing residues near hotspot, B-factor summary, altloc fraction, loop fraction, multi-structure hotspot RMSD, AFDB hotspot pLDDT, optional BioEmu hotspot RMSF</td>
-          <td>High target flexibility can make the hotspot poorly defined, so low interface metrics may reflect target heterogeneity rather than only poor search.</td>
-        </tr>
-        <tr>
-          <td><strong>Hotspot accessibility difficulty</strong></td>
-          <td>hotspot patch compactness, surface exposure proxy, recessedness / depth proxy, fragmentation, distance span, neighbor density</td>
-          <td>A diffuse, fragmented, or partially buried hotspot is harder to hit with a compact de novo binder and may justify broader search at round 0.</td>
-        </tr>
-        <tr>
-          <td><strong>Biochemical occlusion</strong></td>
-          <td>glycosylation near hotspot, PTM warning, disulfide-rich neighborhood, multimer overlap, receptor overlap, membrane proximity</td>
-          <td>The hotspot may be nominally known but practically difficult to access because the local biochemical context blocks or constrains binding.</td>
-        </tr>
-        <tr>
-          <td><strong>Interface geometry burden</strong></td>
-          <td>multichain requirement, discontinuous hotspot segments, local curvature proxy, required contact span, charge heterogeneity, hydrophobic patch fraction</td>
-          <td>Targets that require broad or discontinuous contact geometry are more likely to need exploration-heavy first actions.</td>
-        </tr>
-      </table>
-    </div>
-
-    <h3>Cheap defaults vs advanced optional tools</h3>
-    <div class="table-wrap">
-      <table>
-        <tr>
-          <th style="width: 22%;">Tier</th>
-          <th style="width: 38%;">Tools</th>
-          <th style="width: 40%;">Role</th>
-        </tr>
-        <tr>
-          <td><strong>Cheap / default</strong></td>
-          <td>PDB/mmCIF parsing, DSSP-style secondary structure, solvent accessibility, residue-neighborhood counts, local curvature / compactness proxies, literature claim extraction</td>
-          <td>Should be the default cold-start layer because these are inexpensive and deterministic.</td>
-        </tr>
-        <tr>
-          <td><strong>Advanced / optional</strong></td>
-          <td>AFDB lookup, multiple experimental structures, BioEmu target ensembles, MD-derived mobility summaries, curated PTM / glycan annotation</td>
-          <td>Useful when state uncertainty is the main suspected difficulty, but should remain additive rather than mandatory.</td>
-        </tr>
-      </table>
-    </div>
-
-    <h3>How these should reach the LLM</h3>
-    <p>
-      The controller should not receive dozens of raw proxy values. The builder should collapse them into compact risk summaries such as:
-      <code>flexibility_risk</code>, <code>hotspot_accessibility_risk</code>, <code>state_uncertainty_risk</code>, and
-      <code>geometry_burden_risk</code>, plus a short list of top structural reasons.
-    </p>
-
-    <div class="callout">
-      <p><strong>Important nuance.</strong> These four target-side groups are not the final goal. They are the current best human-designed scaffold for cold-start target understanding. The long-term goal is for the agent itself to decide which of these questions matter for a given target and which tool outputs it needs next.</p>
-    </div>
-  </div>
-
-  <div class="section" id="ultimate-goal">
-    <h2>7. Ultimate Agent Goal</h2>
-
-    <p>
-      The ideal system is not one where the human permanently hard-codes a checklist such as
-      <code>flexibility_risk</code> or <code>hotspot_accessibility_risk</code> and the LLM passively consumes it.
-      The ideal system is more agentic:
-      <strong>the model should infer what information is missing, decide which tool to call, read the result, and update its hypothesis.</strong>
-    </p>
-
-    <div class="card-grid">
-      <div class="card">
-        <span class="tag tag-gold">Current practical mode</span>
-        <h3>Human-designed scaffold</h3>
-        <p>
-          The current plan uses structured target-side fields because they are auditable, cheap, and reproducible.
-          They give the controller a disciplined starting point for cold-start reasoning.
-        </p>
-      </div>
-      <div class="card">
-        <span class="tag tag-accent">Ultimate mode</span>
-        <h3>Tool-using information seeker</h3>
-        <p>
-          The long-term controller should look at a target, recognize uncertainty, ask what information would reduce that uncertainty,
-          and then choose retrieval or analysis tools accordingly.
-        </p>
-      </div>
-    </div>
-
-    <h3>What the mature loop should do</h3>
-    <div class="table-wrap">
-      <table>
-        <tr>
-          <th style="width: 22%;">Step</th>
-          <th style="width: 38%;">Agent question</th>
-          <th style="width: 40%;">Expected behavior</th>
-        </tr>
-        <tr>
-          <td><strong>1. Initial read</strong></td>
-          <td>What about this target is currently unknown?</td>
-          <td>Identify gaps such as flexibility, hotspot exposure, multistate ambiguity, or literature uncertainty.</td>
-        </tr>
-        <tr>
-          <td><strong>2. Tool choice</strong></td>
-          <td>Which evidence would reduce the most uncertainty?</td>
-          <td>Call retrieval, structure-analysis, alias expansion, AFDB lookup, or optional ensemble tools as needed.</td>
-        </tr>
-        <tr>
-          <td><strong>3. Hypothesis update</strong></td>
-          <td>Given the new evidence, what seems to be the main target-side burden?</td>
-          <td>Update the target hypothesis rather than restating generic biology.</td>
-        </tr>
-        <tr>
-          <td><strong>4. First action</strong></td>
-          <td>Under the current budget, what first TTO action is now most justified?</td>
-          <td>Emit one executable <code>TTOActionProposal</code> plus the expected observable.</td>
-        </tr>
-      </table>
-    </div>
-
-    <h3>Why the current structured fields still matter</h3>
-    <p>
-      Even in that more agentic future, a constrained tool registry and structured outputs are still necessary.
-      The model should be free to decide <em>what it needs to know</em>, but not free to emit unauditable or non-executable actions.
-      So the right end state is:
-      <strong>agent decides what to ask for, while tools and output contracts remain constrained.</strong>
-    </p>
-  </div>
-
-  <div class="section" id="actions">
-    <h2>8. Executable TTO Action Space</h2>
-
-    <p>
-      The action space must stay aligned with what can actually be launched. If the current stack cannot execute an action
-      and log it cleanly, that action should not be part of the required controller benchmark.
-    </p>
-
-    <div class="table-wrap">
-      <table>
-        <tr>
-          <th style="width: 26%;">Action</th>
-          <th style="width: 34%;">When it is appropriate</th>
-          <th style="width: 40%;">Why the compiler needs it</th>
-        </tr>
-        <tr>
-          <td><code>collect-more-data</code></td>
-          <td>Too few candidates or too much uncertainty to route confidently</td>
-          <td>Lets the agent admit uncertainty without inventing a stronger action</td>
-        </tr>
-        <tr>
-          <td><code>scale-default</code></td>
-          <td>Easy or saturated targets where escalation is more likely to add variance than gain</td>
-          <td>Captures the "do not overreact" branch for easy targets like PDL1</td>
-        </tr>
-        <tr>
-          <td><code>stochastic-beam-search</code></td>
-          <td>Geometry-limited targets that need more opening in search</td>
-          <td>Provides a concrete non-generic "be more diverse" move</td>
-        </tr>
-        <tr>
-          <td><code>diverse-beam-search</code></td>
-          <td>Ambiguous targets where preserving diversity is safer than heavier escalation</td>
-          <td>Matches the current routing vocabulary and diversity-aware search logic</td>
-        </tr>
-        <tr>
-          <td><code>mcts</code></td>
-          <td>Zero-hit frontier targets or cases where beam-family actions remain closed</td>
-          <td>Represents a clear escalation step under the current stack</td>
-        </tr>
-        <tr>
-          <td><code>sequence_hallucination</code></td>
-          <td>Sequence-limited targets where geometry is present but local sequence edits remain weak</td>
-          <td>Separates geometry-opening from sequence-fixing</td>
-        </tr>
-        <tr>
-          <td><code>physics-sidecar-rerank</code></td>
-          <td>Optional later action if physics-sidecar signals are wired and trustworthy</td>
-          <td>Kept optional until the execution path is fully audited</td>
-        </tr>
-      </table>
+      <p class="diagram-caption">The page now treats the search object as local inference software around a frozen checkpoint. Global transfer enters through motifs and archives, not through replacing local execution with one monolithic policy.</p>
     </div>
 
     <div class="callout">
-      <p><strong>Important constraint.</strong> The agent must emit one action from the registry, not prose such as “try something stronger” or “search more broadly.”</p>
+      <p><strong>Key design choice.</strong> This diagram retains the local program as the execution unit while making
+      recombination explicit. That is the cleanest way to combine V3 locality with the empirical-software paper's
+      mutation-and-search loop.</p>
     </div>
   </div>
 
-  <div class="section" id="replay-results">
-    <h2>9. Historical Replay Result</h2>
+  <div class="section" id="bundle">
+    <h2>5. Search Object: Local Inference Program</h2>
 
-    <div class="callout warn">
-      <p><strong>Important boundary.</strong> The following result is a <strong>historical replay / follow-up decision</strong> benchmark. It is not a cold-start benchmark. The agent was given same-target local summaries and seeded diagnostics derived from completed human-designed runs.</p>
-    </div>
-
-    <p>
-      Before moving to cold-start target understanding, the pipeline was tested in replay mode: feed Gemma 4 31B a compact
-      <code>TTOState</code> plus a <code>TargetContextBundle</code>, both built from existing target summaries, and ask for one
-      executable <code>TTOActionProposal</code>. This benchmark answers a narrow question:
-      <strong>does the LLM follow the same broad routing logic that the human-designed campaign already discovered?</strong>
+    <p class="lede">
+      The node in the search tree is an executable <strong>local inference program</strong> for one target. It is code,
+      not prose. Transfer enters only through idea injection and motif reuse.
     </p>
 
-    <h3>What the replay input actually contained</h3>
     <div class="table-wrap">
       <table>
         <tr>
-          <th style="width: 24%;">Artifact</th>
-          <th style="width: 40%;">What went in</th>
-          <th style="width: 36%;">Interpretation</th>
+          <th style="width: 24%;">Bounded interface</th>
+          <th style="width: 48%;">Role in the program</th>
+          <th style="width: 28%;">Why it matters</th>
         </tr>
         <tr>
-          <td><strong><code>TargetContextBundle</code></strong></td>
-          <td>Structure summary, hotspots, and a short human-authored same-target note summarizing the local lesson.</td>
-          <td>Useful for replay, but not acceptable for round-0 cold-start because it leaks the answer.</td>
+          <td><code>prepare_target(...)</code></td>
+          <td>Build target-conditioned context, preprocessing choices, and any initial target-specific priors.</td>
+          <td>Keeps target handling explicit and reproducible.</td>
         </tr>
         <tr>
-          <td><strong><code>TTOState</code></strong></td>
-          <td>Budget, round index, attempted operators, and a seeded <code>diagnostic_state</code> with self success, MPNN success, geometry pass, and dominant failure mode.</td>
-          <td>This is explicitly same-target local evidence derived from completed runs.</td>
+          <td><code>generate_or_branch(...)</code></td>
+          <td>Controls initial arms, branching schedule, restart logic, and trajectory exploration around the frozen generator.</td>
+          <td>Captures the part of the search that config-only optimization cannot express well.</td>
         </tr>
         <tr>
-          <td><strong>Prompt</strong></td>
-          <td>Allowed action registry, evidence hierarchy, JSON output contract, and one-action-only instruction.</td>
-          <td>Constrained the model to produce a compiler-ready next step.</td>
-        </tr>
-      </table>
-    </div>
-
-    <h3>What Gemma 4 31B proposed</h3>
-    <div class="table-wrap">
-      <table>
-        <tr>
-          <th style="width: 17%;">Target</th>
-          <th style="width: 23%;">Replay input signal</th>
-          <th style="width: 18%;">Gemma proposal</th>
-          <th style="width: 18%;">Human-designed conclusion</th>
-          <th style="width: 24%;">Alignment</th>
+          <td><code>summarize_diagnostics(...)</code></td>
+          <td>Compresses outputs into geometry, sequence, physics, redesign-gap, and runtime signals.</td>
+          <td>Makes failure-mode-aware mutation possible.</td>
         </tr>
         <tr>
-          <td><strong>PDL1</strong></td>
-          <td><code>self_success_rate = 1.0</code>, <code>dominant_failure_mode = saturated_or_default_favored</code>, notes that high noise and hallucination hurt</td>
-          <td><code>scale-default</code></td>
-          <td>Do not over-escalate an already open easy target</td>
-          <td><span class="tag tag-green">High</span> The model correctly stayed conservative and rejected noise, hallucination, and heavier search.</td>
+          <td><code>refine_candidates(...)</code></td>
+          <td>Optionally invokes BindCraft-style repair, hallucination-style rescue, or other allow-listed refinements.</td>
+          <td>Where cross-framework recombination becomes concrete.</td>
         </tr>
         <tr>
-          <td><strong>CD45</strong></td>
-          <td>Low self success, high binder RMSD pass, poor interface geometry, geometry-limited label, note that noise helped</td>
-          <td><code>stochastic-beam-search</code><br><span class="note-like">fallback: <code>diverse-beam-search</code></span></td>
-          <td>Open geometry before trying sequence-focused refinement</td>
-          <td><span class="tag tag-green">High</span> The model identified a geometry bottleneck and chose a search-opening action rather than hallucination.</td>
+          <td><code>rerank_and_select(...)</code></td>
+          <td>Filters and reranks candidates based on fixed score proxies, diversity, and diagnostic summaries.</td>
+          <td>Lets the program express geometry-first or physics-aware selection logic.</td>
         </tr>
         <tr>
-          <td><strong>SC2RBD</strong></td>
-          <td>Zero-hit state, geometry-limited-zero-hit label, note that beam-family runs remained closed</td>
-          <td><code>mcts</code><br><span class="note-like">fallback: <code>diverse-beam-search</code></span></td>
-          <td>Escalate earlier to heavier search for a frontier target</td>
-          <td><span class="tag tag-green">High</span> The model matched the intended escalation logic and did not waste another default-style round.</td>
+          <td><code>decide_escalation(...)</code></td>
+          <td>Chooses whether to widen search, run MCTS-like escalation, switch to refinement, or stop.</td>
+          <td>Encodes orchestration as software rather than as a single prompt answer.</td>
+        </tr>
+        <tr>
+          <td><code>should_stop(...)</code></td>
+          <td>Implements budget-aware stopping rules and expected-observable checks.</td>
+          <td>Prevents uncontrolled budget burn.</td>
         </tr>
       </table>
     </div>
 
     <div class="card">
-      <h3>Replay takeaway</h3>
+      <h3>What this keeps clean</h3>
       <p>
-        In replay mode, Gemma 4 31B aligned well with the existing human-designed routing logic on all three targets:
-        <code>PDL1 -&gt; stay conservative</code>, <code>CD45 -&gt; open geometry</code>, <code>SC2RBD -&gt; escalate to MCTS</code>.
-        That is encouraging, but it should be interpreted narrowly. It shows that the model can read a compact same-target
-        state and reproduce the broad conclusion. It does <strong>not</strong> yet show that the model can infer those
-        strategies from the target alone.
+        The checkpoint remains frozen. The evaluator remains fixed. The program is local and executable. That means each
+        node can still be scored fairly on one target, while mutation and recombination remain expressive enough to matter.
       </p>
     </div>
   </div>
 
-  <div class="section" id="evaluation">
-    <h2>10. Evaluation Ladder</h2>
+  <div class="section" id="loop">
+    <h2>6. Search Loop and Paper Mapping</h2>
 
-    <div class="card-grid">
-      <div class="card">
-        <span class="tag tag-blue">Phase 0</span>
-        <h3>Contract hardening</h3>
-        <p>Freeze schemas, operator registry, and compile-time validation before any serious controller experiment.</p>
-      </div>
-      <div class="card">
-        <span class="tag tag-blue">Phase 1</span>
-        <h3>Target context enrichment</h3>
-        <p>Build real <code>TargetContextBundle</code> artifacts for <code>PDL1</code>, <code>CD45</code>, and <code>SC2RBD</code> without leaking same-target local outcomes into the notes.</p>
-      </div>
-      <div class="card">
-        <span class="tag tag-blue">Phase 2</span>
-        <h3>Cold-start benchmark</h3>
-        <p>Give Gemma 4 31B only target-derived context plus budget and ask for the first TTO action. No same-target local traces are allowed.</p>
-      </div>
-      <div class="card">
-        <span class="tag tag-blue">Phase 3</span>
-        <h3>Offline replay benchmark</h3>
-        <p>Ask Gemma 4 31B to choose the next action for completed episodes under matched budget, then score action regret and routing accuracy.</p>
-      </div>
-      <div class="card">
-        <span class="tag tag-gold">Phase 4</span>
-        <h3>First-campaign planning</h3>
-        <p>Allow small round-0 budget splits, but only after cold-start first-action quality is working.</p>
-      </div>
-      <div class="card">
-        <span class="tag tag-orange">Phase 5</span>
-        <h3>Live two-round controller</h3>
-        <p>Run one real state-action-outcome loop twice and compare against static default and current rule-based routing.</p>
-      </div>
-      <div class="card">
-        <span class="tag tag-green">Phase 6</span>
-        <h3>Retrieval ablations</h3>
-        <p>Compare no enrichment vs structure-only vs structure+literature vs structure+literature+prior episodes, separately for cold-start and replay.</p>
-      </div>
-    </div>
-
-    <h3>Primary metrics</h3>
-    <ul>
-      <li><strong>Scientific:</strong> hits per GPU hour or matched-budget unique successes.</li>
-      <li><strong>Agentic:</strong> cold-start first-action quality, offline routing accuracy, action regret under matched budget, and confidence calibration.</li>
-      <li><strong>Ablation:</strong> gain from context enrichment and retrieval over local-trace-only routing.</li>
-    </ul>
-  </div>
-
-  <div class="section" id="status">
-    <h2>11. Current Implementation Status</h2>
-
-    <div class="checklist">
-      <div class="checklist-item">
-        <span class="check yes">✓</span>
-        <div><strong>Execution contracts are now explicit.</strong> Schemas exist for <code>TargetContextBundle</code>, <code>TTOState</code>, <code>TTOActionProposal</code>, and <code>TTO Run Manifest</code>.</div>
-      </div>
-      <div class="checklist-item">
-        <span class="check yes">✓</span>
-        <div><strong>Deterministic builders exist.</strong> The project now has scripts to build target context, build TTO state, and compile an LLM action into exact Hydra overrides.</div>
-      </div>
-      <div class="checklist-item">
-        <span class="check yes">✓</span>
-        <div><strong>Free retrieval prototype exists.</strong> A Europe PMC retrieval tool is now part of the local stack and can feed literature summaries into the target context bundle.</div>
-      </div>
-      <div class="checklist-item">
-        <span class="check yes">✓</span>
-        <div><strong>Minimum tests pass.</strong> The current contract and retrieval tests pass locally, so the execution path is no longer just prose.</div>
-      </div>
-      <div class="checklist-item">
-        <span class="check yes">✓</span>
-        <div><strong>Replay runner exists and has executed.</strong> Gemma 4 31B replay runs for <code>PDL1</code>, <code>CD45</code>, and <code>SC2RBD</code> completed successfully and produced valid <code>TTOActionProposal</code> outputs.</div>
-      </div>
-      <div class="checklist-item">
-        <span class="check mid">◐</span>
-        <div><strong>Cold-start mode is not wired yet.</strong> The current replay inputs still include same-target human-authored notes and seeded diagnostics, so they do not test round-0 target understanding.</div>
-      </div>
-      <div class="checklist-item">
-        <span class="check mid">◐</span>
-        <div><strong>Also missing:</strong> a fully wired live harness that takes the compiled manifest, launches the real run, and writes the next trace episode automatically.</div>
-      </div>
-    </div>
-
-    <div class="callout">
-      <p><strong>Interpretation.</strong> The architecture is no longer hand-wavy. Replay has now been demonstrated. The remaining methodological step is to remove same-target leakage and test whether the model can form a useful first action from target-derived evidence alone.</p>
-    </div>
-  </div>
-
-  <div class="section" id="next">
-    <h2>12. Cold-Start Next Step</h2>
-
-    <p>
-      The most rigorous next move is now <strong>cold-start target understanding</strong>. Build round-0 inputs that contain
-      only target-derived context and budget, then ask Gemma 4 31B for the <strong>first</strong> TTO action without any
-      same-target local result summaries.
+    <p class="lede">
+      The search loop can now follow the empirical-software paper closely, but with a protein-design-specific bounded API.
     </p>
 
+    <div class="table-wrap">
+      <table>
+        <tr>
+          <th style="width: 27%;">Paper method</th>
+          <th style="width: 33%;">This project</th>
+          <th style="width: 40%;">Concrete instantiation here</th>
+        </tr>
+        <tr>
+          <td>Scorable task</td>
+          <td>Matched-budget binder design problem</td>
+          <td>Target protein, frozen checkpoint, fixed budget, and fixed success metric.</td>
+        </tr>
+        <tr>
+          <td>Idea injection</td>
+          <td>Literature, prior programs, expert hints</td>
+          <td>Inject Complexa motifs, BindCraft repair, hallucination rescue, diffusion-control ideas, and prior episode lessons.</td>
+        </tr>
+        <tr>
+          <td>Current best code</td>
+          <td>Current best local inference program</td>
+          <td>Provide source code, logs, diagnostics, and score trace to the mutation prompt.</td>
+        </tr>
+        <tr>
+          <td>LLM mutation</td>
+          <td>Write or rewrite bounded program code</td>
+          <td>Mutate branching logic, diagnostics, refinement choices, reranking, and stopping rules.</td>
+        </tr>
+        <tr>
+          <td>Sandbox evaluation</td>
+          <td>Run in frozen-checkpoint execution sandbox</td>
+          <td>Compile, validate, execute, and log the candidate program under matched budget.</td>
+        </tr>
+        <tr>
+          <td>Quality score</td>
+          <td>Matched-budget program score</td>
+          <td>Unique successes, success per GPU-hour, diversity-adjusted utility, and validity.</td>
+        </tr>
+        <tr>
+          <td>RankScore and tree search</td>
+          <td>Rank-normalized search over program nodes</td>
+          <td>Use PUCT over noisy, target-specific program outcomes rather than raw comparable losses.</td>
+        </tr>
+        <tr>
+          <td>Backpropagation</td>
+          <td>Visits, rewards, and diagnostic metadata</td>
+          <td>Backpropagate scalar score and preserve structured failure reasons for future mutations.</td>
+        </tr>
+      </table>
+    </div>
+
     <div class="diagram-shell">
-      <div class="diagram-stage">
+      <div class="diagram-stage default">
         <div class="stack">
-          <div class="diagram-node context">
-            <h4>Cold-Start Inputs</h4>
-            <p>Target structure, known hotspots, deterministic structure/sequence analysis, free literature retrieval, and fixed budget.</p>
+          <div class="diagram-node memory">
+            <h4>Current Best Program</h4>
+            <p>Source code, evaluator output, diagnostics, and the current tree position.</p>
           </div>
-          <div class="diagram-arrow">↓</div>
           <div class="diagram-node context">
-            <h4>Forbidden at Round 0</h4>
-            <p>No same-target sweep summaries, no same-target diagnostic sidecars, no human-authored notes such as “default-favored” or “noise helps.”</p>
+            <h4>Injected Ideas</h4>
+            <p>Literature snippets, prior motifs, and targeted expert advice.</p>
           </div>
         </div>
 
@@ -1177,13 +813,12 @@ optional local PDF / note cache</code></pre>
 
         <div class="stack">
           <div class="diagram-node llm">
-            <h4>Gemma 4 31B Cold-Start Planner</h4>
-            <p>The model receives a <code>ColdStartTTOState</code> and must choose one first executable action with a falsifiable hypothesis.</p>
+            <h4>Mutation or Recombination</h4>
+            <p>Rewrite one program, combine two parents, or transfer a motif from prior targets.</p>
           </div>
-          <div class="diagram-arrow">↓</div>
           <div class="diagram-node compile">
-            <h4>Compiler and Validator</h4>
-            <p>The action is compiled only if it matches the executable registry and budget rules.</p>
+            <h4>Compile and Run</h4>
+            <p>Validate the bundle, execute it on the target, and record all structured outcomes.</p>
           </div>
         </div>
 
@@ -1191,68 +826,269 @@ optional local PDF / note cache</code></pre>
 
         <div class="stack">
           <div class="diagram-node outcome">
-            <h4>First Real TTO Run</h4>
-            <p>The proposal becomes the first same-target evidence. Only after this step does replay/follow-up mode begin to exist.</p>
+            <h4>Score and Backpropagate</h4>
+            <p>Update tree statistics, rank score, and diagnostic metadata, then decide which node to expand next.</p>
           </div>
         </div>
       </div>
-      <p class="diagram-caption">Cold-start and replay answer different questions. The page now treats them as separate benchmarks.</p>
+      <p class="diagram-caption">The loop is intentionally close to the paper: ideas in, code mutation, sandbox execution, score, tree search, and repeat.</p>
+    </div>
+
+    <h3>Expansion operators</h3>
+    <div class="table-wrap">
+      <table>
+        <tr>
+          <th style="width: 22%;">Operator</th>
+          <th style="width: 48%;">What it does</th>
+          <th style="width: 30%;">Example</th>
+        </tr>
+        <tr>
+          <td><strong>Mutation</strong></td>
+          <td>Rewrite a single current program to improve one stage of the local inference loop.</td>
+          <td>Change trajectory branching or stopping logic.</td>
+        </tr>
+        <tr>
+          <td><strong>Recombination</strong></td>
+          <td>Combine executable motifs from multiple parents or design traditions.</td>
+          <td>Complexa scouting + BindCraft repair + hallucination rescue.</td>
+        </tr>
+        <tr>
+          <td><strong>Retrieval-conditioned transfer</strong></td>
+          <td>Inject a motif that did well on a similar target or that appears in newly retrieved papers.</td>
+          <td>Add a diffusion restart heuristic from literature.</td>
+        </tr>
+        <tr>
+          <td><strong>Rescue patch</strong></td>
+          <td>Apply a tightly targeted code edit motivated by one dominant failure mode.</td>
+          <td>Patch reranking after repeated geometry-open but selection-failed runs.</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="section" id="human">
+    <h2>7. Human Design and Idea Injection</h2>
+
+    <div class="two-up">
+      <div class="card">
+        <span class="tag tag-gold">Human-designed</span>
+        <h3>What experts still design</h3>
+        <ul>
+          <li>The scorable task, success thresholds, and matched-budget comparison protocol.</li>
+          <li>The bounded mutable API and import allow-list.</li>
+          <li>The frozen checkpoint and the fixed evaluator.</li>
+          <li>The initial seed program library and safety constraints.</li>
+          <li>The small set of expert hints that define the search space responsibly.</li>
+          <li>Manual inspection of top candidates to catch reward hacking or implausible shortcuts.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <span class="tag tag-accent">Injected ideas</span>
+        <h3>What should enter the mutation prompt</h3>
+        <ul>
+          <li>Literature summaries about diffusion control, trajectory steering, interface repair, and binder refinement.</li>
+          <li>Prior successful programs and near-miss programs from related targets.</li>
+          <li>Complexa-native TTO motifs that already show value under this evaluator.</li>
+          <li>BindCraft-style post-generation repair or hallucination-style rescue motifs.</li>
+          <li>Short expert interventions of the form "if X is observed, try Y".</li>
+        </ul>
+      </div>
     </div>
 
     <div class="table-wrap">
       <table>
         <tr>
-          <th style="width: 18%;">Target</th>
-          <th style="width: 28%;">Role in the benchmark</th>
-          <th style="width: 26%;">Expected routing behavior</th>
-          <th style="width: 28%;">Why it is useful</th>
+          <th style="width: 26%;">Idea source</th>
+          <th style="width: 34%;">Representative motif</th>
+          <th style="width: 40%;">How it helps the search</th>
         </tr>
         <tr>
-          <td><strong>PDL1</strong></td>
-          <td>Structured target with abundant literature</td>
-          <td>See whether the model infers a conservative first move without being told it is easy</td>
-          <td>Tests whether the agent can resist inventing unnecessary complexity on a target that looks tractable</td>
+          <td>Complexa-native TTO</td>
+          <td>Scout broadly, diagnose geometry, escalate only on evidence</td>
+          <td>Provides high-quality native program structure and realistic operator combinations.</td>
         </tr>
         <tr>
-          <td><strong>CD45</strong></td>
-          <td>Likely geometry-sensitive hard target</td>
-          <td>See whether the model prefers search-opening actions over premature sequence refinement</td>
-          <td>Tests whether structural context alone can suggest a geometry bottleneck hypothesis</td>
+          <td>BindCraft-style methods</td>
+          <td>Post-generation local repair or gradient-based interface cleanup</td>
+          <td>Adds a strong refinement motif that is hard to recover from config-only search.</td>
         </tr>
         <tr>
-          <td><strong>SC2RBD</strong></td>
-          <td>Frontier-like target with rich external biology context</td>
-          <td>See whether the model proposes an earlier aggressive search action under uncertainty</td>
-          <td>Tests whether literature and structural context can justify stronger first-round escalation</td>
+          <td>Hallucination / redesign</td>
+          <td>Sequence-only rescue after geometry has opened</td>
+          <td>Separates geometry acquisition from local sequence improvement.</td>
+        </tr>
+        <tr>
+          <td>Diffusion-trajectory literature</td>
+          <td>Restart, branch, prune, or noise perturbation rules</td>
+          <td>Introduces new in-trajectory control motifs that are naturally expressed as code.</td>
+        </tr>
+        <tr>
+          <td>Expert advice</td>
+          <td>"Do not spend heavy refinement budget before a plausible interface family appears"</td>
+          <td>Acts like the paper's problem-specific advice that can create score jumps when the search stalls.</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="section" id="evaluation">
+    <h2>8. Evaluation and Baselines</h2>
+
+    <p class="lede">
+      The main result should be matched-budget design improvement, not just replay agreement with a human decision trace.
+      Replay remains useful, but it should be treated as a secondary debugging benchmark.
+    </p>
+
+    <div class="callout warn">
+      <p><strong>Objective assessment.</strong> The old plan over-weighted replay and cold-start routing quality because
+      those were the easiest pieces to audit. The new framing is stronger only if the final paper is willing to center
+      <strong>searched program quality under fixed compute</strong> as the main endpoint.</p>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <tr>
+          <th style="width: 18%;">Benchmark mode</th>
+          <th style="width: 34%;">Question answered</th>
+          <th style="width: 48%;">Recommended use</th>
+        </tr>
+        <tr>
+          <td><strong>Replay</strong></td>
+          <td>Can the system mutate or select a better next program from historical traces?</td>
+          <td>Cheap debugging benchmark for search logic, not the main claim.</td>
+        </tr>
+        <tr>
+          <td><strong>Cold-start</strong></td>
+          <td>Can the system propose a strong first local program from target context and literature alone?</td>
+          <td>Important for generalization, but still secondary to live matched-budget outcomes.</td>
+        </tr>
+        <tr>
+          <td><strong>Live search</strong></td>
+          <td>Does the searched inference program frontier beat strong static baselines under equal budget?</td>
+          <td>Main scientific benchmark.</td>
         </tr>
       </table>
     </div>
 
-    <h3>Cold-start command skeleton</h3>
-    <pre><code># 1. Free retrieval
-python script_utils/retrieve_target_literature.py ...
+    <h3>Primary metrics</h3>
+    <ul>
+      <li><strong>Unique successes at matched budget:</strong> the main score.</li>
+      <li><strong>Success per GPU-hour:</strong> efficiency view of the same search frontier.</li>
+      <li><strong>Regret versus best known executable program:</strong> useful for replay and archive analysis.</li>
+      <li><strong>Compiler validity and runtime robustness:</strong> necessary because the search object is code.</li>
+      <li><strong>Diversity among successes:</strong> useful when many candidates collapse to one family.</li>
+    </ul>
 
-# 2. Target context enrichment
-python script_utils/build_target_context_bundle.py ...
+    <h3>Baselines and ablations</h3>
+    <ul>
+      <li>Static frozen-checkpoint default inference program.</li>
+      <li>Human-written local programs without LLM mutation.</li>
+      <li>Config-only search without code-level mutation.</li>
+      <li>No-recombination ablation.</li>
+      <li>No-literature / no-prior-program ablation.</li>
+      <li>Routing-only controller baseline.</li>
+    </ul>
+  </div>
 
-# 3. Cold-start state without same-target results
-#    build ColdStartTTOState from context + budget only
+  <div class="section" id="plan">
+    <h2>9. Implementation Plan</h2>
 
-# 4. Gemma 4 31B prompt -> first TTOActionProposal
-# 5. Compile and validate
-python script_utils/compile_tto_action.py ...
+    <div class="card-grid">
+      <div class="card">
+        <span class="tag tag-blue">Phase 0</span>
+        <h3>Freeze the true boundary</h3>
+        <p>Choose the checkpoint, fix the evaluator, define the budget unit, and finalize the allow-list of auxiliary methods.</p>
+      </div>
+      <div class="card">
+        <span class="tag tag-blue">Phase 1</span>
+        <h3>Define the mutable program API</h3>
+        <p>Lock the bounded local program interface before any mutation loop starts.</p>
+      </div>
+      <div class="card">
+        <span class="tag tag-blue">Phase 2</span>
+        <h3>Seed the program library</h3>
+        <p>Write a small hand-designed set of initial programs: conservative, geometry-opening, refinement-heavy, and trajectory-control variants.</p>
+      </div>
+      <div class="card">
+        <span class="tag tag-gold">Phase 3</span>
+        <h3>Build the mutation harness</h3>
+        <p>Prompt the LLM with code, diagnostics, and injected ideas; compile; execute; score; archive.</p>
+      </div>
+      <div class="card">
+        <span class="tag tag-orange">Phase 4</span>
+        <h3>Add tree search</h3>
+        <p>Track node visits, rank scores, diagnostic sidecars, and recombination parents; then run PUCT over the archive.</p>
+      </div>
+      <div class="card">
+        <span class="tag tag-green">Phase 5</span>
+        <h3>Run replay, then live search</h3>
+        <p>Use replay for harness debugging and archive analysis, then move quickly to live matched-budget comparisons.</p>
+      </div>
+    </div>
 
-# 6. First real run</code></pre>
+    <h3>Immediate next actions</h3>
+    <pre><code># 1. Freeze boundary
+#    - choose checkpoint
+#    - choose matched-budget score
+#    - define allow-listed auxiliary methods
+#
+# 2. Define bounded LocalInferenceProgram API
+#    prepare_target(...)
+#    generate_or_branch(...)
+#    summarize_diagnostics(...)
+#    refine_candidates(...)
+#    rerank_and_select(...)
+#    decide_escalation(...)
+#    should_stop(...)
+#
+# 3. Seed 4-6 initial local programs
+# 4. Build mutation / compile / execute / archive harness
+# 5. Add tree-search controller over the program archive
+# 6. Run replay for debugging, then live matched-budget experiments</code></pre>
+  </div>
 
-    <div class="callout warn">
-      <p><strong>Methodological rule.</strong> Do not call a result “target understanding” if the input already contains same-target human-designed conclusions. Replay remains useful, but it is a different benchmark.</p>
+  <div class="section" id="status">
+    <h2>10. Current Status and Immediate Next Step</h2>
+
+    <div class="checklist">
+      <div class="checklist-item">
+        <span class="check yes">✓</span>
+        <div><strong>The scientific boundary is now clear.</strong> Freeze the checkpoint and evaluator; search over bounded inference software.</div>
+      </div>
+      <div class="checklist-item">
+        <span class="check yes">✓</span>
+        <div><strong>The replay-oriented controller work was not wasted.</strong> Its diagnostics, retrieval prototypes, and execution discipline become useful scaffolding inside the broader program-search system.</div>
+      </div>
+      <div class="checklist-item">
+        <span class="check mid">◐</span>
+        <div><strong>The bounded program API still needs to be written down explicitly.</strong> That is the next implementation bottleneck.</div>
+      </div>
+      <div class="checklist-item">
+        <span class="check mid">◐</span>
+        <div><strong>The current benchmark story is still too replay-heavy.</strong> The main result should shift to live matched-budget search over executable programs.</div>
+      </div>
+      <div class="checklist-item">
+        <span class="check mid">◐</span>
+        <div><strong>The motif library is conceptually clear but not yet encoded.</strong> Complexa, BindCraft, hallucination, and literature-derived trajectory ideas should be captured as reusable promptable motifs.</div>
+      </div>
+      <div class="checklist-item">
+        <span class="check no">!</span>
+        <div><strong>Unconstrained code mutation should not be allowed.</strong> Without API and evaluator hardening, this project will look broad but not scientific.</div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <p><strong>Recommended immediate move.</strong> Do not spend the next week polishing replay prompts. Spend it
+      freezing the mutable program boundary, writing the bounded local program API, and preparing the first seed program
+      library for a real mutation-and-search harness.</p>
     </div>
   </div>
 
 </div>
 
 <div class="footer">
-  Revised on April 15, 2026. This page supersedes the earlier broader planning page, which is preserved at
+  Revised on April 16, 2026. This page supersedes the earlier controller-centric plan and preserves the prior page at
   <a href="/projects/agentic-protein-design-plan-archive-2026-04-15.html">agentic-protein-design-plan-archive-2026-04-15.html</a>.
 </div>
 
