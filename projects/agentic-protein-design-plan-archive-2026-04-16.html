@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agentic Protein Design Plan — Minkyu Jeon</title>
+<style>
+  :root {
+    --bg: #f4f6f8;
+    --card: #ffffff;
+    --text: #1a2233;
+    --muted: #556074;
+    --accent: #0f766e;
+    --accent-light: #ccfbf1;
+    --accent-dark: #115e59;
+    --border: #dbe3ea;
+    --navy: #0f172a;
+    --blue: #1d4ed8;
+    --blue-light: #dbeafe;
+    --green: #15803d;
+    --green-light: #dcfce7;
+    --orange: #c2410c;
+    --orange-light: #ffedd5;
+    --red: #b91c1c;
+    --red-light: #fee2e2;
+    --gold: #92400e;
+    --gold-light: #fef3c7;
+    --purple: #6d28d9;
+    --purple-light: #ede9fe;
+    --code-bg: #eef2f7;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+    background: radial-gradient(circle at top left, #fbfdff 0%, #f4f6f8 40%, #eef2f7 100%);
+    color: var(--text);
+    line-height: 1.7;
+  }
+  .hero {
+    background:
+      radial-gradient(circle at 15% 20%, rgba(45, 212, 191, 0.18), transparent 24%),
+      radial-gradient(circle at 78% 10%, rgba(37, 99, 235, 0.18), transparent 24%),
+      linear-gradient(135deg, #10253f 0%, #0f172a 62%, #172554 100%);
+    color: #fff;
+    padding: 72px 24px 54px;
+  }
+  .hero .container { max-width: 1040px; margin: 0 auto; }
+  .hero .breadcrumb { font-size: 0.85rem; color: #94a3b8; margin-bottom: 16px; }
+  .hero .breadcrumb a { color: #99f6e4; text-decoration: none; }
+  .hero h1 {
+    font-size: 2.36rem;
+    font-weight: 800;
+    line-height: 1.18;
+    margin-bottom: 14px;
+    max-width: 900px;
+  }
+  .hero .subtitle {
+    max-width: 900px;
+    color: #d7e3f3;
+    font-size: 1.05rem;
+    line-height: 1.65;
+  }
+  .hero .meta {
+    margin-top: 22px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    font-size: 0.84rem;
+    color: #b7c4d8;
+  }
+  .tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 999px;
+  }
+  .tag-accent { background: rgba(45, 212, 191, 0.15); color: #99f6e4; }
+  .tag-blue { background: var(--blue-light); color: var(--blue); }
+  .tag-green { background: var(--green-light); color: var(--green); }
+  .tag-orange { background: var(--orange-light); color: var(--orange); }
+  .tag-red { background: var(--red-light); color: var(--red); }
+  .tag-gold { background: var(--gold-light); color: var(--gold); }
+  .tag-purple { background: var(--purple-light); color: var(--purple); }
+  .main { max-width: 1040px; margin: 0 auto; padding: 34px 24px 88px; }
+  .page-nav {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 26px;
+  }
+  .page-nav a {
+    display: inline-block;
+    text-decoration: none;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.84);
+    color: var(--muted);
+    padding: 10px 14px;
+    border-radius: 999px;
+    font-size: 0.86rem;
+    font-weight: 700;
+    backdrop-filter: blur(10px);
+  }
+  .page-nav a.active {
+    background: var(--accent-light);
+    color: var(--accent-dark);
+    border-color: #99f6e4;
+  }
+  .toc, .card, .diagram-shell, .callout, .checklist, .status-board, .draft-block {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
+  }
+  .toc {
+    padding: 22px 24px;
+    margin-bottom: 32px;
+  }
+  .toc h3 {
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .toc ol { padding-left: 20px; }
+  .toc li { margin-bottom: 5px; }
+  .toc a { color: var(--accent-dark); text-decoration: none; font-size: 0.92rem; }
+  .toc a:hover { text-decoration: underline; }
+  .section { margin-bottom: 56px; }
+  .section h2 {
+    font-size: 1.52rem;
+    font-weight: 800;
+    margin-bottom: 18px;
+    display: inline-block;
+    border-bottom: 3px solid var(--accent);
+    padding-bottom: 8px;
+  }
+  .section h3 {
+    font-size: 1.08rem;
+    font-weight: 800;
+    margin: 20px 0 10px;
+  }
+  .section p, .section li {
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+  .section p { margin-bottom: 12px; }
+  .section ul, .section ol {
+    padding-left: 20px;
+    margin-bottom: 12px;
+  }
+  .section li { margin-bottom: 5px; }
+  .lede {
+    font-size: 1.02rem;
+    color: var(--text);
+    margin-bottom: 14px;
+  }
+  .card {
+    padding: 22px 24px;
+    margin-bottom: 16px;
+  }
+  .card-grid, .two-up {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+  .callout {
+    padding: 16px 18px;
+    border-left: 4px solid var(--accent);
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, rgba(204, 251, 241, 0.85), rgba(255, 255, 255, 0.96));
+  }
+  .callout.warn {
+    border-left-color: var(--orange);
+    background: linear-gradient(135deg, rgba(255, 237, 213, 0.9), rgba(255, 255, 255, 0.96));
+  }
+  .callout p { margin: 0; color: var(--text); }
+  .callout strong { color: var(--accent-dark); }
+  .callout.warn strong { color: var(--orange); }
+  .table-wrap { overflow-x: auto; margin-bottom: 16px; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.86rem;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  th {
+    background: #f7fafc;
+    font-weight: 800;
+    text-align: left;
+    padding: 11px 13px;
+    border-bottom: 2px solid var(--border);
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+  }
+  td {
+    padding: 10px 13px;
+    border-bottom: 1px solid #edf2f7;
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover { background: #fbfdff; }
+  code {
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-size: 0.84rem;
+  }
+  pre {
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 18px 20px;
+    border-radius: 14px;
+    overflow-x: auto;
+    font-size: 0.83rem;
+    line-height: 1.55;
+    margin-bottom: 16px;
+  }
+  pre code { background: none; padding: 0; color: inherit; }
+  .status-board {
+    padding: 0;
+    overflow: hidden;
+    margin-bottom: 18px;
+  }
+  .status-row {
+    display: grid;
+    grid-template-columns: 210px 1fr;
+    border-bottom: 1px solid #edf2f7;
+  }
+  .status-row:last-child { border-bottom: none; }
+  .status-row .label {
+    background: #f8fafc;
+    font-weight: 800;
+    color: var(--text);
+    padding: 14px 16px;
+  }
+  .status-row .value {
+    padding: 14px 16px;
+    color: var(--muted);
+  }
+  .draft-block {
+    padding: 20px 22px;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, rgba(219, 234, 254, 0.42), rgba(255, 255, 255, 0.96));
+  }
+  .draft-block p:last-child { margin-bottom: 0; }
+  .draft-block .mini-label {
+    display: inline-block;
+    margin-bottom: 10px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--blue);
+  }
+  .diagram-shell {
+    padding: 26px;
+    margin-bottom: 18px;
+    background:
+      radial-gradient(circle at top right, rgba(219, 234, 254, 0.9), transparent 26%),
+      radial-gradient(circle at bottom left, rgba(204, 251, 241, 0.9), transparent 24%),
+      rgba(255, 255, 255, 0.96);
+  }
+  .diagram-caption {
+    margin-top: 12px;
+    font-size: 0.86rem;
+    color: var(--muted);
+  }
+  .diagram-stage {
+    display: grid;
+    gap: 14px;
+  }
+  .diagram-node {
+    border-radius: 14px;
+    padding: 18px 18px;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.96);
+    position: relative;
+  }
+  .diagram-node h4 {
+    font-size: 0.96rem;
+    font-weight: 800;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+  .diagram-node p {
+    margin: 0;
+    font-size: 0.88rem;
+    color: var(--muted);
+  }
+  .diagram-node.fixed { border-left: 5px solid var(--navy); }
+  .diagram-node.context { border-left: 5px solid var(--blue); }
+  .diagram-node.llm { border-left: 5px solid var(--accent); }
+  .diagram-node.compile { border-left: 5px solid var(--gold); }
+  .diagram-node.outcome { border-left: 5px solid var(--green); }
+  .diagram-node.memory { border-left: 5px solid var(--purple); }
+  .diagram-arrow {
+    text-align: center;
+    color: var(--accent-dark);
+    font-size: 1.3rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .pill-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+  .mini-pill {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: #f2f6fb;
+    color: var(--muted);
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+  .checklist {
+    padding: 22px 24px;
+    margin-bottom: 16px;
+  }
+  .checklist-item {
+    display: grid;
+    grid-template-columns: 24px 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .checklist-item:last-child { margin-bottom: 0; }
+  .check {
+    width: 24px;
+    height: 24px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.78rem;
+    font-weight: 800;
+  }
+  .check.yes { background: var(--green-light); color: var(--green); }
+  .check.mid { background: var(--gold-light); color: var(--gold); }
+  .check.no { background: var(--red-light); color: var(--red); }
+  .footer {
+    text-align: center;
+    padding: 34px 24px;
+    color: var(--muted);
+    font-size: 0.82rem;
+    border-top: 1px solid var(--border);
+  }
+  .footer a { color: var(--accent-dark); text-decoration: none; }
+  @media (min-width: 880px) {
+    .diagram-stage.default {
+      grid-template-columns: 1.1fr 80px 1.1fr 80px 1.1fr;
+      align-items: center;
+    }
+    .diagram-stage.wide {
+      grid-template-columns: 1fr 56px 1fr 56px 1fr 56px 1fr;
+      align-items: start;
+    }
+    .diagram-stage .stack {
+      display: grid;
+      gap: 14px;
+    }
+    .diagram-stage .stack .diagram-arrow {
+      font-size: 1.1rem;
+      margin: -4px 0;
+    }
+  }
+  @media (max-width: 879px) {
+    .diagram-stage,
+    .diagram-stage.default,
+    .diagram-stage.wide {
+      grid-template-columns: 1fr;
+    }
+    .status-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="container">
+    <div class="breadcrumb"><a href="/">Minkyu Jeon</a> / <a href="/projects/">Projects</a> / <a href="/projects/agentic-protein-design.html">Agentic Protein Design</a></div>
+    <h1>Inference Software Search for Agentic Protein Design</h1>
+    <p class="subtitle">
+      Revised plan for a <strong>frozen protein generator checkpoint</strong>: search over executable local inference
+      software, let an LLM write and mutate bounded program code, inject ideas from literature and prior runs, execute
+      those programs in a reproducible sandbox, and improve them with tree search under a matched-budget biological score.
+    </p>
+    <div class="meta">
+      <span>Minkyu Jeon</span>
+      <span>Princeton University</span>
+      <span>April 16, 2026</span>
+      <span><span class="tag tag-accent">Frozen Checkpoint</span></span>
+      <span><span class="tag tag-purple">Mutable Inference Software</span></span>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="page-nav">
+    <a href="/projects/agentic-protein-design.html">Audited Results Map</a>
+    <a href="/projects/agentic-protein-design-plan.html" class="active">Research Plan &amp; Execution Spec</a>
+    <a href="/projects/agentic-protein-design-plan-archive-2026-04-15.html">Archived Prior Plan Page</a>
+  </div>
+
+  <div class="toc">
+    <h3>Contents</h3>
+    <ol>
+      <li><a href="#diagnosis">Objective Diagnosis</a></li>
+      <li><a href="#thesis">Revised Thesis and Boundary</a></li>
+      <li><a href="#framing">Intro and Contributions Draft</a></li>
+      <li><a href="#diagram">System Diagram</a></li>
+      <li><a href="#bundle">Search Object: Local Inference Program</a></li>
+      <li><a href="#loop">Search Loop and Paper Mapping</a></li>
+      <li><a href="#human">Human Design and Idea Injection</a></li>
+      <li><a href="#evaluation">Evaluation and Baselines</a></li>
+      <li><a href="#plan">Implementation Plan</a></li>
+      <li><a href="#status">Current Status and Immediate Next Step</a></li>
+    </ol>
+  </div>
+
+  <div class="section" id="diagnosis">
+    <h2>1. Objective Diagnosis</h2>
+
+    <p class="lede">
+      The earlier controller-centric plan was rigorous, auditable, and useful for replay analysis, but it was too narrow
+      to capture the real opportunity opened by the empirical-software paper. The stronger object is not a one-step
+      TTO router. It is a <strong>bounded search over executable inference software</strong> built around a frozen
+      checkpoint.
+    </p>
+
+    <div class="callout">
+      <p><strong>Bottom line.</strong> The plan is now clear enough to support a stronger paper: freeze the generator
+      checkpoint and evaluator, let the LLM mutate bounded local inference programs, inject ideas from literature and
+      prior programs, execute each candidate under matched budget, and use tree search to improve the program archive
+      over time.</p>
+    </div>
+
+    <div class="status-board">
+      <div class="status-row">
+        <div class="label">What was strong</div>
+        <div class="value">The earlier plan already had good discipline around budget matching, deterministic compilation, replay versus cold-start separation, and structured diagnostics.</div>
+      </div>
+      <div class="status-row">
+        <div class="label">What was too narrow</div>
+        <div class="value">A planner that emits only the next operator leaves too much value on the table. It cannot express trajectory control, post-generation repair, cross-framework recombination, or target-specific orchestration logic.</div>
+      </div>
+      <div class="status-row">
+        <div class="label">Correct fixed boundary</div>
+        <div class="value">Freeze the model checkpoint, budget, evaluation harness, and safety constraints. Do not freeze one specific codebase if that prevents meaningful inference-software search.</div>
+      </div>
+      <div class="status-row">
+        <div class="label">Correct mutable boundary</div>
+        <div class="value">Mutate only bounded inference software around the checkpoint: scouting logic, trajectory branching, diagnostics, refinement calls, reranking, escalation rules, and stopping logic.</div>
+      </div>
+      <div class="status-row">
+        <div class="label">Main scientific opportunity</div>
+        <div class="value">Recombination is real here. Complexa-native TTO, BindCraft-style post-generation repair, hallucination, and diffusion-trajectory control can be treated as reusable executable motifs rather than isolated baselines.</div>
+      </div>
+      <div class="status-row">
+        <div class="label">Main risk</div>
+        <div class="value">If mutable code is unconstrained, compute will explode and attribution will collapse. The project therefore needs a bounded program API and a fixed matched-budget score before any serious search loop is run.</div>
+      </div>
+    </div>
+
+    <div class="card-grid">
+      <div class="card">
+        <span class="tag tag-green">Strong</span>
+        <h3>Local execution unit</h3>
+        <p>The right node is still a local target-specific inference program. That keeps evaluation concrete and prevents the search object from becoming too vague.</p>
+      </div>
+      <div class="card">
+        <span class="tag tag-green">Strong</span>
+        <h3>Paper alignment</h3>
+        <p>The plan now matches the empirical-software paper much more closely: idea injection, code mutation, sandbox execution, scoring, tree search, and backpropagation.</p>
+      </div>
+      <div class="card">
+        <span class="tag tag-orange">Needs discipline</span>
+        <h3>Bounded mutable scope</h3>
+        <p>The LLM should not edit arbitrary project code. It should write a constrained local program bundle that calls into a frozen model and an audited evaluator.</p>
+      </div>
+      <div class="card">
+        <span class="tag tag-orange">Needs discipline</span>
+        <h3>Replay is no longer the main story</h3>
+        <p>Replay remains useful, but it becomes a debugging benchmark. The main result should be matched-budget improvement from searched inference programs.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="thesis">
+    <h2>2. Revised Thesis and Boundary</h2>
+
+    <p class="lede">
+      The central thesis is now: <strong>protein binder design can be cast as a scorable search over local inference
+      software built around a frozen protein-generation checkpoint.</strong> The LLM is not just a planner. It is a
+      proposal, mutation, and recombination engine over bounded executable programs.
+    </p>
+
+    <div class="callout">
+      <p><strong>Core framing.</strong> The project should be described as <strong>fixed foundation model, mutable
+      inference software</strong>. The search object is a local inference program. Cross-target transfer enters through
+      reusable motifs and prior programs, not by replacing local execution with a single global policy.</p>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <tr>
+          <th style="width: 22%;">Surface</th>
+          <th style="width: 36%;">Fixed</th>
+          <th style="width: 42%;">Mutable / searched</th>
+        </tr>
+        <tr>
+          <td><strong>Foundation model</strong></td>
+          <td>Checkpoint weights, model I/O interface, reproducibility constraints</td>
+          <td>None. The checkpoint is the experimental anchor.</td>
+        </tr>
+        <tr>
+          <td><strong>Inference software</strong></td>
+          <td>Bounded API and allowed imports</td>
+          <td>Scouting logic, trajectory branching, diagnostics, refinement calls, reranking, escalation, and stopping.</td>
+        </tr>
+        <tr>
+          <td><strong>Auxiliary methods</strong></td>
+          <td>Allow-list of permitted external methods</td>
+          <td>Whether and how to invoke BindCraft-style repair, hallucination-style rescue, physics reranking, or literature-derived trajectory ideas.</td>
+        </tr>
+        <tr>
+          <td><strong>Evaluation</strong></td>
+          <td>Matched-budget evaluator, success thresholds, logging format</td>
+          <td>None. Candidates compete under the same score definition.</td>
+        </tr>
+        <tr>
+          <td><strong>Idea sources</strong></td>
+          <td>Literature retrieval stack, archive schema, expert-hint format</td>
+          <td>Which ideas are injected into the next mutation prompt and how they are recombined.</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Why this boundary is stronger</h3>
+      <p>
+        Freezing the checkpoint creates a fair scientific comparison while leaving enough freedom for the search to matter.
+        If the codebase itself is treated as sacred, the search space becomes too narrow. If the foundation model is mutable,
+        attribution collapses. Freezing the generator but searching over surrounding inference software is the right balance.
+      </p>
+    </div>
+  </div>
+
+  <div class="section" id="framing">
+    <h2>3. Intro and Contributions Draft</h2>
+
+    <div class="two-up">
+      <div class="draft-block">
+        <span class="mini-label">Draft Intro</span>
+        <p>
+          Recent work has shown that large language models can search over program space by proposing, executing, and
+          revising code under an automated score. We adapt this idea to protein binder design by treating inference-time
+          control around a frozen protein-generation checkpoint as executable empirical software. Instead of asking an LLM
+          only to choose the next operator, we ask it to write, mutate, and recombine local inference programs that
+          allocate budget, control diffusion trajectories, invoke post-generation refinement, summarize diagnostics, and
+          decide when to escalate or stop. Each candidate program is executed in a reproducible sandbox and scored by
+          matched-budget biological outcomes. Tree search then uses these scores and structured failure metadata to decide
+          which program to mutate next. This framing turns agentic protein design from a vague planning problem into a
+          concrete, auditable search over inference software.
+        </p>
+      </div>
+
+      <div class="draft-block">
+        <span class="mini-label">Draft Contributions</span>
+        <ul>
+          <li>We formulate protein binder inference-time optimization as a <strong>scorable search over local inference programs</strong> built around a frozen checkpoint.</li>
+          <li>We introduce a bounded mutable program interface spanning scouting, trajectory control, diagnostics, refinement, reranking, escalation, and stopping.</li>
+          <li>We enable <strong>code-level mutation and recombination</strong> across reusable motifs drawn from Complexa-native TTO, BindCraft-style repair, hallucination, and literature-derived trajectory control.</li>
+          <li>We pair scalar program scores with a <strong>diagnostic sidecar</strong> that preserves geometry, sequence, physics, and redesign-limited failure modes during search.</li>
+          <li>We evaluate the system under replay, cold-start, and live matched-budget settings using unique successes, efficiency, regret, and ablations over recombination and retrieval.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>Paper-level consequence.</strong> This is no longer just a routing paper. The main story becomes
+      <strong>LLM-guided search over inference software</strong>, with replay accuracy treated as a secondary diagnostic rather than the main endpoint.</p>
+    </div>
+  </div>
+
+  <div class="section" id="diagram">
+    <h2>4. System Diagram</h2>
+
+    <div class="diagram-shell">
+      <div class="diagram-stage wide">
+        <div class="stack">
+          <div class="diagram-node fixed">
+            <h4>Problem Setting</h4>
+            <p>Frozen checkpoint, target protein, allowed auxiliary methods, matched-budget evaluator, and reproducibility constraints.</p>
+          </div>
+          <div class="diagram-node context">
+            <h4>Idea Sources</h4>
+            <p>Literature, prior successful and failed programs, expert hints, and cross-framework motifs from Complexa TTO, BindCraft, hallucination, and trajectory-control papers.</p>
+            <div class="pill-row">
+              <span class="mini-pill">Literature</span>
+              <span class="mini-pill">Episode archive</span>
+              <span class="mini-pill">Expert hints</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="diagram-arrow">→</div>
+
+        <div class="stack">
+          <div class="diagram-node memory">
+            <h4>Program Tree</h4>
+            <p>Each node is one local target-specific inference program, not a vague action label and not a global controller.</p>
+          </div>
+          <div class="diagram-node llm">
+            <h4>Proposal / Mutation Agent</h4>
+            <p>The LLM writes or rewrites bounded program code using the current best program, injected ideas, and diagnostic traces.</p>
+          </div>
+          <div class="diagram-node compile">
+            <h4>Compiler + Safety Validator</h4>
+            <p>Program bundle is accepted only if it respects the API contract, import allow-list, budget rules, and logging requirements.</p>
+          </div>
+        </div>
+
+        <div class="diagram-arrow">→</div>
+
+        <div class="stack">
+          <div class="diagram-node context">
+            <h4>Execution Sandbox</h4>
+            <p>Run the candidate program on the frozen generator: scout, branch, refine, rerank, escalate, or stop.</p>
+          </div>
+          <div class="diagram-node context">
+            <h4>Structured Program Stages</h4>
+            <p>Pre-generation control, in-trajectory control, post-generation refinement, and selection logic all live inside the mutable program bundle.</p>
+          </div>
+          <div class="diagram-node outcome">
+            <h4>Matched-Budget Evaluation</h4>
+            <p>Compute unique successes, efficiency, diversity, runtime validity, and any other fixed outcome metrics.</p>
+          </div>
+        </div>
+
+        <div class="diagram-arrow">→</div>
+
+        <div class="stack">
+          <div class="diagram-node outcome">
+            <h4>RankScore + Diagnostic Sidecar</h4>
+            <p>Collapse outcomes to a scalar tree-search score while preserving structured failure metadata for future mutations.</p>
+          </div>
+          <div class="diagram-node memory">
+            <h4>Tree Search Controller</h4>
+            <p>Use PUCT or related search to select which node to expand next and backpropagate visits, rewards, and metadata.</p>
+          </div>
+          <div class="diagram-node memory">
+            <h4>Recipe Library and Episode Archive</h4>
+            <p>Promising motifs become reusable priors for future targets, but execution and scoring remain local and target-specific.</p>
+          </div>
+        </div>
+      </div>
+      <p class="diagram-caption">The page now treats the search object as local inference software around a frozen checkpoint. Global transfer enters through motifs and archives, not through replacing local execution with one monolithic policy.</p>
+    </div>
+
+    <div class="callout">
+      <p><strong>Key design choice.</strong> This diagram retains the local program as the execution unit while making
+      recombination explicit. That is the cleanest way to combine V3 locality with the empirical-software paper's
+      mutation-and-search loop.</p>
+    </div>
+  </div>
+
+  <div class="section" id="bundle">
+    <h2>5. Search Object: Local Inference Program</h2>
+
+    <p class="lede">
+      The node in the search tree is an executable <strong>local inference program</strong> for one target. It is code,
+      not prose. Transfer enters only through idea injection and motif reuse.
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <tr>
+          <th style="width: 24%;">Bounded interface</th>
+          <th style="width: 48%;">Role in the program</th>
+          <th style="width: 28%;">Why it matters</th>
+        </tr>
+        <tr>
+          <td><code>prepare_target(...)</code></td>
+          <td>Build target-conditioned context, preprocessing choices, and any initial target-specific priors.</td>
+          <td>Keeps target handling explicit and reproducible.</td>
+        </tr>
+        <tr>
+          <td><code>generate_or_branch(...)</code></td>
+          <td>Controls initial arms, branching schedule, restart logic, and trajectory exploration around the frozen generator.</td>
+          <td>Captures the part of the search that config-only optimization cannot express well.</td>
+        </tr>
+        <tr>
+          <td><code>summarize_diagnostics(...)</code></td>
+          <td>Compresses outputs into geometry, sequence, physics, redesign-gap, and runtime signals.</td>
+          <td>Makes failure-mode-aware mutation possible.</td>
+        </tr>
+        <tr>
+          <td><code>refine_candidates(...)</code></td>
+          <td>Optionally invokes BindCraft-style repair, hallucination-style rescue, or other allow-listed refinements.</td>
+          <td>Where cross-framework recombination becomes concrete.</td>
+        </tr>
+        <tr>
+          <td><code>rerank_and_select(...)</code></td>
+          <td>Filters and reranks candidates based on fixed score proxies, diversity, and diagnostic summaries.</td>
+          <td>Lets the program express geometry-first or physics-aware selection logic.</td>
+        </tr>
+        <tr>
+          <td><code>decide_escalation(...)</code></td>
+          <td>Chooses whether to widen search, run MCTS-like escalation, switch to refinement, or stop.</td>
+          <td>Encodes orchestration as software rather than as a single prompt answer.</td>
+        </tr>
+        <tr>
+          <td><code>should_stop(...)</code></td>
+          <td>Implements budget-aware stopping rules and expected-observable checks.</td>
+          <td>Prevents uncontrolled budget burn.</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>What this keeps clean</h3>
+      <p>
+        The checkpoint remains frozen. The evaluator remains fixed. The program is local and executable. That means each
+        node can still be scored fairly on one target, while mutation and recombination remain expressive enough to matter.
+      </p>
+    </div>
+  </div>
+
+  <div class="section" id="loop">
+    <h2>6. Search Loop and Paper Mapping</h2>
+
+    <p class="lede">
+      The search loop can now follow the empirical-software paper closely, but with a protein-design-specific bounded API.
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <tr>
+          <th style="width: 27%;">Paper method</th>
+          <th style="width: 33%;">This project</th>
+          <th style="width: 40%;">Concrete instantiation here</th>
+        </tr>
+        <tr>
+          <td>Scorable task</td>
+          <td>Matched-budget binder design problem</td>
+          <td>Target protein, frozen checkpoint, fixed budget, and fixed success metric.</td>
+        </tr>
+        <tr>
+          <td>Idea injection</td>
+          <td>Literature, prior programs, expert hints</td>
+          <td>Inject Complexa motifs, BindCraft repair, hallucination rescue, diffusion-control ideas, and prior episode lessons.</td>
+        </tr>
+        <tr>
+          <td>Current best code</td>
+          <td>Current best local inference program</td>
+          <td>Provide source code, logs, diagnostics, and score trace to the mutation prompt.</td>
+        </tr>
+        <tr>
+          <td>LLM mutation</td>
+          <td>Write or rewrite bounded program code</td>
+          <td>Mutate branching logic, diagnostics, refinement choices, reranking, and stopping rules.</td>
+        </tr>
+        <tr>
+          <td>Sandbox evaluation</td>
+          <td>Run in frozen-checkpoint execution sandbox</td>
+          <td>Compile, validate, execute, and log the candidate program under matched budget.</td>
+        </tr>
+        <tr>
+          <td>Quality score</td>
+          <td>Matched-budget program score</td>
+          <td>Unique successes, success per GPU-hour, diversity-adjusted utility, and validity.</td>
+        </tr>
+        <tr>
+          <td>RankScore and tree search</td>
+          <td>Rank-normalized search over program nodes</td>
+          <td>Use PUCT over noisy, target-specific program outcomes rather than raw comparable losses.</td>
+        </tr>
+        <tr>
+          <td>Backpropagation</td>
+          <td>Visits, rewards, and diagnostic metadata</td>
+          <td>Backpropagate scalar score and preserve structured failure reasons for future mutations.</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="diagram-shell">
+      <div class="diagram-stage default">
+        <div class="stack">
+          <div class="diagram-node memory">
+            <h4>Current Best Program</h4>
+            <p>Source code, evaluator output, diagnostics, and the current tree position.</p>
+          </div>
+          <div class="diagram-node context">
+            <h4>Injected Ideas</h4>
+            <p>Literature snippets, prior motifs, and targeted expert advice.</p>
+          </div>
+        </div>
+
+        <div class="diagram-arrow">→</div>
+
+        <div class="stack">
+          <div class="diagram-node llm">
+            <h4>Mutation or Recombination</h4>
+            <p>Rewrite one program, combine two parents, or transfer a motif from prior targets.</p>
+          </div>
+          <div class="diagram-node compile">
+            <h4>Compile and Run</h4>
+            <p>Validate the bundle, execute it on the target, and record all structured outcomes.</p>
+          </div>
+        </div>
+
+        <div class="diagram-arrow">→</div>
+
+        <div class="stack">
+          <div class="diagram-node outcome">
+            <h4>Score and Backpropagate</h4>
+            <p>Update tree statistics, rank score, and diagnostic metadata, then decide which node to expand next.</p>
+          </div>
+        </div>
+      </div>
+      <p class="diagram-caption">The loop is intentionally close to the paper: ideas in, code mutation, sandbox execution, score, tree search, and repeat.</p>
+    </div>
+
+    <h3>Expansion operators</h3>
+    <div class="table-wrap">
+      <table>
+        <tr>
+          <th style="width: 22%;">Operator</th>
+          <th style="width: 48%;">What it does</th>
+          <th style="width: 30%;">Example</th>
+        </tr>
+        <tr>
+          <td><strong>Mutation</strong></td>
+          <td>Rewrite a single current program to improve one stage of the local inference loop.</td>
+          <td>Change trajectory branching or stopping logic.</td>
+        </tr>
+        <tr>
+          <td><strong>Recombination</strong></td>
+          <td>Combine executable motifs from multiple parents or design traditions.</td>
+          <td>Complexa scouting + BindCraft repair + hallucination rescue.</td>
+        </tr>
+        <tr>
+          <td><strong>Retrieval-conditioned transfer</strong></td>
+          <td>Inject a motif that did well on a similar target or that appears in newly retrieved papers.</td>
+          <td>Add a diffusion restart heuristic from literature.</td>
+        </tr>
+        <tr>
+          <td><strong>Rescue patch</strong></td>
+          <td>Apply a tightly targeted code edit motivated by one dominant failure mode.</td>
+          <td>Patch reranking after repeated geometry-open but selection-failed runs.</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="section" id="human">
+    <h2>7. Human Design and Idea Injection</h2>
+
+    <div class="two-up">
+      <div class="card">
+        <span class="tag tag-gold">Human-designed</span>
+        <h3>What experts still design</h3>
+        <ul>
+          <li>The scorable task, success thresholds, and matched-budget comparison protocol.</li>
+          <li>The bounded mutable API and import allow-list.</li>
+          <li>The frozen checkpoint and the fixed evaluator.</li>
+          <li>The initial seed program library and safety constraints.</li>
+          <li>The small set of expert hints that define the search space responsibly.</li>
+          <li>Manual inspection of top candidates to catch reward hacking or implausible shortcuts.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <span class="tag tag-accent">Injected ideas</span>
+        <h3>What should enter the mutation prompt</h3>
+        <ul>
+          <li>Literature summaries about diffusion control, trajectory steering, interface repair, and binder refinement.</li>
+          <li>Prior successful programs and near-miss programs from related targets.</li>
+          <li>Complexa-native TTO motifs that already show value under this evaluator.</li>
+          <li>BindCraft-style post-generation repair or hallucination-style rescue motifs.</li>
+          <li>Short expert interventions of the form "if X is observed, try Y".</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <tr>
+          <th style="width: 26%;">Idea source</th>
+          <th style="width: 34%;">Representative motif</th>
+          <th style="width: 40%;">How it helps the search</th>
+        </tr>
+        <tr>
+          <td>Complexa-native TTO</td>
+          <td>Scout broadly, diagnose geometry, escalate only on evidence</td>
+          <td>Provides high-quality native program structure and realistic operator combinations.</td>
+        </tr>
+        <tr>
+          <td>BindCraft-style methods</td>
+          <td>Post-generation local repair or gradient-based interface cleanup</td>
+          <td>Adds a strong refinement motif that is hard to recover from config-only search.</td>
+        </tr>
+        <tr>
+          <td>Hallucination / redesign</td>
+          <td>Sequence-only rescue after geometry has opened</td>
+          <td>Separates geometry acquisition from local sequence improvement.</td>
+        </tr>
+        <tr>
+          <td>Diffusion-trajectory literature</td>
+          <td>Restart, branch, prune, or noise perturbation rules</td>
+          <td>Introduces new in-trajectory control motifs that are naturally expressed as code.</td>
+        </tr>
+        <tr>
+          <td>Expert advice</td>
+          <td>"Do not spend heavy refinement budget before a plausible interface family appears"</td>
+          <td>Acts like the paper's problem-specific advice that can create score jumps when the search stalls.</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="section" id="evaluation">
+    <h2>8. Evaluation and Baselines</h2>
+
+    <p class="lede">
+      The main result should be matched-budget design improvement, not just replay agreement with a human decision trace.
+      Replay remains useful, but it should be treated as a secondary debugging benchmark.
+    </p>
+
+    <div class="callout warn">
+      <p><strong>Objective assessment.</strong> The old plan over-weighted replay and cold-start routing quality because
+      those were the easiest pieces to audit. The new framing is stronger only if the final paper is willing to center
+      <strong>searched program quality under fixed compute</strong> as the main endpoint.</p>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <tr>
+          <th style="width: 18%;">Benchmark mode</th>
+          <th style="width: 34%;">Question answered</th>
+          <th style="width: 48%;">Recommended use</th>
+        </tr>
+        <tr>
+          <td><strong>Replay</strong></td>
+          <td>Can the system mutate or select a better next program from historical traces?</td>
+          <td>Cheap debugging benchmark for search logic, not the main claim.</td>
+        </tr>
+        <tr>
+          <td><strong>Cold-start</strong></td>
+          <td>Can the system propose a strong first local program from target context and literature alone?</td>
+          <td>Important for generalization, but still secondary to live matched-budget outcomes.</td>
+        </tr>
+        <tr>
+          <td><strong>Live search</strong></td>
+          <td>Does the searched inference program frontier beat strong static baselines under equal budget?</td>
+          <td>Main scientific benchmark.</td>
+        </tr>
+      </table>
+    </div>
+
+    <h3>Primary metrics</h3>
+    <ul>
+      <li><strong>Unique successes at matched budget:</strong> the main score.</li>
+      <li><strong>Success per GPU-hour:</strong> efficiency view of the same search frontier.</li>
+      <li><strong>Regret versus best known executable program:</strong> useful for replay and archive analysis.</li>
+      <li><strong>Compiler validity and runtime robustness:</strong> necessary because the search object is code.</li>
+      <li><strong>Diversity among successes:</strong> useful when many candidates collapse to one family.</li>
+    </ul>
+
+    <h3>Baselines and ablations</h3>
+    <ul>
+      <li>Static frozen-checkpoint default inference program.</li>
+      <li>Human-written local programs without LLM mutation.</li>
+      <li>Config-only search without code-level mutation.</li>
+      <li>No-recombination ablation.</li>
+      <li>No-literature / no-prior-program ablation.</li>
+      <li>Routing-only controller baseline.</li>
+    </ul>
+  </div>
+
+  <div class="section" id="plan">
+    <h2>9. Implementation Plan</h2>
+
+    <div class="card-grid">
+      <div class="card">
+        <span class="tag tag-blue">Phase 0</span>
+        <h3>Freeze the true boundary</h3>
+        <p>Choose the checkpoint, fix the evaluator, define the budget unit, and finalize the allow-list of auxiliary methods.</p>
+      </div>
+      <div class="card">
+        <span class="tag tag-blue">Phase 1</span>
+        <h3>Define the mutable program API</h3>
+        <p>Lock the bounded local program interface before any mutation loop starts.</p>
+      </div>
+      <div class="card">
+        <span class="tag tag-blue">Phase 2</span>
+        <h3>Seed the program library</h3>
+        <p>Write a small hand-designed set of initial programs: conservative, geometry-opening, refinement-heavy, and trajectory-control variants.</p>
+      </div>
+      <div class="card">
+        <span class="tag tag-gold">Phase 3</span>
+        <h3>Build the mutation harness</h3>
+        <p>Prompt the LLM with code, diagnostics, and injected ideas; compile; execute; score; archive.</p>
+      </div>
+      <div class="card">
+        <span class="tag tag-orange">Phase 4</span>
+        <h3>Add tree search</h3>
+        <p>Track node visits, rank scores, diagnostic sidecars, and recombination parents; then run PUCT over the archive.</p>
+      </div>
+      <div class="card">
+        <span class="tag tag-green">Phase 5</span>
+        <h3>Run replay, then live search</h3>
+        <p>Use replay for harness debugging and archive analysis, then move quickly to live matched-budget comparisons.</p>
+      </div>
+    </div>
+
+    <h3>Immediate next actions</h3>
+    <pre><code># 1. Freeze boundary
+#    - choose checkpoint
+#    - choose matched-budget score
+#    - define allow-listed auxiliary methods
+#
+# 2. Define bounded LocalInferenceProgram API
+#    prepare_target(...)
+#    generate_or_branch(...)
+#    summarize_diagnostics(...)
+#    refine_candidates(...)
+#    rerank_and_select(...)
+#    decide_escalation(...)
+#    should_stop(...)
+#
+# 3. Seed 4-6 initial local programs
+# 4. Build mutation / compile / execute / archive harness
+# 5. Add tree-search controller over the program archive
+# 6. Run replay for debugging, then live matched-budget experiments</code></pre>
+  </div>
+
+  <div class="section" id="status">
+    <h2>10. Current Status and Immediate Next Step</h2>
+
+    <div class="checklist">
+      <div class="checklist-item">
+        <span class="check yes">✓</span>
+        <div><strong>The scientific boundary is now clear.</strong> Freeze the checkpoint and evaluator; search over bounded inference software.</div>
+      </div>
+      <div class="checklist-item">
+        <span class="check yes">✓</span>
+        <div><strong>The replay-oriented controller work was not wasted.</strong> Its diagnostics, retrieval prototypes, and execution discipline become useful scaffolding inside the broader program-search system.</div>
+      </div>
+      <div class="checklist-item">
+        <span class="check mid">◐</span>
+        <div><strong>The bounded program API still needs to be written down explicitly.</strong> That is the next implementation bottleneck.</div>
+      </div>
+      <div class="checklist-item">
+        <span class="check mid">◐</span>
+        <div><strong>The current benchmark story is still too replay-heavy.</strong> The main result should shift to live matched-budget search over executable programs.</div>
+      </div>
+      <div class="checklist-item">
+        <span class="check mid">◐</span>
+        <div><strong>The motif library is conceptually clear but not yet encoded.</strong> Complexa, BindCraft, hallucination, and literature-derived trajectory ideas should be captured as reusable promptable motifs.</div>
+      </div>
+      <div class="checklist-item">
+        <span class="check no">!</span>
+        <div><strong>Unconstrained code mutation should not be allowed.</strong> Without API and evaluator hardening, this project will look broad but not scientific.</div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <p><strong>Recommended immediate move.</strong> Do not spend the next week polishing replay prompts. Spend it
+      freezing the mutable program boundary, writing the bounded local program API, and preparing the first seed program
+      library for a real mutation-and-search harness.</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  Revised on April 16, 2026. This page supersedes the earlier controller-centric plan and preserves the prior page at
+  <a href="/projects/agentic-protein-design-plan-archive-2026-04-15.html">agentic-protein-design-plan-archive-2026-04-15.html</a>.
+</div>
+
+</body>
+</html>

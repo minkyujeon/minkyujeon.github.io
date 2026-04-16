@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Agentic Protein Design Plan — Minkyu Jeon</title>
+<title>Inference-Time Software Evolution for Protein Design — Minkyu Jeon</title>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -114,10 +114,7 @@
     border-radius: 16px;
     box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
   }
-  .toc {
-    padding: 22px 24px;
-    margin-bottom: 32px;
-  }
+  .toc { padding: 22px 24px; margin-bottom: 32px; }
   .toc h3 {
     font-size: 0.82rem;
     text-transform: uppercase;
@@ -138,30 +135,13 @@
     border-bottom: 3px solid var(--accent);
     padding-bottom: 8px;
   }
-  .section h3 {
-    font-size: 1.08rem;
-    font-weight: 800;
-    margin: 20px 0 10px;
-  }
-  .section p, .section li {
-    color: var(--muted);
-    font-size: 0.95rem;
-  }
+  .section h3 { font-size: 1.08rem; font-weight: 800; margin: 20px 0 10px; }
+  .section p, .section li { color: var(--muted); font-size: 0.95rem; }
   .section p { margin-bottom: 12px; }
-  .section ul, .section ol {
-    padding-left: 20px;
-    margin-bottom: 12px;
-  }
+  .section ul, .section ol { padding-left: 20px; margin-bottom: 12px; }
   .section li { margin-bottom: 5px; }
-  .lede {
-    font-size: 1.02rem;
-    color: var(--text);
-    margin-bottom: 14px;
-  }
-  .card {
-    padding: 22px 24px;
-    margin-bottom: 16px;
-  }
+  .lede { font-size: 1.02rem; color: var(--text); margin-bottom: 14px; }
+  .card { padding: 22px 24px; margin-bottom: 16px; }
   .card-grid, .two-up {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -178,9 +158,14 @@
     border-left-color: var(--orange);
     background: linear-gradient(135deg, rgba(255, 237, 213, 0.9), rgba(255, 255, 255, 0.96));
   }
+  .callout.danger {
+    border-left-color: var(--red);
+    background: linear-gradient(135deg, rgba(254, 226, 226, 0.9), rgba(255, 255, 255, 0.96));
+  }
   .callout p { margin: 0; color: var(--text); }
   .callout strong { color: var(--accent-dark); }
   .callout.warn strong { color: var(--orange); }
+  .callout.danger strong { color: var(--red); }
   .table-wrap { overflow-x: auto; margin-bottom: 16px; }
   table {
     width: 100%;
@@ -226,11 +211,7 @@
     margin-bottom: 16px;
   }
   pre code { background: none; padding: 0; color: inherit; }
-  .status-board {
-    padding: 0;
-    overflow: hidden;
-    margin-bottom: 18px;
-  }
+  .status-board { padding: 0; overflow: hidden; margin-bottom: 18px; }
   .status-row {
     display: grid;
     grid-template-columns: 210px 1fr;
@@ -243,10 +224,7 @@
     color: var(--text);
     padding: 14px 16px;
   }
-  .status-row .value {
-    padding: 14px 16px;
-    color: var(--muted);
-  }
+  .status-row .value { padding: 14px 16px; color: var(--muted); }
   .draft-block {
     padding: 20px 22px;
     margin-bottom: 16px;
@@ -270,15 +248,8 @@
       radial-gradient(circle at bottom left, rgba(204, 251, 241, 0.9), transparent 24%),
       rgba(255, 255, 255, 0.96);
   }
-  .diagram-caption {
-    margin-top: 12px;
-    font-size: 0.86rem;
-    color: var(--muted);
-  }
-  .diagram-stage {
-    display: grid;
-    gap: 14px;
-  }
+  .diagram-caption { margin-top: 12px; font-size: 0.86rem; color: var(--muted); }
+  .diagram-stage { display: grid; gap: 14px; }
   .diagram-node {
     border-radius: 14px;
     padding: 18px 18px;
@@ -286,17 +257,8 @@
     background: rgba(255, 255, 255, 0.96);
     position: relative;
   }
-  .diagram-node h4 {
-    font-size: 0.96rem;
-    font-weight: 800;
-    margin-bottom: 6px;
-    color: var(--text);
-  }
-  .diagram-node p {
-    margin: 0;
-    font-size: 0.88rem;
-    color: var(--muted);
-  }
+  .diagram-node h4 { font-size: 0.96rem; font-weight: 800; margin-bottom: 6px; color: var(--text); }
+  .diagram-node p { margin: 0; font-size: 0.88rem; color: var(--muted); }
   .diagram-node.fixed { border-left: 5px solid var(--navy); }
   .diagram-node.context { border-left: 5px solid var(--blue); }
   .diagram-node.llm { border-left: 5px solid var(--accent); }
@@ -310,12 +272,7 @@
     font-weight: 700;
     line-height: 1;
   }
-  .pill-row {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin-top: 10px;
-  }
+  .pill-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
   .mini-pill {
     display: inline-block;
     padding: 5px 10px;
@@ -325,10 +282,10 @@
     font-size: 0.78rem;
     font-weight: 700;
   }
-  .checklist {
-    padding: 22px 24px;
-    margin-bottom: 16px;
-  }
+  .mini-pill.fixed { background: #e2e8f0; color: var(--navy); }
+  .mini-pill.guide { background: var(--blue-light); color: var(--blue); }
+  .mini-pill.mutable { background: var(--accent-light); color: var(--accent-dark); }
+  .checklist { padding: 22px 24px; margin-bottom: 16px; }
   .checklist-item {
     display: grid;
     grid-template-columns: 24px 1fr;
@@ -366,21 +323,13 @@
       grid-template-columns: 1fr 56px 1fr 56px 1fr 56px 1fr;
       align-items: start;
     }
-    .diagram-stage .stack {
-      display: grid;
-      gap: 14px;
-    }
-    .diagram-stage .stack .diagram-arrow {
-      font-size: 1.1rem;
-      margin: -4px 0;
-    }
+    .diagram-stage .stack { display: grid; gap: 14px; }
+    .diagram-stage .stack .diagram-arrow { font-size: 1.1rem; margin: -4px 0; }
   }
   @media (max-width: 879px) {
     .diagram-stage,
     .diagram-stage.default,
-    .diagram-stage.wide {
-      grid-template-columns: 1fr;
-    }
+    .diagram-stage.wide { grid-template-columns: 1fr; }
     .status-row { grid-template-columns: 1fr; }
   }
 </style>
@@ -390,18 +339,20 @@
 <div class="hero">
   <div class="container">
     <div class="breadcrumb"><a href="/">Minkyu Jeon</a> / <a href="/projects/">Projects</a> / <a href="/projects/agentic-protein-design.html">Agentic Protein Design</a></div>
-    <h1>Inference Software Search for Agentic Protein Design</h1>
+    <h1>Inference-Time Software Evolution for Protein Design</h1>
     <p class="subtitle">
-      Revised plan for a <strong>frozen protein generator checkpoint</strong>: search over executable local inference
-      software, let an LLM write and mutate bounded program code, inject ideas from literature and prior runs, execute
-      those programs in a reproducible sandbox, and improve them with tree search under a matched-budget biological score.
+      An LLM-driven tree search that writes and recombines <strong>inference-only protein-design programs</strong> over a
+      frozen registry of pretrained generators, inverse folders, structure predictors, and refinement tools. The
+      Proteina-Complexa TTO scaffold is one seed among several; the method remains useful as the underlying models evolve,
+      because the contribution is the evolver, not any single checkpoint.
     </p>
     <div class="meta">
       <span>Minkyu Jeon</span>
       <span>Princeton University</span>
       <span>April 16, 2026</span>
-      <span><span class="tag tag-accent">Frozen Checkpoint</span></span>
-      <span><span class="tag tag-purple">Mutable Inference Software</span></span>
+      <span><span class="tag tag-accent">Inference Only</span></span>
+      <span><span class="tag tag-blue">Frozen Tool Registry</span></span>
+      <span><span class="tag tag-purple">Cross-Paradigm Recombination</span></span>
     </div>
   </div>
 </div>
@@ -411,340 +362,533 @@
   <div class="page-nav">
     <a href="/projects/agentic-protein-design.html">Audited Results Map</a>
     <a href="/projects/agentic-protein-design-plan.html" class="active">Research Plan &amp; Execution Spec</a>
-    <a href="/projects/agentic-protein-design-plan-archive-2026-04-15.html">Archived Prior Plan Page</a>
+    <a href="/projects/agentic-protein-design-plan-archive-2026-04-16.html">Archive 2026-04-16</a>
+    <a href="/projects/agentic-protein-design-plan-archive-2026-04-15.html">Archive 2026-04-15</a>
   </div>
 
   <div class="toc">
     <h3>Contents</h3>
     <ol>
-      <li><a href="#diagnosis">Objective Diagnosis</a></li>
-      <li><a href="#thesis">Revised Thesis and Boundary</a></li>
+      <li><a href="#diagnosis">Objective Diagnosis of the Prior Plan</a></li>
+      <li><a href="#thesis">Revised Thesis and Three-Tier Boundary</a></li>
+      <li><a href="#not-sequel">Why This Is Not a Proteina-Complexa Sequel</a></li>
       <li><a href="#framing">Intro and Contributions Draft</a></li>
       <li><a href="#diagram">System Diagram</a></li>
-      <li><a href="#bundle">Search Object: Local Inference Program</a></li>
+      <li><a href="#registry">Tool Registry: Pretrained Models as Plug-ins</a></li>
+      <li><a href="#moves">TTO Move Library</a></li>
+      <li><a href="#seeds">Seed Program Library</a></li>
+      <li><a href="#object">Search Object and I/O Contract</a></li>
       <li><a href="#loop">Search Loop and Paper Mapping</a></li>
-      <li><a href="#human">Human Design and Idea Injection</a></li>
-      <li><a href="#evaluation">Evaluation and Baselines</a></li>
+      <li><a href="#recombine">Cross-Paradigm Recombination</a></li>
+      <li><a href="#evaluation">Evaluation and Method-Agnosticity Tests</a></li>
       <li><a href="#plan">Implementation Plan</a></li>
+      <li><a href="#risks">Risks and Open Questions</a></li>
       <li><a href="#status">Current Status and Immediate Next Step</a></li>
     </ol>
   </div>
 
   <div class="section" id="diagnosis">
-    <h2>1. Objective Diagnosis</h2>
+    <h2>1. Objective Diagnosis of the Prior Plan</h2>
 
     <p class="lede">
-      The earlier controller-centric plan was rigorous, auditable, and useful for replay analysis, but it was too narrow
-      to capture the real opportunity opened by the empirical-software paper. The stronger object is not a one-step
-      TTO router. It is a <strong>bounded search over executable inference software</strong> built around a frozen
-      checkpoint.
+      The 2026-04-15 plan correctly moved the project from a one-step routing controller to a search over inference
+      software. But it anchored that search to a <em>single</em> frozen Proteina-Complexa checkpoint. Two evaluations
+      forced a second revision.
     </p>
-
-    <div class="callout">
-      <p><strong>Bottom line.</strong> The plan is now clear enough to support a stronger paper: freeze the generator
-      checkpoint and evaluator, let the LLM mutate bounded local inference programs, inject ideas from literature and
-      prior programs, execute each candidate under matched budget, and use tree search to improve the program archive
-      over time.</p>
-    </div>
 
     <div class="status-board">
       <div class="status-row">
-        <div class="label">What was strong</div>
-        <div class="value">The earlier plan already had good discipline around budget matching, deterministic compilation, replay versus cold-start separation, and structured diagnostics.</div>
+        <div class="label">What was right</div>
+        <div class="value">Mapping onto the empirical-software paper: idea injection, code mutation, sandbox execution,
+          scoring, tree search, backpropagation, and matched-budget evaluation were all in the correct place.</div>
       </div>
       <div class="status-row">
-        <div class="label">What was too narrow</div>
-        <div class="value">A planner that emits only the next operator leaves too much value on the table. It cannot express trajectory control, post-generation repair, cross-framework recombination, or target-specific orchestration logic.</div>
+        <div class="label">What was wrong (1)</div>
+        <div class="value">A single frozen checkpoint as the experimental anchor ties the method's lifespan to that
+          checkpoint's SOTA window. If RFDiffusion-X, Chroma-3, or Proteina v2 ships, the paper's framing collapses.</div>
       </div>
       <div class="status-row">
-        <div class="label">Correct fixed boundary</div>
-        <div class="value">Freeze the model checkpoint, budget, evaluation harness, and safety constraints. Do not freeze one specific codebase if that prevents meaningful inference-software search.</div>
+        <div class="label">What was wrong (2)</div>
+        <div class="value">A strict seven-function bounded API (<code>prepare_target</code> through <code>should_stop</code>)
+          locked the search into one architectural template. The paper's biggest wins (e.g. BBKNN + ComBat recombination)
+          came from unexpected cross-template merges.</div>
       </div>
       <div class="status-row">
-        <div class="label">Correct mutable boundary</div>
-        <div class="value">Mutate only bounded inference software around the checkpoint: scouting logic, trajectory branching, diagnostics, refinement calls, reranking, escalation rules, and stopping logic.</div>
+        <div class="label">What was wrong (3)</div>
+        <div class="value">"Complexa-native TTO" sat on top of the motif hierarchy with BindCraft / hallucination /
+          diffusion-trajectory control as auxiliaries. That reads as a Proteina-Complexa sequel; the user explicitly does
+          not want that.</div>
       </div>
       <div class="status-row">
-        <div class="label">Main scientific opportunity</div>
-        <div class="value">Recombination is real here. Complexa-native TTO, BindCraft-style post-generation repair, hallucination, and diffusion-trajectory control can be treated as reusable executable motifs rather than isolated baselines.</div>
+        <div class="label">What stays constrained</div>
+        <div class="value">Model weights are never trained. The entire system operates at inference only. The TTO
+          scaffold tradition is preserved.</div>
       </div>
       <div class="status-row">
-        <div class="label">Main risk</div>
-        <div class="value">If mutable code is unconstrained, compute will explode and attribution will collapse. The project therefore needs a bounded program API and a fixed matched-budget score before any serious search loop is run.</div>
+        <div class="label">What is now mutable</div>
+        <div class="value">The inference composition program itself, including which pretrained model is called, in what
+          order, with what TTO moves, and under what selection and escalation logic.</div>
       </div>
     </div>
 
-    <div class="card-grid">
-      <div class="card">
-        <span class="tag tag-green">Strong</span>
-        <h3>Local execution unit</h3>
-        <p>The right node is still a local target-specific inference program. That keeps evaluation concrete and prevents the search object from becoming too vague.</p>
-      </div>
-      <div class="card">
-        <span class="tag tag-green">Strong</span>
-        <h3>Paper alignment</h3>
-        <p>The plan now matches the empirical-software paper much more closely: idea injection, code mutation, sandbox execution, scoring, tree search, and backpropagation.</p>
-      </div>
-      <div class="card">
-        <span class="tag tag-orange">Needs discipline</span>
-        <h3>Bounded mutable scope</h3>
-        <p>The LLM should not edit arbitrary project code. It should write a constrained local program bundle that calls into a frozen model and an audited evaluator.</p>
-      </div>
-      <div class="card">
-        <span class="tag tag-orange">Needs discipline</span>
-        <h3>Replay is no longer the main story</h3>
-        <p>Replay remains useful, but it becomes a debugging benchmark. The main result should be matched-budget improvement from searched inference programs.</p>
-      </div>
+    <div class="callout">
+      <p><strong>Bottom line.</strong> Keep the TTO tradition and the matched-budget discipline. Replace "frozen single
+        checkpoint" with "frozen <em>registry</em> of pretrained models". Demote the bounded API from a hard contract to
+        a loose I/O contract. Reposition Proteina-Complexa as one seed scaffold among several.</p>
     </div>
   </div>
 
   <div class="section" id="thesis">
-    <h2>2. Revised Thesis and Boundary</h2>
+    <h2>2. Revised Thesis and Three-Tier Boundary</h2>
 
     <p class="lede">
-      The central thesis is now: <strong>protein binder design can be cast as a scorable search over local inference
-      software built around a frozen protein-generation checkpoint.</strong> The LLM is not just a planner. It is a
-      proposal, mutation, and recombination engine over bounded executable programs.
+      <strong>Thesis.</strong> Protein-design empirical software can be cast as an inference-time scorable task whose
+      solution is a Python program that composes a frozen registry of pretrained protein tools, augmented with a
+      library of inference-time operators. An LLM-driven tree search evolves, mutates, and recombines these programs
+      under matched compute, using Proteina-Complexa's TTO scaffold as one of several seeds.
     </p>
 
     <div class="callout">
-      <p><strong>Core framing.</strong> The project should be described as <strong>fixed foundation model, mutable
-      inference software</strong>. The search object is a local inference program. Cross-target transfer enters through
-      reusable motifs and prior programs, not by replacing local execution with a single global policy.</p>
+      <p><strong>Core framing.</strong> <em>Frozen tool registry and seed scaffolds, mutable inference composition.</em>
+        The LLM does not retrain any model. It writes programs that call pretrained models as black boxes and stitches
+        them together with inference-time moves borrowed from across the literature.</p>
     </div>
 
+    <h3>Three-tier boundary</h3>
     <div class="table-wrap">
       <table>
         <tr>
           <th style="width: 22%;">Surface</th>
-          <th style="width: 36%;">Fixed</th>
-          <th style="width: 42%;">Mutable / searched</th>
-        </tr>
-        <tr>
-          <td><strong>Foundation model</strong></td>
-          <td>Checkpoint weights, model I/O interface, reproducibility constraints</td>
-          <td>None. The checkpoint is the experimental anchor.</td>
-        </tr>
-        <tr>
-          <td><strong>Inference software</strong></td>
-          <td>Bounded API and allowed imports</td>
-          <td>Scouting logic, trajectory branching, diagnostics, refinement calls, reranking, escalation, and stopping.</td>
-        </tr>
-        <tr>
-          <td><strong>Auxiliary methods</strong></td>
-          <td>Allow-list of permitted external methods</td>
-          <td>Whether and how to invoke BindCraft-style repair, hallucination-style rescue, physics reranking, or literature-derived trajectory ideas.</td>
+          <th style="width: 26%;">Fixed</th>
+          <th style="width: 26%;">Initial guideline (seed)</th>
+          <th style="width: 26%;">Mutable (search target)</th>
         </tr>
         <tr>
           <td><strong>Evaluation</strong></td>
-          <td>Matched-budget evaluator, success thresholds, logging format</td>
+          <td>Scorable tasks, success metrics, matched-budget protocol, logging format.</td>
+          <td>Benchmark task selection for the first paper.</td>
           <td>None. Candidates compete under the same score definition.</td>
         </tr>
         <tr>
-          <td><strong>Idea sources</strong></td>
-          <td>Literature retrieval stack, archive schema, expert-hint format</td>
+          <td><strong>Pretrained models</strong></td>
+          <td>Weights, I/O contract, inference cost, per-call budget, reproducibility flags.</td>
+          <td>Initial registry members and their wrappers.</td>
+          <td>Which model is called, when, with what inputs; whether to call multiple models in sequence or parallel.</td>
+        </tr>
+        <tr>
+          <td><strong>TTO scaffold</strong></td>
+          <td>The scaffold <em>shape</em> (prepare &rarr; generate &rarr; refine &rarr; select) as a weak prior.</td>
+          <td>Proteina-Complexa TTO scaffold as seed program #1, plus 4 alternative seeds.</td>
+          <td>Collapsing, reordering, skipping, or inserting stages; any sub-stage logic.</td>
+        </tr>
+        <tr>
+          <td><strong>TTO move library</strong></td>
+          <td>Function signatures of inference-time operators so programs can call them portably.</td>
+          <td>Initial move catalog drawn from Complexa / BindCraft / hallucination / diffusion-control literature.</td>
+          <td>Which moves a program invokes, in what order, and whether to recombine moves from different papers.</td>
+        </tr>
+        <tr>
+          <td><strong>Idea injection</strong></td>
+          <td>Retrieval stack, archive schema, expert-hint format.</td>
+          <td>Seed literature set and expert hints.</td>
           <td>Which ideas are injected into the next mutation prompt and how they are recombined.</td>
+        </tr>
+        <tr>
+          <td><strong>Safety / compute</strong></td>
+          <td>Import allow-list, budget caps, logging contract.</td>
+          <td>Initial compute quota per tree-search run.</td>
+          <td>How the program allocates its budget internally.</td>
         </tr>
       </table>
     </div>
 
-    <div class="card">
-      <h3>Why this boundary is stronger</h3>
-      <p>
-        Freezing the checkpoint creates a fair scientific comparison while leaving enough freedom for the search to matter.
-        If the codebase itself is treated as sacred, the search space becomes too narrow. If the foundation model is mutable,
-        attribution collapses. Freezing the generator but searching over surrounding inference software is the right balance.
-      </p>
+    <div class="pill-row">
+      <span class="mini-pill fixed">Fixed</span>
+      <span class="mini-pill guide">Initial guideline</span>
+      <span class="mini-pill mutable">Mutable</span>
+    </div>
+  </div>
+
+  <div class="section" id="not-sequel">
+    <h2>3. Why This Is Not a Proteina-Complexa Sequel</h2>
+
+    <p class="lede">
+      This is a deliberate, checkable property of the design. The method must still work if Proteina-Complexa is
+      deprecated, and it must incorporate new generators without a paper rewrite.
+    </p>
+
+    <div class="card-grid">
+      <div class="card">
+        <span class="tag tag-green">Design property</span>
+        <h3>Model-slot-ability</h3>
+        <p>The registry exposes generators, inverse folders, predictors, and refinement tools behind a common wrapper
+          contract. Adding a new model means adding one wrapper, not changing the evolver.</p>
+      </div>
+      <div class="card">
+        <span class="tag tag-green">Design property</span>
+        <h3>Seed plurality</h3>
+        <p>Five seeds start the tree. Proteina-Complexa is one of them. The top program need not contain it; if it does
+          not, that result is itself evidence that the evolver is method-agnostic.</p>
+      </div>
+      <div class="card">
+        <span class="tag tag-green">Design property</span>
+        <h3>Cross-paradigm recombination</h3>
+        <p>Recombination prompts pair programs from different method traditions (diffusion &times; hallucination,
+          flow-matching &times; repair) rather than nudging a single lineage. Diversity is structurally enforced.</p>
+      </div>
+      <div class="card">
+        <span class="tag tag-green">Design property</span>
+        <h3>Tool-ingestion loop</h3>
+        <p>When a new generator or refinement method publishes with code, a lightweight wrapper is written and the
+          registry grows. The evolver re-runs and the living leaderboard updates without altering the paper's method.</p>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>Testable claim.</strong> Dropping any single model from the registry should degrade absolute score but
+        not destroy the method. The evolver should still discover a competitive composition using the remaining
+        registry. This is a required ablation, not a nice-to-have.</p>
     </div>
   </div>
 
   <div class="section" id="framing">
-    <h2>3. Intro and Contributions Draft</h2>
+    <h2>4. Intro and Contributions Draft</h2>
 
     <div class="two-up">
       <div class="draft-block">
         <span class="mini-label">Draft Intro</span>
         <p>
-          Recent work has shown that large language models can search over program space by proposing, executing, and
-          revising code under an automated score. We adapt this idea to protein binder design by treating inference-time
-          control around a frozen protein-generation checkpoint as executable empirical software. Instead of asking an LLM
-          only to choose the next operator, we ask it to write, mutate, and recombine local inference programs that
-          allocate budget, control diffusion trajectories, invoke post-generation refinement, summarize diagnostics, and
-          decide when to escalate or stop. Each candidate program is executed in a reproducible sandbox and scored by
-          matched-budget biological outcomes. Tree search then uses these scores and structured failure metadata to decide
-          which program to mutate next. This framing turns agentic protein design from a vague planning problem into a
-          concrete, auditable search over inference software.
+          Recent work shows that large language models can search over program space by proposing, executing, and
+          revising code under an automated score. We adapt this idea to protein design by treating inference-time control
+          as executable empirical software over a frozen registry of pretrained generators, inverse folders, structure
+          predictors, and refinement tools. Starting from a small set of seed programs drawn from different method
+          traditions, the system writes and recombines inference-only Python programs that compose these tools and a
+          library of TTO moves. Each candidate is executed in a reproducible sandbox and scored under matched compute on
+          fixed protein-design benchmarks. Tree search drives mutation, recombination, and retrieval-conditioned idea
+          injection. The result is a living inference-time design system whose method does not depend on any single
+          checkpoint and whose catalog can absorb new models and new inference-time tricks without retraining.
         </p>
       </div>
 
       <div class="draft-block">
         <span class="mini-label">Draft Contributions</span>
         <ul>
-          <li>We formulate protein binder inference-time optimization as a <strong>scorable search over local inference programs</strong> built around a frozen checkpoint.</li>
-          <li>We introduce a bounded mutable program interface spanning scouting, trajectory control, diagnostics, refinement, reranking, escalation, and stopping.</li>
-          <li>We enable <strong>code-level mutation and recombination</strong> across reusable motifs drawn from Complexa-native TTO, BindCraft-style repair, hallucination, and literature-derived trajectory control.</li>
-          <li>We pair scalar program scores with a <strong>diagnostic sidecar</strong> that preserves geometry, sequence, physics, and redesign-limited failure modes during search.</li>
-          <li>We evaluate the system under replay, cold-start, and live matched-budget settings using unique successes, efficiency, regret, and ablations over recombination and retrieval.</li>
+          <li>We formulate protein design as an <strong>inference-time scorable search</strong> over Python programs
+            that compose a frozen registry of pretrained protein models.</li>
+          <li>We specify a <strong>loose I/O contract</strong> and a concrete <strong>TTO move library</strong> so that
+            programs are portable across targets and tasks without committing to a single architectural template.</li>
+          <li>We demonstrate <strong>cross-paradigm recombination</strong>: pairwise hybrids of diffusion, flow-matching,
+            hallucination, and interface-repair programs produce score jumps neither parent achieves alone.</li>
+          <li>We show <strong>method-agnosticity by construction</strong>: single-model and single-paradigm ablations
+            still yield competitive programs because the evolver routes around missing tools.</li>
+          <li>We demonstrate a <strong>tool-ingestion loop</strong> in which adding a new pretrained model (via a small
+            wrapper) produces a measurable, automatic score jump without changing the method or retraining anything.</li>
+          <li>We release seed programs, a wrapper library for current protein tools, and a living benchmark harness
+            so that future models can be slotted in as they appear.</li>
         </ul>
       </div>
     </div>
 
     <div class="callout warn">
-      <p><strong>Paper-level consequence.</strong> This is no longer just a routing paper. The main story becomes
-      <strong>LLM-guided search over inference software</strong>, with replay accuracy treated as a secondary diagnostic rather than the main endpoint.</p>
+      <p><strong>Paper-level consequence.</strong> The main story is <strong>LLM-guided inference-time program search
+        over a frozen tool registry</strong>. Replay of human traces is demoted to a debugging diagnostic. Absolute
+        state-of-the-art on any one benchmark is not the claim; the claim is that the evolver is the method, and it
+        stays useful as the field's models and tricks evolve.</p>
     </div>
   </div>
 
   <div class="section" id="diagram">
-    <h2>4. System Diagram</h2>
+    <h2>5. System Diagram</h2>
 
     <div class="diagram-shell">
       <div class="diagram-stage wide">
         <div class="stack">
           <div class="diagram-node fixed">
-            <h4>Problem Setting</h4>
-            <p>Frozen checkpoint, target protein, allowed auxiliary methods, matched-budget evaluator, and reproducibility constraints.</p>
+            <h4>Scorable Task</h4>
+            <p>Target, fixed metric, matched-budget protocol, reproducibility constraints.</p>
+            <div class="pill-row">
+              <span class="mini-pill">Motif scaffolding</span>
+              <span class="mini-pill">Binder design</span>
+              <span class="mini-pill">Symmetric oligomers</span>
+            </div>
           </div>
           <div class="diagram-node context">
-            <h4>Idea Sources</h4>
-            <p>Literature, prior successful and failed programs, expert hints, and cross-framework motifs from Complexa TTO, BindCraft, hallucination, and trajectory-control papers.</p>
-            <div class="pill-row">
-              <span class="mini-pill">Literature</span>
-              <span class="mini-pill">Episode archive</span>
-              <span class="mini-pill">Expert hints</span>
-            </div>
+            <h4>Frozen Tool Registry</h4>
+            <p>Pretrained generators, inverse folders, structure predictors, and refinement tools behind a common
+              wrapper contract. Weights are never trained.</p>
+          </div>
+          <div class="diagram-node context">
+            <h4>TTO Move Library</h4>
+            <p>Inference-time operators from Complexa, BindCraft, hallucination, diffusion-trajectory control, and
+              physics reranking.</p>
           </div>
         </div>
 
-        <div class="diagram-arrow">→</div>
+        <div class="diagram-arrow">&rarr;</div>
 
         <div class="stack">
           <div class="diagram-node memory">
-            <h4>Program Tree</h4>
-            <p>Each node is one local target-specific inference program, not a vague action label and not a global controller.</p>
+            <h4>Seed Library</h4>
+            <p>Five seed programs from different method traditions. Proteina-Complexa TTO is one of them.</p>
           </div>
           <div class="diagram-node llm">
-            <h4>Proposal / Mutation Agent</h4>
-            <p>The LLM writes or rewrites bounded program code using the current best program, injected ideas, and diagnostic traces.</p>
+            <h4>LLM Proposal Agent</h4>
+            <p>Writes or rewrites an inference composition program given current best, injected ideas, and structured
+              diagnostics.</p>
           </div>
           <div class="diagram-node compile">
             <h4>Compiler + Safety Validator</h4>
-            <p>Program bundle is accepted only if it respects the API contract, import allow-list, budget rules, and logging requirements.</p>
+            <p>Enforces I/O contract, import allow-list, budget caps, and logging.</p>
           </div>
         </div>
 
-        <div class="diagram-arrow">→</div>
+        <div class="diagram-arrow">&rarr;</div>
 
         <div class="stack">
           <div class="diagram-node context">
             <h4>Execution Sandbox</h4>
-            <p>Run the candidate program on the frozen generator: scout, branch, refine, rerank, escalate, or stop.</p>
-          </div>
-          <div class="diagram-node context">
-            <h4>Structured Program Stages</h4>
-            <p>Pre-generation control, in-trajectory control, post-generation refinement, and selection logic all live inside the mutable program bundle.</p>
+            <p>Inference-only run on the target under matched budget. No gradient updates to any model.</p>
           </div>
           <div class="diagram-node outcome">
             <h4>Matched-Budget Evaluation</h4>
-            <p>Compute unique successes, efficiency, diversity, runtime validity, and any other fixed outcome metrics.</p>
+            <p>Unique successes, efficiency, diversity, runtime validity, and structured failure metadata.</p>
+          </div>
+          <div class="diagram-node outcome">
+            <h4>RankScore + Sidecar</h4>
+            <p>Scalar tree-search score plus preserved structured failure modes for future mutation prompts.</p>
           </div>
         </div>
 
-        <div class="diagram-arrow">→</div>
+        <div class="diagram-arrow">&rarr;</div>
 
         <div class="stack">
-          <div class="diagram-node outcome">
-            <h4>RankScore + Diagnostic Sidecar</h4>
-            <p>Collapse outcomes to a scalar tree-search score while preserving structured failure metadata for future mutations.</p>
+          <div class="diagram-node memory">
+            <h4>PUCT Tree Search</h4>
+            <p>Rank-normalized exploration across program nodes. All nodes are expansion candidates; no rollouts.</p>
           </div>
           <div class="diagram-node memory">
-            <h4>Tree Search Controller</h4>
-            <p>Use PUCT or related search to select which node to expand next and backpropagate visits, rewards, and metadata.</p>
+            <h4>Recombination Controller</h4>
+            <p>Selects pairs of parents (especially across paradigms) and emits cross-paradigm hybrid prompts.</p>
           </div>
           <div class="diagram-node memory">
-            <h4>Recipe Library and Episode Archive</h4>
-            <p>Promising motifs become reusable priors for future targets, but execution and scoring remain local and target-specific.</p>
+            <h4>Archive &amp; Ingestion Loop</h4>
+            <p>Programs, diagnostics, and motifs become reusable priors. New models and new papers enter via wrapper
+              generation and Deep Research summaries.</p>
           </div>
         </div>
       </div>
-      <p class="diagram-caption">The page now treats the search object as local inference software around a frozen checkpoint. Global transfer enters through motifs and archives, not through replacing local execution with one monolithic policy.</p>
-    </div>
-
-    <div class="callout">
-      <p><strong>Key design choice.</strong> This diagram retains the local program as the execution unit while making
-      recombination explicit. That is the cleanest way to combine V3 locality with the empirical-software paper's
-      mutation-and-search loop.</p>
+      <p class="diagram-caption">Three layers: frozen task and tools at the bottom, seed library and evolver in the
+        middle, matched-budget evaluation and search memory on the right. Training is never invoked.</p>
     </div>
   </div>
 
-  <div class="section" id="bundle">
-    <h2>5. Search Object: Local Inference Program</h2>
+  <div class="section" id="registry">
+    <h2>6. Tool Registry: Pretrained Models as Plug-ins</h2>
 
     <p class="lede">
-      The node in the search tree is an executable <strong>local inference program</strong> for one target. It is code,
-      not prose. Transfer enters only through idea injection and motif reuse.
+      Every registry entry is a pretrained model wrapped behind a small, uniform Python interface. Wrappers are the
+      only place where model specifics live. Adding a new model means adding one wrapper file, not touching the evolver.
     </p>
 
     <div class="table-wrap">
       <table>
         <tr>
-          <th style="width: 24%;">Bounded interface</th>
-          <th style="width: 48%;">Role in the program</th>
-          <th style="width: 28%;">Why it matters</th>
+          <th style="width: 18%;">Role</th>
+          <th style="width: 32%;">Initial catalog</th>
+          <th style="width: 28%;">Wrapper contract</th>
+          <th style="width: 22%;">Extension path</th>
         </tr>
         <tr>
-          <td><code>prepare_target(...)</code></td>
-          <td>Build target-conditioned context, preprocessing choices, and any initial target-specific priors.</td>
-          <td>Keeps target handling explicit and reproducible.</td>
+          <td><strong>Backbone generator</strong></td>
+          <td>RFDiffusion, Chroma, Proteina, Proteina-Complexa, Genie2, FoldFlow / Multiflow, FrameFlow</td>
+          <td><code>generate(spec, n, budget) &rarr; List[Structure]</code> with optional trajectory access for
+            partial-diffusion moves.</td>
+          <td>Any diffusion, flow-matching, or autoregressive backbone model with open inference code.</td>
         </tr>
         <tr>
-          <td><code>generate_or_branch(...)</code></td>
-          <td>Controls initial arms, branching schedule, restart logic, and trajectory exploration around the frozen generator.</td>
-          <td>Captures the part of the search that config-only optimization cannot express well.</td>
+          <td><strong>Inverse folder</strong></td>
+          <td>ProteinMPNN, LigandMPNN, ESM-IF</td>
+          <td><code>sequence(structure, constraints, n) &rarr; List[Sequence]</code></td>
+          <td>Any inverse-folding model that takes a backbone and returns sequences.</td>
         </tr>
         <tr>
-          <td><code>summarize_diagnostics(...)</code></td>
-          <td>Compresses outputs into geometry, sequence, physics, redesign-gap, and runtime signals.</td>
-          <td>Makes failure-mode-aware mutation possible.</td>
+          <td><strong>Structure predictor</strong></td>
+          <td>AlphaFold2, AlphaFold3, ESMFold, Boltz-1</td>
+          <td><code>predict(sequence, context) &rarr; Structure + confidence</code></td>
+          <td>Any single-sequence or MSA-based predictor with reproducible scoring outputs.</td>
         </tr>
         <tr>
-          <td><code>refine_candidates(...)</code></td>
-          <td>Optionally invokes BindCraft-style repair, hallucination-style rescue, or other allow-listed refinements.</td>
-          <td>Where cross-framework recombination becomes concrete.</td>
+          <td><strong>Refinement / repair</strong></td>
+          <td>BindCraft, AF2-hallucination, Rosetta FastRelax, PyRosetta filters</td>
+          <td><code>refine(structure_or_pair, diagnostics) &rarr; Structure</code> with per-call budget reporting.</td>
+          <td>Any inference-time post-generation repair or local optimization method.</td>
         </tr>
         <tr>
-          <td><code>rerank_and_select(...)</code></td>
-          <td>Filters and reranks candidates based on fixed score proxies, diversity, and diagnostic summaries.</td>
-          <td>Lets the program express geometry-first or physics-aware selection logic.</td>
-        </tr>
-        <tr>
-          <td><code>decide_escalation(...)</code></td>
-          <td>Chooses whether to widen search, run MCTS-like escalation, switch to refinement, or stop.</td>
-          <td>Encodes orchestration as software rather than as a single prompt answer.</td>
-        </tr>
-        <tr>
-          <td><code>should_stop(...)</code></td>
-          <td>Implements budget-aware stopping rules and expected-observable checks.</td>
-          <td>Prevents uncontrolled budget burn.</td>
+          <td><strong>Scoring / filtering</strong></td>
+          <td>AF2 pLDDT / pAE / ipAE, physics terms, FoldSeek novelty, diversity clustering</td>
+          <td><code>score(candidate, task) &rarr; {metric: value}</code></td>
+          <td>Any scorable inference-time signal that does not require training.</td>
         </tr>
       </table>
     </div>
 
-    <div class="card">
-      <h3>What this keeps clean</h3>
-      <p>
-        The checkpoint remains frozen. The evaluator remains fixed. The program is local and executable. That means each
-        node can still be scored fairly on one target, while mutation and recombination remain expressive enough to matter.
-      </p>
+    <div class="callout">
+      <p><strong>Wrapper discipline.</strong> Each wrapper declares its inference cost, memory footprint, and any
+        stochasticity knobs. This is what makes matched-budget evaluation meaningful when the evolver composes programs
+        that call different models.</p>
+    </div>
+  </div>
+
+  <div class="section" id="moves">
+    <h2>7. TTO Move Library</h2>
+
+    <p class="lede">
+      These are the inference-time operators the evolver can call from any program. They are drawn from across the
+      protein-design literature and abstracted into callables so that programs can mix them freely.
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <tr>
+          <th style="width: 22%;">Category</th>
+          <th style="width: 34%;">Operators</th>
+          <th style="width: 44%;">Origin and purpose</th>
+        </tr>
+        <tr>
+          <td><strong>Pre-generation</strong></td>
+          <td><code>set_target_context</code>, <code>set_symmetry_prior</code>, <code>set_length_distribution</code>,
+            <code>set_motif_constraints</code></td>
+          <td>Standard conditioning knobs shared across diffusion and flow-matching generators.</td>
+        </tr>
+        <tr>
+          <td><strong>Trajectory control</strong></td>
+          <td><code>partial_diffusion_restart</code>, <code>branching_schedule</code>,
+            <code>classifier_guidance_hook</code>, <code>noise_perturbation</code>, <code>early_stop_on_score</code>,
+            <code>tempered_sampling</code></td>
+          <td>Diffusion and flow-matching trajectory moves from RFDiffusion, Chroma, Genie2, and the broader
+            diffusion-control literature.</td>
+        </tr>
+        <tr>
+          <td><strong>Post-generation refinement</strong></td>
+          <td><code>bindcraft_repair</code>, <code>hallucination_rescue</code>, <code>mpnn_redesign</code>,
+            <code>fastrelax_minimize</code>, <code>interface_optimize</code></td>
+          <td>Local inference-time repair motifs; separate geometry acquisition from sequence and interface cleanup.</td>
+        </tr>
+        <tr>
+          <td><strong>Selection and reranking</strong></td>
+          <td><code>af2_rerank</code>, <code>physics_rerank</code>, <code>ensemble_filter</code>,
+            <code>diversity_select</code>, <code>novelty_filter</code></td>
+          <td>Fixed-score proxies and diversity-aware selection; lets a program express geometry-first or physics-aware
+            selection logic.</td>
+        </tr>
+        <tr>
+          <td><strong>Meta-control</strong></td>
+          <td><code>escalate_budget</code>, <code>diversify_rescue</code>, <code>narrow_search</code>,
+            <code>stop_on_expected_observable</code></td>
+          <td>Orchestration operators that decide when to spend more compute, when to diversify, and when to halt.</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="callout">
+      <p><strong>Move discipline.</strong> Each operator has a stable signature and reports its own compute cost.
+        Programs declare a total budget and the validator checks that the sum of move costs fits. This is what makes
+        cross-paradigm recombination a fair search rather than a compute-spending race.</p>
+    </div>
+  </div>
+
+  <div class="section" id="seeds">
+    <h2>8. Seed Program Library</h2>
+
+    <p class="lede">
+      Five seed programs bootstrap the tree. They span different method traditions so that the initial search frontier
+      is paradigm-diverse from step one.
+    </p>
+
+    <div class="card-grid">
+      <div class="card">
+        <span class="tag tag-blue">Seed 1</span>
+        <h3>Complexa-native TTO</h3>
+        <p><code>generate(Complexa)</code> with scouting, geometry diagnostics, selective refinement, and AF2 rerank.
+          This is the closest tie to prior work and the baseline the evolver must beat.</p>
+      </div>
+      <div class="card">
+        <span class="tag tag-blue">Seed 2</span>
+        <h3>RFDiffusion + MPNN + BindCraft repair</h3>
+        <p><code>generate(RFDiffusion)</code> &rarr; <code>mpnn_redesign</code> &rarr; <code>bindcraft_repair</code>
+          &rarr; <code>af2_rerank</code>. A strong diffusion-plus-repair baseline anchored in a different tradition.</p>
+      </div>
+      <div class="card">
+        <span class="tag tag-blue">Seed 3</span>
+        <h3>Chroma conditional + hallucination rescue</h3>
+        <p><code>generate(Chroma)</code> with class-conditional guidance, followed by <code>hallucination_rescue</code>
+          on candidates whose geometry opens but sequence fails.</p>
+      </div>
+      <div class="card">
+        <span class="tag tag-purple">Seed 4</span>
+        <h3>Deliberate cross-paradigm hybrid</h3>
+        <p><code>generate(Complexa, scout)</code> then <code>partial_diffusion_restart</code> with RFDiffusion on
+          low-geometry cases, then <code>mpnn_redesign</code> and physics rerank. Seeds the tree with a hybrid the
+          evolver can immediately mutate.</p>
+      </div>
+      <div class="card">
+        <span class="tag tag-gold">Seed 5</span>
+        <h3>Conservative generate-and-filter</h3>
+        <p>No TTO moves beyond selection. Uses the default generator and AF2 filter only. Functions as a negative
+          control and as a compute-cheap fallback when escalation is not warranted.</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <p><strong>Why these five.</strong> Together they cover diffusion, flow-matching-adjacent, hallucination,
+        deliberate cross-paradigm hybrid, and a minimal baseline. This paradigm coverage at the root is what makes the
+        PUCT exploration produce diverse recombinations early rather than drifting toward one family.</p>
+    </div>
+  </div>
+
+  <div class="section" id="object">
+    <h2>9. Search Object and I/O Contract</h2>
+
+    <p class="lede">
+      A tree node is an executable <strong>inference composition program</strong>. It is code, not prose. It is loosely
+      structured: a weak I/O contract replaces the earlier strict seven-function API so the evolver can merge stages,
+      reorder moves, or add new stages without fighting the harness.
+    </p>
+
+    <pre><code># Loose I/O contract - the only thing the validator enforces.
+# Any internal structure is fair game.
+
+def run_design_program(
+    task: TaskSpec,                 # target, constraints, success metric
+    budget: Budget,                 # wall-clock or GPU-hour quota
+    registry: ToolRegistry,         # frozen pretrained models (wrappers)
+    moves: MoveLibrary,             # inference-time operators
+    diagnostics_cb: Callable,       # structured logging for sidecar
+) -&gt; DesignResult:
+    """
+    Must:
+      - call only registry tools and library moves (import allow-list)
+      - respect the budget (validator rejects overruns)
+      - emit structured diagnostics (geometry, sequence, physics, redesign-gap)
+      - return candidates with reproducible seeds
+
+    Free to:
+      - use any control flow, combine any tools and moves
+      - skip, reorder, or merge canonical stages
+      - branch, escalate, or early-stop on its own criteria
+    """
+    ...
+    return DesignResult(candidates=..., diagnostics=..., budget_used=...)</code></pre>
+
+    <div class="callout">
+      <p><strong>Why loose.</strong> The empirical-software paper's biggest jumps came from unexpected structural merges
+        (e.g. BBKNN with ComBat-corrected PCA). A strict per-stage API would have blocked that. Here the validator only
+        checks safety and budget, not shape.</p>
     </div>
   </div>
 
   <div class="section" id="loop">
-    <h2>6. Search Loop and Paper Mapping</h2>
-
-    <p class="lede">
-      The search loop can now follow the empirical-software paper closely, but with a protein-design-specific bounded API.
-    </p>
+    <h2>10. Search Loop and Paper Mapping</h2>
 
     <div class="table-wrap">
       <table>
@@ -755,83 +899,45 @@
         </tr>
         <tr>
           <td>Scorable task</td>
-          <td>Matched-budget binder design problem</td>
-          <td>Target protein, frozen checkpoint, fixed budget, and fixed success metric.</td>
+          <td>Matched-budget protein-design task</td>
+          <td>Motif scaffolding / binder design / symmetric oligomer / functional design with fixed metrics.</td>
         </tr>
         <tr>
           <td>Idea injection</td>
           <td>Literature, prior programs, expert hints</td>
-          <td>Inject Complexa motifs, BindCraft repair, hallucination rescue, diffusion-control ideas, and prior episode lessons.</td>
+          <td>Paper summaries from Deep Research, seed programs, motif archive, and "if X then try Y" hints.</td>
         </tr>
         <tr>
           <td>Current best code</td>
-          <td>Current best local inference program</td>
-          <td>Provide source code, logs, diagnostics, and score trace to the mutation prompt.</td>
+          <td>Current best inference composition program</td>
+          <td>Program source, logs, diagnostics, and score trace are concatenated into the mutation prompt.</td>
         </tr>
         <tr>
           <td>LLM mutation</td>
-          <td>Write or rewrite bounded program code</td>
-          <td>Mutate branching logic, diagnostics, refinement choices, reranking, and stopping rules.</td>
+          <td>Rewrite inference composition program</td>
+          <td>Swap models, reorder moves, add or remove refinement, change selection logic, adjust stopping rules.</td>
         </tr>
         <tr>
           <td>Sandbox evaluation</td>
-          <td>Run in frozen-checkpoint execution sandbox</td>
-          <td>Compile, validate, execute, and log the candidate program under matched budget.</td>
+          <td>Reproducible inference-only run</td>
+          <td>Compile, validate, execute, log; no gradient updates; wall-clock and GPU-hour tracked per wrapper.</td>
         </tr>
         <tr>
           <td>Quality score</td>
           <td>Matched-budget program score</td>
-          <td>Unique successes, success per GPU-hour, diversity-adjusted utility, and validity.</td>
+          <td>Unique successes, success per GPU-hour, diversity-adjusted utility, validity.</td>
         </tr>
         <tr>
-          <td>RankScore and tree search</td>
+          <td>RankScore + PUCT</td>
           <td>Rank-normalized search over program nodes</td>
-          <td>Use PUCT over noisy, target-specific program outcomes rather than raw comparable losses.</td>
+          <td>Global rank across the program archive; all nodes are expansion candidates; no random rollouts.</td>
         </tr>
         <tr>
           <td>Backpropagation</td>
-          <td>Visits, rewards, and diagnostic metadata</td>
-          <td>Backpropagate scalar score and preserve structured failure reasons for future mutations.</td>
+          <td>Visits, rewards, sidecar metadata</td>
+          <td>Score scalar plus preserved failure modes, carried to ancestors for future mutation prompts.</td>
         </tr>
       </table>
-    </div>
-
-    <div class="diagram-shell">
-      <div class="diagram-stage default">
-        <div class="stack">
-          <div class="diagram-node memory">
-            <h4>Current Best Program</h4>
-            <p>Source code, evaluator output, diagnostics, and the current tree position.</p>
-          </div>
-          <div class="diagram-node context">
-            <h4>Injected Ideas</h4>
-            <p>Literature snippets, prior motifs, and targeted expert advice.</p>
-          </div>
-        </div>
-
-        <div class="diagram-arrow">→</div>
-
-        <div class="stack">
-          <div class="diagram-node llm">
-            <h4>Mutation or Recombination</h4>
-            <p>Rewrite one program, combine two parents, or transfer a motif from prior targets.</p>
-          </div>
-          <div class="diagram-node compile">
-            <h4>Compile and Run</h4>
-            <p>Validate the bundle, execute it on the target, and record all structured outcomes.</p>
-          </div>
-        </div>
-
-        <div class="diagram-arrow">→</div>
-
-        <div class="stack">
-          <div class="diagram-node outcome">
-            <h4>Score and Backpropagate</h4>
-            <p>Update tree statistics, rank score, and diagnostic metadata, then decide which node to expand next.</p>
-          </div>
-        </div>
-      </div>
-      <p class="diagram-caption">The loop is intentionally close to the paper: ideas in, code mutation, sandbox execution, score, tree search, and repeat.</p>
     </div>
 
     <h3>Expansion operators</h3>
@@ -844,252 +950,328 @@
         </tr>
         <tr>
           <td><strong>Mutation</strong></td>
-          <td>Rewrite a single current program to improve one stage of the local inference loop.</td>
-          <td>Change trajectory branching or stopping logic.</td>
+          <td>Rewrite a single current program.</td>
+          <td>Swap <code>generate(Complexa)</code> for <code>generate(Chroma)</code>; replace
+            <code>af2_rerank</code> with a physics ensemble.</td>
         </tr>
         <tr>
           <td><strong>Recombination</strong></td>
-          <td>Combine executable motifs from multiple parents or design traditions.</td>
-          <td>Complexa scouting + BindCraft repair + hallucination rescue.</td>
+          <td>Combine motifs from multiple parents, ideally across paradigms.</td>
+          <td>Complexa scouting + RFDiffusion partial restart + BindCraft repair + AF2 rerank.</td>
         </tr>
         <tr>
           <td><strong>Retrieval-conditioned transfer</strong></td>
-          <td>Inject a motif that did well on a similar target or that appears in newly retrieved papers.</td>
-          <td>Add a diffusion restart heuristic from literature.</td>
+          <td>Inject a motif found in newly retrieved literature or from a similar target's archive.</td>
+          <td>Import a trajectory-branching rule from a recent diffusion-control paper and slot it in.</td>
         </tr>
         <tr>
           <td><strong>Rescue patch</strong></td>
-          <td>Apply a tightly targeted code edit motivated by one dominant failure mode.</td>
-          <td>Patch reranking after repeated geometry-open but selection-failed runs.</td>
+          <td>Targeted edit motivated by one dominant failure mode on the sidecar.</td>
+          <td>If "geometry open but selection failed" recurs, patch <code>diversity_select</code> upstream of rerank.</td>
+        </tr>
+        <tr>
+          <td><strong>Tool ingestion</strong></td>
+          <td>Add a new pretrained model to the registry via a generated wrapper, then re-run PUCT with the enlarged
+            catalog.</td>
+          <td>Add Proteina v2 on release; measure score jump without any paper-level change.</td>
         </tr>
       </table>
     </div>
   </div>
 
-  <div class="section" id="human">
-    <h2>7. Human Design and Idea Injection</h2>
+  <div class="section" id="recombine">
+    <h2>11. Cross-Paradigm Recombination</h2>
 
-    <div class="two-up">
-      <div class="card">
-        <span class="tag tag-gold">Human-designed</span>
-        <h3>What experts still design</h3>
-        <ul>
-          <li>The scorable task, success thresholds, and matched-budget comparison protocol.</li>
-          <li>The bounded mutable API and import allow-list.</li>
-          <li>The frozen checkpoint and the fixed evaluator.</li>
-          <li>The initial seed program library and safety constraints.</li>
-          <li>The small set of expert hints that define the search space responsibly.</li>
-          <li>Manual inspection of top candidates to catch reward hacking or implausible shortcuts.</li>
-        </ul>
-      </div>
-
-      <div class="card">
-        <span class="tag tag-accent">Injected ideas</span>
-        <h3>What should enter the mutation prompt</h3>
-        <ul>
-          <li>Literature summaries about diffusion control, trajectory steering, interface repair, and binder refinement.</li>
-          <li>Prior successful programs and near-miss programs from related targets.</li>
-          <li>Complexa-native TTO motifs that already show value under this evaluator.</li>
-          <li>BindCraft-style post-generation repair or hallucination-style rescue motifs.</li>
-          <li>Short expert interventions of the form "if X is observed, try Y".</li>
-        </ul>
-      </div>
-    </div>
+    <p class="lede">
+      The empirical-software paper reports that 44 percent of pairwise recombinations beat both parents on scRNA-seq
+      batch integration. Our setting is harder because parents come from different method paradigms, not just different
+      hyperparameter regions. That increases diversity and the chance of synergistic hybrids.
+    </p>
 
     <div class="table-wrap">
       <table>
         <tr>
-          <th style="width: 26%;">Idea source</th>
-          <th style="width: 34%;">Representative motif</th>
-          <th style="width: 40%;">How it helps the search</th>
+          <th style="width: 22%;">Parent A</th>
+          <th style="width: 22%;">Parent B</th>
+          <th style="width: 56%;">Expected synergy</th>
         </tr>
         <tr>
-          <td>Complexa-native TTO</td>
-          <td>Scout broadly, diagnose geometry, escalate only on evidence</td>
-          <td>Provides high-quality native program structure and realistic operator combinations.</td>
+          <td>Complexa-native TTO (scout-diagnose-escalate)</td>
+          <td>BindCraft interface repair</td>
+          <td>Complexa produces diverse geometry candidates; BindCraft cleans up interface before AF2 rerank.</td>
         </tr>
         <tr>
-          <td>BindCraft-style methods</td>
-          <td>Post-generation local repair or gradient-based interface cleanup</td>
-          <td>Adds a strong refinement motif that is hard to recover from config-only search.</td>
+          <td>RFDiffusion trajectory branching</td>
+          <td>Hallucination sequence rescue</td>
+          <td>Branching finds multiple geometry arms; hallucination recovers sequence on arms where MPNN produces
+            low-confidence designs.</td>
         </tr>
         <tr>
-          <td>Hallucination / redesign</td>
-          <td>Sequence-only rescue after geometry has opened</td>
-          <td>Separates geometry acquisition from local sequence improvement.</td>
+          <td>Chroma class-conditional guidance</td>
+          <td>Physics rerank + ensemble filter</td>
+          <td>Class guidance narrows the generator's output to target-relevant families; physics rerank suppresses
+            failure modes class guidance misses.</td>
         </tr>
         <tr>
-          <td>Diffusion-trajectory literature</td>
-          <td>Restart, branch, prune, or noise perturbation rules</td>
-          <td>Introduces new in-trajectory control motifs that are naturally expressed as code.</td>
-        </tr>
-        <tr>
-          <td>Expert advice</td>
-          <td>"Do not spend heavy refinement budget before a plausible interface family appears"</td>
-          <td>Acts like the paper's problem-specific advice that can create score jumps when the search stalls.</td>
+          <td>Diffusion partial-restart control</td>
+          <td>Diversity-aware selection</td>
+          <td>Restarts rescue low-geometry cases; diversity selection prevents collapse to the first lucky arm.</td>
         </tr>
       </table>
+    </div>
+
+    <div class="callout">
+      <p><strong>Method-agnosticity as a signal.</strong> The most interesting outcome is a top program whose best
+        ablation removes Proteina-Complexa and still outperforms every seed. That is exactly the story the paper
+        should tell.</p>
     </div>
   </div>
 
   <div class="section" id="evaluation">
-    <h2>8. Evaluation and Baselines</h2>
+    <h2>12. Evaluation and Method-Agnosticity Tests</h2>
 
     <p class="lede">
-      The main result should be matched-budget design improvement, not just replay agreement with a human decision trace.
-      Replay remains useful, but it should be treated as a secondary debugging benchmark.
+      The main result is searched-program quality under fixed compute, plus structured evidence that the method does
+      not depend on any single registry member.
     </p>
-
-    <div class="callout warn">
-      <p><strong>Objective assessment.</strong> The old plan over-weighted replay and cold-start routing quality because
-      those were the easiest pieces to audit. The new framing is stronger only if the final paper is willing to center
-      <strong>searched program quality under fixed compute</strong> as the main endpoint.</p>
-    </div>
 
     <div class="table-wrap">
       <table>
         <tr>
-          <th style="width: 18%;">Benchmark mode</th>
+          <th style="width: 24%;">Mode</th>
           <th style="width: 34%;">Question answered</th>
-          <th style="width: 48%;">Recommended use</th>
+          <th style="width: 42%;">Status in this plan</th>
+        </tr>
+        <tr>
+          <td><strong>Live matched-budget search</strong></td>
+          <td>Does the searched program frontier beat strong static baselines at equal compute?</td>
+          <td>Primary scientific benchmark.</td>
+        </tr>
+        <tr>
+          <td><strong>Registry ablations</strong></td>
+          <td>Does the evolver still produce competitive programs when one model or one paradigm is removed from the
+            registry?</td>
+          <td>Primary evidence for method-agnosticity.</td>
+        </tr>
+        <tr>
+          <td><strong>Tool-ingestion experiment</strong></td>
+          <td>Does adding a new model at run N yield a measurable score breakthrough by run N + k?</td>
+          <td>Primary evidence for the living-leaderboard claim.</td>
+        </tr>
+        <tr>
+          <td><strong>Cross-paradigm recombination rate</strong></td>
+          <td>What fraction of cross-paradigm hybrids beat both parents? How does that compare within-paradigm?</td>
+          <td>Secondary, directly tests the recombination story.</td>
         </tr>
         <tr>
           <td><strong>Replay</strong></td>
-          <td>Can the system mutate or select a better next program from historical traces?</td>
-          <td>Cheap debugging benchmark for search logic, not the main claim.</td>
-        </tr>
-        <tr>
-          <td><strong>Cold-start</strong></td>
-          <td>Can the system propose a strong first local program from target context and literature alone?</td>
-          <td>Important for generalization, but still secondary to live matched-budget outcomes.</td>
-        </tr>
-        <tr>
-          <td><strong>Live search</strong></td>
-          <td>Does the searched inference program frontier beat strong static baselines under equal budget?</td>
-          <td>Main scientific benchmark.</td>
+          <td>Can the system mutate a historical program to a better one on the same trace?</td>
+          <td>Debugging diagnostic only. Not a headline claim.</td>
         </tr>
       </table>
     </div>
 
     <h3>Primary metrics</h3>
     <ul>
-      <li><strong>Unique successes at matched budget:</strong> the main score.</li>
-      <li><strong>Success per GPU-hour:</strong> efficiency view of the same search frontier.</li>
-      <li><strong>Regret versus best known executable program:</strong> useful for replay and archive analysis.</li>
-      <li><strong>Compiler validity and runtime robustness:</strong> necessary because the search object is code.</li>
-      <li><strong>Diversity among successes:</strong> useful when many candidates collapse to one family.</li>
+      <li><strong>Unique successes at matched budget</strong> on each scorable task.</li>
+      <li><strong>Success per GPU-hour</strong> as an efficiency view of the same frontier.</li>
+      <li><strong>Cross-paradigm recombination win rate</strong>: fraction of hybrids that beat both parents.</li>
+      <li><strong>Registry-ablation robustness</strong>: score degradation when any single model is removed.</li>
+      <li><strong>Tool-ingestion latency</strong>: iterations between adding a new model and a measurable score jump.</li>
+      <li><strong>Diversity among successes</strong> to confirm programs are not collapsing to one family.</li>
     </ul>
 
     <h3>Baselines and ablations</h3>
     <ul>
-      <li>Static frozen-checkpoint default inference program.</li>
-      <li>Human-written local programs without LLM mutation.</li>
-      <li>Config-only search without code-level mutation.</li>
+      <li>Each seed program run standalone at matched budget.</li>
+      <li>Human-written hybrid programs without LLM mutation.</li>
+      <li>Config-only search over a fixed program template (no code-level mutation).</li>
       <li>No-recombination ablation.</li>
-      <li>No-literature / no-prior-program ablation.</li>
-      <li>Routing-only controller baseline.</li>
+      <li>No-literature / no-archive injection ablation.</li>
+      <li>Registry ablations: drop one model, drop one paradigm, drop all refinement tools.</li>
+      <li>Tool-ingestion time series: registry at month 0, +1, +2, ... as new models are added.</li>
     </ul>
   </div>
 
   <div class="section" id="plan">
-    <h2>9. Implementation Plan</h2>
+    <h2>13. Implementation Plan</h2>
 
     <div class="card-grid">
       <div class="card">
         <span class="tag tag-blue">Phase 0</span>
-        <h3>Freeze the true boundary</h3>
-        <p>Choose the checkpoint, fix the evaluator, define the budget unit, and finalize the allow-list of auxiliary methods.</p>
+        <h3>Freeze task, metric, budget</h3>
+        <p>Pick the first scorable task (binder design is the primary candidate), finalize success metric and
+          matched-budget unit, and define the import allow-list.</p>
       </div>
       <div class="card">
         <span class="tag tag-blue">Phase 1</span>
-        <h3>Define the mutable program API</h3>
-        <p>Lock the bounded local program interface before any mutation loop starts.</p>
+        <h3>Build the tool registry</h3>
+        <p>Write wrappers for the initial catalog: backbone generators (Complexa, RFDiffusion, Chroma), MPNN variants,
+          AF2 / ESMFold, BindCraft, and core filters. Record inference cost per call.</p>
       </div>
       <div class="card">
         <span class="tag tag-blue">Phase 2</span>
-        <h3>Seed the program library</h3>
-        <p>Write a small hand-designed set of initial programs: conservative, geometry-opening, refinement-heavy, and trajectory-control variants.</p>
+        <h3>Write the TTO move library</h3>
+        <p>Implement the operators listed in section 7 with stable signatures. Include a compute-cost self-report for
+          each so budget accounting works.</p>
       </div>
       <div class="card">
         <span class="tag tag-gold">Phase 3</span>
-        <h3>Build the mutation harness</h3>
-        <p>Prompt the LLM with code, diagnostics, and injected ideas; compile; execute; score; archive.</p>
+        <h3>Author five seed programs</h3>
+        <p>Code the five seeds in section 8 against the loose I/O contract. Run each standalone to confirm they produce
+          valid designs at matched budget and to collect baseline numbers.</p>
       </div>
       <div class="card">
-        <span class="tag tag-orange">Phase 4</span>
-        <h3>Add tree search</h3>
-        <p>Track node visits, rank scores, diagnostic sidecars, and recombination parents; then run PUCT over the archive.</p>
+        <span class="tag tag-gold">Phase 4</span>
+        <h3>Mutation harness</h3>
+        <p>LLM prompt with program, diagnostics, and injected ideas; compile; execute; score; archive. Reproduces the
+          paper's inner loop, adapted for protein inference.</p>
       </div>
       <div class="card">
-        <span class="tag tag-green">Phase 5</span>
-        <h3>Run replay, then live search</h3>
-        <p>Use replay for harness debugging and archive analysis, then move quickly to live matched-budget comparisons.</p>
+        <span class="tag tag-orange">Phase 5</span>
+        <h3>PUCT tree + recombination controller</h3>
+        <p>Add rank-normalized PUCT across program nodes and the cross-paradigm recombination prompt. Track visits,
+          rewards, and sidecar metadata.</p>
+      </div>
+      <div class="card">
+        <span class="tag tag-green">Phase 6</span>
+        <h3>Ablations and ingestion experiment</h3>
+        <p>Registry-drop ablations, cross-paradigm recombination win-rate analysis, and a tool-ingestion time series
+          adding at least one new model mid-run.</p>
+      </div>
+      <div class="card">
+        <span class="tag tag-green">Phase 7</span>
+        <h3>Second scorable task</h3>
+        <p>Motif scaffolding or symmetric oligomer design, to demonstrate portability of the evolver across tasks with
+          no paper-level change.</p>
       </div>
     </div>
 
     <h3>Immediate next actions</h3>
-    <pre><code># 1. Freeze boundary
-#    - choose checkpoint
-#    - choose matched-budget score
-#    - define allow-listed auxiliary methods
+    <pre><code># 1. Lock task, metric, and matched-budget unit
+#    - primary: binder design set
+#    - metric:  unique successes + AF2 ipAE threshold under fixed GPU-hours
 #
-# 2. Define bounded LocalInferenceProgram API
-#    prepare_target(...)
-#    generate_or_branch(...)
-#    summarize_diagnostics(...)
-#    refine_candidates(...)
-#    rerank_and_select(...)
-#    decide_escalation(...)
-#    should_stop(...)
+# 2. Write wrappers for the initial registry
+#    - generators:  Complexa, RFDiffusion, Chroma
+#    - folders:     ProteinMPNN, LigandMPNN
+#    - predictors:  AF2, ESMFold
+#    - refinement:  BindCraft, hallucination_rescue
+#    - each wrapper reports cost and stochasticity knobs
 #
-# 3. Seed 4-6 initial local programs
-# 4. Build mutation / compile / execute / archive harness
-# 5. Add tree-search controller over the program archive
-# 6. Run replay for debugging, then live matched-budget experiments</code></pre>
+# 3. Implement the TTO move library (section 7)
+#
+# 4. Author the five seed programs (section 8) against the loose I/O contract
+#
+# 5. Stand up the mutation harness: prompt -&gt; compile -&gt; sandbox -&gt; score -&gt; archive
+#
+# 6. Add PUCT tree search and the cross-paradigm recombination prompt
+#
+# 7. Run the first live matched-budget experiment on binder design</code></pre>
+  </div>
+
+  <div class="section" id="risks">
+    <h2>14. Risks and Open Questions</h2>
+
+    <div class="table-wrap">
+      <table>
+        <tr>
+          <th style="width: 22%;">Risk</th>
+          <th style="width: 38%;">Why it could hurt the paper</th>
+          <th style="width: 40%;">Mitigation in this plan</th>
+        </tr>
+        <tr>
+          <td><strong>Compute blow-up</strong></td>
+          <td>Programs that stack expensive models can dominate the search.</td>
+          <td>Every wrapper and move reports cost; validator rejects budget overruns; matched-budget scoring penalizes
+            compute-heavy programs by construction.</td>
+        </tr>
+        <tr>
+          <td><strong>Reward hacking</strong></td>
+          <td>AF2 confidence and related proxies can be inflated without real binder success.</td>
+          <td>Diagnostic sidecar preserves geometry, physics, and diversity signals; manual inspection of top programs
+            before reporting.</td>
+        </tr>
+        <tr>
+          <td><strong>Paradigm collapse</strong></td>
+          <td>Tree search may converge to one generator and one refinement idiom.</td>
+          <td>Cross-paradigm recombination controller, paradigm-diverse seeds, and diversity-aware selection operators.</td>
+        </tr>
+        <tr>
+          <td><strong>Wrapper drift</strong></td>
+          <td>New models may have inconsistent APIs that make portability illusory.</td>
+          <td>Wrapper contract declares cost and stochasticity; a small test suite runs on every new wrapper before
+            registry admission.</td>
+        </tr>
+        <tr>
+          <td><strong>Ingestion overfitting</strong></td>
+          <td>Adding a new model mid-run could bias scoring toward that model by sampling opportunity.</td>
+          <td>Report pre- and post-ingestion score trajectories separately; include a held-out target set for the
+            ingestion experiment.</td>
+        </tr>
+        <tr>
+          <td><strong>Framing drift back to Complexa</strong></td>
+          <td>Writing and narration pressure could re-anchor the paper to a single checkpoint.</td>
+          <td>Registry-ablation and tool-ingestion results must appear in the main paper, not an appendix.</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="callout danger">
+      <p><strong>Hard constraint.</strong> Nothing in this project retrains any model. If a proposed operator or
+        experiment requires weight updates, it is out of scope and must be either reworked as an inference-time move
+        or deferred to a future paper.</p>
+    </div>
   </div>
 
   <div class="section" id="status">
-    <h2>10. Current Status and Immediate Next Step</h2>
+    <h2>15. Current Status and Immediate Next Step</h2>
 
     <div class="checklist">
       <div class="checklist-item">
-        <span class="check yes">✓</span>
-        <div><strong>The scientific boundary is now clear.</strong> Freeze the checkpoint and evaluator; search over bounded inference software.</div>
+        <span class="check yes">&#10003;</span>
+        <div><strong>Revised framing agreed.</strong> Frozen tool registry and seed scaffolds; mutable inference
+          composition; inference only; Proteina-Complexa is a seed, not the anchor.</div>
       </div>
       <div class="checklist-item">
-        <span class="check yes">✓</span>
-        <div><strong>The replay-oriented controller work was not wasted.</strong> Its diagnostics, retrieval prototypes, and execution discipline become useful scaffolding inside the broader program-search system.</div>
+        <span class="check yes">&#10003;</span>
+        <div><strong>Prior plan archived.</strong> The 2026-04-15 and 2026-04-16 versions remain linked from the page
+          navigation for traceability.</div>
       </div>
       <div class="checklist-item">
-        <span class="check mid">◐</span>
-        <div><strong>The bounded program API still needs to be written down explicitly.</strong> That is the next implementation bottleneck.</div>
+        <span class="check mid">&#9680;</span>
+        <div><strong>Tool registry wrappers not yet written.</strong> This is the next implementation bottleneck.</div>
       </div>
       <div class="checklist-item">
-        <span class="check mid">◐</span>
-        <div><strong>The current benchmark story is still too replay-heavy.</strong> The main result should shift to live matched-budget search over executable programs.</div>
+        <span class="check mid">&#9680;</span>
+        <div><strong>TTO move library is specified but not implemented.</strong> Signatures and cost reporting are the
+          gate to meaningful matched-budget scoring.</div>
       </div>
       <div class="checklist-item">
-        <span class="check mid">◐</span>
-        <div><strong>The motif library is conceptually clear but not yet encoded.</strong> Complexa, BindCraft, hallucination, and literature-derived trajectory ideas should be captured as reusable promptable motifs.</div>
+        <span class="check mid">&#9680;</span>
+        <div><strong>Seed programs are described but not coded.</strong> Authoring them is the fastest way to stress
+          the loose I/O contract before the mutation harness is built.</div>
       </div>
       <div class="checklist-item">
         <span class="check no">!</span>
-        <div><strong>Unconstrained code mutation should not be allowed.</strong> Without API and evaluator hardening, this project will look broad but not scientific.</div>
+        <div><strong>No training under any circumstance.</strong> This is a hard boundary on the whole project.</div>
       </div>
     </div>
 
     <div class="callout">
-      <p><strong>Recommended immediate move.</strong> Do not spend the next week polishing replay prompts. Spend it
-      freezing the mutable program boundary, writing the bounded local program API, and preparing the first seed program
-      library for a real mutation-and-search harness.</p>
+      <p><strong>Recommended immediate move.</strong> Start with Phase 1: write wrappers for Complexa, RFDiffusion, and
+        AF2; produce a cost-accounting harness; stand up the matched-budget evaluator on a small binder-design subset.
+        Seed programs and the mutation harness follow once registry and budget accounting are verified.</p>
     </div>
   </div>
 
 </div>
 
 <div class="footer">
-  Revised on April 16, 2026. This page supersedes the earlier controller-centric plan and preserves the prior page at
-  <a href="/projects/agentic-protein-design-plan-archive-2026-04-15.html">agentic-protein-design-plan-archive-2026-04-15.html</a>.
+  Revised on April 16, 2026. This page supersedes the 2026-04-15 controller-centric plan and the earlier 2026-04-16
+  frozen-single-checkpoint plan, both preserved at
+  <a href="/projects/agentic-protein-design-plan-archive-2026-04-16.html">archive 2026-04-16</a> and
+  <a href="/projects/agentic-protein-design-plan-archive-2026-04-15.html">archive 2026-04-15</a>.
 </div>
 
 </body>
