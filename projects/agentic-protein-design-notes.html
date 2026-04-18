@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agentic Protein Design Notes — Minkyu Jeon</title>
+<style>
+  :root {
+    --bg: #f3f5f7;
+    --card: #ffffff;
+    --text: #18212f;
+    --muted: #586579;
+    --accent: #0f766e;
+    --accent-light: #ccfbf1;
+    --blue: #1d4ed8;
+    --blue-light: #dbeafe;
+    --green: #15803d;
+    --green-light: #dcfce7;
+    --orange: #c2410c;
+    --orange-light: #ffedd5;
+    --red: #b91c1c;
+    --red-light: #fee2e2;
+    --purple: #6d28d9;
+    --purple-light: #ede9fe;
+    --border: #dce3ea;
+    --code-bg: #eef2f7;
+    --navy: #0f172a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+    background: radial-gradient(circle at top left, #fbfdff 0%, #f3f5f7 42%, #edf1f5 100%);
+    color: var(--text);
+    line-height: 1.72;
+  }
+  .hero {
+    background:
+      radial-gradient(circle at 16% 18%, rgba(45, 212, 191, 0.18), transparent 22%),
+      radial-gradient(circle at 82% 12%, rgba(59, 130, 246, 0.15), transparent 24%),
+      linear-gradient(135deg, #10253f 0%, #0f172a 62%, #172554 100%);
+    color: #fff;
+    padding: 72px 24px 54px;
+  }
+  .hero .container { max-width: 1040px; margin: 0 auto; }
+  .breadcrumb { font-size: 0.85rem; color: #94a3b8; margin-bottom: 16px; }
+  .breadcrumb a { color: #99f6e4; text-decoration: none; }
+  .hero h1 {
+    font-size: 2.28rem;
+    font-weight: 800;
+    line-height: 1.18;
+    margin-bottom: 14px;
+    max-width: 920px;
+  }
+  .hero .subtitle {
+    max-width: 920px;
+    color: #d7e3f3;
+    font-size: 1.04rem;
+  }
+  .hero .meta {
+    margin-top: 22px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    color: #b7c4d8;
+    font-size: 0.84rem;
+  }
+  .tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 999px;
+  }
+  .tag-accent { background: rgba(45, 212, 191, 0.15); color: #99f6e4; }
+  .tag-blue { background: var(--blue-light); color: var(--blue); }
+  .tag-green { background: var(--green-light); color: var(--green); }
+  .tag-orange { background: var(--orange-light); color: var(--orange); }
+  .tag-red { background: var(--red-light); color: var(--red); }
+  .tag-purple { background: var(--purple-light); color: var(--purple); }
+  .main { max-width: 1040px; margin: 0 auto; padding: 34px 24px 88px; }
+  .page-nav {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 28px;
+  }
+  .page-nav a {
+    display: inline-block;
+    text-decoration: none;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.84);
+    color: var(--muted);
+    padding: 10px 14px;
+    border-radius: 999px;
+    font-size: 0.86rem;
+    font-weight: 700;
+  }
+  .page-nav a.active {
+    background: var(--accent-light);
+    color: #115e59;
+    border-color: #99f6e4;
+  }
+  .toc, .card, .callout, .status-board, .diagram-shell {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
+  }
+  .toc { padding: 22px 24px; margin-bottom: 32px; }
+  .toc h3 {
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .toc ol { padding-left: 20px; }
+  .toc li { margin-bottom: 5px; }
+  .toc a { color: #115e59; text-decoration: none; font-size: 0.92rem; }
+  .toc a:hover { text-decoration: underline; }
+  .section { margin-bottom: 56px; }
+  .section h2 {
+    font-size: 1.48rem;
+    font-weight: 800;
+    margin-bottom: 18px;
+    display: inline-block;
+    border-bottom: 3px solid var(--accent);
+    padding-bottom: 8px;
+  }
+  .section h3 { font-size: 1.08rem; font-weight: 800; margin: 20px 0 10px; }
+  .section p, .section li { color: var(--muted); font-size: 0.95rem; }
+  .section p { margin-bottom: 12px; }
+  .section ul, .section ol { padding-left: 20px; margin-bottom: 12px; }
+  .section li { margin-bottom: 5px; }
+  .lede { font-size: 1.02rem; color: var(--text); margin-bottom: 14px; }
+  .card { padding: 22px 24px; margin-bottom: 16px; }
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+  .callout {
+    padding: 16px 18px;
+    border-left: 4px solid var(--accent);
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, rgba(204, 251, 241, 0.85), rgba(255, 255, 255, 0.96));
+  }
+  .callout.warn {
+    border-left-color: var(--orange);
+    background: linear-gradient(135deg, rgba(255, 237, 213, 0.9), rgba(255, 255, 255, 0.96));
+  }
+  .callout.danger {
+    border-left-color: var(--red);
+    background: linear-gradient(135deg, rgba(254, 226, 226, 0.9), rgba(255, 255, 255, 0.96));
+  }
+  .callout p { margin: 0; color: var(--text); }
+  .callout strong { color: #115e59; }
+  .callout.warn strong { color: var(--orange); }
+  .callout.danger strong { color: var(--red); }
+  .status-board { padding: 0; overflow: hidden; margin-bottom: 18px; }
+  .status-row {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    border-bottom: 1px solid #edf2f7;
+  }
+  .status-row:last-child { border-bottom: none; }
+  .status-row .label {
+    background: #f8fafc;
+    font-weight: 800;
+    color: var(--text);
+    padding: 14px 16px;
+  }
+  .status-row .value {
+    padding: 14px 16px;
+    color: var(--muted);
+  }
+  .table-wrap { overflow-x: auto; margin-bottom: 16px; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.86rem;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  th {
+    background: #f7fafc;
+    font-weight: 800;
+    text-align: left;
+    padding: 11px 13px;
+    border-bottom: 2px solid var(--border);
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+  }
+  td {
+    padding: 10px 13px;
+    border-bottom: 1px solid #edf2f7;
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover { background: #fbfdff; }
+  code {
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-size: 0.84rem;
+  }
+  pre {
+    background: var(--navy);
+    color: #e2e8f0;
+    padding: 18px 20px;
+    border-radius: 14px;
+    overflow-x: auto;
+    font-size: 0.83rem;
+    line-height: 1.55;
+    margin-bottom: 16px;
+  }
+  pre code { background: none; padding: 0; color: inherit; }
+  .diagram-shell { padding: 24px; margin-bottom: 18px; }
+  .flow {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(100px, 1fr));
+    gap: 12px;
+    align-items: center;
+  }
+  .flow .node {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 12px;
+    background: linear-gradient(135deg, #ffffff, #f8fafc);
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--text);
+    min-height: 84px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+  }
+  .flow .arrow {
+    text-align: center;
+    color: var(--accent);
+    font-size: 1.4rem;
+    font-weight: 800;
+  }
+  .footer {
+    text-align: center;
+    padding: 32px 24px;
+    color: var(--muted);
+    font-size: 0.82rem;
+    border-top: 1px solid var(--border);
+  }
+  .footer a { color: var(--accent); text-decoration: none; }
+  @media (max-width: 900px) {
+    .flow { grid-template-columns: 1fr; }
+    .flow .arrow { transform: rotate(90deg); }
+    .status-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="container">
+    <div class="breadcrumb"><a href="/">Minkyu Jeon</a> / <a href="/projects/">Projects</a> / <a href="/projects/agentic-protein-design.html">Agentic Protein Design</a></div>
+    <h1>Agentic Protein Design: Notes, Design History, and Current Implementation</h1>
+    <p class="subtitle">
+      A working notebook page for the early stage of the project: what changed across the markdown design drafts,
+      what <code>autoresearch_v2</code> currently implements, where Gemma-4 and Qwen fit into the loop, and what remains
+      deliberately unfinished while the benchmark harness is being stabilized.
+    </p>
+    <div class="meta">
+      <span>Minkyu Jeon</span>
+      <span>Princeton University</span>
+      <span>April 17, 2026</span>
+      <span><span class="tag tag-accent">Implementation Notes</span></span>
+      <span><span class="tag tag-blue">LLM Backend Bench</span></span>
+      <span><span class="tag tag-purple">Autoresearch v2</span></span>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="page-nav">
+    <a href="/projects/agentic-protein-design.html">Audited Results Map</a>
+    <a href="/projects/agentic-protein-design-plan.html">Research Plan &amp; Execution Spec</a>
+    <a href="/projects/agentic-protein-design-notes.html" class="active">Implementation Notes</a>
+    <a href="/projects/agentic-protein-design-plan-archive-2026-04-16.html">Archive 2026-04-16</a>
+  </div>
+
+  <div class="toc">
+    <h3>Contents</h3>
+    <ol>
+      <li><a href="#why-page">Why This Companion Page Exists</a></li>
+      <li><a href="#design-history">Design History Across the Markdown Drafts</a></li>
+      <li><a href="#current-v2">What <code>autoresearch_v2</code> Actually Is</a></li>
+      <li><a href="#pipeline">Current Pipeline and Code Flow</a></li>
+      <li><a href="#llm-role">What the LLM Does and Does Not Do</a></li>
+      <li><a href="#gemma-qwen">Gemma-4 and Qwen3.6 Backend Status</a></li>
+      <li><a href="#benchmark-contract">Benchmark Contract and Why It Is Still Under Revision</a></li>
+      <li><a href="#repo-map">Repo Map and Key Files</a></li>
+      <li><a href="#next">Immediate Next Step</a></li>
+    </ol>
+  </div>
+
+  <div class="section" id="why-page">
+    <h2>1. Why This Companion Page Exists</h2>
+    <p class="lede">
+      The main results page is now an audited empirical map. The plan page is the forward-looking research thesis.
+      This page sits in between them. It is for the messy but important middle layer: implementation decisions,
+      boundary definitions, LLM-backend experiments, and the gap between the original idealized diagram and the current code.
+    </p>
+
+    <div class="callout">
+      <p><strong>Page contract.</strong> This page is not the benchmark scoreboard and not the final thesis. It is a technical companion for understanding how the current system is wired, what evidence exists, and where the project is still provisional.</p>
+    </div>
+
+    <div class="card-grid">
+      <div class="card">
+        <h3>What This Page Covers</h3>
+        <ul>
+          <li>The shift from “generic code evolution” to “LLM-guided inference-time scaling.”</li>
+          <li>The current <code>InferenceProgram</code> / PUCT / executor / evaluator stack.</li>
+          <li>How Gemma-4 and Qwen3.6 were tested as local replacements for Claude.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>What This Page Does Not Claim</h3>
+        <ul>
+          <li>That the benchmark is already apples-to-apples against every heuristic family.</li>
+          <li>That <code>autoresearch_v2</code> is already the final system architecture.</li>
+          <li>That every LLM backend is equally reliable in the live loop.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="design-history">
+    <h2>2. Design History Across the Markdown Drafts</h2>
+    <p>
+      The internal markdown history shows a fairly consistent evolution. The earliest drafts argued that the right framing
+      was not generic hyperparameter search and not unrestricted software evolution, but a middle layer: a system that
+      keeps the trained Complexa backbone fixed and learns to spend inference-time compute better.
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Document</th>
+            <th>Main Reframe</th>
+            <th>What Landed</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>memo/2026-04-07_autoresearch_v2_plan_draft.md</code></td>
+            <td>Defines v2 as inference-time scaling, not full code rewriting.</td>
+            <td>Tier A/B/C boundary and mutation-surface mindset.</td>
+          </tr>
+          <tr>
+            <td><code>autoresearch_v2/Plan.md</code></td>
+            <td>Locks in <code>InferenceProgram</code>, fixed scoring harness, PUCT framing, Tier C gate.</td>
+            <td>Becomes the formal design reference for v2.</td>
+          </tr>
+          <tr>
+            <td><code>memo/2026-04-13_autoresearch_v2_milestone1.md</code></td>
+            <td>Schema-first implementation with strict hashing and validation.</td>
+            <td>Central dataclasses, content hashing, control surface metadata.</td>
+          </tr>
+          <tr>
+            <td><code>experiments/llm_backend_bench/README.md</code></td>
+            <td>Tests local LLMs as drop-in backends for the same v2 mutator and researcher roles.</td>
+            <td>Gemma-4 and Qwen3.6 serving, smoke tests, backend benchmarks.</td>
+          </tr>
+          <tr>
+            <td><code>experiments/llm_backend_bench/design_decisions.md</code></td>
+            <td>Records backend-specific decisions like Qwen reasoning mode and online-vs-paper scoring.</td>
+            <td>Current implementation choices with explicit tradeoffs.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>Important drift to keep in mind.</strong> The HTML plan page is intentionally broader than <code>autoresearch_v2</code>. The plan page talks about a more general software-evolution system over a frozen tool registry. The current v2 code is a narrower but runnable ancestor: it evolves structured inference programs over a fixed Proteina-Complexa-style scaffold.</p>
+    </div>
+  </div>
+
+  <div class="section" id="current-v2">
+    <h2>3. What <code>autoresearch_v2</code> Actually Is</h2>
+    <p>
+      The current implementation is best described as <strong>PUCT tree search over structured JSON programs</strong>.
+      The evolvable object is <code>InferenceProgram</code>, not arbitrary Python source. Each node stores target,
+      stage config, lineage metadata, and optionally a gated code patch. The program is content-hashed so semantically
+      identical nodes deduplicate even if they were reached through different histories.
+    </p>
+
+    <div class="status-board">
+      <div class="status-row">
+        <div class="label">Central object</div>
+        <div class="value"><code>InferenceProgram</code> JSON/dataclass with semantic content hash.</div>
+      </div>
+      <div class="status-row">
+        <div class="label">Search loop</div>
+        <div class="value">Global PUCT selection over already-scored nodes, no rollout phase.</div>
+      </div>
+      <div class="status-row">
+        <div class="label">Executor</div>
+        <div class="value">Compiles program fields to Hydra overrides and relaunches the fixed Complexa generation stack.</div>
+      </div>
+      <div class="status-row">
+        <div class="label">Evaluator</div>
+        <div class="value">Reads <code>rewards_*.csv</code> and computes an online proxy score such as <code>n_successful</code>.</div>
+      </div>
+      <div class="status-row">
+        <div class="label">LLM mutation surface</div>
+        <div class="value">One or two targeted field edits per step, under strict allowlist and range validation.</div>
+      </div>
+    </div>
+
+    <div class="card-grid">
+      <div class="card">
+        <h3>What Is Fixed</h3>
+        <ul>
+          <li>Backbone model weights and the main Proteina-Complexa runtime.</li>
+          <li>The online evaluator definition for a given v2 version.</li>
+          <li>The Tier D boundary: no uncontrolled edits to AF2 internals or backbone code.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>What Is Mutable</h3>
+        <ul>
+          <li>Search policy: beam, best-of-n, fk-steering, MCTS-related knobs.</li>
+          <li>Sampling policy: steps, guidance, recycle count, selected schedule overrides.</li>
+          <li>Refinement and filtering policy, and eventually some controlled multi-stage behavior.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="pipeline">
+    <h2>4. Current Pipeline and Code Flow</h2>
+    <p>
+      The code path is narrower than the original conceptual diagram. Today the loop is mostly:
+      choose a parent program, ask a mutator for a child, compile it to Hydra overrides, execute the fixed generator,
+      read reward CSVs, back up the score into the tree, and repeat.
+    </p>
+
+    <div class="diagram-shell">
+      <div class="flow">
+        <div class="node">Target<br>+ Seed Ideas</div>
+        <div class="arrow">&rarr;</div>
+        <div class="node">Parent<br><code>InferenceProgram</code></div>
+        <div class="arrow">&rarr;</div>
+        <div class="node">Mutator<br>proposes child</div>
+        <div class="arrow">&rarr;</div>
+        <div class="node">Compiler<br>Hydra overrides</div>
+        <div class="arrow">&rarr;</div>
+        <div class="node">Executor<br>fixed Complexa run</div>
+        <div class="arrow">&rarr;</div>
+        <div class="node">Evaluator<br>score + tree backup</div>
+      </div>
+    </div>
+
+    <pre><code>CLI run
+  -> RunStoreV2
+  -> PuctTree
+  -> seed InferenceProgram
+  -> select parent
+  -> mutator.propose(...)
+  -> compile_program(...)
+  -> ProgramExecutor.run(...)
+  -> evaluator.from_rewards_csv(...)
+  -> tree.backup(...)
+  -> repeat</code></pre>
+
+    <div class="card-grid">
+      <div class="card">
+        <h3>Main files</h3>
+        <ul>
+          <li><code>__main__.py</code> for CLI wiring.</li>
+          <li><code>agent_loop.py</code> for the sequential/parallel drivers.</li>
+          <li><code>compiler.py</code> for program-to-Hydra compilation.</li>
+          <li><code>executor.py</code> for subprocess launch and environment resolution.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Run store artifacts</h3>
+        <ul>
+          <li><code>programs/{id}.json</code> for the structured program state.</li>
+          <li><code>scores/{id}.json</code> for the online score and execution metadata.</li>
+          <li><code>tree.json</code> for the PUCT state.</li>
+          <li><code>llm_interactions/{parent}.jsonl</code> for raw LLM proposals.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="llm-role">
+    <h2>5. What the LLM Does and Does Not Do</h2>
+    <p>
+      In the current v2 implementation, the LLM is not a free-form code-writing scientist in the hot loop.
+      Its primary operational role is much narrower and more controlled.
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Role</th>
+            <th>What it does now</th>
+            <th>What it does not yet do</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>LLMMutator</code></td>
+            <td>Reads parent program, compact feedback, optional ideas, then emits a tool call with 1-2 field updates.</td>
+            <td>Does not freely rewrite arbitrary source code every step.</td>
+          </tr>
+          <tr>
+            <td><code>IdeaResearcher</code></td>
+            <td>Runs a multi-turn tool-calling loop to produce target-specific hypothesis notes and idea-bank entries.</td>
+            <td>Is not the main executor or evaluator.</td>
+          </tr>
+          <tr>
+            <td>Tree search driver</td>
+            <td>Owns node selection, mutation attempts, execution scheduling, and score backup.</td>
+            <td>Does not delegate the control loop itself to the LLM.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout">
+      <p><strong>Practical summary.</strong> Today the LLM is closer to a <em>config mutation operator</em> than a fully general code-generation agent. The plan page pushes toward a larger software-evolution framing, but the current implementation remains intentionally narrower so the search space stays validatable and the run store remains interpretable.</p>
+    </div>
+  </div>
+
+  <div class="section" id="gemma-qwen">
+    <h2>6. Gemma-4 and Qwen3.6 Backend Status</h2>
+    <p>
+      A separate backend bench was added to test whether local LLMs can fill the two existing v2 roles without changing
+      the main architecture. The answer so far is yes, but not equally well.
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Component</th>
+            <th>Gemma-4 E4B</th>
+            <th>Qwen3.6-35B-A3B-FP8</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Serving model</td>
+            <td>OpenAI-compatible vLLM endpoint on SLURM</td>
+            <td>OpenAI-compatible vLLM endpoint on SLURM</td>
+          </tr>
+          <tr>
+            <td>Smoke tool-call test</td>
+            <td>Passed</td>
+            <td>Passed</td>
+          </tr>
+          <tr>
+            <td>LLMMutator validity</td>
+            <td>17 / 24 valid proposals</td>
+            <td>24 / 24 valid proposals</td>
+          </tr>
+          <tr>
+            <td>IdeaResearcher multi-turn tool use</td>
+            <td>Proper termination, 4 finalized ideas</td>
+            <td>Proper termination, 7 returned ideas</td>
+          </tr>
+          <tr>
+            <td>Current read</td>
+            <td>Usable but less reliable under memory-cap reasoning</td>
+            <td>Best current local backend for the LLM mutation bench and dry-run loop</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="status-board">
+      <div class="status-row">
+        <div class="label">Why Qwen currently leads</div>
+        <div class="value">It is materially better at staying inside the <code>beam_width × nsamples × batch_size ≤ 512</code> constraint and at returning valid tool calls under the full mutation prompt.</div>
+      </div>
+      <div class="status-row">
+        <div class="label">Why Gemma still matters</div>
+        <div class="value">It proves the LLM role is not hard-wired to a single API vendor. The architecture can use local backends, and Gemma already clears smoke tests and idea generation.</div>
+      </div>
+      <div class="status-row">
+        <div class="label">Deployment mode</div>
+        <div class="value">These backends are served through SLURM jobs, not from a login node. The current bench uses dedicated <code>llm_backend_bench</code> scratch outputs and vLLM servers.</div>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>Do not overclaim.</strong> Backend viability is better established than benchmark superiority. Qwen has convincing mutator and dry-run evidence, but the backend bench README still marks real-Complexa <code>run --mutator llm</code> as pending for both Gemma and Qwen.</p>
+    </div>
+  </div>
+
+  <div class="section" id="benchmark-contract">
+    <h2>7. Benchmark Contract and Why It Is Still Under Revision</h2>
+    <p>
+      The biggest unresolved issue is not whether the loop runs. It is whether the online score used by the tree is
+      exactly the same object as the score used by the audited results page. Right now those two things are related,
+      but not identical.
+    </p>
+
+    <div class="card-grid">
+      <div class="card">
+        <h3>Current online proxy</h3>
+        <p>
+          The tree currently optimizes an online score computed directly from the design-run reward CSVs. In the current
+          code this already uses the paper-aligned <code>af2folding_i_pae &lt; 7/31</code> and
+          <code>af2folding_plddt_log &gt; 0.90</code> thresholds, which makes the online proxy much closer to the audited
+          heuristic criterion than the earlier stricter <code>0.18</code> proxy.
+        </p>
+      </div>
+      <div class="card">
+        <h3>Paper-style audited metric</h3>
+        <p>
+          The audited results page still cares about post-hoc outcomes after redesign, refolding, and additional structural checks
+          such as self-consistency RMSD and structural uniqueness. Those remain slower, external analyses and still cannot simply
+          replace the online reward in the hot loop.
+        </p>
+      </div>
+    </div>
+
+    <div class="callout danger">
+      <p><strong>Current risk.</strong> “The loop runs” and “the benchmark is apples-to-apples” are two different statements. The first one is now substantially supported. The second one is still under active cleanup, especially once the comparison set expands beyond simple beam-style baselines into MCTS, reward-shaped, hallucination, and mixed-strategy families.</p>
+    </div>
+  </div>
+
+  <div class="section" id="repo-map">
+    <h2>8. Repo Map and Key Files</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Path</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>Autoresearch_Denovo/autoresearch_v2/README.md</code></td>
+            <td>Current package-level description of v2 as LLM-guided inference-time scaling.</td>
+          </tr>
+          <tr>
+            <td><code>Autoresearch_Denovo/autoresearch_v2/Plan.md</code></td>
+            <td>Formal v2 design: PUCT, scoring harness, tier boundaries, run store.</td>
+          </tr>
+          <tr>
+            <td><code>Autoresearch_Denovo/memo/2026-04-07_autoresearch_v2_plan_draft.md</code></td>
+            <td>Early reframe document for the project’s scientific boundary.</td>
+          </tr>
+          <tr>
+            <td><code>Autoresearch_Denovo/memo/2026-04-13_autoresearch_v2_milestone1.md</code></td>
+            <td>Implementation memo for the schema/control-surface landing.</td>
+          </tr>
+          <tr>
+            <td><code>Autoresearch_Denovo/experiments/llm_backend_bench/README.md</code></td>
+            <td>Gemma/Qwen backend experiment overview and scratch layout.</td>
+          </tr>
+          <tr>
+            <td><code>Autoresearch_Denovo/experiments/llm_backend_bench/design_decisions.md</code></td>
+            <td>Backend-specific reasoning and scoring decisions.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section" id="next">
+    <h2>9. Immediate Next Step</h2>
+    <p>
+      The near-term goal is not to make the architecture more baroque. It is to make the benchmark honest.
+      That means expanding the comparator library beyond <code>deep</code> / <code>wide</code>, keeping the current
+      pipeline stable, and tightening the bridge between online tree-search rewards and the audited post-hoc results.
+    </p>
+
+    <div class="callout">
+      <p><strong>Practical next step.</strong> Keep <code>autoresearch_v2</code> structurally simple, keep local LLM backends working through SLURM-served OpenAI-compatible endpoints, and use this page as the place to document each narrowing step from broad research idea to benchmarkable implementation.</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <p>Minkyu Jeon &middot; <a href="/">minkyujeon.github.io</a> &middot; companion page for <a href="/projects/agentic-protein-design.html">Agentic Protein Design</a></p>
+</div>
+
+</body>
+</html>
