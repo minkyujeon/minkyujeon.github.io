@@ -448,6 +448,39 @@
         </ul>
       </div>
     </div>
+
+    <div class="callout">
+      <p><strong>2026-04-21 pipeline update.</strong> The current local branch adds read-only Proteina-Complexa code inspection tools, stage-index-aware LLM mutations, explicit multi-stage executor support, and a small hypothesis ledger surface (<code>hypothesis_status</code>, <code>supporting_evidence</code>, <code>contradictions</code>, <code>next_step_hint</code>). Code-level validation currently consists of the full <code>autoresearch_v2</code> test suite (<code>404 passed, 2 skipped</code>). A real H100 1-GPU smoke job for the multi-stage executor has been submitted separately to confirm the same path on a compute node.</p>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Area</th>
+            <th>Current change</th>
+            <th>Validation status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Mutator</td>
+            <td>Read-only code inspection, stage-targeted updates, stage append, stage conditions, structured hypothesis fields.</td>
+            <td>Unit and integration tests passing.</td>
+          </tr>
+          <tr>
+            <td>Executor</td>
+            <td>Sequential multi-stage execution with conditional skip and per-stage score aggregation.</td>
+            <td>Executor tests passing; compute-node smoke job submitted.</td>
+          </tr>
+          <tr>
+            <td>Hypothesis handling</td>
+            <td>Explicit status, evidence lists, contradiction lists, and simple family-level auto-abandon rules.</td>
+            <td>Mutator and schema tests passing.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <div class="section" id="pipeline">
