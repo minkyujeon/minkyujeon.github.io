@@ -135,13 +135,11 @@
     <div class="breadcrumb"><a href="/">Minkyu Jeon</a> / <a href="/projects/">Projects</a></div>
     <h1>Agentic Inference-Time Scaling for De Novo Protein Design</h1>
     <p class="subtitle">
-      Audited results rebuild. This version was rewritten from scratch on April 14, 2026 to separate paper taxonomy,
-      local baseline status, and verified local intervention results. The archived pre-audit version is kept only for provenance.
+      Audited results rebuild. This version separates paper taxonomy, local baseline status, and verified local intervention results.
     </p>
     <div class="meta">
       <span>Minkyu Jeon</span>
       <span>Princeton University</span>
-      <span>April 2026</span>
       <span><span class="tag tag-orange">Rebuilt After Audit</span></span>
     </div>
   </div>
@@ -158,8 +156,11 @@
     <li><a href="#bottleneck-matrix">Per-Target Bottleneck Analysis</a></li>
     <li><a href="#local-results">Audited Local Results Map</a></li>
     <li><a href="#frontier">Frontier Targets: What Is Actually Verified</a></li>
+    <li><a href="#qwen-hard">Qwen Tree Search vs Human-Designed Programs</a></li>
+    <li><a href="#cd45-case">CD45 Case Study</a></li>
     <li><a href="#comparison-rules">How to Compare This Page to the Paper</a></li>
     <li><a href="#experiment-map">Experiment Family Map</a></li>
+    <li><a href="#completion-status">Current Completion Status</a></li>
     <li><a href="#routing-program">Figure H: Draft Routing Program</a></li>
     <li><a href="#twohour-benchmark">Benchmark Redesign Notes</a></li>
     <li><a href="#next-steps">Companion Plan</a></li>
@@ -202,8 +203,9 @@
   <div class="page-nav">
     <a href="/projects/agentic-protein-design.html" class="active">Audited Results Map</a>
     <a href="/projects/agentic-protein-design-plan.html">Open Research Plan</a>
+    <a href="/projects/agentic-protein-design-results.html">v2 Tree-Search Results</a>
     <a href="/projects/agentic-protein-design-notes.html">Implementation Notes</a>
-    <a href="/projects/agentic-protein-design-archive-2026-04-14.html">Archived Pre-Audit Page</a>
+    <a href="/projects/agentic-protein-design-runtime.html">Runtime Verification</a>
   </div>
 
   <p>
@@ -1005,8 +1007,211 @@
   </p>
 </div>
 
+<div class="section" id="qwen-hard">
+  <h2>7. Qwen Tree Search vs Human-Designed Programs</h2>
+
+  <div class="callout warn">
+    <p><strong>Experiment boundary.</strong> The table below is <strong>not</strong> the earlier rule-based routing benchmark. It is the newer <strong>Qwen-guided v2 PUCT tree search</strong> in which a self-hosted Qwen server proposes child <code>InferenceProgram</code>s, the real Proteina-Complexa pipeline evaluates them, and the tree keeps the best-scoring branches. Human-designed results are shown twice: once as the fixed <strong>v2 comparator baseline</strong> and once as the <strong>best known same-target human-designed run</strong> from the larger local campaign.</p>
+  </div>
+
+  <div class="callout warn">
+    <p><strong>2026-04-20 audit note.</strong> Three earlier hard-target Qwen runs for <code>HER2_AAV</code>, <code>BetV1</code>, and <code>CbAgo</code> were started from the script default <code>SEED_PROFILE=balanced</code> and therefore did <strong>not</strong> test the intended routed target-specific seeds. Those canceled runs (<code>7189792</code>, <code>7189794</code>, <code>7189796</code>) also predated the mutation-surface fix that lets Qwen switch into <code>sequence_hallucination</code> and other human-designed Tier A program families directly. They should be treated as setup mistakes, not as benchmark evidence.</p>
+    <p>Corrected routed reruns were started on <strong>2026-04-21</strong> as <code>7199569</code> (<code>HER2_AAV</code>), <code>7199570</code> (<code>BetV1</code>), and <code>7199571</code> (<code>CbAgo</code>) with the expanded <code>full</code> mutation surface. This surface includes <code>refinement.algorithm=sequence_hallucination</code> and the associated refinement/search knobs, so the tree can move into the same broad program family as the local human-designed hallucination recipes.</p>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <tr>
+        <th>Target</th>
+        <th>Paper Class</th>
+        <th>Qwen v2 Tree Search</th>
+        <th>Fixed Human Comparator</th>
+        <th>Best Known Human-Designed Local Result</th>
+        <th>Current Verdict</th>
+      </tr>
+      <tr>
+        <td><strong>CD45</strong></td>
+        <td><span class="tag tag-orange">Hard</span></td>
+        <td>Seed <code>noise020</code>: <strong>8/32</strong>, unique <strong>1</strong>.<br>Best Qwen child: <strong>22/32</strong>, unique <strong>5</strong>, after mutating <code>n_branch: 3 → 4</code>.</td>
+        <td>v2 <code>baseline_deep</code>: <strong>0/32</strong> in the current self-hosted comparator run.</td>
+        <td><code>Exp 5 / noise=0.20</code>: <strong>15/32 self</strong>.<br>Older audited default deep baseline: <strong>8/32 self</strong>.</td>
+        <td>Current scored Qwen child is above the fixed v2 comparator and above the best same-target human result listed here.</td>
+      </tr>
+      <tr>
+        <td><strong>SC2RBD</strong></td>
+        <td><span class="tag tag-orange">Hard</span></td>
+        <td>Qwen routed seed <code>mcts_msg5</code>: <strong>0/8</strong>. No successful child yet in the current v2 run.</td>
+        <td>v2 <code>baseline_deep</code>: <strong>0/32</strong>.</td>
+        <td><code>Exp 26 rw_pl050_softg5</code>: <strong>5/8 self</strong>, <strong>2/8 MPNN</strong>.<br><code>Exp 25 msg5</code>: <strong>4/8 self</strong>.</td>
+        <td>Current scored Qwen result is below the best same-target human result and equal to the zero-hit fixed comparator.</td>
+      </tr>
+      <tr>
+        <td><strong>H1</strong></td>
+        <td><span class="tag tag-red">Very Hard</span></td>
+        <td>Qwen routed seed <code>mcts_rws5</code> exists, but the current run has <strong>no scored result yet</strong>.</td>
+        <td>v2 <code>baseline_deep</code>: <strong>0/32</strong>.</td>
+        <td><code>Exp 26 rw_pl075_softg10</code>: <strong>2/8 self</strong>.</td>
+        <td><span class="tag tag-orange">Pending</span> No fair comparison yet.</td>
+      </tr>
+      <tr>
+        <td><strong>TNF&alpha;</strong></td>
+        <td><span class="tag tag-red">Very Hard</span></td>
+        <td>Qwen routed seed <code>mcts_rws5</code> exists, but the current run has <strong>no scored result yet</strong>.</td>
+        <td>Local audited baseline remains <strong>0/32</strong>.</td>
+        <td><code>Exp 25 msg5</code>: <strong>4/8 self</strong>, <strong>1/8 MPNN</strong>.</td>
+        <td><span class="tag tag-orange">Pending</span> No fair comparison yet.</td>
+      </tr>
+      <tr>
+        <td><strong>BetV1</strong></td>
+        <td><span class="tag tag-orange">Hard</span></td>
+        <td>Completed rerun <code>7199570</code>. Routed seed <code>mixed_noise_halluc</code>: <strong>5/32 self</strong>. Best scored child also reaches <strong>5/32 self</strong> after <code>sampling.nsteps: 400 → 600</code>. Other scored children reach <strong>1/48</strong> or fail.</td>
+        <td>Audited local baseline: <strong>6/32 self</strong>.</td>
+        <td><code>Exp 13b noise+halluc</code>: <strong>11/32 self</strong>.</td>
+        <td><span class="fail">Below both human reference points</span>.</td>
+      </tr>
+      <tr>
+        <td><strong>HER2_AAV</strong></td>
+        <td><span class="tag tag-orange">Hard</span></td>
+        <td>Rerun <code>7199569</code> is still live, but five programs have scored. Routed seed: <strong>0/16 self</strong>. Best scored child: <strong>13/64 self</strong> after <code>beam_width: 4 → 8</code> and <code>nsamples: 4 → 8</code>. Other scored children reach <strong>11/32</strong> and <strong>12/48</strong>.</td>
+        <td>Audited local baseline: <strong>1/32 self</strong>.</td>
+        <td><code>Exp 4 hallucination</code>: <strong>21/32 self</strong>.<br><code>Exp 27</code>: short refinement sweeps reach <strong>16/16 self</strong>.</td>
+        <td><span class="tag tag-orange">Between the two human reference points</span>.</td>
+      </tr>
+      <tr>
+        <td><strong>CbAgo</strong></td>
+        <td><span class="tag tag-orange">Hard</span></td>
+        <td>Rerun <code>7199571</code> is still live. Routed seed <code>mcts_msg5</code>: <strong>0/8 self</strong>. Two children have been proposed so far, but no additional scored child result has landed yet.</td>
+        <td>Audited local baseline: <strong>0/32 self</strong>.</td>
+        <td>All completed human-designed frontier runs remain <strong>0/8 self</strong>.</td>
+        <td><span class="tag tag-orange">Equal to the current human reference points so far</span>.</td>
+      </tr>
+    </table>
+  </div>
+
+  <p class="note">
+    Read the Qwen column literally as the current scored tree frontier for each routed rerun. The numbers above use the online tree metric <code>n_successful</code>; the hard-target reruns shown here do not yet have post-hoc audited <code>unique_successes</code>.
+  </p>
+
+  <div class="table-wrap">
+    <table>
+      <tr>
+        <th>Target</th>
+        <th>Rerun Setup</th>
+        <th>Tree Progress</th>
+        <th>LLM Hypotheses / Accepted Mutations</th>
+      </tr>
+      <tr>
+        <td><strong>BetV1</strong><br><code>7199570</code></td>
+        <td>Self-hosted Qwen 3.6 35B FP8, routed seed <code>mixed_noise_halluc</code>, <code>budget_evals=20</code>, <code>budget_hours=6</code>, mutation scope <code>full</code>, one real Complexa evaluation per tree node.</td>
+        <td>Seed <code>a380846f6204</code>: <strong>5/32</strong>.<br>Child <code>4f9aad3cdae2</code>: <strong>1/48</strong>.<br>Child <code>49aaba23704e</code>: fail.<br>Child <code>c372109bfd69</code>: fail.<br>Child <code>9c08a048f60a</code>: <strong>5/32</strong>.<br>Job stopped at wall-clock budget with <strong>5 scored nodes</strong>.</td>
+        <td>Qwen first proposed wider beam search (<code>beam_width=16</code>), then larger early sampling (<code>stage.nsamples=8</code>), then longer diffusion (<code>sampling.nsteps=600</code>, checkpoints matched to 600). The seed remained tied for best.</td>
+      </tr>
+      <tr>
+        <td><strong>HER2_AAV</strong><br><code>7199569</code></td>
+        <td>Self-hosted Qwen 3.6 35B FP8, routed seed from the hallucination family, <code>budget_evals=20</code>, <code>budget_hours=6</code>, mutation scope <code>full</code> with <code>sequence_hallucination</code> available.</td>
+        <td>Seed <code>743164088510</code>: <strong>0/16</strong>.<br>Child <code>b91871cee1b0</code>: <strong>13/64</strong>.<br>Child <code>3ab34db223a2</code>: <strong>11/32</strong>.<br>Child <code>97ebe25a7b22</code>: fail.<br>Child <code>20062c09d41b</code>: <strong>12/48</strong>.<br>The job is still marked running.</td>
+        <td>Qwen's accepted hypotheses concentrated on early diversity: <code>beam_width: 4 → 8</code> plus <code>nsamples: 4 → 8</code>; <code>nsamples: 4 → 8</code> alone; later <code>beam_width: 8 → 12</code> with memory-safe reductions. The strongest scored child is the first diversity expansion.</td>
+      </tr>
+      <tr>
+        <td><strong>CbAgo</strong><br><code>7199571</code></td>
+        <td>Self-hosted Qwen 3.6 35B FP8, routed seed <code>mcts_msg5</code>, <code>budget_evals=20</code>, <code>budget_hours=6</code>, mutation scope <code>full</code>.</td>
+        <td>Seed <code>a1f13d025fe8</code>: <strong>0/8</strong>.<br>Accepted child proposals exist, but only the seed score has landed so far. The job is still marked running.</td>
+        <td>Accepted hypotheses so far are larger early exploration under MCTS-era memory limits: <code>stage.nsamples: 8 → 16</code> with <code>batch_size: 8 → 4</code>, and <code>mcts.n_simulations: 40 → 120</code> with <code>exploration_prob: 0.3 → 0.5</code>.</td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<div class="section" id="cd45-case">
+  <h2>8. CD45 Case Study: One Verified Qwen Improvement</h2>
+
+  <p>
+    This section records one completed CD45 tree in which the routed seed and several child mutations were evaluated under the same v2 self-hosted setup. Detailed run-by-run tree-search logs now live on <a href="/projects/agentic-protein-design-results.html">v2 Results</a>.
+  </p>
+
+  <div class="card-grid">
+    <div class="card">
+      <h3>Seed Program</h3>
+      <p><code>seed (routed heuristic baseline -&gt; noise020)</code></p>
+      <p>
+        Beam search with <code>beam_width=8</code>, <code>n_branch=3</code>, <code>nsamples=4</code>, checkpoints
+        <code>[0,65,130,200,270,340,400]</code>, and <code>sc_scale_noise=0.20</code> on both
+        <code>bb_ca</code> and <code>local_latents</code>.
+      </p>
+      <p>Greedy refinement stays on; sequence hallucination is off.</p>
+    </div>
+    <div class="card">
+      <h3>Accepted Change</h3>
+      <p>
+        The tree kept the routed <code>noise020</code> seed family and evaluated several search-side mutations.
+      </p>
+      <p>
+        The best scored child in this run changed <code>n_branch: 3 → 4</code>. The other scored fields shown below stayed the same.
+      </p>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <tr>
+        <th>Node</th>
+        <th>Program Change</th>
+        <th>n_finals</th>
+        <th>n_successful</th>
+        <th>Unique Successes</th>
+        <th>Best iPAE</th>
+        <th>Wall Time</th>
+      </tr>
+      <tr>
+        <td><strong>Seed</strong><br><code>116e16a236b6</code></td>
+        <td><code>noise020</code> routed heuristic baseline</td>
+        <td>32</td>
+        <td>8</td>
+        <td>1</td>
+        <td>0.189</td>
+        <td>80.3 min</td>
+      </tr>
+      <tr>
+        <td><strong>Child A</strong><br><code>b237905ebc24</code></td>
+        <td><code>beam_width: 8 → 16</code>, with lower batch to stay within memory</td>
+        <td>0</td>
+        <td>0</td>
+        <td>—</td>
+        <td>—</td>
+        <td>14.4 min</td>
+      </tr>
+      <tr>
+        <td><strong>Child B</strong><br><code>7ae211b3fa3b</code></td>
+        <td><code>nsamples: 4 → 8</code></td>
+        <td>0</td>
+        <td>0</td>
+        <td>—</td>
+        <td>—</td>
+        <td>14.3 min</td>
+      </tr>
+      <tr style="background:#d1fae5">
+        <td><strong>Child C</strong><br><code>db45199f978b</code></td>
+        <td><code>n_branch: 3 → 4</code></td>
+        <td>32</td>
+        <td><strong>22</strong></td>
+        <td><strong>5</strong></td>
+        <td>0.193</td>
+        <td>89.2 min</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="callout">
+    <p><strong>Simple reading.</strong> In this recorded CD45 run, the best scored Qwen child improved from <strong>8/32</strong> to <strong>22/32</strong> relative to the routed seed used in the same tree.</p>
+  </div>
+
+  <div class="callout warn">
+    <p><strong>Interpretation discipline.</strong> This is still one completed tree on one target. It is a directly measured run result, not a general claim about overall model superiority.</p>
+  </div>
+</div>
+
 <div class="section" id="comparison-rules">
-  <h2>7. How to Compare This Page to the Paper</h2>
+  <h2>9. How to Compare This Page to the Paper</h2>
 
   <div class="card-grid">
     <div class="card">
@@ -1069,7 +1274,7 @@
 </div>
 
 <div class="section" id="experiment-map">
-  <h2>8. Experiment Family Map</h2>
+  <h2>10. Experiment Family Map</h2>
 
   <p>
     The old page tried to tell the whole story in one set of giant figures. This rebuild instead groups experiments by question.
@@ -1117,7 +1322,7 @@
         <td><strong>Fixed-budget global program benchmark</strong></td>
         <td><code>Exp 34</code></td>
         <td>Draft 2h default-vs-routed benchmark for the global program idea</td>
-        <td><span class="warn-text">Initial launch canceled on 2026-04-15</span> after a fairness/config audit found unresolved design issues</td>
+        <td><span class="warn-text">Initial launch canceled</span> after a fairness/config audit found unresolved design issues</td>
       </tr>
       <tr>
         <td><strong>Withdrawn long-run scaling</strong></td>
@@ -1129,8 +1334,81 @@
   </div>
 </div>
 
+<div class="section" id="completion-status">
+  <h2>11. Current Completion Status</h2>
+
+  <div class="callout warn">
+    <p><strong>Status note.</strong> The experiment index in the repo is slightly stale for the held-out agentic benchmark. The table below is updated from the current <code>evaluation_results/</code> directories on disk as checked on <strong>April 20, 2026</strong>, using the presence of <code>binder_results_*.csv</code> files as the completion criterion.</p>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <tr>
+        <th>Family</th>
+        <th>Runs / Dirs</th>
+        <th>Status</th>
+        <th>Current Evidence</th>
+        <th>Interpretation</th>
+      </tr>
+      <tr>
+        <td><strong>Exp 21</strong><br>First agentic follow-up</td>
+        <td>1 target</td>
+        <td><span class="tag tag-green">Complete</span></td>
+        <td><code>SC2RBD</code> follow-up run finished and is already reflected in the audited tracker.</td>
+        <td>Earliest single-target agentic proof-of-concept is done.</td>
+      </tr>
+      <tr>
+        <td><strong>Exp 24</strong><br>Agentic trio</td>
+        <td>3 targets</td>
+        <td><span class="tag tag-green">Complete</span></td>
+        <td><code>VEGFA</code>, <code>IL7RA</code>, and <code>SC2RBD</code> all have completed evaluation outputs.</td>
+        <td>Core rule-based routing result is complete.</td>
+      </tr>
+      <tr>
+        <td><strong>Exp 25–28</strong><br>Frontier / paper-style follow-ups</td>
+        <td>Completed sweep families</td>
+        <td><span class="tag tag-green">Complete</span></td>
+        <td><code>Exp 25</code> MCTS, <code>Exp 26</code> reward-shaped search, <code>Exp 27</code> refinement, and <code>Exp 28</code> paper-recipe runs all have usable CSV outputs.</td>
+        <td>Main frontier-search story is complete enough to analyze and write from.</td>
+      </tr>
+      <tr>
+        <td><strong>Exp 29</strong><br>Scaling curves</td>
+        <td>Long-running iteration dirs</td>
+        <td><span class="tag tag-orange">Partial</span></td>
+        <td>Scaling TSVs exist, but the page audit still treats this family as requiring verification and corrected counting.</td>
+        <td>Useful as supporting trend evidence, not yet a clean finished benchmark record.</td>
+      </tr>
+      <tr>
+        <td><strong>Exp 30</strong><br>Held-out alternative variants</td>
+        <td>13 dirs found</td>
+        <td><span class="tag tag-orange">Partial</span></td>
+        <td><strong>12 / 13</strong> dirs currently contain <code>binder_results</code> CSVs; only <code>38_TNFalpha_REPACK</code> is still missing CSV output.</td>
+        <td>This family is much closer to complete than the old tracker suggests, but one target still blocks calling it fully done.</td>
+      </tr>
+      <tr>
+        <td><strong>Exp 31</strong><br>Held-out default baselines</td>
+        <td>6 dirs found</td>
+        <td><span class="tag tag-green">Complete</span></td>
+        <td><strong>6 / 6</strong> held-out baseline dirs contain <code>binder_results</code> CSVs, with <strong>N=1216</strong> designs per run.</td>
+        <td>This is the cleanest finished held-out baseline panel and should anchor held-out comparisons.</td>
+      </tr>
+      <tr>
+        <td><strong>Exp 32</strong><br>Held-out agentic benchmark</td>
+        <td>6 dirs currently present</td>
+        <td><span class="tag tag-orange">Partial</span></td>
+        <td><strong>2 / 6</strong> present dirs currently contain <code>binder_results</code> CSVs: <code>03_PDL1_AAV</code> and <code>19_DerF21</code>. <code>16_DerF7</code>, <code>26_CbAgo</code>, <code>28_HER2_AAV</code>, and <code>32_PDL1_ALPHA</code> remain without CSV outputs.</td>
+        <td>The held-out agentic benchmark is not finished yet. This is the main missing empirical piece if the goal is a full controlled agentic-vs-baseline story.</td>
+      </tr>
+    </table>
+  </div>
+
+  <p class="note">
+    Practical summary: the <strong>initial agentic and frontier experiments are complete</strong>, the <strong>held-out baseline panel is complete</strong>, and the main unfinished piece is the <strong>held-out agentic benchmark</strong> plus final cleanup of the scaling-curve record.
+  </p>
+</div>
+
 <div class="section" id="routing-program">
-  <h2>9. Figure H: Draft Routing Decision Tree &mdash; Global Inference Program v1 (Under Review)</h2>
+  <h2>12. Figure H: Draft Routing Decision Tree &mdash; Global Inference Program v1 (Under Review)</h2>
 
   <p>
     The archived page used a lightweight routing sketch derived from the original 11-target panel. The updated figure below is a
@@ -1199,10 +1477,10 @@
 </div>
 
 <div class="section" id="twohour-benchmark">
-  <h2>10. Benchmark Redesign Notes: Why the First 2-Hour Draft Was Canceled</h2>
+  <h2>13. Benchmark Redesign Notes: Why the First 2-Hour Draft Was Canceled</h2>
 
   <p>
-    A first <strong>2-hour per target</strong> benchmark draft was launched on April 15, 2026 and then canceled after review.
+    A first <strong>2-hour per target</strong> benchmark draft was launched and then canceled after review.
     The main issue was not the idea of a fixed-budget benchmark itself; it was that the first draft mixed a clean compute cap with
     branch settings and target assignments that were not yet aligned tightly enough with the audited evidence base.
   </p>
@@ -1238,11 +1516,11 @@
   </div>
 
   <div class="callout">
-    <p><strong>What remains valid.</strong> The idea of a fixed-budget benchmark is still the right next step. The audited page now simply distinguishes the <strong>results record</strong> from a <strong>benchmark design that is still being cleaned up</strong>.</p>
+    <p><strong>What remains valid.</strong> The idea of a fixed-budget benchmark remains useful. The audited page now simply distinguishes the <strong>results record</strong> from a <strong>benchmark design that is treated separately</strong>.</p>
   </div>
 
   <div class="callout warn">
-    <p><strong>Current status.</strong> The initial <code>Exp 34</code> launch from <strong>2026-04-15</strong> was canceled after review. This page will only report a rerun after the benchmark contract, standardized branch definitions, and transfer-vs-validated split are all rewritten explicitly.</p>
+    <p><strong>Benchmark note.</strong> The initial <code>Exp 34</code> launch was canceled after review. This page reports the benchmark only under an explicit benchmark contract, standardized branch definitions, and a clear transfer-vs-validated split.</p>
   </div>
 
   <p class="note">
@@ -1252,7 +1530,7 @@
 </div>
 
 <div class="section" id="next-steps">
-  <h2>11. Companion Plan</h2>
+  <h2>14. Companion Plan</h2>
 
   <div class="callout">
     <p><strong>This page is now the audited results record.</strong> The forward-looking AutoResearch / Meta-Harness / tool-using LLM plan lives on the companion page so that planning notes do not get mixed into the verified empirical record here.</p>
@@ -1272,8 +1550,9 @@
   <div class="page-nav">
     <a href="/projects/agentic-protein-design.html" class="active">Audited Results Map</a>
     <a href="/projects/agentic-protein-design-plan.html">Open Research Plan</a>
+    <a href="/projects/agentic-protein-design-results.html">v2 Tree-Search Results</a>
     <a href="/projects/agentic-protein-design-notes.html">Implementation Notes</a>
-    <a href="/projects/agentic-protein-design-archive-2026-04-14.html">Archived Pre-Audit Page</a>
+    <a href="/projects/agentic-protein-design-runtime.html">Runtime Verification</a>
   </div>
 </div>
 

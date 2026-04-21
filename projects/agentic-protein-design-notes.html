@@ -278,7 +278,6 @@
     <div class="meta">
       <span>Minkyu Jeon</span>
       <span>Princeton University</span>
-      <span>April 17, 2026</span>
       <span><span class="tag tag-accent">Implementation Notes</span></span>
       <span><span class="tag tag-blue">LLM Backend Bench</span></span>
       <span><span class="tag tag-purple">Autoresearch v2</span></span>
@@ -291,8 +290,9 @@
   <div class="page-nav">
     <a href="/projects/agentic-protein-design.html">Audited Results Map</a>
     <a href="/projects/agentic-protein-design-plan.html">Research Plan &amp; Execution Spec</a>
+    <a href="/projects/agentic-protein-design-results.html">v2 Results</a>
     <a href="/projects/agentic-protein-design-notes.html" class="active">Implementation Notes</a>
-    <a href="/projects/agentic-protein-design-plan-archive-2026-04-16.html">Archive 2026-04-16</a>
+    <a href="/projects/agentic-protein-design-runtime.html">Runtime Verification</a>
   </div>
 
   <div class="toc">
@@ -301,12 +301,12 @@
       <li><a href="#why-page">Why This Companion Page Exists</a></li>
       <li><a href="#design-history">Design History Across the Markdown Drafts</a></li>
       <li><a href="#current-v2">What <code>autoresearch_v2</code> Actually Is</a></li>
-      <li><a href="#pipeline">Current Pipeline and Code Flow</a></li>
+      <li><a href="#pipeline">Pipeline and Code Flow</a></li>
       <li><a href="#llm-role">What the LLM Does and Does Not Do</a></li>
       <li><a href="#gemma-qwen">Gemma-4 and Qwen3.6 Backend Status</a></li>
       <li><a href="#benchmark-contract">Benchmark Contract and Why It Is Still Under Revision</a></li>
       <li><a href="#repo-map">Repo Map and Key Files</a></li>
-      <li><a href="#next">Immediate Next Step</a></li>
+      <li><a href="#next">Design Implications</a></li>
     </ol>
   </div>
 
@@ -320,6 +320,10 @@
 
     <div class="callout">
       <p><strong>Page contract.</strong> This page is not the benchmark scoreboard and not the final thesis. It is a technical companion for understanding how the current system is wired, what evidence exists, and where the project is still provisional.</p>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>Where the result tables live.</strong> The tree-search result tables and run-by-run score summaries now live on <a href="/projects/agentic-protein-design-results.html">v2 Results</a>. This notes page is for implementation details and boundary definitions, not for the primary scoreboard.</p>
     </div>
 
     <div class="card-grid">
@@ -361,7 +365,7 @@
         </thead>
         <tbody>
           <tr>
-            <td><code>memo/2026-04-07_autoresearch_v2_plan_draft.md</code></td>
+            <td><code>memo/autoresearch_v2_plan_draft.md</code></td>
             <td>Defines v2 as inference-time scaling, not full code rewriting.</td>
             <td>Tier A/B/C boundary and mutation-surface mindset.</td>
           </tr>
@@ -371,7 +375,7 @@
             <td>Becomes the formal design reference for v2.</td>
           </tr>
           <tr>
-            <td><code>memo/2026-04-13_autoresearch_v2_milestone1.md</code></td>
+            <td><code>memo/autoresearch_v2_milestone1.md</code></td>
             <td>Schema-first implementation with strict hashing and validation.</td>
             <td>Central dataclasses, content hashing, control surface metadata.</td>
           </tr>
@@ -418,11 +422,11 @@
       </div>
       <div class="status-row">
         <div class="label">Evaluator</div>
-        <div class="value">Reads <code>rewards_*.csv</code> and computes an online proxy score such as <code>n_successful</code>.</div>
+        <div class="value">Reads <code>rewards_*.csv</code> for the raw online proxy and upgrades to FoldSeek-unique successful self binders when audited <code>evaluation_results/</code> artifacts exist.</div>
       </div>
       <div class="status-row">
         <div class="label">LLM mutation surface</div>
-        <div class="value">One or two targeted field edits per step, under strict allowlist and range validation.</div>
+        <div class="value">One or two targeted field edits per step, under strict allowlist and range validation. The LLM is a local mutator, not the tree policy.</div>
       </div>
     </div>
 
@@ -593,11 +597,11 @@
 
     <div class="status-board">
       <div class="status-row">
-        <div class="label">Why Qwen currently leads</div>
-        <div class="value">It is materially better at staying inside the <code>beam_width × nsamples × batch_size ≤ 512</code> constraint and at returning valid tool calls under the full mutation prompt.</div>
+        <div class="label">Observed Qwen behavior</div>
+        <div class="value">In the current backend bench, Qwen more often stays inside the <code>beam_width × nsamples × batch_size ≤ 512</code> constraint and more often returns valid tool calls under the full mutation prompt.</div>
       </div>
       <div class="status-row">
-        <div class="label">Why Gemma still matters</div>
+        <div class="label">Observed Gemma behavior</div>
         <div class="value">It proves the LLM role is not hard-wired to a single API vendor. The architecture can use local backends, and Gemma already clears smoke tests and idea generation.</div>
       </div>
       <div class="status-row">
@@ -607,7 +611,7 @@
     </div>
 
     <div class="callout warn">
-      <p><strong>Do not overclaim.</strong> Backend viability is better established than benchmark superiority. Qwen has convincing mutator and dry-run evidence, but the backend bench README still marks real-Complexa <code>run --mutator llm</code> as pending for both Gemma and Qwen.</p>
+      <p><strong>Do not overclaim.</strong> Backend viability is better established than benchmark superiority. These rows describe backend-bench behavior, not the final benchmark verdict.</p>
     </div>
   </div>
 
@@ -640,7 +644,7 @@
     </div>
 
     <div class="callout danger">
-      <p><strong>Current risk.</strong> “The loop runs” and “the benchmark is apples-to-apples” are two different statements. The first one is now substantially supported. The second one is still under active cleanup, especially once the comparison set expands beyond simple beam-style baselines into MCTS, reward-shaped, hallucination, and mixed-strategy families.</p>
+      <p><strong>Current risk.</strong> “The loop runs” and “the benchmark is apples-to-apples” are two different statements. The first is supported by the current runtime evidence. The second still depends on completing the same audited evaluation contract used by the preserved heuristic pages.</p>
     </div>
   </div>
 
@@ -664,11 +668,11 @@
             <td>Formal v2 design: PUCT, scoring harness, tier boundaries, run store.</td>
           </tr>
           <tr>
-            <td><code>Autoresearch_Denovo/memo/2026-04-07_autoresearch_v2_plan_draft.md</code></td>
+            <td><code>Autoresearch_Denovo/memo/autoresearch_v2_plan_draft.md</code></td>
             <td>Early reframe document for the project’s scientific boundary.</td>
           </tr>
           <tr>
-            <td><code>Autoresearch_Denovo/memo/2026-04-13_autoresearch_v2_milestone1.md</code></td>
+            <td><code>Autoresearch_Denovo/memo/autoresearch_v2_milestone1.md</code></td>
             <td>Implementation memo for the schema/control-surface landing.</td>
           </tr>
           <tr>
@@ -685,15 +689,15 @@
   </div>
 
   <div class="section" id="next">
-    <h2>9. Immediate Next Step</h2>
+    <h2>9. Design Implications</h2>
     <p>
-      The near-term goal is not to make the architecture more baroque. It is to make the benchmark honest.
+      The guiding goal is not to make the architecture more baroque. It is to make the benchmark honest.
       That means expanding the comparator library beyond <code>deep</code> / <code>wide</code>, keeping the current
       pipeline stable, and tightening the bridge between online tree-search rewards and the audited post-hoc results.
     </p>
 
     <div class="callout">
-      <p><strong>Practical next step.</strong> Keep <code>autoresearch_v2</code> structurally simple, keep local LLM backends working through SLURM-served OpenAI-compatible endpoints, and use this page as the place to document each narrowing step from broad research idea to benchmarkable implementation.</p>
+      <p><strong>Practical implication.</strong> Keep <code>autoresearch_v2</code> structurally simple, keep local LLM backends working through SLURM-served OpenAI-compatible endpoints, and use this page as the place to document each narrowing step from broad research idea to benchmarkable implementation.</p>
     </div>
   </div>
 

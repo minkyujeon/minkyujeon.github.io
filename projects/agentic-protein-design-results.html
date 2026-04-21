@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>v2 PUCT Tree-Search Results — Minkyu Jeon</title>
+<style>
+  :root {
+    --bg: #f4f6f8;
+    --card: #ffffff;
+    --text: #1a2233;
+    --muted: #556074;
+    --accent: #0f766e;
+    --accent-light: #ccfbf1;
+    --accent-dark: #115e59;
+    --border: #dbe3ea;
+    --navy: #0f172a;
+    --blue: #1d4ed8;
+    --blue-light: #dbeafe;
+    --green: #15803d;
+    --green-light: #dcfce7;
+    --orange: #c2410c;
+    --orange-light: #ffedd5;
+    --red: #b91c1c;
+    --red-light: #fee2e2;
+    --gold: #92400e;
+    --gold-light: #fef3c7;
+    --purple: #6d28d9;
+    --purple-light: #ede9fe;
+    --code-bg: #eef2f7;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+    background: radial-gradient(circle at top left, #fbfdff 0%, #f4f6f8 40%, #eef2f7 100%);
+    color: var(--text);
+    line-height: 1.7;
+  }
+  .hero {
+    background:
+      radial-gradient(circle at 15% 20%, rgba(45, 212, 191, 0.18), transparent 24%),
+      radial-gradient(circle at 78% 10%, rgba(37, 99, 235, 0.18), transparent 24%),
+      linear-gradient(135deg, #10253f 0%, #0f172a 62%, #172554 100%);
+    color: #fff;
+    padding: 72px 24px 54px;
+  }
+  .hero .container { max-width: 1040px; margin: 0 auto; }
+  .hero .breadcrumb { font-size: 0.85rem; color: #94a3b8; margin-bottom: 16px; }
+  .hero .breadcrumb a { color: #99f6e4; text-decoration: none; }
+  .hero h1 { font-size: 2.36rem; font-weight: 800; line-height: 1.18; margin-bottom: 14px; max-width: 900px; }
+  .hero .subtitle { max-width: 900px; color: #d7e3f3; font-size: 1.05rem; line-height: 1.65; }
+  .hero .meta { margin-top: 22px; display: flex; gap: 12px; flex-wrap: wrap; font-size: 0.84rem; color: #b7c4d8; }
+  .tag { display: inline-block; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; }
+  .tag-accent { background: rgba(45, 212, 191, 0.15); color: #99f6e4; }
+  .tag-blue { background: var(--blue-light); color: var(--blue); }
+  .tag-orange { background: var(--orange-light); color: var(--orange); }
+  .main { max-width: 1040px; margin: 0 auto; padding: 34px 24px 88px; }
+  .page-nav { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 26px; }
+  .page-nav a {
+    display: inline-block; text-decoration: none; border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.84); color: var(--muted); padding: 10px 14px;
+    border-radius: 999px; font-size: 0.86rem; font-weight: 700; backdrop-filter: blur(10px);
+  }
+  .page-nav a.active { background: var(--accent-light); color: var(--accent-dark); border-color: #99f6e4; }
+  .toc, .card, .callout {
+    background: rgba(255, 255, 255, 0.9); border: 1px solid var(--border); border-radius: 16px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
+  }
+  .toc { padding: 22px 24px; margin-bottom: 32px; }
+  .toc h3 { font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 10px; }
+  .toc ol { padding-left: 20px; }
+  .toc li { margin-bottom: 5px; }
+  .toc a { color: var(--accent-dark); text-decoration: none; font-size: 0.92rem; }
+  .toc a:hover { text-decoration: underline; }
+  .section { margin-bottom: 56px; }
+  .section h2 { font-size: 1.52rem; font-weight: 800; margin-bottom: 18px; display: inline-block; border-bottom: 3px solid var(--accent); padding-bottom: 8px; }
+  .section h3 { font-size: 1.08rem; font-weight: 800; margin: 20px 0 10px; }
+  .section p, .section li { color: var(--muted); font-size: 0.95rem; }
+  .section p { margin-bottom: 12px; }
+  .section ul, .section ol { padding-left: 20px; margin-bottom: 12px; }
+  .section li { margin-bottom: 5px; }
+  .lede { font-size: 1.02rem; color: var(--text); margin-bottom: 14px; }
+  .card { padding: 22px 24px; margin-bottom: 16px; }
+  .callout { padding: 16px 18px; border-left: 4px solid var(--accent); margin-bottom: 16px; background: linear-gradient(135deg, rgba(204, 251, 241, 0.85), rgba(255, 255, 255, 0.96)); }
+  .callout.warn { border-left-color: var(--orange); background: linear-gradient(135deg, rgba(255, 237, 213, 0.9), rgba(255, 255, 255, 0.96)); }
+  .callout.danger { border-left-color: var(--red); background: linear-gradient(135deg, rgba(254, 226, 226, 0.9), rgba(255, 255, 255, 0.96)); }
+  .callout p { margin: 0; color: var(--text); }
+  .callout strong { color: var(--accent-dark); }
+  .callout.warn strong { color: var(--orange); }
+  .callout.danger strong { color: var(--red); }
+  .table-wrap { overflow-x: auto; margin-bottom: 16px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.86rem; background: rgba(255, 255, 255, 0.92); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+  th { background: #f7fafc; font-weight: 800; text-align: left; padding: 11px 13px; border-bottom: 2px solid var(--border); font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+  td { padding: 10px 13px; border-bottom: 1px solid #edf2f7; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover { background: #fbfdff; }
+  .num { font-variant-numeric: tabular-nums; text-align: right; }
+  .mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 0.82rem; }
+  code { background: var(--code-bg); padding: 2px 6px; border-radius: 6px; font-size: 0.84rem; }
+  pre { background: #0f172a; color: #e2e8f0; padding: 18px 20px; border-radius: 14px; overflow-x: auto; font-size: 0.82rem; line-height: 1.55; margin-bottom: 16px; }
+  pre code { background: none; padding: 0; color: inherit; }
+  .footer { text-align: center; padding: 34px 24px; color: var(--muted); font-size: 0.82rem; border-top: 1px solid var(--border); }
+  .footer a { color: var(--accent-dark); text-decoration: none; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 0.76rem; font-weight: 700; }
+  .badge-qwen { background: var(--purple-light); color: var(--purple); }
+  .badge-gemma { background: var(--blue-light); color: var(--blue); }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="container">
+    <div class="breadcrumb"><a href="/">Minkyu Jeon</a> / <a href="/projects/">Projects</a> / <a href="/projects/agentic-protein-design.html">Agentic Protein Design</a></div>
+    <h1>v2 PUCT Tree-Search Results &mdash; Qwen3.6 and Gemma-4 on PDL1 / CD45</h1>
+    <p class="subtitle">
+      First end-to-end run of the autoresearch_v2 LLM-guided PUCT tree search on the Proteina-Complexa TTO scaffold.
+      Two local open-weight LLMs (Qwen3.6-35B-A3B-FP8 with thinking ON, Gemma-4-E4B) each ran on two targets
+      (02_PDL1, 05_CD45) under a shared mutation surface, 20-eval budget, 10&nbsp;h driver cap inside a 12&nbsp;h SLURM
+      job. This page records, verbatim from <code>programs/</code> and <code>scores/</code> under each run's
+      store-root, which configurations each model actually produced and what their online proxy pass rates were.
+    </p>
+    <div class="meta">
+      <span>Minkyu Jeon</span>
+      <span>Princeton University</span>
+      <span><span class="tag tag-accent">v2 PUCT</span></span>
+      <span><span class="tag tag-blue">Online Proxy</span></span>
+      <span><span class="tag tag-orange">Paper Audit</span></span>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="page-nav">
+    <a href="/projects/agentic-protein-design.html">Audited Results Map</a>
+    <a href="/projects/agentic-protein-design-plan.html">Research Plan</a>
+    <a href="/projects/agentic-protein-design-results.html" class="active">v2 Results (this page)</a>
+    <a href="/projects/agentic-protein-design-notes.html">Implementation Notes</a>
+    <a href="/projects/agentic-protein-design-runtime.html">Runtime Verification</a>
+  </div>
+
+  <div class="toc">
+    <h3>Contents</h3>
+    <ol>
+      <li><a href="#two-numbers">Two Numbers, Two Questions</a></li>
+      <li><a href="#summary">Executive Summary</a></li>
+      <li><a href="#pipeline">Pipeline and Role Separation (Human vs Tree vs LLM)</a></li>
+      <li><a href="#methodology">Methodology and Budget</a></li>
+      <li><a href="#baseline">Human-Designed v1 Routing Baseline</a></li>
+      <li><a href="#headline">Headline Results Table (LLM vs Human Baseline)</a></li>
+      <li><a href="#qwen-pdl1">Qwen3.6 on PDL1 &mdash; Seven-Step Monotonic Chain</a></li>
+      <li><a href="#qwen-cd45">Qwen3.6 on CD45 &mdash; Dry Refinement, Then a Diluting Scale-Up</a></li>
+      <li><a href="#gemma-pdl1">Gemma-4 on PDL1 &mdash; Nine Steps, Five Dead</a></li>
+      <li><a href="#gemma-cd45">Gemma-4 on CD45 &mdash; Immediate Scale Jump</a></li>
+      <li><a href="#comparison">Qwen vs Gemma &mdash; Reasoning-Style Comparison</a></li>
+      <li><a href="#why-drop">Why CD45's Pass Rate Fell from 21&nbsp;% to 13&nbsp;%</a></li>
+      <li><a href="#caveats">Caveats and What This Is NOT</a></li>
+      <li><a href="#next">Next Steps</a></li>
+      <li><a href="#hard-reruns">Routed Hard-Target Reruns (2026-04-21)</a></li>
+    </ol>
+  </div>
+
+  <div class="section" id="two-numbers">
+    <h2>1. Two Numbers, Two Questions</h2>
+
+    <p class="lede">Every Complexa evaluation produces two different quality signals from the same batch of
+    finals. This page uses both, and keeps them separate throughout.</p>
+
+    <div class="table-wrap">
+      <table>
+        <tr><th>Quantity</th><th>Formula</th><th>What it measures</th></tr>
+        <tr>
+          <td><strong>Pass rate</strong></td>
+          <td class="mono">n_successful / n_finals</td>
+          <td>Of the finals Complexa generated, what fraction cleared the online threshold
+            (<code>af2folding_i_pae &lt; 7/31</code> AND <code>af2folding_plddt_log &gt; 0.9</code>).
+            Invariant to how many samples you generate. Measures the <em>config</em>.</td>
+        </tr>
+        <tr>
+          <td><strong>n_successful (count)</strong></td>
+          <td class="mono">count of finals clearing threshold</td>
+          <td>Absolute count of threshold-crossing finals. Scales with the size of the final pool and
+            therefore with the sampling budget, not just with config quality.</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>Reading rule.</strong> "Qwen/CD45 reached 33" means 33 successful finals out of 256, i.e.
+      <strong>12.9&nbsp;% pass rate</strong>. Never "a success rate of 33&nbsp;%." Both numbers appear in
+      every table below.</p>
+    </div>
+
+    <p>PUCT uses only <code>n_successful</code> (the count) to rank nodes during the tree search. A program
+    with more finals at the same pass rate will therefore outrank one that found a higher pass-rate config
+    at smaller scale. This shapes the chains below.</p>
+  </div>
+
+  <div class="section" id="summary">
+    <h2>2. Executive Summary</h2>
+
+    <ul>
+      <li>On <strong>PDL1</strong>, both LLM trees eventually reached 100&nbsp;% pass rate at small scale,
+        and both the human-designed v1 <code>deep</code> baseline <em>also</em> achieved
+        32&nbsp;/&nbsp;32 = <strong>100&nbsp;%</strong> at the same scale in a single 30-minute run. The
+        LLM trees then scaled up <code>n_finals</code> to increase absolute count (Qwen: 248 at 97&nbsp;%,
+        Gemma: 109 at 85&nbsp;%), trading pass rate for pool size.</li>
+      <li>On <strong>CD45</strong> (seed = 0 successful), the v1 <code>noise020</code> baseline reached
+        8&nbsp;/&nbsp;32 = <strong>25.0&nbsp;%</strong> in 33 minutes. The LLM trees spent 3&minus;10 hours
+        exploring and peaked at 21.1&nbsp;% (Qwen gen 4, Gemma gen 1)&mdash;<em>below</em> the human
+        baseline on pass rate. Their absolute counts (33) exceeded the baseline's 8 only because the
+        LLM pool grew 8&times; larger.</li>
+      <li>All refinement-only mutations on CD45 (Qwen gens 1&ndash;3, each a ~25-minute eval) kept pass
+        rate at 0&nbsp;%. Only raising <code>nsamples</code> escaped the zero basin.</li>
+      <li>The tree's ranking function uses count rather than rate, so the &ldquo;best&rdquo; node is
+        systematically the most scaled-up rather than the highest pass rate. Under an evidence-matched
+        baseline the apparent LLM advantage on PDL1 count (248 vs 32) is confounded with an 8&times;
+        sampling-budget difference.</li>
+    </ul>
+
+    <div class="callout">
+      <p><strong>Matched-scale reading.</strong> On PDL1, the tree reaches 100&nbsp;% pass rate after one or two accepted mutations, but the human-designed <code>deep</code> baseline also reaches 100&nbsp;% at the same small scale. On the current completed CD45 runs, the peak tree pass rate remains below the human <code>noise020</code> baseline.</p>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>On CD45, the human baseline still wins on pass rate.</strong>
+      <code>noise020</code> (beam_width=8, n_branch=3, bb_ca &amp; local_latents sc_scale_noise=0.2) clears
+      25&nbsp;% of finals in a single 33-minute run. Neither LLM tree matched that quality at any node
+      in its chain. The LLM chains beat the baseline on absolute count (33 vs 8) only because they
+      generated 8&times; more finals over 3&minus;10 hours of compute.</p>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>What this is NOT.</strong> These numbers are the <em>online proxy</em>, computed from raw
+      Complexa finals. The website's audited "After AF2 Refolding + ProteinMPNN Redesign" metric uses a
+      different gate (ProteinMPNN redesign + ESMFold + <code>scRMSD_ca &lt; 1.5&nbsp;&Aring;</code> +
+      FoldSeek clustering). That post-hoc pipeline has not been run on these outputs yet, so the headline
+      numbers here cannot be compared directly against the audited human baselines.</p>
+    </div>
+  </div>
+
+  <div class="section" id="pipeline">
+    <h2>3. Pipeline and Role Separation (Human vs Tree vs LLM)</h2>
+
+    <p class="lede">The v2 autoresearch loop has three cooperating actors. Any &ldquo;agentic&rdquo;-sounding
+    win has to be attributed to one of them. This section shows which is which and where the human
+    designer's priors actually live.</p>
+
+    <h3>End-to-end loop</h3>
+    <pre><code>   ┌─ seed InferenceProgram (human-designed)          ← SEED
+   │
+   ▼
+   ┌──────────────────────────────────────────────────┐
+   │  tree.select()   [PUCT — v2/tree.py]             │   pure tree search
+   │  pick next parent node by UCB over               │   (no LLM here)
+   │  primary_successes + visits + virtual_loss       │
+   └──────────────────────────────────────────────────┘
+         │  parent program + target
+         ▼
+   ┌──────────────────────────────────────────────────┐
+   │  mutator.propose()   [LLM — v2/mutator.py]       │   per-expansion LLM call
+   │  Input : parent program, Tier-A surface spec,    │   (stateless:
+   │          feedback blob, run_history, idea bank   │    no tree topology,
+   │  Output: 1 or 2 field updates + rationale        │    no sibling scores)
+   │          via forced tool call                    │
+   └──────────────────────────────────────────────────┘
+         │  child program (validated: unique, memory-safe)
+         ▼
+   ┌──────────────────────────────────────────────────┐
+   │  executor.run()   [Complexa — v2/executor.py]    │   the expensive step
+   │  InferenceProgram → Hydra overrides → subprocess │   (22–153 min / eval)
+   │  → wait → parse rewards CSV → ProgramScore       │
+   └──────────────────────────────────────────────────┘
+         │  ProgramScore (n_successful, n_finals, …)
+         ▼
+   ┌──────────────────────────────────────────────────┐
+   │  tree.backup()   [PUCT — v2/tree.py]             │   pure tree search
+   │  propagate score up to root; child's rank_key    │
+   │  is primary_successes (count, not pass rate)     │
+   └──────────────────────────────────────────────────┘
+         │
+         └─── loop back to tree.select() until
+              budget_evals or wall-clock exhausted</code></pre>
+
+    <h3>Role table</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Actor</th><th>Runs when</th><th>Reads</th><th>Writes</th><th>State</th></tr>
+        <tr>
+          <td><strong>Human designer</strong></td>
+          <td>Once, offline</td>
+          <td>Paper, prior experiments, Proteina / Complexa docs</td>
+          <td>Schema, mutation surface, seed programs, memory cap, success threshold, prohibitions, idea bank, PUCT constants</td>
+          <td>Fixed for the session</td>
+        </tr>
+        <tr>
+          <td><strong>PUCT tree search</strong></td>
+          <td>Every iteration (both select + backup)</td>
+          <td>Full tree: visits, rewards, virtual losses, all previously scored nodes</td>
+          <td>Node selections (which parent to expand); backup updates (rank_key at each ancestor)</td>
+          <td>Stateful (owns the tree object)</td>
+        </tr>
+        <tr>
+          <td><strong>LLM mutator</strong></td>
+          <td>Each expansion (1&ndash;2 child proposals per call)</td>
+          <td>Parent program only + feedback blob (parent's own score, rejection_reason of prior siblings) + run_history (top-k ranked programs) + idea bank</td>
+          <td>1 or 2 field updates into parent program; rationale string; optional idea-id selection</td>
+          <td>Stateless per call; no memory of the tree topology, no sibling scores visible</td>
+        </tr>
+        <tr>
+          <td>Executor</td>
+          <td>Per child evaluation</td>
+          <td>Compiled Hydra overrides</td>
+          <td>Complexa run directory, rewards CSV, ProgramScore</td>
+          <td>Stateless</td>
+        </tr>
+      </table>
+    </div>
+
+    <h3>Where human design actually enters</h3>
+    <p>All of the following are hand-picked by the researcher and are fixed for all four runs on this page:</p>
+    <ol>
+      <li><strong>InferenceProgram schema</strong> &mdash; the data classes in
+        <code>autoresearch_v2/inference_program.py</code> define every knob that <em>can exist</em>.</li>
+      <li><strong>Tier-A mutation surface</strong> &mdash; the subset the LLM is <em>allowed</em> to change.
+        Example frozen paths: <code>reward.af2folding.reward_weights.*</code> (rule 7).</li>
+      <li><strong>Seed programs</strong> &mdash; <code>balanced</code>, <code>deep</code>,
+        <code>wide</code>, <code>notto</code>, <code>noise020</code>, <code>halluc_greedy5</code>,
+        <code>mixed_noise_halluc</code>, <code>mcts_msg5</code>, <code>mcts_rws5</code>, and &sim;20 more.
+        Each is a concrete hypothesis about how to attack a target.</li>
+      <li><strong>Routing map</strong> &mdash; which seed is picked for which target.
+        <code>05_CD45 &rarr; noise020</code>, <code>27_HER2_AAV &rarr; halluc_greedy5</code>, etc. This map
+        is the audited page's <a href="/projects/agentic-protein-design.html#routing-program">Figure&nbsp;H</a>.</li>
+      <li><strong>Memory cap</strong> &mdash; the formula
+        <code>beam_width &times; nsamples &times; batch_size &le; 512</code> and its threshold of 512.</li>
+      <li><strong>Success threshold</strong> &mdash; paper-aligned gates
+        <code>af2folding_i_pae &lt; 7/31</code> AND <code>af2folding_plddt_log &gt; 0.9</code>.</li>
+      <li><strong>Idea bank</strong> &mdash; hand-written one-sentence hypothesis hints
+        (<code>seed_diversify_early</code>, etc.) supplied with every LLM call.</li>
+      <li><strong>PUCT constants</strong> &mdash; <code>c_puct = 1.4</code>,
+        <code>children_per_expansion = 2</code>, virtual-loss weight.</li>
+      <li><strong>Evaluation metrics</strong> &mdash; the definitions of
+        <code>pass_rate = n_successful / n_finals</code> (online) and the post-hoc
+        <code>unique_successes</code> via ProteinMPNN redesign + ESMFold + FoldSeek.</li>
+    </ol>
+
+    <h3>What is <em>not</em> human-designed during a run</h3>
+    <ol>
+      <li>Which knob to change at the next expansion &rarr; <strong>LLM</strong></li>
+      <li>Which parent to expand next &rarr; <strong>PUCT tree search</strong></li>
+      <li>How to balance exploration vs exploitation &rarr; <strong>PUCT (UCB formula over the rank_key)</strong></li>
+      <li>The resulting chain of programs &rarr; <strong>emergent</strong> from the interaction of all three above</li>
+    </ol>
+
+    <div class="callout">
+      <p><strong>Why this split matters for interpreting results.</strong> When the Qwen tree on PDL1
+      reaches 100&nbsp;% pass rate at gen 1, the credit breakdown is: the <em>space</em> in which this
+      config exists is human-designed (no LLM was involved in deciding that <code>beam_width</code> is a
+      tunable knob); <em>picking</em> to mutate <code>beam_width</code> rather than some other knob is the
+      LLM's call; and <em>which parent to mutate</em> at that iteration is PUCT's call. The same split
+      applies when the tree runs out of ideas on CD45: the LLM is choosing refinement knobs over sample
+      knobs (its call), PUCT keeps revisiting a 0-success parent because all siblings also return 0
+      (PUCT's call), and the fact that <code>filter.dedup_sequence</code> is True by default is a
+      human-design choice (seed program default).</p>
+    </div>
+  </div>
+
+  <div class="section" id="methodology">
+    <h2>4. Methodology and Budget</h2>
+
+    <h3>Job layout</h3>
+    <p>Four SLURM jobs, each self-hosted in a single container:</p>
+    <ul>
+      <li>GPU&nbsp;0 hosts a local vLLM server (Qwen3.6-35B-A3B-FP8 or Gemma-4-E4B)</li>
+      <li>GPU&nbsp;1 runs the autoresearch_v2 PUCT driver which calls the server over 127.0.0.1</li>
+      <li><code>BUDGET_EVALS = 20</code>, <code>BUDGET_HOURS = 10</code>, seed profile =&nbsp;<code>balanced</code></li>
+      <li>Qwen3.6 runs with <code>enable_thinking=true</code> per request; reasoning is captured to
+        <code>llm_interactions/*.jsonl</code> alongside every proposed mutation</li>
+    </ul>
+
+    <h3>Mutation surface</h3>
+    <p>The LLM receives a parent <code>InferenceProgram</code> and the Tier-A mutation surface: search
+    algorithm + its per-algorithm params, sampling knobs (<code>guidance_w</code>, <code>ag_ratio</code>,
+    <code>n_recycle</code>, <code>self_cond</code>), refinement settings, filter, and dataloader.
+    It must emit one or two field updates via a forced tool call, staying under the memory cap
+    <code>beam_search.beam_width &times; stage.nsamples &times; stage.batch_size &le; 512</code>.
+    <code>reward.af2folding.reward_weights.*</code> is explicitly frozen (rule 7).</p>
+
+    <h3>How the chains below were produced</h3>
+    <p>For each run, the best node is picked by <code>primary_successes</code> (count). Parents are then
+    walked up to the root to give the ordered chain of programs shown. The mutation field for each row is
+    the diff between parent and child programs read directly from the stored
+    <code>programs/*.json</code>&mdash;not the LLM's prose &ldquo;description,&rdquo; which can overstate or
+    understate what actually changed.</p>
+  </div>
+
+  <div class="section" id="baseline">
+    <h2>5. Human-Designed v1 Routing Baseline</h2>
+
+    <p>
+      The v1 routing program in
+      <a href="/projects/agentic-protein-design.html#routing-program">Figure H of the audited page</a>
+      assigns <code>default deep beam</code> to PDL1 and <code>noise 0.20</code> to CD45. Both were run
+      once under the same v2 harness (SLURM jobs 7148364 / 7148365, <code>--skip-tree</code>, same Complexa
+      evaluator, same online threshold), producing the human-designed reference point that the LLM trees
+      need to beat.
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <tr>
+          <th>Target</th>
+          <th>v1 profile</th>
+          <th>Config</th>
+          <th class="num">n_successful</th>
+          <th class="num">n_finals</th>
+          <th class="num">Pass rate</th>
+          <th class="num">Wall</th>
+        </tr>
+        <tr>
+          <td>02_PDL1</td>
+          <td><code>deep</code></td>
+          <td class="mono">beam-search, bw=8, n_branch=3, ckpts=[0,65,130,200,270,340,400], ns=4, bs=8</td>
+          <td class="num"><strong>32</strong></td>
+          <td class="num">32</td>
+          <td class="num"><strong>100.0&nbsp;%</strong></td>
+          <td class="num">30&nbsp;m</td>
+        </tr>
+        <tr>
+          <td>05_CD45</td>
+          <td><code>noise020</code></td>
+          <td class="mono">deep + bb_ca.sc_scale_noise=0.2 + local_latents.sc_scale_noise=0.2</td>
+          <td class="num"><strong>8</strong></td>
+          <td class="num">32</td>
+          <td class="num"><strong>25.0&nbsp;%</strong></td>
+          <td class="num">33&nbsp;m</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="callout">
+      <p><strong>Two calibration points for everything below.</strong> On PDL1 the human program already
+      achieves 100&nbsp;% pass rate at the smallest scale (32 finals) in 30 minutes. On CD45 it achieves
+      25&nbsp;% at the same scale in 33 minutes. These are the numbers any LLM-guided tree has to beat
+      under matched sampling budget to claim a config-shaping win.</p>
+    </div>
+  </div>
+
+  <div class="section" id="headline">
+    <h2>6. Headline Results Table (LLM vs Human Baseline)</h2>
+
+    <div class="table-wrap">
+      <table>
+        <tr>
+          <th>Arm</th>
+          <th>Target</th>
+          <th>Seed pass rate</th>
+          <th>Peak pass rate</th>
+          <th>Best count</th>
+          <th>Pass rate at best count</th>
+          <th>Chain depth</th>
+          <th>Wall total</th>
+        </tr>
+        <tr>
+          <td><span class="badge" style="background: #dcfce7; color: #15803d;">Human v1</span></td>
+          <td>02_PDL1</td>
+          <td colspan="2" class="num">32 / 32 = <strong>100.0&nbsp;%</strong> (single run)</td>
+          <td class="num">32</td>
+          <td class="num">100.0&nbsp;%</td>
+          <td class="num">&mdash;</td>
+          <td class="num">30&nbsp;m</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-qwen">Qwen3.6</span></td>
+          <td>02_PDL1</td>
+          <td class="num">28 / 32 = 87.5&nbsp;%</td>
+          <td class="num"><strong>40 / 40 = 100&nbsp;%</strong> (gen 1&ndash;3)</td>
+          <td class="num"><strong>248</strong> / 256 (gen 6)</td>
+          <td class="num">96.9&nbsp;%</td>
+          <td class="num">7</td>
+          <td class="num">10h26m (14 evals)</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-gemma">Gemma-4</span></td>
+          <td>02_PDL1</td>
+          <td class="num">28 / 32 = 87.5&nbsp;%</td>
+          <td class="num"><strong>48 / 48 = 100&nbsp;%</strong> (gen 2&ndash;6)</td>
+          <td class="num">109 / 128 (gen 8)</td>
+          <td class="num">85.2&nbsp;%</td>
+          <td class="num">9</td>
+          <td class="num">9h20m (20 evals)</td>
+        </tr>
+        <tr><td colspan="8" style="background:#f7fafc;font-weight:800;padding:8px 13px;color:var(--muted);text-transform:uppercase;font-size:0.72rem;letter-spacing:0.06em;">CD45</td></tr>
+        <tr>
+          <td><span class="badge" style="background: #dcfce7; color: #15803d;">Human v1</span></td>
+          <td>05_CD45</td>
+          <td colspan="2" class="num"><strong>8 / 32 = 25.0&nbsp;%</strong> (single run)</td>
+          <td class="num">8</td>
+          <td class="num">25.0&nbsp;%</td>
+          <td class="num">&mdash;</td>
+          <td class="num">33&nbsp;m</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-qwen">Qwen3.6</span></td>
+          <td>05_CD45</td>
+          <td class="num">0 / 32 = 0&nbsp;%</td>
+          <td class="num">27 / 128 = 21.1&nbsp;% (gen 4)</td>
+          <td class="num">33 / 256 (gen 5)</td>
+          <td class="num">12.9&nbsp;%</td>
+          <td class="num">6</td>
+          <td class="num">7h42m (20 evals)</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-gemma">Gemma-4</span></td>
+          <td>05_CD45</td>
+          <td class="num">0 / 32 = 0&nbsp;%</td>
+          <td class="num">27 / 128 = 21.1&nbsp;% (gen 1)</td>
+          <td class="num">33 / 256 (gen 4)</td>
+          <td class="num">12.9&nbsp;%</td>
+          <td class="num">5</td>
+          <td class="num">12h05m (9 evals, TIMEOUT)</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>Simple reading.</strong> In these two completed targets, the human v1 reference is at least as good on pass rate, while the tree reaches larger absolute counts only after expanding the final pool size.</p>
+    </div>
+  </div>
+
+  <div class="section" id="qwen-pdl1">
+    <h2>7. Qwen3.6 on PDL1 &mdash; Seven-Step Monotonic Chain</h2>
+
+    <p>Seed config: <code>beam_width=8, nsamples=4, batch_size=8</code>. The chain below shows every field
+    that changed between adjacent programs, read from <code>programs/*.json</code>.</p>
+
+    <div class="table-wrap">
+      <table>
+        <tr><th>Gen</th><th>Actual config diff (child vs parent)</th><th class="num">succ</th><th class="num">finals</th><th class="num">Pass</th><th class="num">Wall</th></tr>
+        <tr><td class="num">0</td><td><em>seed &mdash; balanced profile</em></td><td class="num">28</td><td class="num">32</td><td class="num">87.5&nbsp;%</td><td class="num">22&nbsp;m</td></tr>
+        <tr><td class="num">1</td><td class="mono">beam_width: 8 &rarr; 10</td><td class="num">40</td><td class="num">40</td><td class="num"><strong>100&nbsp;%</strong></td><td class="num">27&nbsp;m</td></tr>
+        <tr><td class="num">2</td><td class="mono">enable_soft_optimization: false &rarr; true<br>n_temp_iters: 45 &rarr; 75</td><td class="num">40</td><td class="num">40</td><td class="num">100&nbsp;%</td><td class="num">27&nbsp;m</td></tr>
+        <tr><td class="num">3</td><td class="mono">beam_width: 10 &rarr; 12</td><td class="num">48</td><td class="num">48</td><td class="num">100&nbsp;%</td><td class="num">32&nbsp;m</td></tr>
+        <tr><td class="num">4</td><td class="mono">nsamples: 4 &rarr; 8<br>batch_size: 8 &rarr; 4</td><td class="num">94</td><td class="num">96</td><td class="num">97.9&nbsp;%</td><td class="num">65&nbsp;m</td></tr>
+        <tr><td class="num">5</td><td class="mono">nsamples: 8 &rarr; 16<br>batch_size: 4 &rarr; 2</td><td class="num">187</td><td class="num">192</td><td class="num">97.4&nbsp;%</td><td class="num">114&nbsp;m</td></tr>
+        <tr><td class="num">6</td><td class="mono">beam_width: 12 &rarr; 16</td><td class="num"><strong>248</strong></td><td class="num"><strong>256</strong></td><td class="num">96.9&nbsp;%</td><td class="num">151&nbsp;m</td></tr>
+      </table>
+    </div>
+
+    <h3>What the LLM's <code>mutation_description</code> field says (verbatim)</h3>
+    <ul style="font-size: 0.9rem;">
+      <li><strong>gen 1 (bw 8&rarr;10):</strong> "Increasing beam_width from 8 to 10 expands the early
+        exploration frontier to test the diversity hypothesis <em>more conservatively</em>, avoiding the
+        failures observed at width=16."</li>
+      <li><strong>gen 2 (soft_opt + n_temp_iters):</strong> "Enabling soft optimization and increasing
+        temperature annealing steps from 45 to 75 aims to improve local structural relaxation of top
+        candidates without expanding the search budget."</li>
+      <li><strong>gen 3 (bw 10&rarr;12):</strong> "Increasing beam_width to 12 expands the early
+        exploration frontier to capture more diverse candidates."</li>
+      <li><strong>gen 4 (ns 4&rarr;8, bs 8&rarr;4):</strong> "Doubling nsamples from 4 to 8 while reducing
+        batch_size from 8 to 4 maintains the memory product at 384 but doubles the total sampling budget."</li>
+      <li><strong>gen 5 (ns 8&rarr;16, bs 4&rarr;2):</strong> "Quadrupling the total sampling budget&hellip;
+        maintains memory safety at 384 while testing if further increasing early-stage diversity pushes the
+        near-ceiling success rate closer to 100&nbsp;%."</li>
+      <li><strong>gen 6 (bw 12&rarr;16):</strong> "Increasing the beam width to 16 expands the early-stage
+        exploration frontier to capture rare high-affinity topologies, keeping the memory product exactly
+        at the 512 GPU limit."</li>
+    </ul>
+
+    <h3>Chain-of-thought trace from the LLM call that produced gen 1 (verbatim, bottom of thinking window)</h3>
+    <pre><code>However, the hint explicitly mentions beam_width/nsamples. I'll stick to beam_width=10.
+
+Actually, looking at the prior run feedback: "Increasing beam_width to 16 expands the early
+exploration budget to identify ..." It failed completely. This might be due to OOM or just bad
+luck. A step to 10 is logical.
+
+Final check of the proposal:
+- updates: [{"path": "search.beam_search.beam_width", "value": 10}]
+- mutation_description: "Increasing beam_width from 8 to 10 expands the early exploration
+  frontier to test the diversity hypothesis more conservatively, avoiding the failures observed
+  at width=16."
+- selected_idea_ids: ["seed_diversify_early"]
+
+All constraints met. Proceeds.</code></pre>
+
+    <p>Two things visible in this excerpt and in the surrounding 12&thinsp;520 characters of thinking:</p>
+    <ul>
+      <li><strong>Qwen reads the feedback blob.</strong> It sees that a previous sibling with
+        <code>beam_width=16</code> returned 0 successes, and explicitly de-risks to
+        <code>beam_width=10</code>.</li>
+      <li><strong>Memory arithmetic appears every turn.</strong> Product formula is recomputed before the
+        tool call (<code>10 &times; 4 &times; 8 = 320 &le; 512</code>).</li>
+    </ul>
+
+    <h3>Chain-of-thought trace from the LLM call that produced gen 4 (verbatim)</h3>
+    <pre><code>[...] So I need to reduce either beam_width or batch_size.
+
+If I keep beam_width=12 and reduce batch_size to 4: 12*8*4 = 384, which is fine.
+
+Alternatively, I could keep batch_size=8 and reduce beam_width to 8: 8*8*8 = 512, which is
+exactly at the limit.
+
+Let me try increasing nsamples while adjusting batch_size to stay within memory limits. This
+tests the hypothesis that more samples at the same beam width yields more successes.</code></pre>
+
+    <p>Gen 4 is the first scale-up after reaching 100&nbsp;% pass rate. The reasoning explicitly prefers
+    holding <code>beam_width</code> fixed and compensating with <code>batch_size</code>, keeping the memory
+    product at 384 (below the 512 cap) while doubling total samples.</p>
+
+    <h3>How to read the pass-rate trajectory</h3>
+    <p>Rows 1&ndash;3 lift the config from 87.5&nbsp;% to 100&nbsp;% at the same scale (<code>n_finals</code>
+    stays near 40&ndash;48). Rows 4&ndash;6 then scale up: <code>n_finals</code> goes 48 &rarr; 96 &rarr;
+    192 &rarr; 256 while pass rate gives back 3&nbsp;pp. The gain in absolute count is large
+    (48 &rarr; 248, ~5&times;); the gain in pass rate is zero after gen 3. Under a matched sampling budget
+    the chain stops being impressive at gen 3.</p>
+  </div>
+
+  <div class="section" id="qwen-cd45">
+    <h2>8. Qwen3.6 on CD45 &mdash; Dry Refinement, Then a Diluting Scale-Up</h2>
+
+    <p>Seed config identical to PDL1's (<code>balanced</code>). CD45's intrinsic difficulty gives 0 / 32 =
+    <strong>0&nbsp;% pass rate</strong> at the seed. Qwen spent the first three non-seed expansions on
+    refinement-only tweaks, which do not change <code>n_finals</code> or escape the zero basin.</p>
+
+    <div class="table-wrap">
+      <table>
+        <tr><th>Gen</th><th>Actual config diff</th><th class="num">succ</th><th class="num">finals</th><th class="num">Pass</th><th class="num">Wall</th></tr>
+        <tr><td class="num">0</td><td><em>seed &mdash; balanced profile</em></td><td class="num">0</td><td class="num">32</td><td class="num">0.0&nbsp;%</td><td class="num">24&nbsp;m</td></tr>
+        <tr><td class="num">1</td><td class="mono">n_greedy_iters: 15 &rarr; 30<br>n_hard_iters: 5 &rarr; 10</td><td class="num">0</td><td class="num">32</td><td class="num">0.0&nbsp;%</td><td class="num">24&nbsp;m</td></tr>
+        <tr><td class="num">2</td><td class="mono">enable_soft_optimization: false &rarr; true<br>n_greedy_iters: 30 &rarr; 50</td><td class="num">0</td><td class="num">32</td><td class="num">0.0&nbsp;%</td><td class="num">24&nbsp;m</td></tr>
+        <tr><td class="num">3</td><td class="mono">n_temp_iters: 45 &rarr; 100<br>n_greedy_iters: 50 &rarr; 100</td><td class="num">0</td><td class="num">32</td><td class="num">0.0&nbsp;%</td><td class="num">24&nbsp;m</td></tr>
+        <tr><td class="num">4</td><td class="mono">nsamples: 4 &rarr; 16<br>batch_size: 8 &rarr; 4</td><td class="num"><strong>27</strong></td><td class="num">128</td><td class="num"><strong>21.1&nbsp;%</strong></td><td class="num">84&nbsp;m</td></tr>
+        <tr><td class="num">5</td><td class="mono">nsamples: 16 &rarr; 32<br>batch_size: 4 &rarr; 2</td><td class="num"><strong>33</strong></td><td class="num"><strong>256</strong></td><td class="num">12.9&nbsp;%</td><td class="num">153&nbsp;m</td></tr>
+      </table>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>What &ldquo;0 &rarr; 33&rdquo; actually means.</strong> 33 is the absolute count of
+      successful finals at gen 5. The <em>pass rate</em> at gen 5 is 33&nbsp;/&nbsp;256 =
+      <strong>12.9&nbsp;%</strong>. The chain's peak pass rate is 21.1&nbsp;% (27&nbsp;/&nbsp;128), one gen
+      earlier. Going from gen 4 to gen 5 gave 6 more absolute successes at the cost of almost halving the
+      pass rate, because the doubled pool diluted as much as it added.</p>
+    </div>
+
+    <h3>The refinement-only attempts (gen 1&ndash;3)</h3>
+    <p>All three gens change only refinement iteration counts and enable soft optimization. They leave
+    <code>beam_width</code>, <code>nsamples</code>, <code>batch_size</code> unchanged, so <code>n_finals=32</code>
+    every time and no new sequence-space region is explored. Three extra evaluations, zero additional
+    successful binders.</p>
+
+    <h3>Chain-of-thought trace for gen 4 (verbatim, the scale breakthrough)</h3>
+    <pre><code>Given the tight cutoff, increasing stage.nsamples is a very standard move to find rare
+successful samples. I'll increase stage.nsamples to 16.
+
+To respect the memory limit beam_width * nsamples * batch_size ≤ 512:
+Current: 8 * 4 * 8 = 256.
+New: stage.nsamples = 16. I'll change search.max_batch_size to 4. Product: 8 * 16 * 4 = 512.
+(Or I can change beam_width to 4: 4 * 16 * 8 = 512). Let's change search.max_batch_size to 4.
+
+Wait, is there any other knob? sampling.guidance_w is 1.0. Increasing it to 1.5 or 2.0 might
+push iPAE lower. The hypothesis seed_diversify_early suggests increasing beam width or nsamples.
+I'll stick with increasing nsamples.</code></pre>
+    <p>This is not an algorithmic breakthrough. It is a 4&times; increase in <code>n_finals</code>
+    (32&rarr;128), which by itself raises the chance that <em>some</em> tail sample crosses the threshold.
+    Qwen's reasoning is explicit about this: "increasing nsamples is a very standard move to find rare
+    successful samples." The pass rate 21.1&nbsp;% is better than the 0&nbsp;% of the refinement-only runs,
+    but it still loses to the human v1 <code>noise020</code> baseline's 25&nbsp;% at the seed scale.</p>
+
+    <h3>Why gen 5 made it worse on pass rate (21.1&nbsp;% &rarr; 12.9&nbsp;%)</h3>
+    <p>Gen 5 doubled <code>nsamples</code> again (16&rarr;32) and halved <code>batch_size</code>
+    (4&rarr;2). The finals pool went from 128 to 256 but only 6 extra successes were recovered
+    (27&rarr;33). The marginal pass rate of the <em>added</em> 128 finals is 6&nbsp;/&nbsp;128 =
+    <strong>4.7&nbsp;%</strong>, far below the 21.1&nbsp;% of the first 128. This is the expected pattern
+    when either (a) the diffusion prior's successful-binder fraction for CD45 is small and the first draws
+    capture most of the easy wins, or (b) <code>filter.dedup_sequence=true</code> is collapsing
+    near-duplicate sequences into the already-recovered 27. Either way, doubling the pool halved the pass
+    rate, because the marginal draws were mostly duplicates or failures. See
+    <a href="#why-drop">Section 12</a> for a more careful mechanism analysis.</p>
+
+    <h3>Interpretation</h3>
+    <p>CD45's online bottleneck is not local optimization; it is sample diversity in the raw diffusion
+    trajectory. Refinement tweaks cannot recover successful binders that were never sampled. The human v1
+    <code>noise020</code> branch addresses this directly with backbone-CA and local-latents noise=0.2,
+    which is outside the LLM's Tier-A mutation surface
+    (<code>sampling.model_overrides.*.simulation_step_params.sc_scale_noise</code> is in the surface but
+    the LLM never emitted it along this chain). A proper fixed-<code>n_finals</code> ablation would force
+    the LLM to shape the config instead of scaling the pool.</p>
+  </div>
+
+  <div class="section" id="gemma-pdl1">
+    <h2>9. Gemma-4 on PDL1 &mdash; Nine Steps, Five Dead</h2>
+
+    <p>Gemma-4-E4B has no thinking mode, so there is no reasoning trace&mdash;only the brief
+    <code>mutation_description</code>. The tree took longer (9 mutations to Qwen's 6) and ended on a
+    lower-pass-rate node.</p>
+
+    <div class="table-wrap">
+      <table>
+        <tr><th>Gen</th><th>Actual config diff</th><th class="num">succ</th><th class="num">finals</th><th class="num">Pass</th></tr>
+        <tr><td class="num">0</td><td><em>seed &mdash; balanced profile</em></td><td class="num">28</td><td class="num">32</td><td class="num">87.5&nbsp;%</td></tr>
+        <tr><td class="num">1</td><td class="mono">ag_ratio: 0.0 &rarr; 0.2</td><td class="num">28</td><td class="num">32</td><td class="num">87.5&nbsp;%</td></tr>
+        <tr><td class="num">2</td><td class="mono">beam_width: 8 &rarr; 12<br>best_of_n.replicas: 2 &rarr; 4</td><td class="num">48</td><td class="num">48</td><td class="num"><strong>100&nbsp;%</strong></td></tr>
+        <tr><td class="num">3</td><td class="mono">n_hard_iters: 5 &rarr; 10</td><td class="num">48</td><td class="num">48</td><td class="num">100&nbsp;%</td></tr>
+        <tr><td class="num">4</td><td class="mono">n_greedy_iters: 15 &rarr; 20<br>n_hard_iters: 10 &rarr; 15</td><td class="num">48</td><td class="num">48</td><td class="num">100&nbsp;%</td></tr>
+        <tr><td class="num">5</td><td class="mono">beam_width: 12 &rarr; 6<br>nsamples: 4 &rarr; 8</td><td class="num">48</td><td class="num">48</td><td class="num">100&nbsp;%</td></tr>
+        <tr><td class="num">6</td><td class="mono">best_of_n.replicas: 4 &rarr; 8</td><td class="num">48</td><td class="num">48</td><td class="num">100&nbsp;%</td></tr>
+        <tr><td class="num">7</td><td class="mono">beam_width: 6 &rarr; 12<br>batch_size: 8 &rarr; 4</td><td class="num">94</td><td class="num">96</td><td class="num">97.9&nbsp;%</td></tr>
+        <tr><td class="num">8</td><td class="mono">beam_width: 12 &rarr; 8<br>nsamples: 8 &rarr; 16</td><td class="num"><strong>109</strong></td><td class="num"><strong>128</strong></td><td class="num">85.2&nbsp;%</td></tr>
+      </table>
+    </div>
+
+    <div class="callout">
+      <p><strong>Observation.</strong> Gen 1's <code>ag_ratio</code> change did not move the yield. Gen 2
+      finally hit 100&nbsp;% by raising <code>beam_width</code> and <code>best_of_n.replicas</code> together.
+      From gen 2 through gen 6, five evaluations were spent on mutations that left
+      <code>n_successful</code> and <code>n_finals</code> both at 48&mdash;essentially dead expansions
+      for PUCT. Only gens 7&ndash;8 scaled <code>n_finals</code>, and gen 8's pass rate fell to 85.2&nbsp;%,
+      below even the seed's 87.5&nbsp;%.</p>
+    </div>
+
+    <p>Net: Gemma reached 109 successful finals, compared with Qwen's 248&mdash;despite starting from the
+    same seed and being given the same 20-eval budget. The key differences are: (a) Gemma cannot detect when
+    a mutation produced an identical-size pool to its parent (gens 3&ndash;6), and (b) its scale-up at
+    gen 8 traded too much pass rate for not much extra count.</p>
+  </div>
+
+  <div class="section" id="gemma-cd45">
+    <h2>10. Gemma-4 on CD45 &mdash; Immediate Scale Jump</h2>
+
+    <p>Gemma's first non-seed mutation on CD45 immediately bumped <code>nsamples</code> from 4 to 16 and
+    <code>batch_size</code> from 8 to 4, landing at the same 21.1&nbsp;% pass-rate plateau that took Qwen
+    four expansions to reach.</p>
+
+    <div class="table-wrap">
+      <table>
+        <tr><th>Gen</th><th>Actual config diff</th><th class="num">succ</th><th class="num">finals</th><th class="num">Pass</th></tr>
+        <tr><td class="num">0</td><td><em>seed &mdash; balanced profile</em></td><td class="num">0</td><td class="num">32</td><td class="num">0.0&nbsp;%</td></tr>
+        <tr><td class="num">1</td><td class="mono">nsamples: 4 &rarr; 16<br>batch_size: 8 &rarr; 4</td><td class="num">27</td><td class="num">128</td><td class="num"><strong>21.1&nbsp;%</strong></td></tr>
+        <tr><td class="num">2</td><td class="mono">best_of_n.replicas: 2 &rarr; 3</td><td class="num">27</td><td class="num">128</td><td class="num">21.1&nbsp;%</td></tr>
+        <tr><td class="num">3</td><td class="mono">best_of_n.replicas: 3 &rarr; 4</td><td class="num">27</td><td class="num">128</td><td class="num">21.1&nbsp;%</td></tr>
+        <tr><td class="num">4</td><td class="mono">nsamples: 16 &rarr; 32<br>batch_size: 4 &rarr; 2</td><td class="num"><strong>33</strong></td><td class="num"><strong>256</strong></td><td class="num">12.9&nbsp;%</td></tr>
+      </table>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>Dead expansions at gens 2&ndash;3.</strong> Raising <code>best_of_n.replicas</code> from
+      2&rarr;3 and then 3&rarr;4 did not change <code>n_successful</code> or <code>n_finals</code>&mdash;
+      both stayed at 27 and 128. That is two evaluations (~170&nbsp;minutes of H100 time) where the mutation
+      picked a knob the pipeline either ignored for this config or coalesced back into the same candidate
+      pool. A reasoning-enabled model would likely have rejected the gen 3 proposal once gen 2 returned
+      identical numbers; Gemma cannot see that it is about to re-do the same work.</p>
+    </div>
+
+    <p>Final count matches Qwen's 33&nbsp;/&nbsp;256 = 12.9&nbsp;% exactly at gen 4, but Gemma used five
+    evaluations to get there vs Qwen's six; the difference is that Gemma spent its cost on redundant
+    evaluations rather than refinement probes. Neither path cleared the fundamental sample-diversity
+    bottleneck.</p>
+  </div>
+
+  <div class="section" id="comparison">
+    <h2>11. Qwen vs Gemma &mdash; Reasoning-Style Comparison</h2>
+
+    <div class="table-wrap">
+      <table>
+        <tr><th>Dimension</th><th>Qwen3.6-35B (thinking ON)</th><th>Gemma-4-E4B</th></tr>
+        <tr><td>Mutations until 100&nbsp;% pass rate (PDL1)</td><td class="num">1</td><td class="num">2 (one wasted)</td></tr>
+        <tr><td>Dead expansions on the chain</td><td class="num">0</td><td class="num">4 (PDL1 gens 3&ndash;6) + 2 (CD45 gens 2&ndash;3)</td></tr>
+        <tr><td>Best PDL1 count reached</td><td class="num">248</td><td class="num">109</td></tr>
+        <tr><td>Best CD45 count reached</td><td class="num">33</td><td class="num">33</td></tr>
+        <tr><td>Internal memory-cap check per turn</td><td>Visible in thinking trace</td><td>Only implied via the emitted mutation</td></tr>
+        <tr><td>Handles "sibling already tried this"</td><td>Reads rejection_reason; de-risks knob</td><td>Sometimes proposes a near-duplicate, producing identical pool</td></tr>
+        <tr><td>CoT length per accepted mutation</td><td>~4.5k&ndash;17.6k chars</td><td>0 (no reasoning field)</td></tr>
+        <tr><td>LLM wall-clock per call (avg)</td><td>~50&ndash;80&nbsp;s (thinking dominates)</td><td>~0.3&nbsp;s</td></tr>
+        <tr><td>LLM wall-clock as fraction of run</td><td>~3&nbsp;% (PDL1) to ~7&nbsp;% (CD45, more thinking)</td><td>&lt; 0.1&nbsp;%</td></tr>
+      </table>
+    </div>
+
+    <div class="callout">
+      <p><strong>Observed difference in these runs.</strong> Qwen's logged chain contains fewer expansions with unchanged score than Gemma's logged chain. This page records that pattern directly from the stored programs, scores, and interaction logs.</p>
+    </div>
+  </div>
+
+  <div class="section" id="why-drop">
+    <h2>12. Unconfirmed Hypotheses for the CD45 Pass-Rate Drop</h2>
+
+    <p>Both LLM trees show the same pattern on CD45: a first scale-up from 32 to 128 finals lands at
+    27 successes (21.1&nbsp;%), and a second scale-up from 128 to 256 finals adds only 6 more
+    successes (33 total, 12.9&nbsp;%). The marginal pass rate of the <em>additional</em> 128 finals
+    drops to 4.7&nbsp;%. The points below are hypotheses only; this page does not directly confirm any one mechanism.</p>
+
+    <h3>Possible explanations (not directly confirmed here)</h3>
+
+    <ol>
+      <li><strong>Dedup is collapsing the marginal draws.</strong> Every CD45 chain runs with
+        <code>filter.dedup_sequence = true</code>. The first batch of 128 finals recovers 27
+        near-unique successes. When a further 128 finals are drawn from essentially the same diffusion
+        prior, sequence dedup collapses near-duplicates of the first 27 down to zero new rows. Only
+        genuinely novel hits count; those are by definition rare once the easy-win region has been
+        covered. This alone predicts the marginal rate drop to single digits.</li>
+
+      <li><strong>Beam-search thinning at smaller batch_size.</strong> Between gen 4 and gen 5 the
+        Qwen chain reduces <code>batch_size</code> from 4 to 2. With fewer concurrent trajectories, the
+        beam-search selection pressure is applied more often, pushing exploration toward a smaller part
+        of latent space. That can produce less-diverse finals even as the nominal pool grows.</li>
+
+      <li><strong>Intrinsic low-yield region of the prior.</strong> CD45 is a known hard target for the
+        Proteina backbone prior (see audited page Section 4). The fraction of the prior that produces a
+        binder passing iPAE &lt; 7/31 is small. Once the first ~128 draws exhausts the easy modes, additional
+        draws sample lower-quality regions. Without dedup this would produce a flat marginal pass rate; with
+        dedup, it produces the observed collapse.</li>
+
+      <li><strong>Sampling variance with small N.</strong> 27 successes at 128 and 33 at 256 are both
+        small integers; an 8-success swing either way is within 1&ndash;2 standard deviations of a
+        binomial. A single run cannot separate "real regression to a lower population mean" from
+        "one unlucky doubling." Without replicates we cannot rule this out.</li>
+    </ol>
+
+    <div class="callout warn">
+      <p><strong>Not a confirmed mechanism.</strong> The current page only establishes the observed count and pass-rate drop. Identifying the cause requires explicit follow-up ablations such as toggling <code>filter.dedup_sequence</code>, rerunning with fixed <code>n_finals</code>, or collecting repeated runs.</p>
+    </div>
+
+    <p>The same pattern shows up in the Gemma/CD45 chain (gens 3&rarr;4): 27&nbsp;/&nbsp;128 = 21.1&nbsp;%
+    becomes 33&nbsp;/&nbsp;256 = 12.9&nbsp;%. This repeat across two trees is an observational fact, but it still does not isolate the mechanism.</p>
+  </div>
+
+  <div class="section" id="caveats">
+    <h2>13. Caveats and What This Is NOT</h2>
+
+    <h3>Online proxy only; not the audited paper metric</h3>
+    <p>Every pass rate and count on this page is from
+    <code>n_successful / n_finals</code> over raw Complexa finals using the threshold
+    <code>af2folding_i_pae &lt; 7/31</code> AND <code>af2folding_plddt_log &gt; 0.9</code>. The website's
+    <a href="/projects/agentic-protein-design.html">audited results page</a> uses ProteinMPNN redesign +
+    ESMFold refolding + <code>scRMSD_ca &lt; 1.5&nbsp;&Aring;</code> + FoldSeek clustering. That
+    pipeline has not been run on these outputs, so these numbers are not directly comparable to the audited
+    human-baseline columns (e.g. Deep&nbsp;/&nbsp;Self in Section&nbsp;4 of the audited page).</p>
+
+    <h3>Count vs pass rate: the PUCT ranker picks the wrong winner</h3>
+    <p>PUCT ranks nodes by <code>primary_successes</code> (count). Along every chain here, the node with
+    the highest pass rate is <em>earlier</em> than the node with the highest count. Comparing v2 tree
+    runs against the human-designed v1 routing program without normalizing for sampling budget will
+    overstate the tree's contribution. A fair comparison must either hold <code>n_finals</code> fixed or
+    score on pass rate.</p>
+
+    <h3>Single seed per target, single run per cell</h3>
+    <p>Every tree started from <code>balanced</code>. No variance estimate across seeds, restarts, or LLM
+    sampling temperatures. The best chains above are one realization of a stochastic search.</p>
+
+    <h3>Gemma/CD45 hit SLURM wall-clock</h3>
+    <p>Job 7127157 was terminated at 12&nbsp;h before its 20-eval driver budget was exhausted (9 nodes
+    scored). The other three runs completed within their driver budget.</p>
+  </div>
+
+  <div class="section" id="next">
+    <h2>14. Next Steps</h2>
+
+    <ol>
+      <li><strike><strong>Matched-budget routing baseline</strong> (SLURM jobs 7148364 / 7148365).</strike>
+        <em>See <a href="#baseline">Section 5</a>.</em>
+        Result: human v1 <code>deep</code> hits 100&nbsp;% on PDL1, <code>noise020</code> hits 25&nbsp;% on
+        CD45. LLM trees failed to beat the baseline on pass rate under matched scale.</li>
+      <li><strong>Run the post-hoc audit pipeline</strong> on the top-3 nodes of each tree to populate
+        <code>paper_audited_metric</code> (FoldSeek unique successes). Only after this are head-to-head
+        comparisons against the audited human baselines meaningful.</li>
+      <li><strong>Fixed-budget v2 rerun.</strong> Cap <code>beam_width &times; nsamples</code> at a
+        constant (e.g. 32) so the LLM can only <em>reshape</em>&mdash;not resize&mdash;the final pool.
+        Re-score both trees on pass rate. If Qwen still wins, the reasoning contribution is
+        real; if the gap collapses, the v2 win here was mostly a budget-scaling effect.</li>
+      <li><strong>Seed-profile sweep.</strong> Rerun Qwen/PDL1 and Qwen/CD45 from <code>deep</code>,
+        <code>wide</code>, <code>notto</code> roots to see whether the chain's basin depends on the
+        starting config.</li>
+      <li><strong>Dead-expansion detector.</strong> Teach the mutator's feedback blob to flag when a child
+        produced identical <code>n_successful</code> and <code>n_finals</code> to its parent. This is a
+        cheap prompt-side fix that would have saved 4 evaluations on Gemma/PDL1 and 2 on Gemma/CD45.</li>
+    </ol>
+  </div>
+
+  <div class="section" id="hard-reruns">
+    <h2>15. Routed Hard-Target Reruns (2026-04-21)</h2>
+
+    <p class="lede">
+      These reruns use the corrected routed seeds and the expanded <code>full</code> mutation surface.
+      They are recorded here as online tree-search results only. The tables below report what actually
+      scored on disk as of April 21, 2026.
+    </p>
+
+    <div class="callout warn">
+      <p><strong>Scope.</strong> This section is intentionally narrow: job ids, setup, scored nodes, accepted mutations, and simple comparison against the current human reference numbers. No post-hoc audited <code>unique_successes</code> are available yet for these reruns.</p>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <tr>
+          <th>Target</th>
+          <th>Job</th>
+          <th>Routed Seed / Setup</th>
+          <th>Best Qwen Tree Result So Far</th>
+          <th>Fixed Human Comparator</th>
+          <th>Best Same-Target Human Result</th>
+        </tr>
+        <tr>
+          <td><strong>BetV1</strong></td>
+          <td><code>7199570</code><br>COMPLETED</td>
+          <td><code>mixed_noise_halluc</code><br>Qwen3.6-35B-A3B-FP8<br><code>budget_evals=20</code>, <code>budget_hours=6</code>, <code>scope=full</code></td>
+          <td>Seed <code>a380846f6204</code>: <strong>5/32</strong><br>Best child <code>9c08a048f60a</code>: <strong>5/32</strong></td>
+          <td><strong>6/32 self</strong></td>
+          <td><strong>11/32 self</strong> (<code>Exp 13b noise+halluc</code>)</td>
+        </tr>
+        <tr>
+          <td><strong>HER2_AAV</strong></td>
+          <td><code>7199569</code><br>RUNNING</td>
+          <td>routed hallucination-family seed<br>Qwen3.6-35B-A3B-FP8<br><code>budget_evals=20</code>, <code>budget_hours=6</code>, <code>scope=full</code></td>
+          <td>Seed <code>743164088510</code>: <strong>0/16</strong><br>Best scored child <code>b91871cee1b0</code>: <strong>13/64</strong></td>
+          <td><strong>1/32 self</strong></td>
+          <td><strong>21/32 self</strong> (<code>Exp 4 hallucination</code>)<br><strong>16/16 self</strong> (<code>Exp 27</code> short sweep)</td>
+        </tr>
+        <tr>
+          <td><strong>CbAgo</strong></td>
+          <td><code>7199571</code><br>RUNNING</td>
+          <td><code>mcts_msg5</code><br>Qwen3.6-35B-A3B-FP8<br><code>budget_evals=20</code>, <code>budget_hours=6</code>, <code>scope=full</code></td>
+          <td>Seed <code>a1f13d025fe8</code>: <strong>0/8</strong><br>No additional scored child yet</td>
+          <td><strong>0/32 self</strong></td>
+          <td><strong>0/8 self</strong> in completed local frontier runs</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <tr>
+          <th>Target</th>
+          <th>Tree Progress</th>
+          <th>Accepted LLM Mutation Sequence</th>
+          <th>Current Simple Comparison</th>
+        </tr>
+        <tr>
+          <td><strong>BetV1</strong></td>
+          <td>5 scored nodes before wall-clock stop.<br>Seed <code>5/32</code>.<br>Children: <code>1/48</code>, fail, fail, <code>5/32</code>.</td>
+          <td><code>beam_width: 8 → 16</code><br><code>stage.nsamples: 4 → 8</code><br><code>sampling.nsteps: 400 → 600</code> with matching checkpoints</td>
+          <td>Current Qwen best is below the human baseline and below the best same-target human run.</td>
+        </tr>
+        <tr>
+          <td><strong>HER2_AAV</strong></td>
+          <td>5 scored nodes so far.<br>Seed <code>0/16</code>.<br>Children: <code>13/64</code>, <code>11/32</code>, fail, <code>12/48</code>.</td>
+          <td><code>beam_width: 4 → 8</code> plus <code>nsamples: 4 → 8</code><br><code>nsamples: 4 → 8</code><br><code>beam_width: 8 → 12</code> with memory-safe reduction</td>
+          <td>Current Qwen best is above the fixed human comparator and below the best same-target human run.</td>
+        </tr>
+        <tr>
+          <td><strong>CbAgo</strong></td>
+          <td>Only the seed score has landed so far: <code>0/8</code>.<br>Accepted child programs exist but are not yet scored.</td>
+          <td><code>stage.nsamples: 8 → 16</code> with <code>batch_size: 8 → 4</code><br><code>mcts.n_simulations: 40 → 120</code> and <code>exploration_prob: 0.3 → 0.5</code></td>
+          <td>Current Qwen score matches the current human reference numbers at zero.</td>
+        </tr>
+      </table>
+    </div>
+
+    <h3>Accepted Mutation Descriptions from the Stored Interaction Logs</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Target</th><th>Parent</th><th>Accepted Description</th></tr>
+        <tr>
+          <td>BetV1</td>
+          <td><code>a380846f6204</code></td>
+          <td>&ldquo;Increase beam width to 16 to expand early-stage exploration diversity.&rdquo; Then later: &ldquo;Increase diffusion sampling steps to 600.&rdquo;</td>
+        </tr>
+        <tr>
+          <td>HER2_AAV</td>
+          <td><code>743164088510</code></td>
+          <td>&ldquo;Doubling beam_width and nsamples expands the early-stage search diversity.&rdquo; Another accepted child from the same parent: &ldquo;Double the number of samples per stage.&rdquo;</td>
+        </tr>
+        <tr>
+          <td>CbAgo</td>
+          <td><code>a1f13d025fe8</code></td>
+          <td>&ldquo;Increase nsamples to 16 ... and reduce batch_size to 4 to maintain memory safety.&rdquo; Another accepted child: &ldquo;Increase MCTS simulation budget and exploration probability.&rdquo;</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <p>Minkyu Jeon &middot; Princeton University &middot; <a href="/">minkyujeon.github.io</a></p>
+</div>
+
+</body>
+</html>
