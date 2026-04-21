@@ -150,10 +150,10 @@
       <li><a href="#headline">Headline Results Table (LLM vs Human Baseline)</a></li>
       <li><a href="#qwen-pdl1">Qwen3.6 on PDL1 &mdash; Seven-Step Monotonic Chain</a></li>
       <li><a href="#qwen-cd45">Qwen3.6 on CD45 &mdash; Dry Refinement, Then a Diluting Scale-Up</a></li>
-      <li><a href="#gemma-pdl1">Gemma-4 on PDL1 &mdash; Nine Steps, Five Dead</a></li>
+      <li><a href="#gemma-pdl1">Gemma-4 on PDL1 &mdash; Nine Steps, Four Flat Steps After 100%</a></li>
       <li><a href="#gemma-cd45">Gemma-4 on CD45 &mdash; Immediate Scale Jump</a></li>
-      <li><a href="#comparison">Qwen vs Gemma &mdash; Reasoning-Style Comparison</a></li>
-      <li><a href="#why-drop">Why CD45's Pass Rate Fell from 21&nbsp;% to 13&nbsp;%</a></li>
+      <li><a href="#comparison">Qwen vs Gemma &mdash; Logged Comparison</a></li>
+      <li><a href="#why-drop">Observed CD45 Pass-Rate Drop</a></li>
       <li><a href="#caveats">Caveats and What This Is NOT</a></li>
       <li><a href="#next">Next Steps</a></li>
       <li><a href="#hard-reruns">Routed Hard-Target Reruns (2026-04-21)</a></li>
@@ -206,28 +206,24 @@
         LLM trees then scaled up <code>n_finals</code> to increase absolute count (Qwen: 248 at 97&nbsp;%,
         Gemma: 109 at 85&nbsp;%), trading pass rate for pool size.</li>
       <li>On <strong>CD45</strong> (seed = 0 successful), the v1 <code>noise020</code> baseline reached
-        8&nbsp;/&nbsp;32 = <strong>25.0&nbsp;%</strong> in 33 minutes. The LLM trees spent 3&minus;10 hours
-        exploring and peaked at 21.1&nbsp;% (Qwen gen 4, Gemma gen 1)&mdash;<em>below</em> the human
-        baseline on pass rate. Their absolute counts (33) exceeded the baseline's 8 only because the
-        LLM pool grew 8&times; larger.</li>
+        8&nbsp;/&nbsp;32 = <strong>25.0&nbsp;%</strong> in 33 minutes. The LLM trees peaked at
+        21.1&nbsp;% (Qwen gen 4, Gemma gen 1). Their best-count nodes reached 33 successes at
+        256 finals.</li>
       <li>All refinement-only mutations on CD45 (Qwen gens 1&ndash;3, each a ~25-minute eval) kept pass
         rate at 0&nbsp;%. Only raising <code>nsamples</code> escaped the zero basin.</li>
-      <li>The tree's ranking function uses count rather than rate, so the &ldquo;best&rdquo; node is
-        systematically the most scaled-up rather than the highest pass rate. Under an evidence-matched
-        baseline the apparent LLM advantage on PDL1 count (248 vs 32) is confounded with an 8&times;
-        sampling-budget difference.</li>
+      <li>The tree ranks by count rather than pass rate. In these runs, the best-count nodes also use the
+        largest final pools.</li>
     </ul>
 
     <div class="callout">
-      <p><strong>Matched-scale reading.</strong> On PDL1, the tree reaches 100&nbsp;% pass rate after one or two accepted mutations, but the human-designed <code>deep</code> baseline also reaches 100&nbsp;% at the same small scale. On the current completed CD45 runs, the peak tree pass rate remains below the human <code>noise020</code> baseline.</p>
+      <p><strong>Matched-scale summary.</strong> On PDL1, the tree reaches 100&nbsp;% pass rate after one or two accepted mutations, and the human-designed <code>deep</code> baseline also reaches 100&nbsp;% at the same small scale. On the current completed CD45 runs, the peak tree pass rate remains below the human <code>noise020</code> baseline.</p>
     </div>
 
     <div class="callout warn">
-      <p><strong>On CD45, the human baseline still wins on pass rate.</strong>
+      <p><strong>On CD45, the human baseline has the highest pass rate on this page.</strong>
       <code>noise020</code> (beam_width=8, n_branch=3, bb_ca &amp; local_latents sc_scale_noise=0.2) clears
       25&nbsp;% of finals in a single 33-minute run. Neither LLM tree matched that quality at any node
-      in its chain. The LLM chains beat the baseline on absolute count (33 vs 8) only because they
-      generated 8&times; more finals over 3&minus;10 hours of compute.</p>
+      in its chain. The highest LLM counts on CD45 occur at 256 finals rather than 32.</p>
     </div>
 
     <div class="callout warn">
@@ -242,9 +238,8 @@
   <div class="section" id="pipeline">
     <h2>3. Pipeline and Role Separation (Human vs Tree vs LLM)</h2>
 
-    <p class="lede">The v2 autoresearch loop has three cooperating actors. Any &ldquo;agentic&rdquo;-sounding
-    win has to be attributed to one of them. This section shows which is which and where the human
-    designer's priors actually live.</p>
+    <p class="lede">The v2 autoresearch loop has three cooperating actors. This section separates which parts
+    are fixed before the run and which parts are chosen during the run.</p>
 
     <h3>End-to-end loop</h3>
     <pre><code>   ┌─ seed InferenceProgram (human-designed)          ← SEED
@@ -353,15 +348,9 @@
     </ol>
 
     <div class="callout">
-      <p><strong>Why this split matters for interpreting results.</strong> When the Qwen tree on PDL1
-      reaches 100&nbsp;% pass rate at gen 1, the credit breakdown is: the <em>space</em> in which this
-      config exists is human-designed (no LLM was involved in deciding that <code>beam_width</code> is a
-      tunable knob); <em>picking</em> to mutate <code>beam_width</code> rather than some other knob is the
-      LLM's call; and <em>which parent to mutate</em> at that iteration is PUCT's call. The same split
-      applies when the tree runs out of ideas on CD45: the LLM is choosing refinement knobs over sample
-      knobs (its call), PUCT keeps revisiting a 0-success parent because all siblings also return 0
-      (PUCT's call), and the fact that <code>filter.dedup_sequence</code> is True by default is a
-      human-design choice (seed program default).</p>
+      <p><strong>Role split.</strong> In these runs, seed choice, mutation scope, idea bank, thresholds, and
+      memory cap are fixed before execution. Parent selection is performed by PUCT, and field updates are
+      proposed by the LLM mutator.</p>
     </div>
   </div>
 
@@ -402,8 +391,7 @@
       <a href="/projects/agentic-protein-design.html#routing-program">Figure H of the audited page</a>
       assigns <code>default deep beam</code> to PDL1 and <code>noise 0.20</code> to CD45. Both were run
       once under the same v2 harness (SLURM jobs 7148364 / 7148365, <code>--skip-tree</code>, same Complexa
-      evaluator, same online threshold), producing the human-designed reference point that the LLM trees
-      need to beat.
+      evaluator, same online threshold), producing the matched-scale human reference point used below.
     </p>
 
     <div class="table-wrap">
@@ -439,10 +427,8 @@
     </div>
 
     <div class="callout">
-      <p><strong>Two calibration points for everything below.</strong> On PDL1 the human program already
-      achieves 100&nbsp;% pass rate at the smallest scale (32 finals) in 30 minutes. On CD45 it achieves
-      25&nbsp;% at the same scale in 33 minutes. These are the numbers any LLM-guided tree has to beat
-      under matched sampling budget to claim a config-shaping win.</p>
+      <p><strong>Two matched-scale reference points.</strong> On PDL1 the human program reaches
+      100&nbsp;% at 32 finals in 30 minutes. On CD45 it reaches 25&nbsp;% at 32 finals in 33 minutes.</p>
     </div>
   </div>
 
@@ -583,13 +569,12 @@ Final check of the proposal:
 
 All constraints met. Proceeds.</code></pre>
 
-    <p>Two things visible in this excerpt and in the surrounding 12&thinsp;520 characters of thinking:</p>
+    <p>Two details visible in this excerpt and in the surrounding stored thinking:</p>
     <ul>
-      <li><strong>Qwen reads the feedback blob.</strong> It sees that a previous sibling with
-        <code>beam_width=16</code> returned 0 successes, and explicitly de-risks to
-        <code>beam_width=10</code>.</li>
-      <li><strong>Memory arithmetic appears every turn.</strong> Product formula is recomputed before the
-        tool call (<code>10 &times; 4 &times; 8 = 320 &le; 512</code>).</li>
+      <li>The accepted gen 1 call references a prior 0-success sibling at <code>beam_width=16</code> and then
+        proposes <code>beam_width=10</code>.</li>
+      <li>The same excerpt recomputes the memory product before the tool call
+        (<code>10 &times; 4 &times; 8 = 320 &le; 512</code>).</li>
     </ul>
 
     <h3>Chain-of-thought trace from the LLM call that produced gen 4 (verbatim)</h3>
@@ -603,22 +588,21 @@ exactly at the limit.
 Let me try increasing nsamples while adjusting batch_size to stay within memory limits. This
 tests the hypothesis that more samples at the same beam width yields more successes.</code></pre>
 
-    <p>Gen 4 is the first scale-up after reaching 100&nbsp;% pass rate. The reasoning explicitly prefers
-    holding <code>beam_width</code> fixed and compensating with <code>batch_size</code>, keeping the memory
-    product at 384 (below the 512 cap) while doubling total samples.</p>
+    <p>Gen 4 is the first scale-up after reaching 100&nbsp;% pass rate. In the stored trace, the accepted
+    call keeps <code>beam_width</code> fixed and changes <code>nsamples</code> and <code>batch_size</code>,
+    giving a memory product of 384 while doubling total samples.</p>
 
     <h3>How to read the pass-rate trajectory</h3>
-    <p>Rows 1&ndash;3 lift the config from 87.5&nbsp;% to 100&nbsp;% at the same scale (<code>n_finals</code>
-    stays near 40&ndash;48). Rows 4&ndash;6 then scale up: <code>n_finals</code> goes 48 &rarr; 96 &rarr;
-    192 &rarr; 256 while pass rate gives back 3&nbsp;pp. The gain in absolute count is large
-    (48 &rarr; 248, ~5&times;); the gain in pass rate is zero after gen 3. Under a matched sampling budget
-    the chain stops being impressive at gen 3.</p>
+    <p>Rows 1&ndash;3 lift the config from 87.5&nbsp;% to 100&nbsp;% at roughly the same scale
+    (<code>n_finals</code> near 40&ndash;48). Rows 4&ndash;6 then scale up:
+    <code>n_finals</code> goes 48 &rarr; 96 &rarr; 192 &rarr; 256 while pass rate declines from
+    100&nbsp;% to 96.9&nbsp;%.</p>
   </div>
 
   <div class="section" id="qwen-cd45">
     <h2>8. Qwen3.6 on CD45 &mdash; Dry Refinement, Then a Diluting Scale-Up</h2>
 
-    <p>Seed config identical to PDL1's (<code>balanced</code>). CD45's intrinsic difficulty gives 0 / 32 =
+    <p>Seed config identical to PDL1's (<code>balanced</code>). This run starts at 0 / 32 =
     <strong>0&nbsp;% pass rate</strong> at the seed. Qwen spent the first three non-seed expansions on
     refinement-only tweaks, which do not change <code>n_finals</code> or escape the zero basin.</p>
 
@@ -638,17 +622,16 @@ tests the hypothesis that more samples at the same beam width yields more succes
       <p><strong>What &ldquo;0 &rarr; 33&rdquo; actually means.</strong> 33 is the absolute count of
       successful finals at gen 5. The <em>pass rate</em> at gen 5 is 33&nbsp;/&nbsp;256 =
       <strong>12.9&nbsp;%</strong>. The chain's peak pass rate is 21.1&nbsp;% (27&nbsp;/&nbsp;128), one gen
-      earlier. Going from gen 4 to gen 5 gave 6 more absolute successes at the cost of almost halving the
-      pass rate, because the doubled pool diluted as much as it added.</p>
+      earlier. Going from gen 4 to gen 5 adds 6 more absolute successes while the pass rate changes from
+      21.1&nbsp;% to 12.9&nbsp;%.</p>
     </div>
 
     <h3>The refinement-only attempts (gen 1&ndash;3)</h3>
     <p>All three gens change only refinement iteration counts and enable soft optimization. They leave
-    <code>beam_width</code>, <code>nsamples</code>, <code>batch_size</code> unchanged, so <code>n_finals=32</code>
-    every time and no new sequence-space region is explored. Three extra evaluations, zero additional
-    successful binders.</p>
+    <code>beam_width</code>, <code>nsamples</code>, and <code>batch_size</code> unchanged, so
+    <code>n_finals</code> stays at 32 and <code>n_successful</code> stays at 0 in all three evaluations.</p>
 
-    <h3>Chain-of-thought trace for gen 4 (verbatim, the scale breakthrough)</h3>
+    <h3>Chain-of-thought excerpt for gen 4 (accepted call; omissions marked ...)</h3>
     <pre><code>Given the tight cutoff, increasing stage.nsamples is a very standard move to find rare
 successful samples. I'll increase stage.nsamples to 16.
 
@@ -659,40 +642,41 @@ New: stage.nsamples = 16. I'll change search.max_batch_size to 4. Product: 8 * 1
 
 Wait, is there any other knob? sampling.guidance_w is 1.0. Increasing it to 1.5 or 2.0 might
 push iPAE lower. The hypothesis seed_diversify_early suggests increasing beam width or nsamples.
-I'll stick with increasing nsamples.</code></pre>
-    <p>This is not an algorithmic breakthrough. It is a 4&times; increase in <code>n_finals</code>
-    (32&rarr;128), which by itself raises the chance that <em>some</em> tail sample crosses the threshold.
-    Qwen's reasoning is explicit about this: "increasing nsamples is a very standard move to find rare
-    successful samples." The pass rate 21.1&nbsp;% is better than the 0&nbsp;% of the refinement-only runs,
-    but it still loses to the human v1 <code>noise020</code> baseline's 25&nbsp;% at the seed scale.</p>
+I'll stick with increasing nsamples.
 
-    <h3>Why gen 5 made it worse on pass rate (21.1&nbsp;% &rarr; 12.9&nbsp;%)</h3>
+Wait, the prompt says `beam_search.beam_width × stage.nsamples × stage.batch_size` must stay ≤ 512.
+...
+The constraint says `beam_search.beam_width × stage.nsamples × stage.batch_size`. I'll change
+`stage.batch_size` to 4 to be safe.
+...
+Updates:
+- `stage.nsamples`: 16
+- `stage.batch_size`: 4</code></pre>
+    <p>The accepted call scales <code>n_finals</code> from 32 to 128 by changing
+    <code>stage.nsamples</code> and <code>stage.batch_size</code>. The pass rate at that node is
+    21.1&nbsp;% (27&nbsp;/&nbsp;128), below the human v1 <code>noise020</code> baseline's 25&nbsp;% at the
+    seed scale.</p>
+
+    <h3>Gen 5 at the larger pool size (21.1&nbsp;% &rarr; 12.9&nbsp;%)</h3>
     <p>Gen 5 doubled <code>nsamples</code> again (16&rarr;32) and halved <code>batch_size</code>
     (4&rarr;2). The finals pool went from 128 to 256 but only 6 extra successes were recovered
     (27&rarr;33). The marginal pass rate of the <em>added</em> 128 finals is 6&nbsp;/&nbsp;128 =
-    <strong>4.7&nbsp;%</strong>, far below the 21.1&nbsp;% of the first 128. This is the expected pattern
-    when either (a) the diffusion prior's successful-binder fraction for CD45 is small and the first draws
-    capture most of the easy wins, or (b) <code>filter.dedup_sequence=true</code> is collapsing
-    near-duplicate sequences into the already-recovered 27. Either way, doubling the pool halved the pass
-    rate, because the marginal draws were mostly duplicates or failures. See
-    <a href="#why-drop">Section 12</a> for a more careful mechanism analysis.</p>
+    <strong>4.7&nbsp;%</strong>, far below the 21.1&nbsp;% of the first 128. This page records that drop as
+    an observation only; the repeated pattern is summarized in <a href="#why-drop">Section 12</a>.</p>
 
     <h3>Interpretation</h3>
-    <p>CD45's online bottleneck is not local optimization; it is sample diversity in the raw diffusion
-    trajectory. Refinement tweaks cannot recover successful binders that were never sampled. The human v1
-    <code>noise020</code> branch addresses this directly with backbone-CA and local-latents noise=0.2,
-    which is outside the LLM's Tier-A mutation surface
-    (<code>sampling.model_overrides.*.simulation_step_params.sc_scale_noise</code> is in the surface but
-    the LLM never emitted it along this chain). A proper fixed-<code>n_finals</code> ablation would force
-    the LLM to shape the config instead of scaling the pool.</p>
+    <p>On this logged chain, refinement-only changes at fixed <code>n_finals=32</code> stayed at 0 successes,
+    while the first scale-up to <code>128</code> finals reached 27 successes and the second scale-up to
+    <code>256</code> finals reached 33 successes with a lower pass rate. The human v1
+    <code>noise020</code> baseline remains higher on matched-scale pass rate (25&nbsp;% vs 21.1&nbsp;%).</p>
   </div>
 
   <div class="section" id="gemma-pdl1">
-    <h2>9. Gemma-4 on PDL1 &mdash; Nine Steps, Five Dead</h2>
+    <h2>9. Gemma-4 on PDL1 &mdash; Nine Steps, Four Flat Steps After 100%</h2>
 
     <p>Gemma-4-E4B has no thinking mode, so there is no reasoning trace&mdash;only the brief
-    <code>mutation_description</code>. The tree took longer (9 mutations to Qwen's 6) and ended on a
-    lower-pass-rate node.</p>
+    <code>mutation_description</code>. The best chain has 9 generations and ends at 109 / 128 =
+    85.2&nbsp;%.</p>
 
     <div class="table-wrap">
       <table>
@@ -712,16 +696,14 @@ I'll stick with increasing nsamples.</code></pre>
     <div class="callout">
       <p><strong>Observation.</strong> Gen 1's <code>ag_ratio</code> change did not move the yield. Gen 2
       finally hit 100&nbsp;% by raising <code>beam_width</code> and <code>best_of_n.replicas</code> together.
-      From gen 2 through gen 6, five evaluations were spent on mutations that left
-      <code>n_successful</code> and <code>n_finals</code> both at 48&mdash;essentially dead expansions
-      for PUCT. Only gens 7&ndash;8 scaled <code>n_finals</code>, and gen 8's pass rate fell to 85.2&nbsp;%,
-      below even the seed's 87.5&nbsp;%.</p>
+      After that, gens 3&ndash;6 spent four evaluations at the same <code>48 / 48</code>. Only gens 7&ndash;8
+      scaled <code>n_finals</code>, and gen 8's pass rate fell to 85.2&nbsp;%, below even the seed's
+      87.5&nbsp;%.</p>
     </div>
 
     <p>Net: Gemma reached 109 successful finals, compared with Qwen's 248&mdash;despite starting from the
-    same seed and being given the same 20-eval budget. The key differences are: (a) Gemma cannot detect when
-    a mutation produced an identical-size pool to its parent (gens 3&ndash;6), and (b) its scale-up at
-    gen 8 traded too much pass rate for not much extra count.</p>
+    same seed and being given the same 20-eval budget. Along the best chain, Gemma spent four consecutive
+    evaluations at <code>48 / 48</code> before the final two scale-ups.</p>
   </div>
 
   <div class="section" id="gemma-cd45">
@@ -745,82 +727,49 @@ I'll stick with increasing nsamples.</code></pre>
     <div class="callout warn">
       <p><strong>Dead expansions at gens 2&ndash;3.</strong> Raising <code>best_of_n.replicas</code> from
       2&rarr;3 and then 3&rarr;4 did not change <code>n_successful</code> or <code>n_finals</code>&mdash;
-      both stayed at 27 and 128. That is two evaluations (~170&nbsp;minutes of H100 time) where the mutation
-      picked a knob the pipeline either ignored for this config or coalesced back into the same candidate
-      pool. A reasoning-enabled model would likely have rejected the gen 3 proposal once gen 2 returned
-      identical numbers; Gemma cannot see that it is about to re-do the same work.</p>
+      both stayed at 27 and 128. That is two evaluations (~170&nbsp;minutes of H100 time) with no change in
+      the recorded count or pool size.</p>
     </div>
 
-    <p>Final count matches Qwen's 33&nbsp;/&nbsp;256 = 12.9&nbsp;% exactly at gen 4, but Gemma used five
-    evaluations to get there vs Qwen's six; the difference is that Gemma spent its cost on redundant
-    evaluations rather than refinement probes. Neither path cleared the fundamental sample-diversity
-    bottleneck.</p>
+    <p>Final count matches Qwen's 33&nbsp;/&nbsp;256 = 12.9&nbsp;% exactly at gen 4. Gemma reached that node
+    in five evaluations; Qwen reached the same final count in six.</p>
   </div>
 
   <div class="section" id="comparison">
-    <h2>11. Qwen vs Gemma &mdash; Reasoning-Style Comparison</h2>
+    <h2>11. Qwen vs Gemma &mdash; Logged Comparison</h2>
 
     <div class="table-wrap">
       <table>
         <tr><th>Dimension</th><th>Qwen3.6-35B (thinking ON)</th><th>Gemma-4-E4B</th></tr>
-        <tr><td>Mutations until 100&nbsp;% pass rate (PDL1)</td><td class="num">1</td><td class="num">2 (one wasted)</td></tr>
-        <tr><td>Dead expansions on the chain</td><td class="num">0</td><td class="num">4 (PDL1 gens 3&ndash;6) + 2 (CD45 gens 2&ndash;3)</td></tr>
+        <tr><td>Mutations until first 100&nbsp;% pass rate on PDL1</td><td class="num">1</td><td class="num">2</td></tr>
+        <tr><td>Flat-score steps on the best chains shown here</td><td class="num">0</td><td class="num">4 (PDL1 gens 3&ndash;6) + 2 (CD45 gens 2&ndash;3)</td></tr>
         <tr><td>Best PDL1 count reached</td><td class="num">248</td><td class="num">109</td></tr>
         <tr><td>Best CD45 count reached</td><td class="num">33</td><td class="num">33</td></tr>
-        <tr><td>Internal memory-cap check per turn</td><td>Visible in thinking trace</td><td>Only implied via the emitted mutation</td></tr>
-        <tr><td>Handles "sibling already tried this"</td><td>Reads rejection_reason; de-risks knob</td><td>Sometimes proposes a near-duplicate, producing identical pool</td></tr>
-        <tr><td>CoT length per accepted mutation</td><td>~4.5k&ndash;17.6k chars</td><td>0 (no reasoning field)</td></tr>
-        <tr><td>LLM wall-clock per call (avg)</td><td>~50&ndash;80&nbsp;s (thinking dominates)</td><td>~0.3&nbsp;s</td></tr>
-        <tr><td>LLM wall-clock as fraction of run</td><td>~3&nbsp;% (PDL1) to ~7&nbsp;% (CD45, more thinking)</td><td>&lt; 0.1&nbsp;%</td></tr>
+        <tr><td>Stored accepted-mutation reasoning trace</td><td>Yes</td><td>No</td></tr>
       </table>
     </div>
 
     <div class="callout">
-      <p><strong>Observed difference in these runs.</strong> Qwen's logged chain contains fewer expansions with unchanged score than Gemma's logged chain. This page records that pattern directly from the stored programs, scores, and interaction logs.</p>
+      <p><strong>Observed difference in these runs.</strong> On the best chains shown here, Qwen has fewer
+      flat-score steps than Gemma. Qwen also has stored thinking traces for accepted mutations; Gemma does not.</p>
     </div>
   </div>
 
   <div class="section" id="why-drop">
-    <h2>12. Unconfirmed Hypotheses for the CD45 Pass-Rate Drop</h2>
+    <h2>12. Observed CD45 Pass-Rate Drop</h2>
 
     <p>Both LLM trees show the same pattern on CD45: a first scale-up from 32 to 128 finals lands at
     27 successes (21.1&nbsp;%), and a second scale-up from 128 to 256 finals adds only 6 more
-    successes (33 total, 12.9&nbsp;%). The marginal pass rate of the <em>additional</em> 128 finals
-    drops to 4.7&nbsp;%. The points below are hypotheses only; this page does not directly confirm any one mechanism.</p>
-
-    <h3>Possible explanations (not directly confirmed here)</h3>
-
-    <ol>
-      <li><strong>Dedup is collapsing the marginal draws.</strong> Every CD45 chain runs with
-        <code>filter.dedup_sequence = true</code>. The first batch of 128 finals recovers 27
-        near-unique successes. When a further 128 finals are drawn from essentially the same diffusion
-        prior, sequence dedup collapses near-duplicates of the first 27 down to zero new rows. Only
-        genuinely novel hits count; those are by definition rare once the easy-win region has been
-        covered. This alone predicts the marginal rate drop to single digits.</li>
-
-      <li><strong>Beam-search thinning at smaller batch_size.</strong> Between gen 4 and gen 5 the
-        Qwen chain reduces <code>batch_size</code> from 4 to 2. With fewer concurrent trajectories, the
-        beam-search selection pressure is applied more often, pushing exploration toward a smaller part
-        of latent space. That can produce less-diverse finals even as the nominal pool grows.</li>
-
-      <li><strong>Intrinsic low-yield region of the prior.</strong> CD45 is a known hard target for the
-        Proteina backbone prior (see audited page Section 4). The fraction of the prior that produces a
-        binder passing iPAE &lt; 7/31 is small. Once the first ~128 draws exhausts the easy modes, additional
-        draws sample lower-quality regions. Without dedup this would produce a flat marginal pass rate; with
-        dedup, it produces the observed collapse.</li>
-
-      <li><strong>Sampling variance with small N.</strong> 27 successes at 128 and 33 at 256 are both
-        small integers; an 8-success swing either way is within 1&ndash;2 standard deviations of a
-        binomial. A single run cannot separate "real regression to a lower population mean" from
-        "one unlucky doubling." Without replicates we cannot rule this out.</li>
-    </ol>
+    successes (33 total, 12.9&nbsp;%). The marginal pass rate of the <em>additional</em> 128 finals is
+    6&nbsp;/&nbsp;128 = 4.7&nbsp;%.</p>
 
     <div class="callout warn">
-      <p><strong>Not a confirmed mechanism.</strong> The current page only establishes the observed count and pass-rate drop. Identifying the cause requires explicit follow-up ablations such as toggling <code>filter.dedup_sequence</code>, rerunning with fixed <code>n_finals</code>, or collecting repeated runs.</p>
+      <p><strong>Scope of this page.</strong> The current page establishes the observed count and pass-rate
+      change only. It does not identify the cause of that change.</p>
     </div>
 
-    <p>The same pattern shows up in the Gemma/CD45 chain (gens 3&rarr;4): 27&nbsp;/&nbsp;128 = 21.1&nbsp;%
-    becomes 33&nbsp;/&nbsp;256 = 12.9&nbsp;%. This repeat across two trees is an observational fact, but it still does not isolate the mechanism.</p>
+    <p>The same pattern appears in the Gemma/CD45 chain (27&nbsp;/&nbsp;128 = 21.1&nbsp;%,
+    then 33&nbsp;/&nbsp;256 = 12.9&nbsp;%).</p>
   </div>
 
   <div class="section" id="caveats">
@@ -835,12 +784,10 @@ I'll stick with increasing nsamples.</code></pre>
     pipeline has not been run on these outputs, so these numbers are not directly comparable to the audited
     human-baseline columns (e.g. Deep&nbsp;/&nbsp;Self in Section&nbsp;4 of the audited page).</p>
 
-    <h3>Count vs pass rate: the PUCT ranker picks the wrong winner</h3>
-    <p>PUCT ranks nodes by <code>primary_successes</code> (count). Along every chain here, the node with
-    the highest pass rate is <em>earlier</em> than the node with the highest count. Comparing v2 tree
-    runs against the human-designed v1 routing program without normalizing for sampling budget will
-    overstate the tree's contribution. A fair comparison must either hold <code>n_finals</code> fixed or
-    score on pass rate.</p>
+    <h3>Count vs pass rate select different nodes</h3>
+    <p>PUCT ranks nodes by <code>primary_successes</code> (count). In these runs, the node with the highest
+    pass rate appears earlier than the node with the highest count. Comparisons should therefore note both
+    <code>n_finals</code> and pass rate.</p>
 
     <h3>Single seed per target, single run per cell</h3>
     <p>Every tree started from <code>balanced</code>. No variance estimate across seeds, restarts, or LLM
@@ -863,15 +810,12 @@ I'll stick with increasing nsamples.</code></pre>
         <code>paper_audited_metric</code> (FoldSeek unique successes). Only after this are head-to-head
         comparisons against the audited human baselines meaningful.</li>
       <li><strong>Fixed-budget v2 rerun.</strong> Cap <code>beam_width &times; nsamples</code> at a
-        constant (e.g. 32) so the LLM can only <em>reshape</em>&mdash;not resize&mdash;the final pool.
-        Re-score both trees on pass rate. If Qwen still wins, the reasoning contribution is
-        real; if the gap collapses, the v2 win here was mostly a budget-scaling effect.</li>
+        constant (e.g. 32) so the LLM can only reshape rather than resize the final pool, then re-score on
+        pass rate.</li>
       <li><strong>Seed-profile sweep.</strong> Rerun Qwen/PDL1 and Qwen/CD45 from <code>deep</code>,
-        <code>wide</code>, <code>notto</code> roots to see whether the chain's basin depends on the
-        starting config.</li>
+        <code>wide</code>, <code>notto</code> roots to measure start-config sensitivity.</li>
       <li><strong>Dead-expansion detector.</strong> Teach the mutator's feedback blob to flag when a child
-        produced identical <code>n_successful</code> and <code>n_finals</code> to its parent. This is a
-        cheap prompt-side fix that would have saved 4 evaluations on Gemma/PDL1 and 2 on Gemma/CD45.</li>
+        produced identical <code>n_successful</code> and <code>n_finals</code> to its parent.</li>
     </ol>
   </div>
 
@@ -975,6 +919,49 @@ I'll stick with increasing nsamples.</code></pre>
         </tr>
       </table>
     </div>
+
+    <h3>Stored Qwen Thinking Excerpts for the First Accepted Rerun Mutations</h3>
+    <p>These routed reruns use Qwen with thinking enabled, so the accepted calls also have stored
+    reasoning traces. Excerpts below are cut directly from <code>llm_interactions/*.jsonl</code>; omissions
+    are marked with <code>...</code>.</p>
+
+    <h4>BetV1</h4>
+    <pre><code>The user wants me to propose a mutation for a de novo binder design program for target "23_BetV1".
+...
+Feedback: primary_successes=5 ... best_i_pae=0.173 ... n_finals=32.
+...
+The idea is `seed_diversify_early`.
+...
+Update: beam_width 8 -> 12
+Memory: 12*4*8 = 384 <= 512</code></pre>
+
+    <h4>HER2_AAV</h4>
+    <pre><code>The user wants me to propose a mutation for a de novo binder design program for target 27_HER2_AAV.
+...
+Parent execution feedback: primary_successes=0 ... best_i_pae=0.245 ... best_plddt=0.887.
+...
+The threshold is tight on both iPAE and pLDDT.
+...
+updates:
+- search.beam_search.beam_width: 4 -> 8
+- stage.nsamples: 4 -> 8
+Memory: 8*8*8 = 512 <= 512</code></pre>
+
+    <h4>CbAgo</h4>
+    <pre><code>The user wants me to propose a mutation for a de novo binder design program targeting "25_CbAgo".
+...
+Parent program key parameters:
+- search.algorithm: "mcts"
+- search.mcts.n_simulations: 40
+- stage.nsamples: 8
+- stage.batch_size: 8
+...
+Feedback: primary_successes=0 ... best_i_pae=0.2898 ... best_plddt=0.911.
+...
+updates:
+- stage.nsamples: 8 -> 16
+- stage.batch_size: 8 -> 4
+Memory: 8*16*4 = 512 <= 512</code></pre>
   </div>
 
 </div>
