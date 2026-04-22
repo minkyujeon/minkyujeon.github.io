@@ -307,10 +307,7 @@
   <div class="section" id="status">
     <h2>1. What Is Already Verified</h2>
     <p class="lede">
-      Several layers are already closed: the top-level workspace migration, the self-hosted LLM serving path,
-      the real Complexa generation path, and the local PUCT + mutator loop. The remaining open issue is not
-      whether the pipeline runs, but whether the preserved post-hoc evaluation stack is producing the exact
-      audited artifacts required for a fair website-style comparison.
+      This page records which runtime layers have been directly checked and which audited-output artifacts are still being verified.
     </p>
 
     <div class="status-board">
@@ -322,7 +319,7 @@
     </div>
 
     <div class="callout warn">
-      <p><strong>Interpretation rule.</strong> The current uncertainty is not “does the pipeline run?” It does. The remaining uncertainty is whether the exact <code>evaluation_results/</code> contract used by the website and preserved heuristic runs is being reproduced end-to-end.</p>
+      <p><strong>Current open point.</strong> The runtime executes generation, tree expansion, and post-hoc analysis calls. The remaining verification item is whether the exact <code>evaluation_results/</code> artifacts used by the website comparison appear on every run.</p>
     </div>
   </div>
 
@@ -344,21 +341,21 @@
 → compile InferenceProgram to Hydra overrides
 → run proteinfoundation.generate
 → read rewards_*.csv
-→ score online success proxy
+→ score the online metric
+→ if --full-eval is enabled, run post-hoc analysis and attach audited unique_successes
 → tree selects a parent
-→ LLM proposes one local config edit
+→ the LLM mutator can inspect Proteina-Complexa source/configs read-only
+→ LLM proposes one to four bounded updates
 → validate child
-→ run child
-→ backup into PUCT tree
-→ optional post-hoc analysis
-→ read evaluation_results/ for audited metric</code></pre>
+→ run child (single-stage or sequential multi-stage)
+→ backup primary_successes into the PUCT tree</code></pre>
 
     <div class="card-grid">
       <div class="card">
         <h3>What Is Reused</h3>
         <ul>
           <li>The actual design engine is still Proteina-Complexa.</li>
-          <li><code>autoresearch_v2</code> does not replace generation or evaluation; it orchestrates them.</li>
+          <li><code>autoresearch_v2</code> compiles <code>InferenceProgram</code> objects to Hydra overrides, launches Proteina-Complexa subprocesses, and stores the resulting scores and tree state.</li>
           <li>The tree operates over <code>InferenceProgram</code> objects, not over arbitrary code files.</li>
         </ul>
       </div>
@@ -375,9 +372,7 @@
 
   <div class="section" id="roles">
     <h2>3. Tree Search vs. LLM: Separate Roles</h2>
-    <p>
-      The runtime works best when these two pieces are kept conceptually separate.
-    </p>
+    <p>The table below lists the current responsibilities of each component.</p>
 
     <div class="table-wrap">
       <table>
@@ -393,8 +388,8 @@
         </tr>
         <tr>
           <td><strong>LLM mutator</strong></td>
-          <td>Given one parent and limited feedback, proposes one or two local field edits to produce a child program.</td>
-          <td>Does not see the whole tree, sibling branches, or global search state. It is not the outer controller.</td>
+          <td>Given one parent and limited feedback, it can inspect Complexa read-only, then proposes one to four bounded updates to produce a child program. It can also carry forward ideas, attach hypothesis fields, and append or condition later stages.</td>
+          <td>Does not see the whole tree, sibling branches, or global search state. It is not the outer controller, and it does not patch arbitrary source code in the hot loop.</td>
         </tr>
         <tr>
           <td><strong>Complexa runtime</strong></td>
@@ -405,64 +400,58 @@
     </div>
 
     <div class="callout">
-      <p><strong>Short version.</strong> Tree search is the outer policy. The LLM is the local proposal operator. Complexa is the execution engine.</p>
+      <p><strong>Role split.</strong> Tree search selects parents and backs up scores. The LLM mutator proposes child programs. Proteina-Complexa executes the generated overrides.</p>
     </div>
   </div>
 
   <div class="section" id="easy">
     <h2>4. Easy Targets: What the Loop Actually Does</h2>
-    <p>
-      On easy targets such as <code>02_PDL1</code>, the seed program is already strong. The runtime therefore behaves less like
-      “discovering an algorithm from scratch” and more like “testing local variations around an already successful recipe.”
-    </p>
+    <p>This section records the observed runtime pattern on easy targets such as <code>02_PDL1</code>.</p>
 
     <div class="card-grid">
       <div class="card">
         <h3>Observed Behavior</h3>
         <ul>
-          <li>The balanced seed already scores well on the online proxy.</li>
-          <li>Baseline <code>deep</code> can reach the expected 32/32 online success pattern.</li>
-          <li>LLM-guided runs often begin from a still-good but slightly weaker seed than <code>deep</code>.</li>
-          <li>When a child fails here, it is often a runtime or memory problem rather than a pure “no good designs exist” signal.</li>
+          <li>The balanced seed scores well on the online proxy in the recorded easy-target runs on this page.</li>
+          <li>The <code>deep</code> baseline reaches 32/32 online success on the recorded PDL1 run on this page.</li>
+          <li>Child runs on these targets include both successful children and failed children.</li>
+          <li>Recorded child failures include runtime and memory failures.</li>
         </ul>
       </div>
       <div class="card">
-        <h3>What Tree Search Is Really Testing</h3>
+        <h3>Observed Tree Behavior</h3>
         <ul>
-          <li>Do small local edits improve a seed that is already good?</li>
-          <li>Do they improve the same online metric as the seed, or just create instability?</li>
-          <li>Can a child stay inside the single-GPU memory envelope?</li>
+          <li>The tree evaluates local edits around the stored seed program.</li>
+          <li>The stored child programs on these runs include improvements, ties, and regressions relative to the seed.</li>
+          <li>The stored run records include runtime failures as well as scored children.</li>
         </ul>
       </div>
     </div>
 
     <div class="callout warn">
-      <p><strong>Why this matters.</strong> On easy targets, the main risk is not zero-hit failure. It is generating children that are worse than the seed or fail at runtime despite coming from a plausible local hypothesis.</p>
+      <p><strong>Runtime note.</strong> On easy targets, child failures include both metric regressions and runtime failures.</p>
     </div>
   </div>
 
   <div class="section" id="hard">
     <h2>5. Hard Targets: What Changes</h2>
-    <p>
-      On hard targets the seed is no longer a generic balanced beam configuration. The intended contract is to begin from a
-      <strong>routed heuristic seed</strong> such as MCTS + refinement or reward-shaped MCTS, and then let the tree explore local edits around that family.
-    </p>
+    <p>Current hard-target runs use two settings: <strong>seeded</strong> runs begin from a routed heuristic seed, and <strong>discovery</strong> runs begin from a smaller neutral seed.</p>
 
     <pre><code>hard target
-→ routed seed profile
+→ choose a routed or neutral seed profile
 → seed executes real Complexa
-→ tree treats this heuristic as the local starting point
-→ LLM proposes one bounded edit
+→ tree treats that seed as the current starting point
+→ LLM proposes bounded edits within the allowed control surface
 → child is evaluated
 → tree decides whether that branch earns more budget</code></pre>
 
     <div class="card">
-      <h3>Why Hard Targets Are Different</h3>
+      <h3>Current Hard-Target Contract</h3>
       <ul>
-        <li>The interesting question is not whether the default beam baseline works. It usually does not.</li>
-        <li>The interesting question is whether the tree can improve or stabilize a nontrivial heuristic family such as routed MCTS + hallucination.</li>
-        <li>The local mutator is still small-scope. It is not inventing a brand-new search family in one step.</li>
-        <li>The routed seed itself is part of the benchmark contract, so seed-profile validity matters just as much as LLM proposal quality.</li>
+        <li>Seeded runs start from a routed profile such as hallucination, reward-shaped search, or another preserved profile.</li>
+        <li>Discovery runs start from a neutral profile and use the same bounded mutation surface.</li>
+        <li>The mutator stays inside the schema and validation layer and does not execute arbitrary source patches in the hot loop.</li>
+        <li>In both settings, the tree allocates additional budget only after the child is scored.</li>
       </ul>
     </div>
   </div>
@@ -478,27 +467,26 @@
         </tr>
         <tr>
           <td><strong>Qwen3.6</strong></td>
-          <td>Most stable self-hosted backend so far. Tool-calling and basic mutation proposals are reliable enough to keep using for runtime verification.</td>
-          <td>Still subject to the same downstream runtime and apples-to-apples analysis issues as the rest of the pipeline.</td>
+          <td>Serving, tool-calling, and mutation-loop runs are recorded on this page.</td>
+          <td>Runtime and audited-output checks still apply to these runs.</td>
         </tr>
         <tr>
           <td><strong>Gemma-4</strong></td>
-          <td>Serving and mutation loop both work.</td>
-          <td>Observed a concrete child failure where a valid proposal still led to an OOM during real Complexa execution.</td>
+          <td>Serving and mutation-loop runs are recorded on this page.</td>
+          <td>The recorded runs include a child that later hit OOM during real Complexa execution.</td>
         </tr>
       </table>
     </div>
 
     <div class="callout warn">
-      <p><strong>Operational choice.</strong> The current verification pass therefore focuses on Qwen for hard-target reruns, not because Gemma-4 never works, but because Qwen is behaving as the more reliable local mutator backend right now.</p>
+      <p><strong>Recorded choice.</strong> The hard-target reruns on this page use Qwen.</p>
     </div>
   </div>
 
   <div class="section" id="lessons">
     <h2>7. Runtime Lessons Worth Keeping</h2>
     <p>
-      Some of the recent trial-and-error is not just disposable debugging. A few failures exposed structural contracts that are
-      worth preserving as part of the project memory even after the immediate bug is fixed.
+      This section records runtime conditions that changed execution behavior in the logged runs.
     </p>
 
     <div class="table-wrap">
@@ -511,28 +499,28 @@
         <tr>
           <td><strong>SLURM batch cannot trust <code>BASH_SOURCE[0]</code></strong></td>
           <td>Path discovery can collapse into <code>/var/spool/...</code> instead of the repo root when a batch script is launched from SLURM.</td>
-          <td>Runtime reproducibility depends on explicit repo resolution. This is now part of the launcher contract, not a cosmetic cleanup.</td>
+          <td>The launcher now resolves the repo root explicitly.</td>
         </tr>
         <tr>
           <td><strong>Historical heuristic labels need translation</strong></td>
-          <td>Names like <code>msg5</code>, <code>rws5</code>, and <code>paper_gh_1pct</code> encode percentages in human shorthand, but the v2 schema expects normalized floats such as <code>0.05</code> or <code>0.01</code>.</td>
-          <td>Porting preserved heuristics into v2 is not a copy-paste task. The semantic contract has to be translated carefully.</td>
+          <td>Names like <code>msg5</code>, <code>rws5</code>, and <code>paper_gh_1pct</code> encode percentages in human shorthand, and the v2 schema must preserve the same semantic units that Proteina-Complexa expects.</td>
+          <td>Preserved heuristics require unit-consistent translation into the v2 schema.</td>
         </tr>
         <tr>
           <td><strong>A valid child can still be a runtime failure</strong></td>
           <td>One Gemma-4 child passed validation and tree insertion, but later OOMed during real Complexa execution.</td>
-          <td>Validation and execution safety are different layers. Easy-target search can still fail because of runtime geometry, not because the idea was irrational.</td>
+          <td>Validation and execution safety are separate layers.</td>
         </tr>
         <tr>
           <td><strong>Post-hoc analysis must inherit the same Python environment</strong></td>
           <td>The first attached <code>analysis</code> attempts failed because helper subprocesses fell back to the wrong Python and broke SolubleMPNN.</td>
-          <td>Apples-to-apples comparison depends on environment continuity, not only on calling the right command name.</td>
+          <td>The attached analysis step requires the same Python environment as generation.</td>
         </tr>
       </table>
     </div>
 
     <div class="callout">
-      <p><strong>Practical takeaway.</strong> The remaining work is not just “prompt the LLM better.” It is making the runtime contract explicit enough that the same tree, mutator, and evaluation stack mean the same thing across every SLURM job.</p>
+      <p><strong>Runtime takeaway.</strong> The remaining work is making the runtime contract explicit enough that the same tree, mutator, and evaluation stack produce the same artifact structure across SLURM jobs.</p>
     </div>
   </div>
 
@@ -565,7 +553,7 @@
     </ol>
 
     <div class="callout">
-      <p><strong>Practical state.</strong> The runtime page is a reference for how the same code path produces the audited outputs needed to compare tree search against preserved heuristic baselines.</p>
+      <p><strong>Current state.</strong> This page records the code path and the audit checklist used to compare tree-search runs with preserved heuristic baselines.</p>
     </div>
   </div>
 

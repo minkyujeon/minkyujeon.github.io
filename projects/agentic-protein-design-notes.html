@@ -313,13 +313,13 @@
   <div class="section" id="why-page">
     <h2>1. Why This Companion Page Exists</h2>
     <p class="lede">
-      The main results page is now an audited empirical map. The plan page is the forward-looking research thesis.
-      This page sits in between them. It is for the messy but important middle layer: implementation decisions,
-      boundary definitions, LLM-backend experiments, and the gap between the original idealized diagram and the current code.
+      The main results page records benchmark outputs. The plan page records the broader design plan.
+      This page records implementation decisions, boundary definitions, LLM-backend experiments,
+      and the differences between the plan page and the current code.
     </p>
 
     <div class="callout">
-      <p><strong>Page contract.</strong> This page is not the benchmark scoreboard and not the final thesis. It is a technical companion for understanding how the current system is wired, what evidence exists, and where the project is still provisional.</p>
+      <p><strong>Page contract.</strong> This page is a technical companion for the current implementation. The primary score tables live on the results page.</p>
     </div>
 
     <div class="callout warn">
@@ -349,9 +349,8 @@
   <div class="section" id="design-history">
     <h2>2. Design History Across the Markdown Drafts</h2>
     <p>
-      The internal markdown history shows a fairly consistent evolution. The earliest drafts argued that the right framing
-      was not generic hyperparameter search and not unrestricted software evolution, but a middle layer: a system that
-      keeps the trained Complexa backbone fixed and learns to spend inference-time compute better.
+      The internal markdown drafts record a shift from generic code-evolution language toward a fixed-backbone,
+      inference-time search system over Proteina-Complexa.
     </p>
 
     <div class="table-wrap">
@@ -394,14 +393,14 @@
     </div>
 
     <div class="callout warn">
-      <p><strong>Important drift to keep in mind.</strong> The HTML plan page is intentionally broader than <code>autoresearch_v2</code>. The plan page talks about a more general software-evolution system over a frozen tool registry. The current v2 code is a narrower but runnable ancestor: it evolves structured inference programs over a fixed Proteina-Complexa-style scaffold.</p>
+      <p><strong>Scope difference.</strong> The HTML plan page describes a broader future system. The current <code>autoresearch_v2</code> code evolves structured <code>InferenceProgram</code> objects over a fixed Proteina-Complexa scaffold.</p>
     </div>
   </div>
 
   <div class="section" id="current-v2">
     <h2>3. What <code>autoresearch_v2</code> Actually Is</h2>
     <p>
-      The current implementation is best described as <strong>PUCT tree search over structured JSON programs</strong>.
+      The current implementation is <strong>PUCT tree search over structured JSON programs</strong>.
       The evolvable object is <code>InferenceProgram</code>, not arbitrary Python source. Each node stores target,
       stage config, lineage metadata, and optionally a gated code patch. The program is content-hashed so semantically
       identical nodes deduplicate even if they were reached through different histories.
@@ -444,13 +443,13 @@
         <ul>
           <li>Search policy: beam, best-of-n, fk-steering, MCTS-related knobs.</li>
           <li>Sampling policy: steps, guidance, recycle count, selected schedule overrides.</li>
-          <li>Refinement and filtering policy, and eventually some controlled multi-stage behavior.</li>
+          <li>Refinement and filtering policy, plus explicit controlled multi-stage behavior.</li>
         </ul>
       </div>
     </div>
 
     <div class="callout">
-      <p><strong>2026-04-21 pipeline update.</strong> The current local branch adds read-only Proteina-Complexa code inspection tools, stage-index-aware LLM mutations, explicit multi-stage executor support, and a small hypothesis ledger surface (<code>hypothesis_status</code>, <code>supporting_evidence</code>, <code>contradictions</code>, <code>next_step_hint</code>). Code-level validation currently consists of the full <code>autoresearch_v2</code> test suite (<code>404 passed, 2 skipped</code>). A real H100 1-GPU smoke job for the multi-stage executor has been submitted separately to confirm the same path on a compute node.</p>
+      <p><strong>2026-04-21 pipeline update.</strong> The current local branch includes read-only Proteina-Complexa code inspection tools, stage-index-aware LLM mutations, explicit multi-stage executor support, and hypothesis-ledger fields (<code>hypothesis_status</code>, <code>supporting_evidence</code>, <code>contradictions</code>, <code>next_step_hint</code>). Validation includes the <code>autoresearch_v2</code> pytest suite and one completed H100 1-GPU multi-stage smoke run on a compute node.</p>
       <p><strong>2026-04-21 hard-target routing correction.</strong> The v2 control surface now treats <code>generation.refinement.greedy_percentage</code> in the same percent units used by Proteina-Complexa itself (<code>1</code>, <code>5</code>, <code>10</code>, not fractional values). The routed hard-target seeds were updated accordingly: <code>05_CD45 -&gt; noise020</code>, <code>27_HER2_AAV -&gt; halluc_softg1</code>, <code>23_BetV1 -&gt; mixed_noise_halluc_g1</code>, and <code>30_SC2RBD -&gt; rw_pl050_softg5</code>. A new 12-hour self-hosted Qwen hard-target campaign was then launched with job IDs <code>7228135</code> (CD45), <code>7228134</code> (HER2_AAV), <code>7228133</code> (BetV1), and <code>7228132</code> (SC2RBD), all with <code>budget_evals=40</code>, <code>budget_hours=12</code>, and mutation scope <code>full</code>.</p>
     </div>
 
@@ -472,7 +471,7 @@
           <tr>
             <td>Executor</td>
             <td>Sequential multi-stage execution with conditional skip and per-stage score aggregation.</td>
-            <td>Executor tests passing; compute-node smoke job submitted.</td>
+            <td>Executor tests passing; compute-node smoke confirmed.</td>
           </tr>
           <tr>
             <td>Hypothesis handling</td>
@@ -487,9 +486,9 @@
   <div class="section" id="pipeline">
     <h2>4. Current Pipeline and Code Flow</h2>
     <p>
-      The code path is narrower than the original conceptual diagram. Today the loop is mostly:
-      choose a parent program, ask a mutator for a child, compile it to Hydra overrides, execute the fixed generator,
-      read reward CSVs, back up the score into the tree, and repeat.
+      Current code path:
+      choose a parent program, let the mutator inspect the parent and optional read-only Complexa context, compile the child to Hydra overrides,
+      execute the program stage-by-stage, read reward CSVs, optionally attach audited post-hoc metrics, back up the score into the tree, and repeat.
     </p>
 
     <div class="diagram-shell">
@@ -517,6 +516,7 @@
   -> compile_program(...)
   -> ProgramExecutor.run(...)
   -> evaluator.from_rewards_csv(...)
+  -> optional paper_audit / unique_successes attachment
   -> tree.backup(...)
   -> repeat</code></pre>
 
@@ -544,10 +544,7 @@
 
   <div class="section" id="llm-role">
     <h2>5. What the LLM Does and Does Not Do</h2>
-    <p>
-      In the current v2 implementation, the LLM is not a free-form code-writing scientist in the hot loop.
-      Its primary operational role is much narrower and more controlled.
-    </p>
+    <p>The table below lists the current LLM-related roles in the codebase.</p>
 
     <div class="table-wrap">
       <table>
@@ -561,7 +558,7 @@
         <tbody>
           <tr>
             <td><code>LLMMutator</code></td>
-            <td>Reads parent program, compact feedback, optional ideas, then emits a tool call with 1-2 field updates.</td>
+            <td>Reads the parent program, compact feedback, run history, optional ideas, and can inspect Proteina-Complexa read-only before emitting a tool call with one to four bounded updates.</td>
             <td>Does not freely rewrite arbitrary source code every step.</td>
           </tr>
           <tr>
@@ -579,15 +576,14 @@
     </div>
 
     <div class="callout">
-      <p><strong>Practical summary.</strong> Today the LLM is closer to a <em>config mutation operator</em> than a fully general code-generation agent. The plan page pushes toward a larger software-evolution framing, but the current implementation remains intentionally narrower so the search space stays validatable and the run store remains interpretable.</p>
+      <p><strong>Current scope.</strong> In the hot loop, the LLM mutates structured <code>InferenceProgram</code> objects and does not execute arbitrary source-code patches.</p>
     </div>
   </div>
 
   <div class="section" id="gemma-qwen">
     <h2>6. Gemma-4 and Qwen3.6 Backend Status</h2>
     <p>
-      A separate backend bench was added to test whether local LLMs can fill the two existing v2 roles without changing
-      the main architecture. The answer so far is yes, but not equally well.
+      A separate backend bench records local-LLM behavior for the current v2 mutator and idea-research roles.
     </p>
 
     <div class="table-wrap">
@@ -621,9 +617,9 @@
             <td>Proper termination, 7 returned ideas</td>
           </tr>
           <tr>
-            <td>Current read</td>
-            <td>Usable but less reliable under memory-cap reasoning</td>
-            <td>Best current local backend for the LLM mutation bench and dry-run loop</td>
+            <td>Current bench summary</td>
+            <td>17 / 24 valid mutator proposals in the recorded bench</td>
+            <td>24 / 24 valid mutator proposals in the recorded bench</td>
           </tr>
         </tbody>
       </table>
@@ -632,11 +628,11 @@
     <div class="status-board">
       <div class="status-row">
         <div class="label">Observed Qwen behavior</div>
-        <div class="value">In the current backend bench, Qwen more often stays inside the <code>beam_width × nsamples × batch_size ≤ 512</code> constraint and more often returns valid tool calls under the full mutation prompt.</div>
+        <div class="value">In the recorded backend bench, Qwen returned 24 / 24 valid mutator proposals.</div>
       </div>
       <div class="status-row">
         <div class="label">Observed Gemma behavior</div>
-        <div class="value">It proves the LLM role is not hard-wired to a single API vendor. The architecture can use local backends, and Gemma already clears smoke tests and idea generation.</div>
+        <div class="value">In the recorded backend bench, Gemma returned 17 / 24 valid mutator proposals and 4 finalized ideas in the idea-research bench.</div>
       </div>
       <div class="status-row">
         <div class="label">Deployment mode</div>
@@ -645,16 +641,14 @@
     </div>
 
     <div class="callout warn">
-      <p><strong>Do not overclaim.</strong> Backend viability is better established than benchmark superiority. These rows describe backend-bench behavior, not the final benchmark verdict.</p>
+      <p><strong>Scope.</strong> These rows describe backend-bench behavior. They do not report benchmark superiority.</p>
     </div>
   </div>
 
   <div class="section" id="benchmark-contract">
     <h2>7. Benchmark Contract and Why It Is Still Under Revision</h2>
     <p>
-      The biggest unresolved issue is not whether the loop runs. It is whether the online score used by the tree is
-      exactly the same object as the score used by the audited results page. Right now those two things are related,
-      but not identical.
+      The current unresolved point is the relationship between the tree's online score and the audited score used on the results page.
     </p>
 
     <div class="card-grid">
@@ -678,7 +672,7 @@
     </div>
 
     <div class="callout danger">
-      <p><strong>Current risk.</strong> “The loop runs” and “the benchmark is apples-to-apples” are two different statements. The first is supported by the current runtime evidence. The second still depends on completing the same audited evaluation contract used by the preserved heuristic pages.</p>
+      <p><strong>Current risk.</strong> Runtime execution and audited benchmark comparability are separate checks. The second still depends on producing the same audited evaluation artifacts used by the preserved heuristic pages.</p>
     </div>
   </div>
 
@@ -725,13 +719,13 @@
   <div class="section" id="next">
     <h2>9. Design Implications</h2>
     <p>
-      The guiding goal is not to make the architecture more baroque. It is to make the benchmark honest.
+      This section records implementation implications for the benchmark setup.
       That means expanding the comparator library beyond <code>deep</code> / <code>wide</code>, keeping the current
       pipeline stable, and tightening the bridge between online tree-search rewards and the audited post-hoc results.
     </p>
 
     <div class="callout">
-      <p><strong>Practical implication.</strong> Keep <code>autoresearch_v2</code> structurally simple, keep local LLM backends working through SLURM-served OpenAI-compatible endpoints, and use this page as the place to document each narrowing step from broad research idea to benchmarkable implementation.</p>
+      <p><strong>Practical implication.</strong> Keep <code>autoresearch_v2</code> structurally simple, keep local LLM backends running through SLURM-served OpenAI-compatible endpoints, and use this page to document implementation changes.</p>
     </div>
   </div>
 
