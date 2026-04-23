@@ -1019,6 +1019,78 @@ updates:
 - stage.nsamples: 8 -> 16
 - stage.batch_size: 8 -> 4
 Memory: 8*16*4 = 512 <= 512</code></pre>
+
+    <h3>2026-04-22 Follow-Up: Seeded vs Discovery on CD45 and BetV1</h3>
+    <p>This follow-up table reports only stored run artifacts from the completed 2026-04-21 seeded jobs and the completed or cancelled 2026-04-22 discovery jobs.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Target</th>
+            <th>Run type</th>
+            <th>Root seed</th>
+            <th>Scored nodes</th>
+            <th>Successful scored nodes</th>
+            <th>Nodes with stored unique_successes</th>
+            <th>Best stored result</th>
+            <th>Human reference on audited page</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>BetV1</td>
+            <td>Discovery</td>
+            <td><code>default_deep</code></td>
+            <td>4</td>
+            <td>2</td>
+            <td>0</td>
+            <td>Child <code>65d030db4a34</code>: <strong>14 / 96 raw</strong>, best_i_pae <strong>0.1917</strong></td>
+            <td>Audited local baseline: <strong>6 / 32 self</strong>.<br>Best local human run: <strong>11 / 32 self</strong>.</td>
+          </tr>
+          <tr>
+            <td>BetV1</td>
+            <td>Seeded</td>
+            <td><code>mixed_noise_halluc_g1</code></td>
+            <td>3</td>
+            <td>2</td>
+            <td>1</td>
+            <td>Root <code>6ad4f4291115</code>: <strong>10 / 32 raw</strong>, <strong>4 unique</strong>.<br>Best raw child <code>98e8ca0c2b6c</code>: <strong>14 / 96 raw</strong>.</td>
+            <td>Audited local baseline: <strong>6 / 32 self</strong>.<br>Best local human run: <strong>11 / 32 self</strong>.</td>
+          </tr>
+          <tr>
+            <td>CD45</td>
+            <td>Discovery</td>
+            <td><code>default_deep</code></td>
+            <td>4</td>
+            <td>0</td>
+            <td>0</td>
+            <td>Root <code>564fbd81f84f</code>: <strong>0 / 32 raw</strong></td>
+            <td><code>noise020</code>: <strong>15 / 32 self</strong>.<br>Older default-deep baseline: <strong>8 / 32 self</strong>.</td>
+          </tr>
+          <tr>
+            <td>CD45</td>
+            <td>Seeded</td>
+            <td><code>noise020</code></td>
+            <td>4</td>
+            <td>3</td>
+            <td>1</td>
+            <td>Root <code>2273c7bba621</code>: <strong>8 / 32 raw</strong>, <strong>1 unique</strong>.<br>Best raw child <code>ec6f3f1938e7</code>: <strong>25 / 128 raw</strong>.</td>
+            <td><code>noise020</code>: <strong>15 / 32 self</strong>.<br>Older default-deep baseline: <strong>8 / 32 self</strong>.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>BetV1 Discovery Timing</h3>
+    <p>For discovery job <code>7241305</code> on <code>23_BetV1</code>, the stored timestamps are:</p>
+    <ul>
+      <li>Job start: <strong>2026-04-22 09:16:47 EDT</strong>.</li>
+      <li>Seed score written for <code>3b991ed25262</code>: <strong>2026-04-22 10:49:46 EDT</strong>.</li>
+      <li>Best child <code>65d030db4a34</code> created: <strong>2026-04-22 11:14:09 EDT</strong>.</li>
+      <li>Best child <code>65d030db4a34</code> score written: <strong>2026-04-22 15:13:12 EDT</strong>.</li>
+    </ul>
+    <p><strong>Stored timing reading.</strong> The best child reached <strong>14 / 96 raw</strong>. From job start to the stored child score, that took about <strong>5 hours 56 minutes</strong>. From job start to child creation, that took about <strong>1 hour 57 minutes</strong>.</p>
   </div>
 
 </div>
