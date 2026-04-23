@@ -343,12 +343,57 @@
 → read rewards_*.csv
 → score the online metric
 → if --full-eval is enabled, run post-hoc analysis and attach audited unique_successes
+→ back up the seed score into the tree
 → tree selects a parent
+→ the LLM mutator receives the selected parent, compact feedback, compact run history, idea context, and in the current local working tree a bounded local tree summary
 → the LLM mutator can inspect Proteina-Complexa source/configs read-only
 → LLM proposes one to four bounded updates
 → validate child
 → run child (single-stage or sequential multi-stage)
 → backup primary_successes into the PUCT tree</code></pre>
+
+    <h3>Current local working-tree architecture</h3>
+    <pre><code>Target metadata + seed program
+            │
+            ▼
+     ProgramExecutor.run(seed)
+            │
+            ▼
+       Evaluator / ProgramScore
+            │
+            ▼
+         PuctTree.backup(seed)
+            │
+            ▼
+         PuctTree.select(parent)
+            │
+            ├── parent program
+            ├── compact feedback
+            ├── compact run history
+            ├── selected / available ideas
+            └── bounded local tree summary
+                    ├── ancestor chain
+                    ├── sibling rows
+                    ├── existing children
+                    └── current global-best rows
+            │
+            ▼
+         LLMMutator.propose(child)
+            │
+            ├── optional read-only Complexa inspection
+            └── one to four bounded updates
+            │
+            ▼
+      compile child to Hydra overrides
+            │
+            ▼
+ ProgramExecutor.run(child stages in sequence)
+            │
+            ▼
+       Evaluator / ProgramScore
+            │
+            ▼
+         PuctTree.backup(child)</code></pre>
 
     <div class="card-grid">
       <div class="card">
@@ -388,8 +433,8 @@
         </tr>
         <tr>
           <td><strong>LLM mutator</strong></td>
-          <td>Given one parent and limited feedback, it can inspect Complexa read-only, then proposes one to four bounded updates to produce a child program. It can also carry forward ideas, attach hypothesis fields, and append or condition later stages.</td>
-          <td>Does not see the whole tree, sibling branches, or global search state. It is not the outer controller, and it does not patch arbitrary source code in the hot loop.</td>
+          <td>Given one selected parent, compact feedback, compact run history, idea context, and in the current local working tree a bounded local tree summary, it can inspect Complexa read-only and then propose one to four bounded updates to produce a child program. It can also carry forward ideas, attach hypothesis fields, and append or condition later stages.</td>
+          <td>Does not choose which parent to expand next, does not own score backup, does not receive the full tree object, and does not patch arbitrary source code in the hot loop.</td>
         </tr>
         <tr>
           <td><strong>Complexa runtime</strong></td>
@@ -400,7 +445,7 @@
     </div>
 
     <div class="callout">
-      <p><strong>Role split.</strong> Tree search selects parents and backs up scores. The LLM mutator proposes child programs. Proteina-Complexa executes the generated overrides.</p>
+      <p><strong>Role split.</strong> Tree search selects parents and backs up scores. The LLM mutator proposes child programs for the selected parent. Proteina-Complexa executes the generated overrides.</p>
     </div>
   </div>
 

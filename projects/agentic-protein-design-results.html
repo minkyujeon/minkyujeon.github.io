@@ -145,6 +145,7 @@
       <li><a href="#two-numbers">Two Numbers, Two Questions</a></li>
       <li><a href="#summary">Executive Summary</a></li>
       <li><a href="#pipeline">Pipeline and Role Separation (Human vs Tree vs LLM)</a></li>
+      <li><a href="#score-compare">Current v2 and Aygün et al. 2025 / SCORE: common points and differences</a></li>
       <li><a href="#methodology">Methodology and Budget</a></li>
       <li><a href="#baseline">Human-Designed v1 Routing Baseline</a></li>
       <li><a href="#headline">Headline Results Table (LLM vs Human Baseline)</a></li>
@@ -240,6 +241,10 @@
 
     <p class="lede">The v2 autoresearch loop has three cooperating actors. This section separates which parts
     are fixed before the run and which parts are chosen during the run.</p>
+
+    <div class="callout warn">
+      <p><strong>Scope of this section.</strong> The loop below describes the initial campaign recorded on this page. The current local working tree described on the notes and runtime pages now includes a bounded local tree summary in the mutator prompt.</p>
+    </div>
 
     <h3>End-to-end loop</h3>
     <pre><code>   ┌─ seed InferenceProgram (campaign seed profile)   ← SEED
@@ -355,8 +360,71 @@
     </div>
   </div>
 
+  <div class="section" id="score-compare">
+    <h2>4. Current v2 and Aygün et al. 2025 / SCORE: common points and differences</h2>
+    <p>
+      The table below uses two sources only: the current local implementation and the abstract of
+      <em>An AI system to help scientists write expert-level empirical software</em> (Aygün et al., 2025).
+      It records only points that are directly stated in one of those two sources.
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Element</th>
+            <th>Aygün et al. 2025 / paper abstract</th>
+            <th>Current local <code>autoresearch_v2</code></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>High-level loop</td>
+            <td>Uses a Large Language Model and Tree Search to improve a quality metric.</td>
+            <td>Uses an LLM mutator and a PUCT tree to improve a program score.</td>
+          </tr>
+          <tr>
+            <td>Search objective</td>
+            <td>Maximize a quality metric for empirical software.</td>
+            <td>Maximize the current v2 program score for Proteina-Complexa inference programs.</td>
+          </tr>
+          <tr>
+            <td>Search object</td>
+            <td>Scientific software.</td>
+            <td>Structured <code>InferenceProgram</code> objects compiled to Hydra overrides.</td>
+          </tr>
+          <tr>
+            <td>Domains named in the source</td>
+            <td>Various domains, including bioinformatics, epidemiology, geospatial analysis, neural activity prediction, time-series forecasting, and numerical integration.</td>
+            <td>Protein binder design over the Proteina-Complexa scaffold.</td>
+          </tr>
+          <tr>
+            <td>External-source use</td>
+            <td>The abstract states that the system explores and integrates complex research ideas from external sources.</td>
+            <td>The current live protein pipeline uses local target metadata and optional read-only local code/config inspection. Internet search is not in the hot loop.</td>
+          </tr>
+          <tr>
+            <td>Tree implementation detail stated in our code</td>
+            <td>Not stated in the abstract.</td>
+            <td><code>puct_tree.py</code> states that it implements SCORE Algorithm 1 and documents local defaults and deviations.</td>
+          </tr>
+          <tr>
+            <td>Role split in our implementation</td>
+            <td>Not stated in the abstract.</td>
+            <td>The tree selects parents and backs up scores; the LLM proposes bounded mutations for the selected parent.</td>
+          </tr>
+          <tr>
+            <td>Arbitrary source-code patch execution in the current hot loop</td>
+            <td>The abstract speaks about creating scientific software, but does not specify the exact execution contract of each inner-loop step.</td>
+            <td>Not part of the current v2 hot loop. The current protein runs mutate structured programs and may inspect local code read-only.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
   <div class="section" id="methodology">
-    <h2>4. Methodology and Budget</h2>
+    <h2>5. Methodology and Budget</h2>
 
     <h3>Job layout</h3>
     <p>Four SLURM jobs, each self-hosted in a single container:</p>
@@ -384,7 +452,7 @@
   </div>
 
   <div class="section" id="baseline">
-    <h2>5. Human-Designed v1 Routing Baseline</h2>
+    <h2>6. Human-Designed v1 Routing Baseline</h2>
 
     <p>
       The v1 routing program in
@@ -433,7 +501,7 @@
   </div>
 
   <div class="section" id="headline">
-    <h2>6. Headline Results Table (LLM vs Human Baseline)</h2>
+    <h2>7. Headline Results Table (LLM vs Human Baseline)</h2>
 
     <div class="table-wrap">
       <table>
@@ -515,7 +583,7 @@
   </div>
 
   <div class="section" id="qwen-pdl1">
-    <h2>7. Qwen3.6 on PDL1 &mdash; Seven-Step Monotonic Chain</h2>
+    <h2>8. Qwen3.6 on PDL1 &mdash; Seven-Step Monotonic Chain</h2>
 
     <p>Seed config: <code>beam_width=8, nsamples=4, batch_size=8</code>. The chain below shows every field
     that changed between adjacent programs, read from <code>programs/*.json</code>.</p>
@@ -599,7 +667,7 @@ tests the hypothesis that more samples at the same beam width yields more succes
   </div>
 
   <div class="section" id="qwen-cd45">
-    <h2>8. Qwen3.6 on CD45 &mdash; Refinement, Then a Larger-Pool Scale-Up</h2>
+    <h2>9. Qwen3.6 on CD45 &mdash; Refinement, Then a Larger-Pool Scale-Up</h2>
 
     <p>Seed config identical to PDL1's (<code>balanced</code>). This run starts at 0 / 32 =
     <strong>0&nbsp;% pass rate</strong> at the seed. The first three non-seed expansions are refinement-only tweaks, which do not change <code>n_finals</code> and remain at 0 successes.</p>
@@ -670,7 +738,7 @@ Updates:
   </div>
 
   <div class="section" id="gemma-pdl1">
-    <h2>9. Gemma-4 on PDL1 &mdash; Nine Steps, Four Flat Steps After 100%</h2>
+    <h2>10. Gemma-4 on PDL1 &mdash; Nine Steps, Four Flat Steps After 100%</h2>
 
     <p>Gemma-4-E4B has no thinking mode, so there is no reasoning trace&mdash;only the brief
     <code>mutation_description</code>. The best chain has 9 generations and ends at 109 / 128 =
@@ -699,7 +767,7 @@ Updates:
   </div>
 
   <div class="section" id="gemma-cd45">
-    <h2>10. Gemma-4 on CD45 &mdash; Immediate Scale Jump</h2>
+    <h2>11. Gemma-4 on CD45 &mdash; Immediate Scale Jump</h2>
 
     <p>Gemma's first non-seed mutation on CD45 changes <code>nsamples</code> from 4 to 16 and
     <code>batch_size</code> from 8 to 4, producing 27 / 128 = 21.1&nbsp;%.</p>
@@ -726,7 +794,7 @@ Updates:
   </div>
 
   <div class="section" id="comparison">
-    <h2>11. Qwen vs Gemma &mdash; Logged Comparison</h2>
+    <h2>12. Qwen vs Gemma &mdash; Logged Comparison</h2>
 
     <div class="table-wrap">
       <table>
@@ -745,7 +813,7 @@ Updates:
   </div>
 
   <div class="section" id="why-drop">
-    <h2>12. Observed CD45 Pass-Rate Drop</h2>
+    <h2>13. Observed CD45 Pass-Rate Drop</h2>
 
     <p>Both LLM trees show the same pattern on CD45: a first scale-up from 32 to 128 finals lands at
     27 successes (21.1&nbsp;%), and a second scale-up from 128 to 256 finals adds only 6 more
@@ -762,7 +830,7 @@ Updates:
   </div>
 
   <div class="section" id="caveats">
-    <h2>13. Caveats and What This Is NOT</h2>
+    <h2>14. Caveats and What This Is NOT</h2>
 
     <h3>Online proxy only; not the audited paper metric</h3>
     <p>Every pass rate and count on this page is from
@@ -788,7 +856,7 @@ Updates:
   </div>
 
   <div class="section" id="next">
-    <h2>14. Recorded Follow-Up Items</h2>
+    <h2>15. Recorded Follow-Up Items</h2>
 
     <ol>
       <li><strike><strong>Matched-budget routing baseline</strong> (SLURM jobs 7148364 / 7148365).</strike>
@@ -809,7 +877,7 @@ Updates:
   </div>
 
   <div class="section" id="hard-reruns">
-    <h2>15. Routed Hard-Target Reruns (2026-04-21)</h2>
+    <h2>16. Routed Hard-Target Reruns (2026-04-21)</h2>
 
     <p class="lede">
       These reruns use the corrected routed seeds and the expanded <code>full</code> mutation surface.
