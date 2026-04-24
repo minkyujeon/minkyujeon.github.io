@@ -289,6 +289,7 @@
     <h3>Contents</h3>
     <ol>
       <li><a href="#status">What Is Already Verified</a></li>
+      <li><a href="#hardening">Current Hardening Pass</a></li>
       <li><a href="#pipeline">Current Runtime Pipeline</a></li>
       <li><a href="#roles">Tree Search vs. LLM: Separate Roles</a></li>
       <li><a href="#easy">Easy Targets: What the Loop Actually Does</a></li>
@@ -323,8 +324,67 @@
     </div>
   </div>
 
+  <div class="section" id="hardening">
+    <h2>2. Current Hardening Pass</h2>
+    <p class="lede">
+      This section records the April 24, 2026 cleanup pass that preceded the current clean hard-target reruns.
+      It is limited to observed failure modes and code-level safeguards.
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <tr>
+          <th>Previous State</th>
+          <th>Observed Problem</th>
+          <th>Current Change</th>
+        </tr>
+        <tr>
+          <td>Self-hosted Qwen mutation calls used the shared OpenAI-compatible client.</td>
+          <td>Failed jobs included context-length failures after the client silently raised some calls to a larger token budget.</td>
+          <td>The client now respects the caller-provided <code>max_tokens</code>. Provider failures are caught by the mutator and recorded as rejected/retried proposals instead of crashing the driver loop.</td>
+        </tr>
+        <tr>
+          <td>Tool-calling outputs were parsed as JSON arguments.</td>
+          <td>A malformed tool-call argument could raise inside the client before the mutator could recover.</td>
+          <td>Malformed tool arguments are now stored with parse-error metadata and raw arguments, so the driver can continue handling the interaction.</td>
+        </tr>
+        <tr>
+          <td>The mutation surface previously exposed <code>sampling.guidance_w</code> and <code>sampling.ag_ratio</code>.</td>
+          <td>The current binder runtime does not provide the extra artifacts needed for those non-default guidance paths.</td>
+          <td>Those two fields are fixed in the v2 control surface: <code>guidance_w = 1.0</code> and <code>ag_ratio = 0.0</code>.</td>
+        </tr>
+        <tr>
+          <td>The mutator could propose large compute or reward-weight changes inside the allowed schema.</td>
+          <td>Some valid-looking children can still hit memory limits or encode metric-direction mistakes.</td>
+          <td>The prompt now includes a memory guard for <code>beam_width × nsamples × batch_size</code>, basic metric-direction rules, and evidence-discipline instructions.</td>
+        </tr>
+        <tr>
+          <td>Metric interpretation was mainly left to the model.</td>
+          <td>Qwen proposals sometimes treated above-threshold iPAE values as favorable, or made large reward-weight jumps without a risk label.</td>
+          <td>A deterministic proposal critic now rejects those cases before child execution.</td>
+        </tr>
+        <tr>
+          <td>Failed mutator calls could consume repeated iterations.</td>
+          <td>Repeated backend/proposal failures can waste the search budget without producing executable children.</td>
+          <td>Consecutive mutator failures are penalized and bounded in the agent loop.</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="status-board">
+      <div class="status-row"><div class="label">Code state</div><div class="value"><code>Autoresearch_Denovo</code> branch <code>minkyu</code>, commit <code>0501f5c</code>, includes the deterministic proposal critic and failure-handling changes listed above.</div></div>
+      <div class="status-row"><div class="label">Validation run</div><div class="value"><code>autoresearch_v2/tests</code>: 424 passed, 2 skipped. <code>autoresearch_common/evaluation/tests</code>: 31 passed. Launcher scripts passed <code>bash -n</code>. <code>git diff --check</code> passed.</div></div>
+      <div class="status-row"><div class="label">Clean rerun set</div><div class="value">After canceling partial/stale runs, clean 24-hour hard-target discovery jobs were submitted for <code>05_CD45</code> (<code>7323363</code>), <code>30_SC2RBD</code> (<code>7323364</code>), and <code>23_BetV1</code> (<code>7323365</code>). At the last manual check on April 24, 2026, all three were running.</div></div>
+      <div class="status-row"><div class="label">Comparison run kept</div><div class="value">The older <code>27_HER2_AAV</code> run <code>7307349</code> was kept because it was already long-running and productive, but it predates this hardening pass.</div></div>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>Scope note.</strong> These changes make the current search loop safer and easier to restart. They do not prove that the LLM proposals are scientifically optimal; proposal quality still has to be judged from accepted/rejected proposal logs and scored child programs.</p>
+    </div>
+  </div>
+
   <div class="section" id="pipeline">
-    <h2>2. Current Runtime Pipeline</h2>
+    <h2>3. Current Runtime Pipeline</h2>
     <div class="diagram-shell">
       <div class="flow">
         <div class="node">SLURM<br><code>cryoem</code> job</div>
@@ -349,6 +409,7 @@
 → the LLM mutator can inspect Proteina-Complexa source/configs read-only
 → LLM proposes one to four bounded updates
 → validate child
+→ deterministic proposal critic checks metric interpretation, unsupported fields, and unsafe weight-scale jumps
 → run child (single-stage or sequential multi-stage)
 → backup primary_successes into the PUCT tree</code></pre>
 
@@ -384,6 +445,9 @@
             └── one to four bounded updates
             │
             ▼
+      validation + proposal critic
+            │
+            ▼
       compile child to Hydra overrides
             │
             ▼
@@ -416,7 +480,7 @@
   </div>
 
   <div class="section" id="roles">
-    <h2>3. Tree Search vs. LLM: Separate Roles</h2>
+    <h2>4. Tree Search vs. LLM: Separate Roles</h2>
     <p>The table below lists the current responsibilities of each component.</p>
 
     <div class="table-wrap">
@@ -437,6 +501,11 @@
           <td>Does not choose which parent to expand next, does not own score backup, does not receive the full tree object, and does not patch arbitrary source code in the hot loop.</td>
         </tr>
         <tr>
+          <td><strong>Proposal critic</strong></td>
+          <td>Rejects selected classes of invalid or unsafe proposals before execution, including wrong metric-direction claims for iPAE/pLDDT and unlabelled large confidence-weight jumps.</td>
+          <td>Does not choose new mutations, does not score proteins, and does not replace Complexa execution.</td>
+        </tr>
+        <tr>
           <td><strong>Complexa runtime</strong></td>
           <td>Actually generates, folds, redesigns, and scores candidate binders.</td>
           <td>Does not know about tree search or benchmark fairness.</td>
@@ -450,7 +519,7 @@
   </div>
 
   <div class="section" id="easy">
-    <h2>4. Easy Targets: What the Loop Actually Does</h2>
+    <h2>5. Easy Targets: What the Loop Actually Does</h2>
     <p>This section records the observed runtime pattern on easy targets such as <code>02_PDL1</code>.</p>
 
     <div class="card-grid">
@@ -479,7 +548,7 @@
   </div>
 
   <div class="section" id="hard">
-    <h2>5. Hard Targets: What Changes</h2>
+    <h2>6. Hard Targets: What Changes</h2>
     <p>Current hard-target runs use two settings: <strong>seeded</strong> runs begin from a routed heuristic seed, and <strong>discovery</strong> runs begin from a smaller neutral seed.</p>
 
     <pre><code>hard target
@@ -502,7 +571,7 @@
   </div>
 
   <div class="section" id="qwen-gemma">
-    <h2>6. Qwen vs. Gemma-4 in Practice</h2>
+    <h2>7. Qwen vs. Gemma-4 in Practice</h2>
     <div class="table-wrap">
       <table>
         <tr>
@@ -529,7 +598,7 @@
   </div>
 
   <div class="section" id="lessons">
-    <h2>7. Runtime Lessons Worth Keeping</h2>
+    <h2>8. Runtime Lessons Worth Keeping</h2>
     <p>
       This section records runtime conditions that changed execution behavior in the logged runs.
     </p>
@@ -557,6 +626,11 @@
           <td>Validation and execution safety are separate layers.</td>
         </tr>
         <tr>
+          <td><strong>Metric-direction mistakes should be blocked before execution</strong></td>
+          <td>Recent Qwen proposal logs included cases where iPAE/pLDDT directionality or reward-weight scale was not handled cleanly.</td>
+          <td>The deterministic critic blocks a small set of known-bad proposal patterns before spending Complexa runtime.</td>
+        </tr>
+        <tr>
           <td><strong>Post-hoc analysis must inherit the same Python environment</strong></td>
           <td>The first attached <code>analysis</code> attempts failed because helper subprocesses fell back to the wrong Python and broke SolubleMPNN.</td>
           <td>The attached analysis step requires the same Python environment as generation.</td>
@@ -570,7 +644,7 @@
   </div>
 
   <div class="section" id="apples">
-    <h2>8. Why Apples-to-Apples Is Still a Runtime Issue</h2>
+    <h2>9. Why Apples-to-Apples Is Still a Runtime Issue</h2>
     <p>
       The online score is easy to compute. The website-style audited score is not. The latter depends on the preserved
       <code>evaluation_results/</code> tree, redesign outputs, and FoldSeek uniqueness analysis.
@@ -589,7 +663,7 @@
   </div>
 
   <div class="section" id="next">
-    <h2>9. Audit Checklist</h2>
+    <h2>10. Audit Checklist</h2>
     <ol>
       <li>Use <code>sequence_type_stats.json</code> and FoldSeek clustering outputs under <code>evaluation_results/</code> as the audited benchmark artifacts.</li>
       <li>Read the corresponding <code>paper_audited_metric</code> entries in the v2 summary files.</li>
