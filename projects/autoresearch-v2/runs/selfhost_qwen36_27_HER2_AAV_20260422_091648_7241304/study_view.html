@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>v2 Study view — 2026-04-25</title>
+
+<style>@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap");
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,-apple-system,'Segoe UI',system-ui,sans-serif;color:#222;background:#f0f4f8;line-height:1.5;font-size:14px}
+header.top{background:#0d47a1;color:#fff;padding:14px 22px;position:sticky;top:0;z-index:10;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+header.top h1{font-size:1.15rem;margin:0;font-weight:600;letter-spacing:.01em}
+header.top .meta{font-size:.78rem;opacity:.92;margin-top:4px;display:flex;flex-wrap:wrap;gap:18px}
+header.top .meta span{white-space:nowrap}
+header.top .meta b{font-weight:600}
+.search-wrap{float:right;display:flex;align-items:center;gap:6px}
+.search-wrap input{padding:5px 9px;font-size:.8rem;border:1px solid #ccd0d4;border-radius:4px;min-width:220px;background:#fff;color:#222}
+.search-wrap select{padding:5px 6px;font-size:.78rem;border:1px solid #ccd0d4;border-radius:4px;background:#fff;color:#222}
+main{display:grid;grid-template-columns:65% 35%;gap:0;padding:0}
+.tree-pane{background:#fdfdfd;border-right:1px solid #e0e0e0;overflow:hidden;padding:0;min-height:65vh;border-radius:12px 0 0 0;position:relative}
+.tree-pane-inner{padding:16px}
+.tree-pane h2,.drawer h2{font-size:.92rem;color:#0d47a1;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;font-weight:600}
+.tree-legend{display:flex;gap:14px;font-size:.76rem;color:#555;margin:6px 0 14px;flex-wrap:wrap}
+.tree-legend .swatch{display:inline-block;width:14px;height:6px;border-radius:2px;vertical-align:middle;margin-right:4px}
+.tree-viewport{overflow:hidden;cursor:grab;position:relative}
+.tree-viewport:active{cursor:grabbing}
+.tree-viewport svg{display:block}
+.zoom-controls{position:absolute;bottom:12px;right:12px;display:flex;flex-direction:column;gap:4px;z-index:5}
+.zoom-controls button{width:32px;height:32px;border:1px solid #ccc;border-radius:6px;background:#fff;cursor:pointer;font-size:16px;line-height:1;box-shadow:0 2px 4px rgba(0,0,0,.08);display:flex;align-items:center;justify-content:center}
+.zoom-controls button:hover{background:#e3f2fd}
+.drawer{background:#fafafa;padding:16px;overflow:auto;min-height:65vh;border-left:1px solid #e0e0e0}
+.drawer .empty{color:#999;font-style:italic;padding:20px 0}
+.drawer .card{background:#fff;padding:10px 12px;border-radius:12px;margin-bottom:10px;box-shadow:0 4px 12px rgba(0,0,0,.06)}
+.drawer .card h3{font-size:.84rem;color:#0d47a1;margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.drawer .kv{display:grid;grid-template-columns:130px 1fr;gap:4px 10px;font-size:.82rem}
+.drawer .kv dt{color:#666}
+.drawer .kv dd{color:#222;font-family:'SF Mono',Menlo,monospace;word-break:break-all}
+.idea-card{border-left:3px solid #1a73e8;padding:8px 10px;background:#f7faff;border-radius:4px;margin-bottom:6px}
+.idea-card .title{font-weight:600;font-size:.85rem;color:#0d47a1}
+.idea-card .summary{font-size:.78rem;color:#444;margin-top:3px}
+.idea-card .hypothesis{font-size:.75rem;color:#666;font-style:italic;margin-top:3px}
+.idea-card .hints{font-size:.73rem;color:#444;margin-top:4px}
+.idea-card .hints ul{margin:2px 0 0 16px;padding:0}
+.idea-card .hints li{margin:1px 0}
+.idea-card .refs{font-size:.7rem;color:#888;margin-top:3px}
+details.stage,details.asset{background:#f9f9f9;border:1px solid #e0e0e0;border-radius:4px;margin-bottom:6px}
+details.stage summary,details.asset summary{padding:6px 10px;cursor:pointer;font-size:.82rem;font-weight:600;color:#0d47a1}
+details.stage[open] summary,details.asset[open] summary{border-bottom:1px solid #e0e0e0}
+details.stage .body,details.asset .body{padding:8px 10px;font-size:.78rem}
+.hydra-override{display:block;font-family:'SF Mono',Menlo,monospace;font-size:.76rem;background:#fff;border:1px solid #eee;padding:3px 6px;border-radius:3px;margin:2px 0}
+.hydra-override.added{background:#e8f5e9;border-color:#a5d6a7}
+.hydra-override.removed{background:#ffebee;border-color:#ef9a9a;text-decoration:line-through}
+pre.code{background:#282c34;color:#abb2bf;padding:10px;border-radius:4px;overflow-x:auto;font-size:.72rem;font-family:'SF Mono',Menlo,monospace;line-height:1.35}
+pre.code .kw{color:#c678dd}
+pre.code .str{color:#98c379}
+pre.code .cmt{color:#5c6370;font-style:italic}
+pre.code .num{color:#d19a66}
+.diff-block{font-family:'SF Mono',Menlo,monospace;font-size:.72rem;line-height:1.4;border:1px solid #e0e0e0;border-radius:4px;overflow-x:auto;margin:4px 0}
+.diff-block .diff-add{background:#e6ffec;display:block;padding:0 6px}
+.diff-block .diff-del{background:#ffebe9;display:block;padding:0 6px}
+.diff-block .diff-hdr{background:#f1f8ff;color:#0d47a1;display:block;padding:0 6px;font-weight:600}
+.diff-block .diff-ctx{display:block;padding:0 6px;color:#555}
+.llm-reasoning-tbd{background:#fff8e1;border:2px dashed #ffb300;padding:10px 12px;border-radius:6px;color:#6d4c00;font-size:.82rem;margin-top:6px}
+.llm-reasoning-tbd b{color:#e65100}
+.progress-chart{background:#fff;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.08);padding:12px 16px;margin:0 0 12px}
+.progress-chart h2{font-size:.82rem;color:#0d47a1;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;font-weight:600}
+.progress-chart svg{display:block;width:100%}
+.bottom-strip{background:#fff;border-top:1px solid #e0e0e0;padding:12px 22px}
+.bottom-strip h2{font-size:.82rem;color:#0d47a1;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.bottom-strip svg{background:#fafafa;border:1px solid #eee;border-radius:4px}
+footer{text-align:center;color:#888;font-size:.75rem;padding:18px 0;border-top:1px solid #e5e5e5;margin-top:0;background:#fff}
+.no-data-banner{background:#fff3e0;border:2px dashed #ff9800;color:#e65100;padding:18px 20px;margin:18px;border-radius:6px;text-align:center;font-size:.9rem}
+.diag-table{font-size:.76rem;font-family:'SF Mono',Menlo,monospace;width:100%;border-collapse:collapse}
+.diag-table td{padding:2px 6px;border-bottom:1px solid #f0f0f0;vertical-align:top}
+.diag-table td:first-child{color:#666;width:140px}
+.trajectory{font-size:.75rem;max-height:400px;overflow-y:auto;border:1px solid #e0e0e0;border-radius:4px;padding:6px;margin-top:4px}
+.traj-turn{padding:3px 0;border-bottom:1px solid #f0f0f0}
+.traj-turn .tool-name{font-weight:600;color:#1a73e8}
+.traj-turn .tool-input{color:#555;font-size:.7rem}
+.traj-result{padding:2px 0 3px 12px;color:#666;font-size:.7rem;border-bottom:1px solid #f5f5f5;white-space:pre-wrap;word-break:break-all}
+
+.mode-switch{display:flex;gap:0;margin-bottom:10px;border:1px solid #d0d7de;border-radius:6px;overflow:hidden;width:fit-content}
+.mode-btn{padding:5px 14px;font-size:.82rem;background:#fff;border:0;border-right:1px solid #d0d7de;cursor:pointer;color:#444;font-family:inherit}
+.mode-btn:last-child{border-right:0}
+.mode-btn.active{background:#0d47a1;color:#fff;font-weight:600}
+.mode-btn:hover:not(.active){background:#e3f2fd}
+.node-hdr{font-size:1.05rem;color:#0d47a1;margin:4px 0 6px;font-weight:600}
+.node-meta{font-size:.85rem;color:#333;margin:2px 0}
+.idea-summary{margin-top:10px;padding:10px 12px;background:#fff;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.05);font-size:.85rem;line-height:1.5}
+.idea-summary h3,.idea-summary h4{font-size:.9rem;color:#0d47a1;margin:4px 0}
+.idea-summary ul{margin:4px 0 4px 18px}
+.idea-summary li{margin:2px 0}
+.idea-summary p{margin:4px 0}
+.idea-summary code{background:#f5f5f5;padding:1px 5px;border-radius:3px;font-size:.8rem}
+.metric-note{color:#777;font-size:.78rem}
+.metrics-card{margin-top:8px;padding:8px 10px;background:#fff;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.05);font-size:.82rem}
+.metrics-card .kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:4px 10px;margin:0}
+.metrics-card dt{color:#666;font-weight:600}
+.metrics-card dd{margin:0;color:#222;word-break:break-word}
+.pill-row{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+.pill{display:inline-block;background:#eef2f7;border:1px solid #d8dee9;border-radius:999px;padding:2px 7px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.74rem;color:#333}
+.strategy-card{margin-top:10px;padding:10px 12px;background:#fff;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.05);font-size:.82rem;line-height:1.45}
+.strategy-card h3{margin:0 0 6px;color:#0d47a1;font-size:.9rem}
+.strategy-sub{color:#666;font-size:.78rem;margin-bottom:8px}
+.strategy-label{margin-top:8px;color:#0d47a1;font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;font-weight:700}
+.strategy-main{font-weight:600;color:#222}
+.strategy-empty{color:#888;font-style:italic;margin:5px 0}
+.source-table{width:100%;border-collapse:collapse;margin:4px 0}
+.source-table th,.source-table td{border-top:1px solid #edf0f2;padding:4px 5px;text-align:left;vertical-align:top}
+.source-table th{width:35%;color:#555;font-weight:600}
+.support-list{margin:5px 0 0 18px;padding:0}
+.lineage-table-wrap{margin-top:10px;overflow:auto}
+.lineage-table{width:100%;border-collapse:collapse;font-size:.82rem;background:#fff}
+.lineage-table th,.lineage-table td{border-top:1px solid #e5e7eb;padding:7px 8px;text-align:left;vertical-align:top}
+.lineage-table th{color:#0d47a1;font-size:.74rem;text-transform:uppercase;letter-spacing:.04em}
+.lineage-sub{color:#777;font-size:.72rem;margin-top:2px}
+section.diffs{background:#fff;border-top:1px solid #e0e0e0;padding:16px 22px}
+section.diffs .diffs-title{font-size:.82rem;color:#0d47a1;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;font-weight:600}
+section.diffs .diffs-empty{color:#888;font-style:italic;font-size:.82rem}
+section.diffs .diffs-details{margin:6px 0}
+section.diffs .diffs-details>summary{cursor:pointer;font-size:.82rem;color:#0d47a1;padding:4px 0;font-weight:600}
+</style>
+</head>
+<body>
+<header class="top">
+<div class="search-wrap">
+<select id="target-filter"><option value="">all targets</option><option value="27_HER2_AAV">27_HER2_AAV</option></select>
+<input id="search-box" type="search" placeholder="filter: pid / target"/>
+</div>
+<h1>v2 Study view &mdash; autoresearch v2</h1>
+<div class="meta">
+<span><b>nodes:</b> 2</span>
+<span><b>targets:</b> 1</span>
+<span><b>best normalized score:</b> 0.0000</span>
+<span><b>store:</b> <code>[v2_runs]/selfhost_qwen36_27_HER2_AAV_20260422_091648_7241304</code></span>
+</div></header>
+<main>
+<section class="tree-pane">
+<div class="tree-pane-inner">
+<div class="progress-chart">
+<h2>Best normalized score vs. step</h2>
+<div id="progress-chart-area"></div>
+</div>
+<h2>Candidate tree (2 nodes)</h2>
+<div class="tree-legend"><span><span class="swatch" style="background:#1976d2"></span>low normalized score</span><span><span class="swatch" style="background:#38b000"></span>mid</span><span><span class="swatch" style="background:#fbc02d"></span>higher</span><span><span class="swatch" style="background:#d32f2f"></span>top</span><span>&#9733; = best</span><span>&mdash; solid = parent &rarr; child &mdash; dashed = recombine</span></div>
+<svg width="320" height="32" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:6px auto 0"><defs><linearGradient id="score-grad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="rgb(25,118,210)"/><stop offset="33%" stop-color="rgb(56,176,0)"/><stop offset="66%" stop-color="rgb(251,192,45)"/><stop offset="100%" stop-color="rgb(211,47,47)"/></linearGradient></defs><rect x="0" y="4" width="320" height="12" rx="3" fill="url(#score-grad)"/><text x="0" y="30" font-size="9" fill="#666" font-family="system-ui,sans-serif">0.0000</text><text x="160" y="30" font-size="9" fill="#666" text-anchor="middle" font-family="system-ui,sans-serif">0.0000</text><text x="320" y="30" font-size="9" fill="#666" text-anchor="end" font-family="system-ui,sans-serif">0.0000</text></svg>
+</div>
+<div class="tree-viewport">
+<svg id="tree-svg" width="210" height="255" viewBox="0 0 210 255" xmlns="http://www.w3.org/2000/svg"><style>.edge{stroke:#8a8a8a;stroke-width:1.6;fill:none}.edge-b{stroke:#b388ff;stroke-width:1.6;stroke-dasharray:5,4;fill:none}.node circle,.node polygon{stroke:#222;stroke-width:1;cursor:pointer}.node text{font:10px system-ui,sans-serif;pointer-events:none;fill:#222}.node.selected circle,.node.selected polygon{stroke:#0d47a1;stroke-width:3}.node.faded{opacity:.18}</style><line class="edge" x1="60.0" y1="60.0" x2="60.0" y2="155.0"/><g class="node" data-pid="3d1ab79ce2bd" data-gen="1" data-op="compute_diversity,reward_objective" data-score="0.000000" data-target="27_HER2_AAV"><polygon points="60.0,140.7 63.8,149.8 73.6,150.6 66.1,157.0 68.4,166.6 60.0,161.4 51.6,166.6 53.9,157.0 46.4,150.6 56.2,149.8" fill="#9cb817"><title>3d1ab79ce2bd
+target=27_HER2_AAV
+success_rate=0.0000
+n_successful=0
+best_i_pae=0.2329
+best_plddt=0.9057
+n_finals=64
+success_rate=0.0% (0/64)</title></polygon><text x="75.0" y="159.0" text-anchor="middle">3d1ab7</text></g><g class="node" data-pid="7786d9f320fe" data-gen="0" data-op="" data-score="0.000000" data-target="27_HER2_AAV"><circle cx="60.0" cy="60.0" r="13.0" fill="#9cb817"><title>7786d9f320fe
+target=27_HER2_AAV
+success_rate=0.0000
+n_successful=0
+best_i_pae=0.2370
+best_plddt=0.8870
+n_finals=32
+success_rate=0.0% (0/32)</title></circle><text x="77.0" y="64.0" text-anchor="middle">7786d9</text></g></svg>
+</div>
+<div class="zoom-controls">
+<button id="zoom-in" title="Zoom in">+</button>
+<button id="zoom-out" title="Zoom out">&minus;</button>
+<button id="zoom-fit" title="Fit to view">&#8634;</button>
+</div>
+</section>
+<aside class="drawer" id="drawer">
+<h2>Details</h2>
+<p class="empty">Click a node in the tree to see its idea, parent diff, and mutator trajectory.</p>
+</aside>
+</main>
+<section class="bottom-strip">
+<h2>Ancestor normalized score trajectory</h2>
+<div id="lineage-strip"></div>
+<div id="lineage-strategy"></div>
+</section>
+<section class="diffs"><div id="diffs-content"><p class="diffs-empty">Click a node to see its parent &rarr; current diff.</p></div></section>
+<footer>Generated by analysis/v2/build_study_view.py &mdash; 2026-04-25</footer>
+<script>
+window.__NODE_DETAILS__ = {"3d1ab79ce2bd": {"generation": 1, "idea": {"summary_html": "<ul><li><b>Change:</b> Double nsamples from 4\u21928 and halve batch_size to 4 (keeping beam_width=8, product=256) for wider exploration, while increasing plddt weight (0\u21920.2) and iPAE penalty (-1.0\u2192-1.5) to nudge candidates across the 0.90/0.226 thresholds.</li></ul>"}, "metrics": {"audit": {"available": true, "cluster_assignments_path": null, "n_sequence_type_stats_files": 64, "reason": "", "result_dir": "[Autoresearch_Denovo]/subgit/Proteina-Complexa/evaluation_results/search_binder_local_pipeline_27_HER2_AAV_27_HER2_AAV_3d1ab79ce2bd_3d1ab79ce2bd", "self_sample_pass_rate": 0.0, "self_successful_samples": 0, "self_unique_successes": null}, "best_i_pae": 0.23291533, "best_plddt": 0.9056719, "n_finals": 64, "n_successful": 0, "primary_successes": 0, "rank_key": 0.8225195620000001, "success_rate": 0.0, "unique_successes": null, "wall_time_minutes": 87.6143041699659}, "parent_diff": {"config_html": "<span class=\"diff-hdr\">--- parent stages</span><span class=\"diff-hdr\">+++ current stages</span><span class=\"diff-hdr\">@@ -1,6 +1,6 @@</span><span class=\"diff-ctx\"> [</span><span class=\"diff-ctx\">   {</span><span class=\"diff-del\">-    &quot;batch_size&quot;: 8,</span><span class=\"diff-add\">+    &quot;batch_size&quot;: 4,</span><span class=\"diff-ctx\">     &quot;condition&quot;: null,</span><span class=\"diff-ctx\">     &quot;filter&quot;: {</span><span class=\"diff-ctx\">       &quot;dedup_sequence&quot;: true,</span><span class=\"diff-hdr\">@@ -9,7 +9,7 @@</span><span class=\"diff-ctx\">       &quot;reward_threshold&quot;: null</span><span class=\"diff-ctx\">     },</span><span class=\"diff-ctx\">     &quot;name&quot;: &quot;v1_migration&quot;,</span><span class=\"diff-del\">-    &quot;nsamples&quot;: 4,</span><span class=\"diff-add\">+    &quot;nsamples&quot;: 8,</span><span class=\"diff-ctx\">     &quot;refinement&quot;: {</span><span class=\"diff-ctx\">       &quot;algorithm&quot;: null,</span><span class=\"diff-ctx\">       &quot;enable_greedy_optimization&quot;: true,</span><span class=\"diff-hdr\">@@ -39,8 +39,8 @@</span><span class=\"diff-ctx\">         &quot;reward_weights&quot;: {</span><span class=\"diff-ctx\">           &quot;con&quot;: 0.0,</span><span class=\"diff-ctx\">           &quot;dgram_cce&quot;: 0.0,</span><span class=\"diff-del\">-          &quot;i_pae&quot;: -1.0,</span><span class=\"diff-del\">-          &quot;plddt&quot;: 0.0</span><span class=\"diff-add\">+          &quot;i_pae&quot;: -1.5,</span><span class=\"diff-add\">+          &quot;plddt&quot;: 0.2</span><span class=\"diff-ctx\">         },</span><span class=\"diff-ctx\">         &quot;use_initial_atom_pos&quot;: false,</span><span class=\"diff-ctx\">         &quot;use_initial_guess&quot;: true</span>", "source_html": ""}, "parent_id": "7786d9f320fe", "pid": "3d1ab79ce2bd", "score": 0.0, "score_source": "success_rate", "status": "pending", "strategy_trace": {"attempt_idx": 2, "evidence_summary": "best_i_pae=0.237 barely exceeds the 0.226 threshold and best_plddt=0.887 is 4% below the 0.90 target. The search explored 32 candidates (n_finals) but none succeeded, suggesting either insufficient breadth or slightly off reward shaping. seed_diversify_early idea directly motivates increasing beam_width and nsamples.", "generating_parent": "7786d9f320fe", "hypothesis_summary": "The parent was just 5% above both success thresholds (iPAE=0.237 vs 0.226, plddt=0.887 vs 0.90). Doubling the beam width and nsamples gives ~4\u00d7 more total candidates, increasing the chance that some hit both thresholds. Sharper reward weights should also nudge the sampler toward the viable region.", "mutation_description": "Boost beam_width from 8\u219216 and nsamples from 4\u21928 for wider early exploration, while increasing plddt weight (0\u21920.2) and iPAE weight (-1.0\u2192-1.5) to push candidates across the 0.90/0.226 thresholds.", "mutation_paths": ["compute_diversity", "reward_objective"], "next_step_hint": "If this succeeds, increase beam_width further to 32 or add sequence_hallucination refinement. If it fails, try a two-stage cheap-first/expensive-second program or switch to mcts/diverse-beam-search algorithm.", "selected_idea_ids": ["seed_diversify_early", "seed_secondary_reranking", "seed_two_stage_budgeting"], "source_checks": [], "status": "accepted", "supporting_evidence": ["best_i_pae=0.237 vs 0.226 threshold", "best_plddt=0.887 vs 0.90 threshold", "seed_diversify_early hint: increase beam_width or nsamples"], "updates": ["search.beam_search.beam_width = 16", "stage.nsamples = 8", "reward.af2folding.reward_weights.plddt = 0.2", "reward.af2folding.reward_weights.i_pae = -1.5"]}, "target": "27_HER2_AAV", "target_description": "27_HER2_AAV - HER2_cropped target, 1 hotspots", "target_label": "27_HER2_AAV (HER2_cropped)"}, "7786d9f320fe": {"generation": 0, "idea": {"summary_html": "<ul><li><b>Change:</b> seed (default_deep heuristic baseline)</li></ul>"}, "metrics": {"audit": {"available": true, "cluster_assignments_path": null, "n_sequence_type_stats_files": 32, "reason": "", "result_dir": "[Autoresearch_Denovo]/subgit/Proteina-Complexa/evaluation_results/search_binder_local_pipeline_27_HER2_AAV_27_HER2_AAV_seed_7786d9f320fe", "self_sample_pass_rate": 0.0, "self_successful_samples": 0, "self_unique_successes": null}, "best_i_pae": 0.23702557, "best_plddt": 0.8870063, "n_finals": 32, "n_successful": 0, "primary_successes": 0, "rank_key": 0.812587178, "success_rate": 0.0, "unique_successes": null, "wall_time_minutes": 45.10300247781561}, "parent_diff": {"config_html": "", "source_html": ""}, "parent_id": null, "pid": "7786d9f320fe", "score": 0.0, "score_source": "success_rate", "status": "pending", "strategy_trace": {"attempt_idx": null, "evidence_summary": "best_i_pae=0.237 barely exceeds the 0.226 threshold and best_plddt=0.887 is 4% below the 0.90 target. The search explored 32 candidates (n_finals) but none succeeded, suggesting either insufficient breadth or slightly off reward shaping. seed_diversify_early idea directly motivates increasing beam_width and nsamples.", "generating_parent": null, "hypothesis_summary": "The parent was just 5% above both success thresholds (iPAE=0.237 vs 0.226, plddt=0.887 vs 0.90). Doubling the beam width and nsamples gives ~4\u00d7 more total candidates, increasing the chance that some hit both thresholds. Sharper reward weights should also nudge the sampler toward the viable region.", "mutation_description": "Boost beam_width from 8\u219216 and nsamples from 4\u21928 for wider early exploration, while increasing plddt weight (0\u21920.2) and iPAE weight (-1.0\u2192-1.5) to push candidates across the 0.90/0.226 thresholds.", "mutation_paths": ["compute_diversity", "reward_objective"], "next_step_hint": "If this succeeds, increase beam_width further to 32 or add sequence_hallucination refinement. If it fails, try a two-stage cheap-first/expensive-second program or switch to mcts/diverse-beam-search algorithm.", "selected_idea_ids": ["seed_diversify_early", "seed_secondary_reranking", "seed_two_stage_budgeting"], "source_checks": [], "status": null, "supporting_evidence": ["best_i_pae=0.237 vs 0.226 threshold", "best_plddt=0.887 vs 0.90 threshold", "seed_diversify_early hint: increase beam_width or nsamples"], "updates": ["search.beam_search.beam_width = 16", "stage.nsamples = 8", "reward.af2folding.reward_weights.plddt = 0.2", "reward.af2folding.reward_weights.i_pae = -1.5"]}, "target": "27_HER2_AAV", "target_description": "27_HER2_AAV - HER2_cropped target, 1 hotspots", "target_label": "27_HER2_AAV (HER2_cropped)"}};
+</script>
+<script>
+window.__TREE_NODES__ = {"3d1ab79ce2bd": {"parent_id": "7786d9f320fe", "parent_b_id": null, "children": [], "generation": 1}, "7786d9f320fe": {"parent_id": null, "parent_b_id": null, "children": ["3d1ab79ce2bd"], "generation": 0}};
+</script>
+<script>
+window.__PROGRESS_DATA__ = [{"pid": "7786d9f320fe", "score": 0.0}, {"pid": "3d1ab79ce2bd", "score": 0.0}];
+</script>
+<script>
+window.__PROGRESS_LABEL__ = "Best normalized success rate";
+</script>
+<script>
+
+(function(){
+  var details = window.__NODE_DETAILS__ || {};
+  var tree = window.__TREE_NODES__ || {};
+  var drawer = document.getElementById('drawer');
+  var currentPid = null;
+  var currentMode = 'summary';  // 'summary' | 'raw'
+
+  function escapeHtml(s){
+    if(s===null||s===undefined) return '';
+    return String(s).replace(/[&<>"']/g, function(c){
+      return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];
+    });
+  }
+  function renderKV(rows){
+    var parts = ['<dl class="kv">'];
+    for(var i=0;i<rows.length;i++){
+      parts.push('<dt>'+escapeHtml(rows[i][0])+'</dt><dd>'+escapeHtml(rows[i][1])+'</dd>');
+    }
+    parts.push('</dl>');
+    return parts.join('');
+  }
+  function truncate(s, n){
+    if(s==null) return '';
+    s = String(s);
+    return s.length>n ? s.slice(0,n)+'...' : s;
+  }
+  function formatMetric(v, digits){
+    if(v === null || v === undefined || v === '') return 'N/A';
+    var n = Number(v);
+    if(!isNaN(n)){
+      if(digits === 0) return String(Math.round(n));
+      return n.toFixed(digits == null ? 4 : digits);
+    }
+    return String(v);
+  }
+  function formatRate(metrics){
+    metrics = metrics || {};
+    var ns = Number(metrics.n_successful);
+    var nf = Number(metrics.n_finals);
+    if(isNaN(ns) || isNaN(nf) || nf <= 0) return 'N/A';
+    return (100 * ns / nf).toFixed(1) + '% (' + Math.round(ns) + ' / ' + Math.round(nf) + ' finals)';
+  }
+  function formatAudit(metrics){
+    metrics = metrics || {};
+    var audit = metrics.audit || {};
+    if(audit.available){
+      var pieces = [];
+      if(audit.self_unique_successes !== null && audit.self_unique_successes !== undefined){
+        pieces.push(formatMetric(audit.self_unique_successes, 0) + ' unique self clusters');
+      }
+      if(audit.self_successful_samples !== null && audit.self_successful_samples !== undefined){
+        pieces.push(formatMetric(audit.self_successful_samples, 0) + ' successful self samples');
+      }
+      return pieces.length ? pieces.join(' / ') : 'available';
+    }
+    if(audit.reason){
+      return 'not available: ' + audit.reason;
+    }
+    return 'N/A';
+  }
+  function renderPills(items){
+    if(!items || !items.length) return '';
+    var parts = ['<div class="pill-row">'];
+    for(var i=0;i<items.length;i++){
+      parts.push('<span class="pill">'+escapeHtml(items[i])+'</span>');
+    }
+    parts.push('</div>');
+    return parts.join('');
+  }
+
+  function lineageChain(pid){
+    var chain = [];
+    var seen = {};
+    var cursor = pid;
+    while(cursor && !seen[cursor]){
+      seen[cursor] = 1;
+      chain.push(cursor);
+      var n = tree[cursor];
+      if(!n) break;
+      if(n.parent_id === cursor) break;
+      cursor = n.parent_id;
+    }
+    return chain.reverse();
+  }
+
+  function renderLineageSvg(pid){
+    var chain = lineageChain(pid);
+    var container = document.getElementById('lineage-strip');
+    if(!container) return;
+    if(chain.length < 1){ container.innerHTML = '<span style="color:#999">no lineage</span>'; return; }
+    var W = 720, H = 120, PAD = 30;
+    var scores = [];
+    for(var i=0;i<chain.length;i++){
+      var d = details[chain[i]];
+      var s = (d && d.score != null) ? Number(d.score) : null;
+      scores.push(s);
+    }
+    var nums = scores.filter(function(s){return s!==null && !isNaN(s);});
+    var smin = nums.length ? Math.min.apply(null,nums) : 0;
+    var smax = nums.length ? Math.max.apply(null,nums) : 1;
+    if(smax<=smin){ smax = smin + 1; }
+    var dx = (chain.length>1) ? (W - 2*PAD)/(chain.length-1) : 0;
+    function yv(s){ if(s===null||isNaN(s)) return H-PAD; return (H-PAD) - (s-smin)/(smax-smin)*(H-2*PAD); }
+    var parts = ['<svg width="',W,'" height="',H,'" viewBox="0 0 ',W,' ',H,'">'];
+    parts.push('<text x="8" y="14" font-size="10" fill="#666">tree objective along ancestor chain (root -> leaf)</text>');
+    parts.push('<line x1="',PAD,'" y1="',H-PAD,'" x2="',W-PAD,'" y2="',H-PAD,'" stroke="#ccc"/>');
+    var pts = [];
+    for(var j=0;j<chain.length;j++){
+      var x = PAD + j*dx;
+      var y = yv(scores[j]);
+      pts.push(x+','+y);
+      parts.push('<circle cx="',x,'" cy="',y,'" r="4" fill="#1a73e8"/>');
+      parts.push('<text x="',x,'" y="',H-PAD+14,'" font-size="9" text-anchor="middle" fill="#666">',escapeHtml(String(chain[j]).slice(0,6)),'</text>');
+    }
+    if(chain.length>1){
+      parts.push('<polyline points="',pts.join(' '),'" stroke="#1a73e8" stroke-width="1.5" fill="none"/>');
+    }
+    parts.push('</svg>');
+    container.innerHTML = parts.join('');
+  }
+
+  function compactSources(trace){
+    var checks = (trace && trace.source_checks) || [];
+    if(!checks.length) return 'No direct paper/source tool call recorded.';
+    var parts = [];
+    for(var i=0;i<checks.length;i++){
+      parts.push((checks[i].source || 'source') + ': ' + (checks[i].detail || 'checked'));
+    }
+    return parts.join('; ');
+  }
+
+  function compactStrategy(trace){
+    if(!trace) return 'No strategy trace recorded.';
+    return trace.mutation_description || trace.hypothesis_summary || trace.evidence_summary || 'No explicit mutation description recorded.';
+  }
+
+  function renderLineageStrategy(pid){
+    var host = document.getElementById('lineage-strategy');
+    if(!host) return;
+    var chain = lineageChain(pid);
+    if(!chain.length){ host.innerHTML = ''; return; }
+    var parts = ['<div class="lineage-table-wrap"><table class="lineage-table"><thead><tr><th>Tree step / parent</th><th>Paper/source check</th><th>Strategy taken</th><th>Outcome</th></tr></thead><tbody>'];
+    for(var i=0;i<chain.length;i++){
+      var id = chain[i];
+      var d = details[id] || {};
+      var tr = d.strategy_trace || {};
+      var parent = tr.generating_parent || d.parent_id || (i===0 ? 'root' : '');
+      var label = (i===0 ? 'Root ' : 'Node ') + escapeHtml(String(id).slice(0,12));
+      if(parent && parent !== 'root'){
+        label += '<div class="lineage-sub">from parent '+escapeHtml(String(parent).slice(0,12))+'</div>';
+      }
+      parts.push('<tr><td>'+label+'</td><td>'+escapeHtml(compactSources(tr))+'</td><td>'+escapeHtml(compactStrategy(tr))+'</td><td>'+escapeHtml(formatRate(d.metrics||{}))+'</td></tr>');
+    }
+    parts.push('</tbody></table></div>');
+    host.innerHTML = parts.join('');
+  }
+
+  function modeSwitch(det){
+    var hasProposalAgent = det.refiner_trajectory !== null && det.refiner_trajectory !== undefined;
+    var parts = ['<div class="mode-switch">'];
+    parts.push('<button type="button" class="mode-btn'+(currentMode==='summary'?' active':'')+'" data-mode="summary">Summary</button>');
+    parts.push('<button type="button" class="mode-btn'+(currentMode==='raw'?' active':'')+'" data-mode="raw">Raw' + (hasProposalAgent?'':' (prompter only)') + '</button>');
+    parts.push('</div>');
+    return parts.join('');
+  }
+
+  function renderSummary(det){
+    var parts = [];
+    var gen = (det.generation == null) ? '?' : det.generation;
+    var scoreStr = formatMetric(det.score, 4);
+    var metrics = det.metrics || {};
+    parts.push('<h2 class="node-hdr">Node #'+escapeHtml(gen)+'</h2>');
+    parts.push('<p class="node-meta"><strong>Status:</strong> '+escapeHtml(det.status||'N/A')+'</p>');
+    parts.push('<p class="node-meta"><strong>Normalized score:</strong> '+escapeHtml(scoreStr)+' <span class="metric-note">('+escapeHtml(det.score_source||'success_rate')+')</span></p>');
+    var rows = [
+      ['Target', det.target_label || det.target || 'N/A'],
+      ['Target detail', det.target_description || det.target || 'N/A'],
+      ['rank key', formatMetric(metrics.rank_key, 4)],
+      ['iPAE best', formatMetric(metrics.best_i_pae, 4)],
+      ['pLDDT best', formatMetric(metrics.best_plddt, 4)],
+      ['success rate', formatRate(metrics)],
+      ['successful', formatMetric(metrics.n_successful, 0)],
+      ['primary successes', formatMetric(metrics.primary_successes, 0)],
+      ['unique successes', formatMetric(metrics.unique_successes, 0)],
+      ['unique audit', formatAudit(metrics)],
+      ['final designs', formatMetric(metrics.n_finals, 0)],
+      ['wall time min', formatMetric(metrics.wall_time_minutes, 2)]
+    ];
+    parts.push('<div class="metrics-card">'+renderKV(rows)+'</div>');
+
+    var strategy = renderStrategy(det.strategy_trace || {});
+    if(strategy){ parts.push(strategy); }
+
+    var idea = det.idea || {};
+    var summaryHtml = idea.summary_html || '';
+    if(summaryHtml){
+      parts.push('<div class="idea-summary">'+summaryHtml+'</div>');
+    }
+    return parts.join('');
+  }
+
+  function renderStrategy(trace){
+    if(!trace) return '';
+    var hasContent = (trace.source_checks && trace.source_checks.length) ||
+      trace.mutation_description || trace.hypothesis_summary || trace.evidence_summary ||
+      (trace.updates && trace.updates.length);
+    if(!hasContent) return '';
+    var parts = ['<div class="strategy-card"><h3>Evidence and strategy</h3>'];
+    if(trace.generating_parent){
+      parts.push('<div class="strategy-sub">Generated from parent <code>'+escapeHtml(String(trace.generating_parent).slice(0,12))+'</code>');
+      if(trace.attempt_idx !== null && trace.attempt_idx !== undefined){
+        parts.push(' · attempt '+escapeHtml(trace.attempt_idx));
+      }
+      parts.push('</div>');
+    }
+    var checks = trace.source_checks || [];
+    if(checks.length){
+      parts.push('<div class="strategy-label">Paper/source checks</div>');
+      parts.push('<table class="source-table"><tbody>');
+      for(var i=0;i<checks.length;i++){
+        parts.push('<tr><th>'+escapeHtml(checks[i].source||'source')+'</th><td>'+escapeHtml(checks[i].detail||'checked')+'</td></tr>');
+      }
+      parts.push('</tbody></table>');
+    } else {
+      parts.push('<p class="strategy-empty">No direct paper/source tool call recorded for this mutation.</p>');
+    }
+    if(trace.mutation_description){
+      parts.push('<div class="strategy-label">Strategy taken</div>');
+      parts.push('<p class="strategy-main">'+escapeHtml(trace.mutation_description)+'</p>');
+    }
+    if(trace.updates && trace.updates.length){
+      parts.push(renderPills(trace.updates));
+    }
+    if(trace.mutation_paths && trace.mutation_paths.length){
+      parts.push(renderPills(trace.mutation_paths));
+    }
+    if(trace.hypothesis_summary){
+      parts.push('<div class="strategy-label">Hypothesis</div><p>'+escapeHtml(trace.hypothesis_summary)+'</p>');
+    }
+    if(trace.evidence_summary){
+      parts.push('<div class="strategy-label">Evidence summary</div><p>'+escapeHtml(trace.evidence_summary)+'</p>');
+    }
+    var support = trace.supporting_evidence || [];
+    if(support.length){
+      parts.push('<ul class="support-list">');
+      for(var j=0;j<support.length;j++){
+        parts.push('<li>'+escapeHtml(support[j])+'</li>');
+      }
+      parts.push('</ul>');
+    }
+    parts.push('</div>');
+    return parts.join('');
+  }
+
+  function renderDiffs(det){
+    var host = document.getElementById('diffs-content');
+    if(!host) return;
+    var pd = det.parent_diff || {};
+    var cfg = pd.config_html || '';
+    var src = pd.source_html || '';
+    if(!cfg && !src){
+      if(det.parent_id){
+        host.innerHTML = '<p class="diffs-empty">No recorded differences between parent and this node.</p>';
+      } else {
+        host.innerHTML = '<p class="diffs-empty">Root node &mdash; no parent.</p>';
+      }
+      return;
+    }
+    var parts = [];
+    parts.push('<div class="diffs-title">Parent &rarr; Current</div>');
+    if(cfg){
+      parts.push('<details open class="diffs-details"><summary>config</summary>');
+      parts.push('<div class="diff-block">'+cfg+'</div></details>');
+    }
+    if(src){
+      parts.push('<details class="diffs-details"><summary>source</summary>');
+      parts.push('<div class="diff-block">'+src+'</div></details>');
+    }
+    host.innerHTML = parts.join('');
+  }
+
+  function renderTrajectory(turns, emptyLabel){
+    if(!turns || !turns.length){
+      return '<p class="muted" style="color:#888;font-style:italic">'+escapeHtml(emptyLabel||'(empty)')+'</p>';
+    }
+    var parts = ['<div class="trajectory">'];
+    for(var i=0;i<turns.length;i++){
+      var t = turns[i];
+      var role = t.role || '';
+      var name = t.tool_name || '';
+      var content = t.content;
+      if(typeof content === 'object'){ content = JSON.stringify(content); }
+      content = truncate(content, 800);
+      if(role === 'assistant' && name){
+        parts.push('<div class="traj-turn"><span class="tool-name">'+escapeHtml(name)+'</span>');
+        parts.push(' <span class="tool-input">'+escapeHtml(content)+'</span></div>');
+      } else if(role === 'tool'){
+        parts.push('<div class="traj-result"><b>tool</b> '+escapeHtml(name)+': '+escapeHtml(content)+'</div>');
+      } else {
+        parts.push('<div class="traj-turn"><span class="tool-name">'+escapeHtml(role)+'</span>');
+        parts.push(' <span class="tool-input">'+escapeHtml(content)+'</span></div>');
+      }
+    }
+    parts.push('</div>');
+    return parts.join('');
+  }
+
+  function renderRaw(det){
+    var parts = [];
+    parts.push('<div class="card"><h3>Prompter</h3>');
+    parts.push(renderTrajectory(det.prompter_trajectory, 'no prompter trajectory recorded'));
+    parts.push('</div>');
+
+    if(det.refiner_trajectory !== null && det.refiner_trajectory !== undefined){
+      parts.push('<div class="card"><h3>Mutator</h3>');
+      parts.push(renderTrajectory(det.refiner_trajectory, 'no mutator trajectory recorded'));
+      parts.push('</div>');
+    }
+    return parts.join('');
+  }
+
+  function renderBody(det){
+    if(currentMode === 'raw') return renderRaw(det);
+    return renderSummary(det);
+  }
+
+  function selectNode(pid){
+    currentPid = pid;
+    var groups = document.querySelectorAll('#tree-svg g.node');
+    for(var i=0;i<groups.length;i++){
+      groups[i].classList.toggle('selected', groups[i].getAttribute('data-pid')===pid);
+    }
+    var det = details[pid];
+    if(!det){ drawer.innerHTML = '<p class="empty">Unknown node '+escapeHtml(pid)+'</p>'; return; }
+    drawer.innerHTML = modeSwitch(det) + renderBody(det);
+    renderLineageSvg(pid);
+    renderLineageStrategy(pid);
+    renderDiffs(det);
+  }
+
+  window.__selectNode = selectNode;
+
+  // Mode toggle via event delegation on the drawer.
+  drawer.addEventListener('click', function(e){
+    var b = e.target.closest('button.mode-btn');
+    if(b){
+      currentMode = b.getAttribute('data-mode') || 'summary';
+      if(currentPid) selectNode(currentPid);
+    }
+  });
+
+  // Tree click
+  document.addEventListener('click', function(e){
+    var g = e.target.closest('g.node');
+    if(g){ selectNode(g.getAttribute('data-pid')); }
+  });
+
+  // Search / filter (kept minimal — only pid + target)
+  function applyFilter(){
+    var sb = document.getElementById('search-box');
+    var tf = document.getElementById('target-filter');
+    var q = ((sb && sb.value)||'').trim().toLowerCase();
+    var tgt = (tf && tf.value) || '';
+    var groups = document.querySelectorAll('#tree-svg g.node');
+    for(var i=0;i<groups.length;i++){
+      var g = groups[i];
+      var pid = g.getAttribute('data-pid')||'';
+      var target = g.getAttribute('data-target')||'';
+      var textHit = !q || pid.toLowerCase().indexOf(q)>=0 || target.toLowerCase().indexOf(q)>=0;
+      var targetHit = !tgt || target===tgt;
+      g.classList.toggle('faded', !(textHit && targetHit));
+    }
+  }
+  var sb = document.getElementById('search-box');
+  if(sb) sb.addEventListener('input', applyFilter);
+  var tf = document.getElementById('target-filter');
+  if(tf) tf.addEventListener('change', applyFilter);
+
+  // Default selection: highest-scored node, else first.
+  var firstPid = null, bestScore = null;
+  for(var pid in details){
+    var s = details[pid].score;
+    if(s!=null){
+      if(bestScore===null || Number(s)>Number(bestScore)){ bestScore=s; firstPid=pid; }
+    }
+  }
+  if(!firstPid){ for(var pid2 in details){ firstPid = pid2; break; } }
+  if(firstPid){ selectNode(firstPid); }
+
+  // Deep link: #pid=<id>
+  (function(){
+    var m = location.hash.match(/pid=([A-Za-z0-9_\-]+)/);
+    if(m && details[m[1]]){ selectNode(m[1]); }
+  })();
+})();
+
+</script>
+<script>
+
+(function(){
+  var vp = document.querySelector('.tree-viewport');
+  if(!vp) return;
+  var svg = vp.querySelector('svg');
+  if(!svg) return;
+
+  var scale = 1, tx = 0, ty = 0;
+  var dragging = false, lastX = 0, lastY = 0;
+  var minScale = 0.15, maxScale = 5;
+
+  function apply(){
+    svg.style.transform = 'translate('+tx+'px,'+ty+'px) scale('+scale+')';
+    svg.style.transformOrigin = '0 0';
+  }
+
+  function fit(){
+    var vw = vp.clientWidth, vh = vp.clientHeight;
+    var sw = svg.getAttribute('width')|0, sh = svg.getAttribute('height')|0;
+    if(!sw||!sh){ scale=1; tx=0; ty=0; apply(); return; }
+    var sx = vw/sw, sy = vh/sh;
+    scale = Math.min(sx, sy, 1);
+    tx = (vw - sw*scale)/2;
+    ty = (vh - sh*scale)/2;
+    apply();
+  }
+
+  vp.addEventListener('wheel', function(e){
+    e.preventDefault();
+    var rect = vp.getBoundingClientRect();
+    var mx = e.clientX - rect.left;
+    var my = e.clientY - rect.top;
+    var factor = e.deltaY < 0 ? 1.15 : 1/1.15;
+    var ns = Math.max(minScale, Math.min(maxScale, scale * factor));
+    tx = mx - (mx - tx) * (ns / scale);
+    ty = my - (my - ty) * (ns / scale);
+    scale = ns;
+    apply();
+  }, {passive:false});
+
+  vp.addEventListener('pointerdown', function(e){
+    if(e.target.closest('g.node')) return;
+    dragging = true;
+    lastX = e.clientX; lastY = e.clientY;
+    vp.setPointerCapture(e.pointerId);
+  });
+  vp.addEventListener('pointermove', function(e){
+    if(!dragging) return;
+    tx += e.clientX - lastX;
+    ty += e.clientY - lastY;
+    lastX = e.clientX; lastY = e.clientY;
+    apply();
+  });
+  vp.addEventListener('pointerup', function(){ dragging = false; });
+  vp.addEventListener('pointercancel', function(){ dragging = false; });
+
+  // Control buttons
+  var zoomIn = document.getElementById('zoom-in');
+  var zoomOut = document.getElementById('zoom-out');
+  var zoomFit = document.getElementById('zoom-fit');
+  if(zoomIn) zoomIn.addEventListener('click', function(){
+    var rect = vp.getBoundingClientRect();
+    var cx = rect.width/2, cy = rect.height/2;
+    var ns = Math.min(maxScale, scale*1.3);
+    tx = cx - (cx-tx)*(ns/scale); ty = cy - (cy-ty)*(ns/scale);
+    scale=ns; apply();
+  });
+  if(zoomOut) zoomOut.addEventListener('click', function(){
+    var rect = vp.getBoundingClientRect();
+    var cx = rect.width/2, cy = rect.height/2;
+    var ns = Math.max(minScale, scale/1.3);
+    tx = cx - (cx-tx)*(ns/scale); ty = cy - (cy-ty)*(ns/scale);
+    scale=ns; apply();
+  });
+  if(zoomFit) zoomFit.addEventListener('click', fit);
+
+  // Initial fit
+  setTimeout(fit, 50);
+})();
+
+</script>
+<script>
+
+(function(){
+  var data = window.__PROGRESS_DATA__;
+  if(!data || !data.length) return;
+  var container = document.getElementById('progress-chart-area');
+  if(!container) return;
+  var metricLabel = window.__PROGRESS_LABEL__ || 'Best score';
+
+  var W = container.clientWidth || 600, H = 180;
+  var PAD_L = 55, PAD_R = 15, PAD_T = 15, PAD_B = 35;
+  var plotW = W - PAD_L - PAD_R, plotH = H - PAD_T - PAD_B;
+
+  var scores = data.map(function(d){ return d.score; });
+  var validScores = scores.filter(function(s){ return s !== null && !isNaN(s); });
+  if(!validScores.length) return;
+  var smin = Math.min.apply(null, validScores);
+  var smax = Math.max.apply(null, validScores);
+  if(smax <= smin) smax = smin + 1;
+
+  function sx(i){ return PAD_L + (i / Math.max(1, data.length - 1)) * plotW; }
+  function sy(v){ return PAD_T + plotH - ((v - smin) / (smax - smin)) * plotH; }
+
+  var parts = ['<svg width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'">'];
+
+  // Grid lines
+  var nTicks = 4;
+  for(var t=0; t<=nTicks; t++){
+    var yy = PAD_T + (t/nTicks)*plotH;
+    var val = smax - (t/nTicks)*(smax-smin);
+    parts.push('<line x1="'+PAD_L+'" y1="'+yy+'" x2="'+(W-PAD_R)+'" y2="'+yy+'" stroke="#e2e8f0" stroke-width="1"/>');
+    parts.push('<text x="'+(PAD_L-6)+'" y="'+(yy+3)+'" font-size="9" fill="#666" text-anchor="end" font-family="system-ui">'+val.toFixed(4)+'</text>');
+  }
+
+  // X axis
+  parts.push('<line x1="'+PAD_L+'" y1="'+(H-PAD_B)+'" x2="'+(W-PAD_R)+'" y2="'+(H-PAD_B)+'" stroke="#cbd5e1" stroke-width="1"/>');
+  parts.push('<text x="'+(W/2)+'" y="'+(H-4)+'" font-size="10" fill="#555" text-anchor="middle" font-family="system-ui">Step (node index)</text>');
+  parts.push('<text x="12" y="'+(H/2)+'" font-size="10" fill="#555" text-anchor="middle" font-family="system-ui" transform="rotate(-90,12,'+(H/2)+')">'+escapeHtml(metricLabel)+'</text>');
+
+  // Cumulative best line
+  var cumBest = [];
+  var best = null;
+  for(var i=0; i<data.length; i++){
+    if(data[i].score !== null && !isNaN(data[i].score)){
+      if(best === null || data[i].score > best) best = data[i].score;
+    }
+    cumBest.push(best);
+  }
+
+  var linePoints = [];
+  for(var j=0; j<cumBest.length; j++){
+    if(cumBest[j] !== null){
+      linePoints.push(sx(j)+','+sy(cumBest[j]));
+    }
+  }
+  if(linePoints.length > 1){
+    parts.push('<polyline points="'+linePoints.join(' ')+'" stroke="#3b82f6" stroke-width="2" fill="none"/>');
+  }
+
+  // Data points (only improvement points)
+  var prevBest = null;
+  for(var k=0; k<data.length; k++){
+    var s = data[k].score;
+    if(s === null || isNaN(s)) continue;
+    var isImprovement = (prevBest === null || s > prevBest);
+    if(isImprovement){
+      var fill = '#178038';
+      var r = 4;
+      parts.push('<circle cx="'+sx(k)+'" cy="'+sy(s)+'" r="'+r+'" fill="'+fill+'" stroke="#fff" stroke-width="1" cursor="pointer" data-pid="'+escapeHtml(data[k].pid)+'" class="progress-point"><title>step '+k+': '+s.toFixed(4)+' ('+escapeHtml(data[k].pid.slice(0,8))+')</title></circle>');
+      prevBest = s;
+    }
+  }
+
+  parts.push('</svg>');
+  container.innerHTML = parts.join('');
+
+  // Click handler for progress points
+  container.addEventListener('click', function(e){
+    var circle = e.target.closest('.progress-point');
+    if(circle && circle.getAttribute('data-pid') && window.__selectNode){
+      window.__selectNode(circle.getAttribute('data-pid'));
+    }
+  });
+
+  function escapeHtml(s){
+    return String(s||'').replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+})();
+
+</script>
+</body>
+</html>

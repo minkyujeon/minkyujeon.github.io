@@ -1,0 +1,23 @@
+<!DOCTYPE html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>selfhost_qwen36_05_CD45_20260421_195608_7228135 summary</title><style>
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;background:#f6f7f9;color:#1f2933}
+header{background:#102a43;color:#fff;padding:28px 34px}
+h1{margin:0 0 6px;font-size:28px}
+.sub{opacity:.78;font-size:14px}
+main{padding:24px 34px 48px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px}
+.card{background:#fff;border:1px solid #dde3ea;border-radius:8px;padding:14px 15px;box-shadow:0 1px 2px rgba(16,42,67,.05)}
+.card h2{font-size:16px;margin:0 0 8px;color:#102a43}
+.meta{display:grid;grid-template-columns:110px 1fr;gap:4px 10px;font-size:12px;margin:10px 0;color:#334e68}
+.meta b{color:#627d98;font-weight:600}
+.links{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+a.btn{display:inline-block;background:#1f6feb;color:#fff;text-decoration:none;padding:6px 10px;border-radius:6px;font-size:12px;font-weight:600}
+a.btn.secondary{background:#eef4ff;color:#1f6feb}
+.kind{display:inline-block;padding:2px 7px;border-radius:999px;background:#e3f8ff;color:#044e54;font-size:11px;font-weight:700}
+.kind.baseline{background:#fffbea;color:#8d2b0b}
+.kind.fixed{background:#f0fff4;color:#276749}
+.muted{color:#829ab1}
+table{border-collapse:collapse;width:100%;background:#fff}
+th,td{border:1px solid #d9e2ec;padding:7px 8px;text-align:left;font-size:12px;vertical-align:top}
+th{background:#f0f4f8;color:#334e68}
+code{font-family:"SF Mono",Menlo,Consolas,monospace;font-size:11px}
+</style></head><body><header><h1>selfhost_qwen36_05_CD45_20260421_195608_7228135</h1><div class='sub'>selfhost summary report</div></header><main><p><b>Run dir:</b> <code>[v2_runs]/selfhost_qwen36_05_CD45_20260421_195608_7228135</code></p><table><tr><th>target</th><th>program/profile</th><th>gen</th><th>n_successful</th><th>rank_key</th><th>best_i_pae</th><th>best_plddt</th><th>description</th></tr><tr><td>05_CD45</td><td><code>043b76bb46c1</code></td><td>1</td><td>14</td><td></td><td>0.17102416</td><td>0.95839286</td><td>Implements two-stage budgeting: expands early diversity sampling, reduces batch size for memory safety, enables top-N retention, and appends a conditional deeper-sampling refine...</td></tr><tr><td>05_CD45</td><td><code>2273c7bba621</code></td><td>0</td><td>8</td><td></td><td>0.18944363</td><td>0.9523753</td><td>seed (noise020 heuristic baseline)</td></tr><tr><td>05_CD45</td><td><code>b2874cf9b8bd</code></td><td>2</td><td></td><td></td><td></td><td></td><td>Increases stage-0 sampling depth to 600 with matching checkpoints for broader exploration, enables sequence_hallucination refinement in stage-1 with stricter i_pae (-1.2) and ad...</td></tr><tr><td>05_CD45</td><td><code>ec6f3f1938e7</code></td><td>2</td><td>25</td><td></td><td>0.18365973</td><td>0.95839286</td><td>Increases iPAE penalty to -2.5 and adds a 0.5 pLDDT weight to enforce stricter secondary screening, filtering marginal structures early to improve final binder quality.</td></tr><tr><td>05_CD45</td><td><code>f46ddc208eae</code></td><td>1</td><td>0</td><td></td><td></td><td></td><td>Increase beam_width to 16 and nsamples to 8 to broaden early exploration, while reducing batch_size and max_batch_size to 4 to maintain the active compute product within the 512...</td></tr></table><p class='muted'>Generated 2026-04-25</p></main></body></html>
