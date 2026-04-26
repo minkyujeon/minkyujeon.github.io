@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Autoresearch v2 Presentation Demo</title>
+<script src="https://3Dmol.org/build/3Dmol-min.js"></script>
 <style>
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;background:#f6f7f9;color:#1f2933}
 header{background:#102a43;color:#fff;padding:30px 36px}
@@ -32,6 +33,12 @@ th{background:#f0f4f8;color:#334e68}
 .warn{color:#8d2b0b;font-weight:700}
 .muted{color:#829ab1}
 a.btn{display:inline-block;background:#1f6feb;color:#fff;text-decoration:none;padding:8px 11px;border-radius:6px;font-size:13px;font-weight:700}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+button.btn{border:0;cursor:pointer}
+iframe.treeframe{width:100%;height:560px;border:1px solid #d9e2ec;border-radius:8px;background:#fff}
+.viewer{height:420px;border:1px solid #d9e2ec;border-radius:8px;background:#fff;position:relative;overflow:hidden}
+.viewer-meta{font-size:13px;color:#52606d;margin:8px 0}
+.small{font-size:12px;color:#52606d}
 </style>
 </head>
 <body>
@@ -44,6 +51,42 @@ a.btn{display:inline-block;background:#1f6feb;color:#fff;text-decoration:none;pa
     <h2>Core message</h2>
     <p>On several hard targets, the v2 search finds configurations that beat the local default/fixed baseline in raw success rate and structure quality metrics. CD45 is the clearest demo case: baseline N=32 is 8/32, the existing v2 tree has a 22/32 audited-unique run and an 86/192 high-throughput run, and the fixed N=96 rerun is 41/96.</p>
     <p class="muted">Success criterion follows the existing local analysis: iPAE pass, pLDDT pass, and final binder success. Lower iPAE is better; higher pLDDT is better.</p>
+  </section>
+
+  <section class="panel">
+    <h2>Interactive tree demos</h2>
+    <p>These are the completed static study views from the restored runs index. The drawer shows the node strategy, parent diff, paper/source checks when recorded, normalized success rate, iPAE, pLDDT, and unique-audit status.</p>
+    <div class="btnrow">
+      <button class="btn" data-tree="selfhost_qwen36_05_CD45_20260424_113757_7323363/study_view.html">CD45 latest completed tree</button>
+      <button class="btn" data-tree="selfhost_qwen36_23_BetV1_20260424_113757_7323365/study_view.html">BetV1 latest completed tree</button>
+      <button class="btn" data-tree="selfhost_qwen36_27_HER2_AAV_20260423_222338_7307349/study_view.html">HER2_AAV completed tree</button>
+      <button class="btn" data-tree="selfhost_qwen36_30_SC2RBD_20260424_113757_7323364/study_view.html">SC2RBD negative case</button>
+    </div>
+    <iframe id="treeframe" class="treeframe" src="selfhost_qwen36_05_CD45_20260424_113757_7323363/study_view.html"></iframe>
+  </section>
+
+  <section class="panel">
+    <h2>Interactive target/binder structures</h2>
+    <p>Representative complex PDBs copied from preserved completed runs. Use these as qualitative examples of how a generated binder sits on the target; quantitative comparison still comes from the table below.</p>
+    <div class="btnrow">
+      <button class="btn" data-pdb="demo_structures/cd45_success.pdb" data-meta="CD45 success from audited completed run db45199f978b: iPAE 0.1931, pLDDT 0.9519, pass">CD45 success</button>
+      <button class="btn" data-pdb="demo_structures/betv1_success.pdb" data-meta="BetV1 success from audited completed run 6ad4f4291115: iPAE 0.1529, pLDDT 0.9569, pass">BetV1 success</button>
+      <button class="btn" data-pdb="demo_structures/her2_success.pdb" data-meta="HER2_AAV success from audited completed run f7e0548068e2: iPAE 0.1867, pLDDT 0.9410, pass">HER2_AAV success</button>
+      <button class="btn" data-pdb="demo_structures/sc2rbd_near_miss.pdb" data-meta="SC2RBD near miss from completed zero-hit run 3efa32f1c73d: iPAE 0.2433, pLDDT 0.8749, fail">SC2RBD near miss</button>
+    </div>
+    <div id="viewer-meta" class="viewer-meta"></div>
+    <div id="viewer" class="viewer"></div>
+    <p class="small">3Dmol.js is loaded from a public CDN. If a browser blocks external scripts, the PDB assets remain available under <code>demo_structures/</code>.</p>
+  </section>
+
+  <section class="panel">
+    <h2>Where the audited unique numbers come from</h2>
+    <table>
+      <tr><th>Target</th><th>Audited unique source</th><th>Meaning</th><th>Latest completed raw result shown separately</th></tr>
+      <tr><td><strong>CD45</strong></td><td><code>selfhost_qwen36_05_CD45_20260420_122615_7179326</code><br>node <code>db45199f978b</code></td><td><strong>5 unique</strong> FoldSeek clusters among <strong>22 successful</strong> self binders from <strong>32 finals</strong>.</td><td><code>20260424_113757_7323363</code>, node <code>75a81e6da237</code>: 86/192 raw success, iPAE 0.1458, pLDDT 0.9641. This newer raw run does not yet have the same preserved unique audit artifact.</td></tr>
+      <tr><td><strong>BetV1</strong></td><td><code>selfhost_qwen36_23_BetV1_20260421_195532_7228133</code><br>node <code>6ad4f4291115</code></td><td><strong>4 unique</strong> FoldSeek clusters among <strong>10 successful</strong> self binders from <strong>32 finals</strong>.</td><td><code>20260424_113757_7323365</code>, node <code>c20523dd958f</code>: 18/128 raw success, iPAE 0.1599, pLDDT 0.9489. New fixed N=72/96 rerun has 7/72.</td></tr>
+      <tr><td><strong>HER2_AAV</strong></td><td><code>selfhost_qwen36_27_HER2_AAV_20260421_195532_7228134</code><br>node <code>f7e0548068e2</code></td><td><strong>3 unique</strong> FoldSeek clusters among <strong>9 successful</strong> self binders from <strong>32 finals</strong>.</td><td><code>20260421_000315_7199569</code>, node <code>761a4474f61f</code>: 35/96 raw success, iPAE 0.1875, pLDDT 0.9402. New HER2 fixed N=96 is still running.</td></tr>
+    </table>
   </section>
 
   <section class="panel">
@@ -92,16 +135,51 @@ a.btn{display:inline-block;background:#1f6feb;color:#fff;text-decoration:none;pa
   <section class="panel">
     <h2>Detailed comparison table</h2>
     <table>
-      <tr><th>Target</th><th>Baseline / fixed comparator</th><th>v2 result to show</th><th>Structure metrics</th><th>Demo interpretation</th></tr>
-      <tr><td><strong>CD45</strong></td><td>Baseline: 8/32 = 25%; fixed N=96: 41/96 = 42.7%</td><td class="good">Audited v2: 22/32 = 68.8%, unique 5. Large run: 86/192 = 44.8%</td><td>Best iPAE 0.1458, pLDDT 0.9641</td><td class="good">Strong positive: v2 improves both search yield and confidence metrics.</td></tr>
-      <tr><td><strong>BetV1</strong></td><td>Baseline: 6/32 = 18.8%; human best: 11/32 = 34.4%</td><td>Audited v2: 10/32 = 31.3%, unique 4. Large run: 18/128 = 14.1%</td><td>Best iPAE 0.1599, pLDDT 0.9489</td><td class="warn">Competitive but mixed: close to human best on N=32, fixed rerun weaker.</td></tr>
-      <tr><td><strong>HER2_AAV</strong></td><td>Baseline: 1/32 = 3.1%; human best: 21/32 = 65.6%</td><td class="good">v2 best: 35/96 = 36.5%; audited v2: 9/32 = 28.1%, unique 3</td><td>Best iPAE 0.1875, pLDDT 0.9402</td><td class="good">Strong over baseline, still below best human-designed recipe.</td></tr>
-      <tr><td><strong>SC2RBD</strong></td><td>Baseline: 0/32 = 0%; human best: 5/8 = 62.5%</td><td>v2: 0 successes so far</td><td>Near miss iPAE 0.2433, pLDDT 0.8951</td><td class="warn">Negative control: hard target remains unsolved by current v2.</td></tr>
-      <tr><td><strong>SpCas9</strong></td><td>Baseline: 16/32 = 50%</td><td>v2 current: 8/32 = 25%</td><td>Best iPAE 0.1945, pLDDT 0.9178</td><td class="warn">Not a win yet; use as scaling/diagnostic target only.</td></tr>
+      <tr><th>Target</th><th>Baseline / fixed / human reference</th><th>v2 result to show</th><th>Best structure metrics</th><th>Demo interpretation</th></tr>
+      <tr><td><strong>CD45</strong></td><td>Local baseline: 8/32 = 25%, unique 1/8; iPAE pass 8/32, pLDDT pass 30/32. Fixed N=96: 41/96 = 42.7%, unique pending, best iPAE 0.1418, pLDDT 0.9611. Human best: 15/32 = 46.9%.</td><td class="good">Audited v2: 22/32 = 68.8%, unique 5. Large completed raw run: 86/192 = 44.8%.</td><td>v2 large best iPAE 0.1458, pLDDT 0.9641. Audited v2 representative PDB: iPAE 0.1931, pLDDT 0.9519.</td><td class="good">Strong positive: v2 improves over local baseline and human N=32 success rate, while fixed rerun remains strong.</td></tr>
+      <tr><td><strong>BetV1</strong></td><td>Local baseline: 6/32 = 18.8%, unique 1/6; iPAE pass 6/32, pLDDT pass 8/32. Fixed rerun: 7/72 = 9.7%, unique pending, best iPAE 0.1602, pLDDT 0.9430. Human best: 11/32 = 34.4%.</td><td>Audited v2: 10/32 = 31.3%, unique 4. Large completed raw run: 18/128 = 14.1%.</td><td>v2 large best iPAE 0.1599, pLDDT 0.9489. Audited representative PDB: iPAE 0.1529, pLDDT 0.9569.</td><td class="warn">Competitive but mixed: audited N=32 is near human best and above baseline; fixed rerun is weaker.</td></tr>
+      <tr><td><strong>HER2_AAV</strong></td><td>Local baseline: 1/32 = 3.1%, unique not resolved in compact summary; iPAE pass 16/32, pLDDT pass 7/32. Older fixed N=96: 5/96 = 5.2%, best iPAE 0.2190, pLDDT 0.9169. Human best: 21/32 = 65.6%.</td><td class="good">v2 best completed raw: 35/96 = 36.5%. Audited v2: 9/32 = 28.1%, unique 3.</td><td>v2 raw best iPAE 0.1875, pLDDT 0.9402. Audited representative PDB: iPAE 0.1867, pLDDT 0.9410.</td><td class="good">Strong over baseline and fixed reference, still below the best hand-designed recipe.</td></tr>
+      <tr><td><strong>SC2RBD</strong></td><td>Local baseline: 0/32 = 0%, unique 0; iPAE pass 0/32, pLDDT pass 0/32. Human best: 5/8 = 62.5%.</td><td>v2: 0 successes so far.</td><td>Near miss PDB iPAE 0.2433, pLDDT 0.8749.</td><td class="warn">Negative control: current v2 does not solve this target.</td></tr>
+      <tr><td><strong>SpCas9</strong></td><td>Local baseline: 16/32 = 50%, unique 2/16; iPAE pass 16/32, pLDDT pass 16/32.</td><td>v2 current: 8/32 = 25%.</td><td>v2 best iPAE 0.1945, pLDDT 0.9178.</td><td class="warn">Not a win yet; use as scaling/diagnostic target only.</td></tr>
     </table>
   </section>
 
   <p><a class="btn" href="index.html">Back to full runs index</a></p>
 </main>
+<script>
+(function(){
+  var treeFrame = document.getElementById('treeframe');
+  document.querySelectorAll('[data-tree]').forEach(function(btn){
+    btn.addEventListener('click', function(){ treeFrame.src = btn.getAttribute('data-tree'); });
+  });
+  function loadPdb(url, meta){
+    var metaEl = document.getElementById('viewer-meta');
+    var viewerEl = document.getElementById('viewer');
+    metaEl.textContent = meta || '';
+    if(!window.$3Dmol){
+      viewerEl.innerHTML = '<p style="padding:14px">3Dmol.js did not load. Open '+url+' directly.</p>';
+      return;
+    }
+    viewerEl.innerHTML = '';
+    fetch(url).then(function(resp){ return resp.text(); }).then(function(pdb){
+      var viewer = window.$3Dmol.createViewer(viewerEl, {backgroundColor:'#ffffff'});
+      viewer.addModel(pdb, 'pdb');
+      viewer.setStyle({}, {cartoon:{colorscheme:'chain'}});
+      viewer.addSurface(window.$3Dmol.SurfaceType.VDW, {opacity:0.16, color:'white'});
+      viewer.zoomTo();
+      viewer.render();
+    }).catch(function(err){
+      viewerEl.innerHTML = '<p style="padding:14px">Could not load PDB: '+String(err)+'</p>';
+    });
+  }
+  document.querySelectorAll('[data-pdb]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      loadPdb(btn.getAttribute('data-pdb'), btn.getAttribute('data-meta'));
+    });
+  });
+  var first = document.querySelector('[data-pdb]');
+  if(first){ loadPdb(first.getAttribute('data-pdb'), first.getAttribute('data-meta')); }
+})();
+</script>
 </body>
 </html>
