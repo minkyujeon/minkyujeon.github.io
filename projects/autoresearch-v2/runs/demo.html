@@ -72,16 +72,21 @@ iframe.treeframe{width:100%;height:560px;border:1px solid #d9e2ec;border-radius:
 
   <section class="panel">
     <h2>Interactive tree demos</h2>
-    <p>Audited tree means a completed run with preserved posthoc unique-success audit artifacts. Latest raw tree means a newer completed search with raw success counts and structure metrics, but no preserved unique-success audit artifact for its best node yet.</p>
+    <p>Each button is now target-level. The opened iframe uses the most informative Ours tree for that target, while the table keeps the raw-success result and any preserved unique audit together. When raw and unique come from different preserved runs, they are still the same agentic loop pipeline but not the same evaluated node.</p>
+    <table>
+      <tr><th>Target</th><th>Opened tree</th><th>Ours best raw success</th><th>Preserved unique audit</th></tr>
+      <tr><td><strong>CD45</strong></td><td>latest raw tree</td><td>86/192, iPAE 0.1458, pLDDT 0.9641</td><td>5 unique from the audited 22/32 run</td></tr>
+      <tr><td><strong>BetV1</strong></td><td>latest raw tree</td><td>18/128, iPAE 0.1599, pLDDT 0.9489</td><td>4 unique from the audited 10/32 run</td></tr>
+      <tr><td><strong>HER2_AAV</strong></td><td>best raw tree</td><td>35/96, iPAE 0.1875, pLDDT 0.9402</td><td>3 unique from the audited 9/32 run</td></tr>
+      <tr><td><strong>SC2RBD</strong></td><td>negative tree</td><td>0 successful binders</td><td>no successful unique audit</td></tr>
+    </table>
     <div class="btnrow">
-      <button class="btn" data-tree="selfhost_qwen36_05_CD45_20260420_122615_7179326/study_view.html">CD45 audited: 22/32, unique 5</button>
-      <button class="btn" data-tree="selfhost_qwen36_23_BetV1_20260421_195532_7228133/study_view.html">BetV1 audited: 10/32, unique 4</button>
-      <button class="btn" data-tree="selfhost_qwen36_27_HER2_AAV_20260421_195532_7228134/study_view.html">HER2_AAV audited: 9/32, unique 3</button>
-      <button class="btn" data-tree="selfhost_qwen36_05_CD45_20260424_113757_7323363/study_view.html">CD45 latest raw: 86/192, unique not audited</button>
-      <button class="btn" data-tree="selfhost_qwen36_23_BetV1_20260424_113757_7323365/study_view.html">BetV1 latest raw: 18/128, unique not audited</button>
-      <button class="btn" data-tree="selfhost_qwen36_30_SC2RBD_20260424_113757_7323364/study_view.html">SC2RBD: 0 success</button>
+      <button class="btn" data-tree="selfhost_qwen36_05_CD45_20260424_113757_7323363/study_view.html">CD45</button>
+      <button class="btn" data-tree="selfhost_qwen36_23_BetV1_20260424_113757_7323365/study_view.html">BetV1</button>
+      <button class="btn" data-tree="selfhost_qwen36_27_HER2_AAV_20260421_000315_7199569/study_view.html">HER2_AAV</button>
+      <button class="btn" data-tree="selfhost_qwen36_30_SC2RBD_20260424_113757_7323364/study_view.html">SC2RBD</button>
     </div>
-    <iframe id="treeframe" class="treeframe" src="selfhost_qwen36_05_CD45_20260420_122615_7179326/study_view.html"></iframe>
+    <iframe id="treeframe" class="treeframe" src="selfhost_qwen36_05_CD45_20260424_113757_7323363/study_view.html"></iframe>
   </section>
 
   <section class="panel">

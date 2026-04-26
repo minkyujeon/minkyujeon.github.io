@@ -99,6 +99,11 @@ footer{text-align:center;color:#888;font-size:.75rem;padding:18px 0;border-top:1
 .metrics-card dd{margin:0;color:#222;word-break:break-word}
 .structure-card{margin-top:10px;padding:10px 12px;background:#fff;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.05);font-size:.82rem}
 .structure-card h3{margin:0 0 7px;color:#0d47a1;font-size:.9rem}
+.structure-chain-legend{display:flex;gap:12px;flex-wrap:wrap;margin:0 0 7px;color:#334e68;font-size:.76rem}
+.structure-chain-legend span{display:inline-flex;align-items:center;gap:5px}
+.structure-swatch{width:12px;height:12px;border-radius:3px;display:inline-block;border:1px solid rgba(16,42,67,.22)}
+.structure-swatch.target{background:#2563eb}
+.structure-swatch.binder{background:#f97316}
 .structure-actions{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
 .structure-choice{border:1px solid #d0d7de;background:#f8fafc;color:#334155;border-radius:5px;padding:4px 8px;font:inherit;font-size:.76rem;cursor:pointer}
 .structure-choice.active{background:#0d47a1;color:#fff;border-color:#0d47a1;font-weight:600}
@@ -470,6 +475,7 @@ window.__PROGRESS_LABEL__ = "Best normalized success rate";
     var examples = (metrics && metrics.structures) || [];
     if(!examples.length) return '';
     var parts = ['<div class="structure-card"><h3>Target/binder complex</h3>'];
+    parts.push('<div class="structure-chain-legend"><span><span class="structure-swatch target"></span>Target, chain A</span><span><span class="structure-swatch binder"></span>Generated binder, chain B</span></div>');
     parts.push('<div class="structure-actions">');
     for(var i=0;i<examples.length;i++){
       var cls = 'structure-choice' + (i===0 ? ' active' : '');
@@ -478,7 +484,7 @@ window.__PROGRESS_LABEL__ = "Best normalized success rate";
     parts.push('</div>');
     parts.push('<div class="structure-meta" id="'+structureViewerId(pid)+'-meta">'+escapeHtml(structureMetaText(examples[0]))+'</div>');
     parts.push('<div class="structure-viewer" id="'+structureViewerId(pid)+'"></div>');
-    parts.push('<p class="structure-note">Interactive PDB complex. Chains are colored separately when chain IDs are available.</p>');
+    parts.push('<p class="structure-note">Same color scheme as the demo structure viewer.</p>');
     parts.push('</div>');
     return parts.join('');
   }
@@ -503,7 +509,9 @@ window.__PROGRESS_LABEL__ = "Best normalized success rate";
     }).then(function(pdb){
       var viewer = window.$3Dmol.createViewer(viewerEl, {backgroundColor:'#ffffff'});
       viewer.addModel(pdb, 'pdb');
-      viewer.setStyle({}, {cartoon:{colorscheme:'chain'}});
+      viewer.setStyle({}, {cartoon:{color:'#94a3b8'}});
+      viewer.setStyle({chain:'A'}, {cartoon:{color:'#2563eb'}});
+      viewer.setStyle({chain:'B'}, {cartoon:{color:'#f97316'}});
       viewer.addSurface(window.$3Dmol.SurfaceType.VDW, {opacity:0.18, color:'white'});
       viewer.zoomTo();
       viewer.render();
