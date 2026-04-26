@@ -65,7 +65,7 @@ iframe.treeframe{width:100%;height:560px;border:1px solid #d9e2ec;border-radius:
       <tr><td><strong>CD45</strong></td><td>8/32 = 25%; baseline unique 1/8; iPAE pass 8/32; pLDDT pass 30/32.</td><td>15/32 = 46.9%; unique count not available in compact source.</td><td>22/32 = 68.8%; unique 5; larger raw node 86/192 = 44.8%.</td><td>Fixed rerun 41/96 = 42.7%; best iPAE 0.1418, pLDDT 0.9611.</td></tr>
       <tr><td><strong>BetV1</strong></td><td>6/32 = 18.8%; baseline unique 1/6; iPAE pass 6/32; pLDDT pass 8/32.</td><td>11/32 = 34.4%; unique count not available in compact source.</td><td>10/32 = 31.3%; unique 4; larger raw node 18/128 = 14.1%.</td><td>Fixed rerun 7/72 = 9.7%; best iPAE 0.1602, pLDDT 0.9430.</td></tr>
       <tr><td><strong>HER2_AAV</strong></td><td>1/32 = 3.1%; compact baseline unique unavailable; iPAE pass 16/32; pLDDT pass 7/32.</td><td>21/32 = 65.6%; short refinement sweep reached 16/16; unique count not available in compact source.</td><td>35/96 = 36.5%; audited published tree 9/32 with unique 3.</td><td>Older fixed rerun 5/96 = 5.2%; best iPAE 0.2190, pLDDT 0.9169.</td></tr>
-      <tr><td><strong>SC2RBD</strong></td><td>0/32 = 0%; baseline unique 0; iPAE pass 0/32; pLDDT pass 0/32.</td><td>5/8 = 62.5%; unique count not available in compact source.</td><td>0 successful binders in preserved Ours searches.</td><td>Ours near miss iPAE 0.2433, pLDDT 0.8749; no successful unique audit.</td></tr>
+      <tr><td><strong>SC2RBD</strong></td><td>0/32 = 0%; baseline unique 0; iPAE pass 0/32; pLDDT pass 0/32.</td><td>5/8 = 62.5%; unique count not available in compact source.</td><td>0 successful binders in preserved Ours searches.</td><td>Opened tree best row iPAE 0.2510, pLDDT 0.8672; no successful unique audit.</td></tr>
       <tr><td><strong>SpCas9</strong></td><td>16/32 = 50%; baseline unique 2/16; iPAE pass 16/32; pLDDT pass 16/32.</td><td>Not available in the current compact source.</td><td>8/32 = 25%; unique audit unavailable; best iPAE 0.1945, pLDDT 0.9178.</td><td>No positive Ours-over-Baseline result for this target yet.</td></tr>
     </table>
   </section>
@@ -74,7 +74,7 @@ iframe.treeframe{width:100%;height:560px;border:1px solid #d9e2ec;border-radius:
     <h2>Interactive tree demos</h2>
     <p>Each button is now target-level. The opened iframe uses the most informative Ours tree for that target, while the table keeps the raw-success result and any preserved unique audit together. When raw and unique come from different preserved runs, they are still the same agentic loop pipeline but not the same evaluated node.</p>
     <table>
-      <tr><th>Target</th><th>Opened tree</th><th>Ours best raw success</th><th>Preserved unique audit</th></tr>
+      <tr><th>Target</th><th>Opened tree</th><th>Opened raw-tree result</th><th>Preserved unique audit</th></tr>
       <tr><td><strong>CD45</strong></td><td>latest raw tree</td><td>86/192, iPAE 0.1458, pLDDT 0.9641</td><td>5 unique from the audited 22/32 run</td></tr>
       <tr><td><strong>BetV1</strong></td><td>latest raw tree</td><td>18/128, iPAE 0.1599, pLDDT 0.9489</td><td>4 unique from the audited 10/32 run</td></tr>
       <tr><td><strong>HER2_AAV</strong></td><td>best raw tree</td><td>35/96, iPAE 0.1875, pLDDT 0.9402</td><td>3 unique from the audited 9/32 run</td></tr>
@@ -96,7 +96,7 @@ iframe.treeframe{width:100%;height:560px;border:1px solid #d9e2ec;border-radius:
       <button class="btn" data-pdb="demo_structures/cd45_success.pdb" data-meta="CD45 success from audited completed run db45199f978b: iPAE 0.1931, pLDDT 0.9519, pass">CD45 success</button>
       <button class="btn" data-pdb="demo_structures/betv1_success.pdb" data-meta="BetV1 success from audited completed run 6ad4f4291115: iPAE 0.1529, pLDDT 0.9569, pass">BetV1 success</button>
       <button class="btn" data-pdb="demo_structures/her2_success.pdb" data-meta="HER2_AAV success from audited completed run f7e0548068e2: iPAE 0.1867, pLDDT 0.9410, pass">HER2_AAV success</button>
-      <button class="btn" data-pdb="demo_structures/sc2rbd_near_miss.pdb" data-meta="SC2RBD near miss from completed zero-hit run 3efa32f1c73d: iPAE 0.2433, pLDDT 0.8749, fail">SC2RBD near miss</button>
+      <button class="btn" data-pdb="demo_structures/sc2rbd_near_miss.pdb" data-meta="SC2RBD representative failed complex: iPAE 0.2433, pLDDT 0.8749">SC2RBD representative fail</button>
     </div>
     <div class="legend">
       <span class="legend-item"><span class="swatch target-chain"></span>Target, chain A</span>
@@ -147,7 +147,7 @@ iframe.treeframe{width:100%;height:560px;border:1px solid #d9e2ec;border-radius:
         <div class="metric"><span class="label">Baseline N=32</span><span class="bar"><span class="fill bad" style="width:0%"></span></span><span class="pct">0%</span></div>
         <div class="metric"><span class="label">Ours best</span><span class="bar"><span class="fill bad" style="width:0%"></span></span><span class="pct">0%</span></div>
         <div class="metric"><span class="label">Human best</span><span class="bar"><span class="fill human" style="width:62.5%"></span></span><span class="pct">62.5%</span></div>
-        <div class="detail">Ours best remains 0 successful binders on preserved SC2RBD searches. Best near miss has iPAE 0.2433 and pLDDT 0.8749, outside the pass threshold.</div>
+        <div class="detail">Ours best remains 0 successful binders on preserved SC2RBD searches. The opened tree best row has iPAE 0.2510 and pLDDT 0.8672, outside the pass threshold.</div>
       </div>
       <div class="target">
         <h3>SpCas9</h3>
@@ -162,10 +162,10 @@ iframe.treeframe{width:100%;height:560px;border:1px solid #d9e2ec;border-radius:
     <h2>Detailed comparison table</h2>
     <table>
       <tr><th>Target</th><th>Baseline</th><th>Human best</th><th>Ours best</th><th>Structure metrics / audit note</th></tr>
-      <tr><td><strong>CD45</strong></td><td>8/32 = 25%; unique 1/8; iPAE pass 8/32; pLDDT pass 30/32.</td><td>15/32 = 46.9%; unique not available in compact source.</td><td class="good">22/32 = 68.8%; audit self-success 21/32; unique 5. Larger raw node: 86/192 = 44.8%. Fixed rerun: 41/96 = 42.7%.</td><td>Ours large best-rate node iPAE 0.1458, pLDDT 0.9641. Fixed rerun best iPAE 0.1418, pLDDT 0.9611.</td></tr>
+      <tr><td><strong>CD45</strong></td><td>8/32 = 25%; unique 1/8; iPAE pass 8/32; pLDDT pass 30/32.</td><td>15/32 = 46.9%; unique not available in compact source.</td><td class="good">22/32 = 68.8%; audit self-success 21/32; unique 5. Larger raw node: 86/192 = 44.8%. Fixed rerun: 41/96 = 42.7%.</td><td>Ours larger raw node iPAE 0.1458, pLDDT 0.9641. Fixed rerun best iPAE 0.1418, pLDDT 0.9611.</td></tr>
       <tr><td><strong>BetV1</strong></td><td>6/32 = 18.8%; unique 1/6; iPAE pass 6/32; pLDDT pass 8/32.</td><td>11/32 = 34.4%.</td><td>10/32 = 31.3%; unique 4. Larger raw node: 18/128 = 14.1%. Fixed rerun: 7/72 = 9.7%.</td><td>Ours latest large node iPAE 0.1599, pLDDT 0.9489. Fixed rerun best iPAE 0.1602, pLDDT 0.9430.</td></tr>
       <tr><td><strong>HER2_AAV</strong></td><td>1/32 = 3.1%; unique not resolved in compact summary; iPAE pass 16/32; pLDDT pass 7/32.</td><td>21/32 = 65.6%.</td><td class="good">35/96 = 36.5%. Published audited tree: 9/32 = 28.1%; unique 3. Older fixed rerun: 5/96 = 5.2%.</td><td>Ours best node iPAE 0.1875, pLDDT 0.9402. Fixed rerun best iPAE 0.2190, pLDDT 0.9169.</td></tr>
-      <tr><td><strong>SC2RBD</strong></td><td>0/32 = 0%; unique 0; iPAE pass 0/32; pLDDT pass 0/32.</td><td>5/8 = 62.5%.</td><td>0 successful binders in preserved Ours searches.</td><td>Ours near miss iPAE 0.2433, pLDDT 0.8749. No successful unique audit.</td></tr>
+      <tr><td><strong>SC2RBD</strong></td><td>0/32 = 0%; unique 0; iPAE pass 0/32; pLDDT pass 0/32.</td><td>5/8 = 62.5%.</td><td>0 successful binders in preserved Ours searches.</td><td>Opened tree best row iPAE 0.2510, pLDDT 0.8672. No successful unique audit.</td></tr>
       <tr><td><strong>SpCas9</strong></td><td>16/32 = 50%; unique 2/16; iPAE pass 16/32; pLDDT pass 16/32.</td><td>Not available in the current compact source.</td><td>8/32 = 25%; unique audit unavailable.</td><td>Ours best iPAE 0.1945, pLDDT 0.9178.</td></tr>
     </table>
   </section>
