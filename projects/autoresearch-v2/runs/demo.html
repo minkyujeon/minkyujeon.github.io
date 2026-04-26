@@ -48,45 +48,45 @@ iframe.treeframe{width:100%;height:560px;border:1px solid #d9e2ec;border-radius:
 </head>
 <body>
 <header>
-  <h1>Autoresearch v2 demo: existing results vs baseline</h1>
-  <div class="sub">Presentation snapshot using preserved completed runs. Denominators are shown explicitly, so N=32 and N=96 results can be compared by success percentage without pretending they are identical experiments.</div>
+  <h1>Autoresearch v2 demo: baseline, human best, ours best</h1>
+  <div class="sub">Presentation snapshot using preserved completed runs. Denominators are shown explicitly, so N=32, N=96, and larger search results can be compared by success percentage without pretending they are identical experiments.</div>
 </header>
 <main>
   <section class="panel">
     <h2>Core message</h2>
-    <p>On several hard targets, the v2 search finds configurations that beat the local default/fixed baseline in raw success rate and structure quality metrics. CD45 is the clearest demo case: baseline N=32 is 8/32, ours best available audited tree node is 22/32 with 5 unique clusters, a larger search node reaches 86/192, and the fixed rerun reaches 41/96.</p>
+    <p>Each target is reported as Baseline, Human best, and Ours best. CD45 is the clearest positive case: Baseline is 8/32, Human best is 15/32, Ours best audited tree node is 22/32 with 5 unique clusters, a larger Ours raw node reaches 86/192, and the fixed rerun reaches 41/96.</p>
     <p class="muted">Success criterion follows the existing local analysis: iPAE pass, pLDDT pass, and final binder success. Lower iPAE is better; higher pLDDT is better.</p>
   </section>
 
   <section class="panel">
-    <h2>Baseline and fixed references</h2>
+    <h2>Comparison references</h2>
     <table>
-      <tr><th>Target</th><th>Local baseline</th><th>Fixed / human-designed reference</th><th>Reference structure metrics</th></tr>
-      <tr><td><strong>CD45</strong></td><td>8/32 = 25%; baseline unique 1/8; iPAE pass 8/32; pLDDT pass 30/32.</td><td>Fixed N=96 rerun: 41/96 = 42.7%, unique audit running. Best local human-designed result: 15/32 = 46.9%; unique count not available in the compact source.</td><td>Fixed N=96 best iPAE 0.1418, pLDDT 0.9611.</td></tr>
-      <tr><td><strong>BetV1</strong></td><td>6/32 = 18.8%; baseline unique 1/6; iPAE pass 6/32; pLDDT pass 8/32.</td><td>Fixed rerun: 7/72 = 9.7%, unique audit running. Best local human-designed result: 11/32 = 34.4%; unique count not available in the compact source.</td><td>Fixed rerun best iPAE 0.1602, pLDDT 0.9430.</td></tr>
-      <tr><td><strong>HER2_AAV</strong></td><td>1/32 = 3.1%; compact baseline unique unavailable; iPAE pass 16/32; pLDDT pass 7/32.</td><td>Older fixed N=96: 5/96 = 5.2%. Best local human-designed result: 21/32 = 65.6%; short refinement sweep reached 16/16.</td><td>Fixed N=96 best iPAE 0.2190, pLDDT 0.9169.</td></tr>
-      <tr><td><strong>SC2RBD</strong></td><td>0/32 = 0%; baseline unique 0; iPAE pass 0/32; pLDDT pass 0/32.</td><td>Best local human-designed result: 5/8 = 62.5%; unique count not available in the compact source.</td><td>Ours near-miss iPAE 0.2433, pLDDT 0.8749.</td></tr>
-      <tr><td><strong>SpCas9</strong></td><td>16/32 = 50%; baseline unique 2/16; iPAE pass 16/32; pLDDT pass 16/32.</td><td>Ours best available result: 8/32 = 25%; unique audit unavailable.</td><td>Ours best iPAE 0.1945, pLDDT 0.9178.</td></tr>
+      <tr><th>Target</th><th>Baseline</th><th>Human best</th><th>Ours best</th><th>Fixed rerun / audit note</th></tr>
+      <tr><td><strong>CD45</strong></td><td>8/32 = 25%; baseline unique 1/8; iPAE pass 8/32; pLDDT pass 30/32.</td><td>15/32 = 46.9%; unique count not available in compact source.</td><td>22/32 = 68.8%; unique 5; larger raw node 86/192 = 44.8%.</td><td>Fixed rerun 41/96 = 42.7%; best iPAE 0.1418, pLDDT 0.9611.</td></tr>
+      <tr><td><strong>BetV1</strong></td><td>6/32 = 18.8%; baseline unique 1/6; iPAE pass 6/32; pLDDT pass 8/32.</td><td>11/32 = 34.4%; unique count not available in compact source.</td><td>10/32 = 31.3%; unique 4; larger raw node 18/128 = 14.1%.</td><td>Fixed rerun 7/72 = 9.7%; best iPAE 0.1602, pLDDT 0.9430.</td></tr>
+      <tr><td><strong>HER2_AAV</strong></td><td>1/32 = 3.1%; compact baseline unique unavailable; iPAE pass 16/32; pLDDT pass 7/32.</td><td>21/32 = 65.6%; short refinement sweep reached 16/16; unique count not available in compact source.</td><td>35/96 = 36.5%; audited published tree 9/32 with unique 3.</td><td>Older fixed rerun 5/96 = 5.2%; best iPAE 0.2190, pLDDT 0.9169.</td></tr>
+      <tr><td><strong>SC2RBD</strong></td><td>0/32 = 0%; baseline unique 0; iPAE pass 0/32; pLDDT pass 0/32.</td><td>5/8 = 62.5%; unique count not available in compact source.</td><td>0 successful binders in preserved Ours searches.</td><td>Ours near miss iPAE 0.2433, pLDDT 0.8749; no successful unique audit.</td></tr>
+      <tr><td><strong>SpCas9</strong></td><td>16/32 = 50%; baseline unique 2/16; iPAE pass 16/32; pLDDT pass 16/32.</td><td>Not available in the current compact source.</td><td>8/32 = 25%; unique audit unavailable; best iPAE 0.1945, pLDDT 0.9178.</td><td>No positive Ours-over-Baseline result for this target yet.</td></tr>
     </table>
   </section>
 
   <section class="panel">
     <h2>Interactive tree demos</h2>
-    <p>These are the completed static study views from the restored runs index. The drawer shows the node strategy, parent diff, paper/source checks when recorded, normalized success rate, iPAE, pLDDT, and unique-audit status.</p>
+    <p>Audited tree means a completed run with preserved posthoc unique-success audit artifacts. Latest raw tree means a newer completed search with raw success counts and structure metrics, but no preserved unique-success audit artifact for its best node yet.</p>
     <div class="btnrow">
-      <button class="btn" data-tree="selfhost_qwen36_05_CD45_20260420_122615_7179326/study_view.html">CD45 audited tree: unique 5</button>
-      <button class="btn" data-tree="selfhost_qwen36_23_BetV1_20260421_195532_7228133/study_view.html">BetV1 audited tree: unique 4</button>
-      <button class="btn" data-tree="selfhost_qwen36_27_HER2_AAV_20260421_195532_7228134/study_view.html">HER2_AAV audited tree: unique 3</button>
-      <button class="btn" data-tree="selfhost_qwen36_05_CD45_20260424_113757_7323363/study_view.html">CD45 latest raw tree</button>
-      <button class="btn" data-tree="selfhost_qwen36_23_BetV1_20260424_113757_7323365/study_view.html">BetV1 latest raw tree</button>
-      <button class="btn" data-tree="selfhost_qwen36_30_SC2RBD_20260424_113757_7323364/study_view.html">SC2RBD negative case</button>
+      <button class="btn" data-tree="selfhost_qwen36_05_CD45_20260420_122615_7179326/study_view.html">CD45 audited: 22/32, unique 5</button>
+      <button class="btn" data-tree="selfhost_qwen36_23_BetV1_20260421_195532_7228133/study_view.html">BetV1 audited: 10/32, unique 4</button>
+      <button class="btn" data-tree="selfhost_qwen36_27_HER2_AAV_20260421_195532_7228134/study_view.html">HER2_AAV audited: 9/32, unique 3</button>
+      <button class="btn" data-tree="selfhost_qwen36_05_CD45_20260424_113757_7323363/study_view.html">CD45 latest raw: 86/192, unique not audited</button>
+      <button class="btn" data-tree="selfhost_qwen36_23_BetV1_20260424_113757_7323365/study_view.html">BetV1 latest raw: 18/128, unique not audited</button>
+      <button class="btn" data-tree="selfhost_qwen36_30_SC2RBD_20260424_113757_7323364/study_view.html">SC2RBD: 0 success</button>
     </div>
     <iframe id="treeframe" class="treeframe" src="selfhost_qwen36_05_CD45_20260420_122615_7179326/study_view.html"></iframe>
   </section>
 
   <section class="panel">
     <h2>Interactive target/binder structures</h2>
-    <p>Representative complex PDBs copied from preserved completed runs. Use these as qualitative examples of how a generated binder sits on the target; quantitative comparison still comes from the table below.</p>
+    <p>Representative Ours complex PDBs copied from preserved completed runs. Use these as qualitative examples of how a generated binder sits on the target; quantitative comparison still comes from the tables below.</p>
     <div class="btnrow">
       <button class="btn" data-pdb="demo_structures/cd45_success.pdb" data-meta="CD45 success from audited completed run db45199f978b: iPAE 0.1931, pLDDT 0.9519, pass">CD45 success</button>
       <button class="btn" data-pdb="demo_structures/betv1_success.pdb" data-meta="BetV1 success from audited completed run 6ad4f4291115: iPAE 0.1529, pLDDT 0.9569, pass">BetV1 success</button>
@@ -105,16 +105,16 @@ iframe.treeframe{width:100%;height:560px;border:1px solid #d9e2ec;border-radius:
   <section class="panel">
     <h2>Where the audited unique numbers come from</h2>
     <table>
-      <tr><th>Target</th><th>Audited unique source</th><th>Meaning</th><th>Latest completed raw result shown separately</th></tr>
-      <tr><td><strong>CD45</strong></td><td><code>selfhost_qwen36_05_CD45_20260420_122615_7179326</code><br>node <code>db45199f978b</code></td><td><strong>5 unique</strong> FoldSeek clusters among <strong>21 audited successful</strong> self samples from <strong>32 finals</strong>. The online raw score for the same node is <strong>22/32</strong>.</td><td><code>20260424_113757_7323363</code>, node <code>75a81e6da237</code>: 86/192 raw success, iPAE 0.1458, pLDDT 0.9641. This newer raw run does not yet have the same preserved unique audit artifact.</td></tr>
-      <tr><td><strong>BetV1</strong></td><td><code>selfhost_qwen36_23_BetV1_20260421_195532_7228133</code><br>node <code>6ad4f4291115</code></td><td><strong>4 unique</strong> FoldSeek clusters among <strong>10 successful</strong> self binders from <strong>32 finals</strong>.</td><td><code>20260424_113757_7323365</code>, node <code>c20523dd958f</code>: 18/128 raw success, iPAE 0.1599, pLDDT 0.9489. New fixed N=72/96 rerun has 7/72.</td></tr>
-      <tr><td><strong>HER2_AAV</strong></td><td><code>selfhost_qwen36_27_HER2_AAV_20260421_195532_7228134</code><br>node <code>f7e0548068e2</code></td><td><strong>3 unique</strong> FoldSeek clusters among <strong>9 successful</strong> self binders from <strong>32 finals</strong>.</td><td><code>20260421_000315_7199569</code>, node <code>761a4474f61f</code>: 35/96 raw success, iPAE 0.1875, pLDDT 0.9402. New HER2 fixed N=96 is still running.</td></tr>
+      <tr><th>Target</th><th>Ours audited unique source</th><th>Meaning</th><th>Ours latest raw result shown separately</th></tr>
+      <tr><td><strong>CD45</strong></td><td><code>selfhost_qwen36_05_CD45_20260420_122615_7179326</code><br>node <code>db45199f978b</code></td><td><strong>5 unique</strong> FoldSeek clusters among <strong>21 audited successful</strong> self samples from <strong>32 finals</strong>. The online raw score for the same node is <strong>22/32</strong>.</td><td><code>20260424_113757_7323363</code>, node <code>75a81e6da237</code>: 86/192 raw success, iPAE 0.1458, pLDDT 0.9641. This Ours latest raw run does not yet have the same preserved unique audit artifact.</td></tr>
+      <tr><td><strong>BetV1</strong></td><td><code>selfhost_qwen36_23_BetV1_20260421_195532_7228133</code><br>node <code>6ad4f4291115</code></td><td><strong>4 unique</strong> FoldSeek clusters among <strong>10 successful</strong> self binders from <strong>32 finals</strong>.</td><td><code>20260424_113757_7323365</code>, node <code>c20523dd958f</code>: 18/128 raw success, iPAE 0.1599, pLDDT 0.9489. Fixed rerun has 7/72 because 72 finals completed.</td></tr>
+      <tr><td><strong>HER2_AAV</strong></td><td><code>selfhost_qwen36_27_HER2_AAV_20260421_195532_7228134</code><br>node <code>f7e0548068e2</code></td><td><strong>3 unique</strong> FoldSeek clusters among <strong>9 successful</strong> self binders from <strong>32 finals</strong>.</td><td><code>20260421_000315_7199569</code>, node <code>761a4474f61f</code>: 35/96 raw success, iPAE 0.1875, pLDDT 0.9402. Older fixed rerun is 5/96.</td></tr>
     </table>
   </section>
 
   <section class="panel">
     <h2>Success-rate bars</h2>
-    <p class="muted">Bars use one primary comparison per target: local baseline N=32, ours best available completed result, and the best fixed/human reference when available. Larger or fixed reruns are described in the detail text instead of being mixed into the bar labels.</p>
+    <p class="muted">Bars use Baseline, Ours best, and Human best. When Human best is unavailable for the current compact source, only Baseline and Ours best are shown.</p>
     <div class="grid">
       <div class="target">
         <h3>CD45</h3>
@@ -142,7 +142,7 @@ iframe.treeframe{width:100%;height:560px;border:1px solid #d9e2ec;border-radius:
         <div class="metric"><span class="label">Baseline N=32</span><span class="bar"><span class="fill bad" style="width:0%"></span></span><span class="pct">0%</span></div>
         <div class="metric"><span class="label">Ours best</span><span class="bar"><span class="fill bad" style="width:0%"></span></span><span class="pct">0%</span></div>
         <div class="metric"><span class="label">Human best</span><span class="bar"><span class="fill human" style="width:62.5%"></span></span><span class="pct">62.5%</span></div>
-        <div class="detail">Ours best remains 0 successful binders on preserved SC2RBD v2 searches. Best near miss has iPAE 0.2433 and pLDDT 0.8749, outside the pass threshold.</div>
+        <div class="detail">Ours best remains 0 successful binders on preserved SC2RBD searches. Best near miss has iPAE 0.2433 and pLDDT 0.8749, outside the pass threshold.</div>
       </div>
       <div class="target">
         <h3>SpCas9</h3>
@@ -156,12 +156,12 @@ iframe.treeframe{width:100%;height:560px;border:1px solid #d9e2ec;border-radius:
   <section class="panel">
     <h2>Detailed comparison table</h2>
     <table>
-      <tr><th>Target</th><th>Baseline / fixed / human reference</th><th>v2 result to show</th><th>Best structure metrics</th><th>Demo interpretation</th></tr>
-      <tr><td><strong>CD45</strong></td><td>Local baseline: 8/32 = 25%, unique 1/8; iPAE pass 8/32, pLDDT pass 30/32. Human best: 15/32 = 46.9%, unique not available in compact source.</td><td class="good">Ours best available: 22/32 = 68.8%, audit self-success 21/32, unique 5. Larger search node: 86/192 = 44.8%. Fixed rerun: 41/96 = 42.7%.</td><td>Ours large best-rate node iPAE 0.1458, pLDDT 0.9641. Fixed rerun best iPAE 0.1418, pLDDT 0.9611. Audited representative PDB: iPAE 0.1931, pLDDT 0.9519.</td><td class="good">Strong positive: ours improves over local baseline and human N=32 success rate; fixed rerun remains strong.</td></tr>
-      <tr><td><strong>BetV1</strong></td><td>Local baseline: 6/32 = 18.8%, unique 1/6; iPAE pass 6/32, pLDDT pass 8/32. Human best: 11/32 = 34.4%.</td><td>Ours best available: 10/32 = 31.3%, unique 4. Larger latest raw node: 18/128 = 14.1%. Fixed rerun: 7/72 = 9.7%.</td><td>Ours latest large node iPAE 0.1599, pLDDT 0.9489. Fixed rerun best iPAE 0.1602, pLDDT 0.9430. Audited representative PDB: iPAE 0.1529, pLDDT 0.9569.</td><td class="warn">Competitive but mixed: ours audited N=32 is above baseline and near human best; fixed rerun is weaker.</td></tr>
-      <tr><td><strong>HER2_AAV</strong></td><td>Local baseline: 1/32 = 3.1%, unique not resolved in compact summary; iPAE pass 16/32, pLDDT pass 7/32. Human best: 21/32 = 65.6%.</td><td class="good">Ours best available: 35/96 = 36.5%. Published audited tree: 9/32 = 28.1%, unique 3. Older fixed rerun: 5/96 = 5.2%.</td><td>Ours best node iPAE 0.1875, pLDDT 0.9402. Fixed rerun best iPAE 0.2190, pLDDT 0.9169. Audited representative PDB: iPAE 0.1867, pLDDT 0.9410.</td><td class="good">Strong over baseline and fixed reference, still below the best hand-designed recipe.</td></tr>
-      <tr><td><strong>SC2RBD</strong></td><td>Local baseline: 0/32 = 0%, unique 0; iPAE pass 0/32, pLDDT pass 0/32. Human best: 5/8 = 62.5%.</td><td>Ours best available: 0 successes so far.</td><td>Near miss PDB iPAE 0.2433, pLDDT 0.8749.</td><td class="warn">Negative control: ours does not solve this target yet.</td></tr>
-      <tr><td><strong>SpCas9</strong></td><td>Local baseline: 16/32 = 50%, unique 2/16; iPAE pass 16/32, pLDDT pass 16/32.</td><td>Ours best available: 8/32 = 25%.</td><td>Ours best iPAE 0.1945, pLDDT 0.9178.</td><td class="warn">Not a win yet; use as scaling/diagnostic target only.</td></tr>
+      <tr><th>Target</th><th>Baseline</th><th>Human best</th><th>Ours best</th><th>Structure metrics / audit note</th></tr>
+      <tr><td><strong>CD45</strong></td><td>8/32 = 25%; unique 1/8; iPAE pass 8/32; pLDDT pass 30/32.</td><td>15/32 = 46.9%; unique not available in compact source.</td><td class="good">22/32 = 68.8%; audit self-success 21/32; unique 5. Larger raw node: 86/192 = 44.8%. Fixed rerun: 41/96 = 42.7%.</td><td>Ours large best-rate node iPAE 0.1458, pLDDT 0.9641. Fixed rerun best iPAE 0.1418, pLDDT 0.9611.</td></tr>
+      <tr><td><strong>BetV1</strong></td><td>6/32 = 18.8%; unique 1/6; iPAE pass 6/32; pLDDT pass 8/32.</td><td>11/32 = 34.4%.</td><td>10/32 = 31.3%; unique 4. Larger raw node: 18/128 = 14.1%. Fixed rerun: 7/72 = 9.7%.</td><td>Ours latest large node iPAE 0.1599, pLDDT 0.9489. Fixed rerun best iPAE 0.1602, pLDDT 0.9430.</td></tr>
+      <tr><td><strong>HER2_AAV</strong></td><td>1/32 = 3.1%; unique not resolved in compact summary; iPAE pass 16/32; pLDDT pass 7/32.</td><td>21/32 = 65.6%.</td><td class="good">35/96 = 36.5%. Published audited tree: 9/32 = 28.1%; unique 3. Older fixed rerun: 5/96 = 5.2%.</td><td>Ours best node iPAE 0.1875, pLDDT 0.9402. Fixed rerun best iPAE 0.2190, pLDDT 0.9169.</td></tr>
+      <tr><td><strong>SC2RBD</strong></td><td>0/32 = 0%; unique 0; iPAE pass 0/32; pLDDT pass 0/32.</td><td>5/8 = 62.5%.</td><td>0 successful binders in preserved Ours searches.</td><td>Ours near miss iPAE 0.2433, pLDDT 0.8749. No successful unique audit.</td></tr>
+      <tr><td><strong>SpCas9</strong></td><td>16/32 = 50%; unique 2/16; iPAE pass 16/32; pLDDT pass 16/32.</td><td>Not available in the current compact source.</td><td>8/32 = 25%; unique audit unavailable.</td><td>Ours best iPAE 0.1945, pLDDT 0.9178.</td></tr>
     </table>
   </section>
 
