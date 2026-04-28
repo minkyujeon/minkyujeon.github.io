@@ -57,6 +57,13 @@
     .project-card h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; color: var(--text); }
     .project-card p { font-size: 0.92rem; color: var(--muted); line-height: 1.6; margin-bottom: 12px; }
     .project-card .meta { font-size: 0.8rem; color: #94a3b8; display: flex; gap: 16px; }
+    .card-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+    .card-actions a {
+      display: inline-block; text-decoration: none; font-size: 0.85rem; font-weight: 700;
+      padding: 8px 11px; border-radius: 7px; border: 1px solid var(--border);
+    }
+    .card-actions .primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .card-actions .secondary { background: #f8fafc; color: var(--accent); }
     .footer {
       text-align: center; padding: 32px 24px; color: var(--muted);
       font-size: 0.82rem; border-top: 1px solid var(--border); margin-top: 40px;
@@ -87,26 +94,28 @@
       </p>
       <div class="meta">
         <span>Princeton University</span>
-        <span>In Progress</span>
-        <span>March &ndash; April 2026</span>
       </div>
     </a>
-    <a href="/projects/agentic-protein-design.html" class="project-card">
+    <div class="project-card">
       <div class="tag">Inference-Time Scaling</div>
       <h2>Agentic Inference-Time Scaling for De Novo Protein Design</h2>
       <p>
-        Mapping the full action space of a generative protein design pipeline &mdash; search algorithms, reward composition,
-        denoising temperature, sequence refinement &mdash; and building an agent that adaptively routes compute
-        to achieve scaling that doesn't plateau. Includes an audited results map, an open research plan,
-        and a companion implementation-notes page covering the markdown design history, current code path,
-        and Gemma/Qwen backend experiments.
+        Current work now centers on <strong>Autoresearch v2</strong>: Qwen-guided config search over
+        executable Proteina-Complexa inference programs, with a live pipeline diagram, run ledger,
+        failure-handling notes, baseline reuse policy, and static tree-search reports.
       </p>
+      <p>
+        The older audited baseline/results map is preserved as a historical archive, but it is no
+        longer the main project entry point.
+      </p>
+      <div class="card-actions">
+        <a class="primary" href="/projects/autoresearch-v2/">Open current v2 hub</a>
+        <a class="secondary" href="/projects/agentic-protein-design.html">Historical baseline archive</a>
+      </div>
       <div class="meta">
         <span>Princeton University</span>
-        <span>In Progress</span>
-        <span>April 2026</span>
       </div>
-    </a>
+    </div>
   </div>
 </div>
 

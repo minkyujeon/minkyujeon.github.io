@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Autoresearch v2 Current Pipeline</title>
+<style>
+:root{
+  --bg:#f7f9fc;
+  --card:#ffffff;
+  --ink:#14213d;
+  --muted:#5f6f89;
+  --line:#d9e2ec;
+  --accent:#1f6feb;
+  --good:#0f766e;
+  --warn:#b45309;
+  --bad:#b42318;
+  --soft:#eef4ff;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif}
+header{background:#102a43;color:#fff;padding:34px 28px}
+header .wrap,main{max-width:1180px;margin:0 auto}
+.breadcrumb{font-size:13px;color:#bcccdc;margin-bottom:10px}
+.breadcrumb a{color:#dbeafe;text-decoration:none}
+h1{margin:0 0 8px;font-size:32px;line-height:1.15}
+.sub{max-width:860px;color:#d9e2ec;line-height:1.55}
+main{padding:26px 24px 56px}
+section{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:20px;margin:0 0 18px}
+h2{font-size:20px;margin:0 0 12px;color:#102a43}
+h3{font-size:15px;margin:18px 0 8px;color:#243b53}
+p,li{line-height:1.6;color:#334e68}
+a{color:var(--accent)}
+code{font-family:"SF Mono",Menlo,Consolas,monospace;background:#eef2f7;border:1px solid #e3e8ef;border-radius:5px;padding:1px 5px}
+.nav{display:flex;flex-wrap:wrap;gap:9px;margin-top:18px}
+.btn{display:inline-block;text-decoration:none;background:#1f6feb;color:white;padding:8px 11px;border-radius:7px;font-size:13px;font-weight:700}
+.btn.secondary{background:#e8f1ff;color:#1f4fbf}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.mini{border:1px solid var(--line);border-radius:8px;padding:13px;background:#fbfdff}
+.label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#829ab1;font-weight:800;margin-bottom:6px}
+.value{font-size:14px;color:#243b53}
+.diagram{display:grid;grid-template-columns:repeat(4,minmax(160px,1fr));gap:10px;align-items:stretch;margin-top:14px}
+.box{border:1px solid #cbd5e1;background:#f8fafc;border-radius:8px;padding:12px;min-height:96px;position:relative}
+.box strong{display:block;color:#102a43;margin-bottom:6px}
+.box span{font-size:12px;color:#52606d;line-height:1.45;display:block}
+.box.accent{background:#eef4ff;border-color:#b7cdfa}
+.box.good{background:#ecfdf5;border-color:#99f6e4}
+.box.warn{background:#fff7ed;border-color:#fed7aa}
+.arrow{display:none}
+table{width:100%;border-collapse:collapse;margin-top:10px}
+th,td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top;font-size:13px}
+th{background:#f0f4f8;color:#334e68}
+.status{display:inline-block;border-radius:999px;padding:2px 8px;font-size:11px;font-weight:800}
+.ok{background:#ccfbf1;color:#0f766e}
+.pending{background:#fef3c7;color:#92400e}
+.fail{background:#fee4e2;color:#b42318}
+.muted{color:var(--muted)}
+.note{border-left:4px solid var(--accent);background:#f8fbff;padding:12px 14px;margin-top:12px;border-radius:6px}
+.cols{display:grid;grid-template-columns:1.1fr .9fr;gap:14px}
+pre{white-space:pre-wrap;background:#0f172a;color:#e5edf7;border-radius:8px;padding:14px;overflow:auto;font-size:12px;line-height:1.45}
+@media(max-width:840px){
+  .diagram{grid-template-columns:1fr}
+  .cols{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="breadcrumb"><a href="/projects/">Projects</a> / <a href="/projects/autoresearch-v2/">Autoresearch v2</a></div>
+    <h1>Autoresearch v2 Current Pipeline</h1>
+    <div class="sub">Tracking page for the active v2 config-search implementation, current Qwen/H100 run state, known failure handling, and baseline reuse decisions. Run-specific static tree reports stay under <code>runs/</code>; this page is the compact operational map.</div>
+    <div class="nav">
+      <a class="btn" href="#pipeline">Pipeline</a>
+      <a class="btn secondary" href="#ledger">Run Ledger</a>
+      <a class="btn secondary" href="runs/index.html">Static Run Index</a>
+    </div>
+  </div>
+</header>
+<main>
+
+<section id="snapshot">
+  <h2>Current Snapshot</h2>
+  <div class="grid">
+    <div class="mini"><div class="label">Goal</div><div class="value">v2 is a config search system: search over executable Complexa inference configurations, not over new model weights.</div></div>
+    <div class="mini"><div class="label">Target Focus</div><div class="value"><code>05_CD45</code> full search with Qwen3.6-35B-A3B-FP8 as the idea model and LLM refiner model.</div></div>
+    <div class="mini"><div class="label">Cluster Layout</div><div class="value"><code>cryoem</code> partition, <code>della-cryoem</code> QoS, H100 constraint. The full script reserves logical GPU 3 for vLLM and GPUs 0-2 for Complexa workers.</div></div>
+    <div class="mini"><div class="label">Current Safety Rule</div><div class="value">The executor is single-stage. Multi-stage proposals are rejected in the refiner loop and fed back to the LLM before execution.</div></div>
+  </div>
+  <div class="note">
+    Last verification: <code>2026-04-27 22:56 EDT</code>. Public pages use repo-relative or bracketed paths. Local run roots are in the active Autoresearch_Denovo checkout under <code>autoresearch_outputs/run_store/</code>, and historical static reports are under <code>projects/autoresearch-v2/runs/</code>.
+  </div>
+</section>
+
+<section id="pipeline">
+  <h2>Pipeline Diagram</h2>
+  <div class="diagram" aria-label="Autoresearch v2 pipeline diagram">
+    <div class="box accent"><strong>1. Slurm / CLI</strong><span><code>python -m autoresearch_v2 init</code> optionally researches ideas, then <code>run</code> starts tree search. The current full script requests 4 H100 GPUs.</span></div>
+    <div class="box accent"><strong>2. IdeaResearcher</strong><span>Qwen uses local tools: target metadata, paper/reference summaries, prior run evidence, and search-history tools. It finalizes <code>ResearchIdea</code> objects into the store.</span></div>
+    <div class="box"><strong>3. Seed Program</strong><span><code>build_profile_program()</code> creates a root <code>ConfigOnlyInferenceProgram</code>. Current full run uses <code>seed_profile=deep</code> and <code>n_candidate=16</code>.</span></div>
+    <div class="box"><strong>4. PUCT Tree</strong><span><code>PuctTree</code> selects a parent, tracks visits, scores, virtual loss, and backs up rank keys after each evaluation.</span></div>
+    <div class="box accent"><strong>5. Node Ideas</strong><span>For LLM runs, v2 can ask IdeaResearcher again at each selected parent using current feedback, compact run history, and local tree context.</span></div>
+    <div class="box accent"><strong>6. ConfigRefiner</strong><span>Qwen calls <code>propose_refinement</code>. The refiner applies schema updates, validates allowed paths, rejects duplicates, and logs LLM interactions.</span></div>
+    <div class="box warn"><strong>7. Validation Gate</strong><span>Current v2 accepts only <code>stage_index=0</code>. <code>append_stage</code> and <code>stage_conditions</code> are disabled because the executor still runs one stage.</span></div>
+    <div class="box"><strong>8. Store Child</strong><span>Accepted children are content-addressed, saved under <code>programs/</code>, optionally attached to idea ids, and added to the tree before worker launch.</span></div>
+    <div class="box good"><strong>9. GPU Worker</strong><span><code>ProgramExecutor</code> compiles the child to Hydra overrides and launches <code>python -m proteinfoundation.generate</code> with one Complexa subprocess per program.</span></div>
+    <div class="box good"><strong>10. Evaluation</strong><span>The evaluator reads Complexa result CSVs, computes successes, best iPAE/pLDDT, rank key, diversity fields, and writes score records.</span></div>
+    <div class="box"><strong>11. Feedback</strong><span>Scores, stderr tails, proposal records, and tree summaries are persisted. The next LLM call sees failures such as OOM as prompt feedback.</span></div>
+    <div class="box accent"><strong>12. Results</strong><span>At budget end, v2 writes <code>results/summary.json</code>, <code>best_result.json</code>, <code>final_candidates.json</code>, and tree snapshots.</span></div>
+  </div>
+</section>
+
+<section id="implementation">
+  <h2>Code Map</h2>
+  <table>
+    <tr><th>Component</th><th>Main files</th><th>Current behavior</th></tr>
+    <tr><td>CLI and session setup</td><td><code>autoresearch_v2/__main__.py</code></td><td>Defines <code>init</code>, <code>run</code>, <code>inspect</code>, <code>tree-dump</code>, <code>lineage</code>, <code>ideas</code>, and SCORE-style loop commands. <code>--gpus</code> selects the parallel driver.</td></tr>
+    <tr><td>Tree driver</td><td><code>autoresearch_v2/agent_loop.py</code>, <code>autoresearch_v2/parallel.py</code></td><td>Seeds the tree, selects parents, builds feedback/history/tree context, calls the refiner, dispatches GPU workers, and backs up scores.</td></tr>
+    <tr><td>Ideas</td><td><code>autoresearch_common/proposer/idea_researcher.py</code>, <code>autoresearch_v2/idea_evidence.py</code></td><td>Runs a tool-calling loop. The Qwen OpenAI-compatible parser may return JSON strings, now normalized before idea validation.</td></tr>
+    <tr><td>LLM refiner</td><td><code>autoresearch_common/refiner/config.py</code>, <code>autoresearch_v2/refiner.py</code></td><td>Applies bounded config updates. Current scope can be <code>basic</code>, <code>elaborate</code>, or <code>full</code>; full exposes the non-templated Tier-A fields except fixed <code>guidance_w</code>/<code>ag_ratio</code>, plus sparse model override, reward-weight, and refinement-loss families.</td></tr>
+    <tr><td>Compiler</td><td><code>autoresearch_v2/compiler.py</code></td><td>Turns a <code>ConfigOnlyInferenceProgram</code> into dense Hydra overrides plus sparse model/reward overlays. Infrastructure overrides are added from <code>RunContext</code>.</td></tr>
+    <tr><td>Executor</td><td><code>autoresearch_v2/executor.py</code></td><td>Runs one single-stage program, sets <code>CUDA_VISIBLE_DEVICES</code>, captures logs, handles timeout cleanup, and returns an <code>ExecutionResult</code>.</td></tr>
+    <tr><td>Persistence</td><td><code>autoresearch_v2/run_store.py</code>, <code>autoresearch_common/loop_schema.py</code></td><td>Stores ideas, programs, scores, loop records, interactions, result summaries, and stderr tails for later LLM feedback and audits.</td></tr>
+  </table>
+</section>
+
+<section id="control">
+  <h2>What Qwen Actually Controls</h2>
+  <div class="cols">
+    <div>
+      <p>In v2, Qwen does not mutate model weights and does not directly write arbitrary code in the current path. It proposes structured config edits to a typed <code>ConfigOnlyInferenceProgram</code>. The compiler then converts that program into Hydra overrides for the frozen Complexa generator.</p>
+      <ul>
+        <li><code>basic</code>: beam width, branch count, sample count, and batch size.</li>
+        <li><code>elaborate</code>: basic fields plus <code>sampling.n_recycle</code>.</li>
+        <li><code>full</code>: non-templated Tier-A fields except fixed <code>sampling.guidance_w</code>/<code>sampling.ag_ratio</code>, plus sparse families such as model overrides, reward weights, and refinement loss weights.</li>
+      </ul>
+    </div>
+    <div>
+<pre>Current full run shape
+target: 05_CD45
+seed_profile: deep
+n_candidate: 16
+budget_evals: 30
+refiner: llm
+refiner_scope: full
+workers: GPUs 0,1,2
+vLLM: GPU 3, max_model_len=65536</pre>
+    </div>
+  </div>
+</section>
+
+<section id="errors">
+  <h2>Error Handling and Current Fixes</h2>
+  <table>
+    <tr><th>Failure mode</th><th>Current handling</th><th>Status</th></tr>
+    <tr><td>Qwen finalizes ideas as a JSON string instead of a list</td><td><code>_coerce_idea_payload()</code> normalizes JSON strings before validating idea objects.</td><td><span class="status ok">fixed</span></td></tr>
+    <tr><td>Tool-loop context budget</td><td>Current vLLM launches use <code>--max-model-len 65536</code> for Qwen thinking/tool loops on H100, avoiding the earlier short-context ideation failure mode.</td><td><span class="status ok">fixed for current scripts</span></td></tr>
+    <tr><td>Complexa OOM or subprocess error</td><td>Executor captures the last log lines as <code>stderr_tail</code>, saves a zero score if needed, and feeds this back through parent feedback/run history.</td><td><span class="status ok">handled</span></td></tr>
+    <tr><td>Qwen proposes multi-stage v2 programs</td><td>Tool schema no longer advertises multi-stage fields. If they appear anyway, <code>ConfigRefiner</code> rejects them and asks Qwen to retry before execution.</td><td><span class="status ok">fixed after smoke</span></td></tr>
+    <tr><td>Fatal driver, server, or init crash</td><td>Can still end the Slurm job. This needs a higher-level checkpoint/resume wrapper if we want automatic Slurm-command retries.</td><td><span class="status pending">remaining risk</span></td></tr>
+  </table>
+</section>
+
+<section id="ledger">
+  <h2>Current Run Ledger</h2>
+  <table>
+    <tr><th>Date</th><th>Job / run</th><th>State</th><th>What it showed</th><th>Artifacts</th></tr>
+    <tr>
+      <td>2026-04-27</td>
+      <td><code>7415465</code><br>Qwen 64K ideation probe</td>
+      <td><span class="status ok">completed</span></td>
+      <td>Generated four valid research ideas after the tool-payload parser fix.</td>
+      <td><code>autoresearch_outputs/run_store/v2_cd45_qwen_ideation_64k_7415465/</code></td>
+    </tr>
+    <tr>
+      <td>2026-04-27</td>
+      <td><code>7415636</code><br>CD45 Qwen smoke</td>
+      <td><span class="status ok">completed</span></td>
+      <td>Ran on <code>cryoem</code> / <code>della-h19g3</code>. Seed OOM was zero-scored; Qwen used the error feedback to reduce beam/sample/batch settings and produced evaluable children. One pre-patch multi-stage child was zero-scored rather than killing the job.</td>
+      <td><code>autoresearch_outputs/run_store/v2_cd45_qwen_smoke/</code><br><code>slurm/logs/v2_cd45_qwen_smoke_7415636.out</code></td>
+    </tr>
+    <tr>
+      <td>2026-04-27</td>
+      <td><code>7418786</code><br>CD45 Qwen full config search</td>
+      <td><span class="status pending">pending at 2026-04-27 22:56 EDT</span></td>
+      <td>Clean full run submitted with Qwen 64K. When allocated, the script will place the vLLM server on logical GPU 3 and Complexa workers on logical GPUs 0-2, with <code>budget_evals=30</code>, <code>seed_profile=deep</code>, <code>n_candidate=16</code>.</td>
+      <td><code>autoresearch_outputs/run_store/v2_cd45_qwen_full_${SLURM_JOB_ID}/</code></td>
+    </tr>
+    <tr>
+      <td>2026-04-26</td>
+      <td>Fixed CD45 best-child n96</td>
+      <td><span class="status ok">usable existing result</span></td>
+      <td>Human/best-child reference exists: <code>6057e1dcb73c</code>, <code>n_finals=96</code>, <code>n_successful=41</code>, best iPAE <code>0.14183757</code>, rank key <code>41.8993</code>. Do not rerun unless the evaluation definition changes.</td>
+      <td><code>runs/fixed_05_CD45_best_child_n96_20260426_103256_7374150/</code></td>
+    </tr>
+  </table>
+</section>
+
+<section id="baseline">
+  <h2>Baseline Reuse Policy</h2>
+  <p>The cleanest current-v2 comparison is to match the exact full-run CLI shape and change only the refiner:</p>
+<pre>LLM search:    --refiner llm    --budget-evals 30 --n-candidate 16 --seed-profile deep
+Random search: --refiner random --budget-evals 30 --n-candidate 16 --seed-profile deep</pre>
+  <p>Do not launch that random baseline until the pending full Qwen run either starts producing comparable data or finishes. The seed evaluation will be included inside the full run once it starts, and older <code>paper_beam_K100_n96</code>/<code>paper_gh_1pct_n96</code> artifacts are not clean current-v2 CLI baselines.</p>
+</section>
+
+</main>
+</body>
+</html>

@@ -104,6 +104,11 @@
   .callout strong { color: var(--accent); }
   .callout.warn { background: var(--orange-light); border-left-color: var(--orange); }
   .callout.warn strong { color: var(--orange); }
+  .callout.current { background: var(--accent-light); border-left-color: var(--accent); }
+  .callout.current a {
+    display: inline-block; margin-top: 8px; text-decoration: none; color: #fff;
+    background: var(--accent); padding: 7px 11px; border-radius: 6px; font-weight: 700;
+  }
   .toc {
     background: var(--card); border: 1px solid var(--border); border-radius: 10px;
     padding: 20px 24px; margin-bottom: 32px;
@@ -146,6 +151,11 @@
 </div>
 
 <div class="main">
+
+<div class="callout current">
+  <p><strong>Historical archive.</strong> This page preserves the older audited baseline/results map. The current Autoresearch v2 project entry point is the live tracking hub with the active pipeline, run ledger, and current Qwen config-search reports.</p>
+  <a href="/projects/autoresearch-v2/">Open current Autoresearch v2 hub</a>
+</div>
 
 <div class="toc">
   <h3>Contents</h3>
@@ -201,6 +211,7 @@
   </div>
 
   <div class="page-nav">
+    <a href="/projects/autoresearch-v2/">Current v2 Hub</a>
     <a href="/projects/agentic-protein-design.html" class="active">Audited Results Map</a>
     <a href="/projects/agentic-protein-design-plan.html">Open Research Plan</a>
     <a href="/projects/agentic-protein-design-results.html">v2 Tree-Search Results</a>
@@ -1548,6 +1559,7 @@
   </div>
 
   <div class="page-nav">
+    <a href="/projects/autoresearch-v2/">Current v2 Hub</a>
     <a href="/projects/agentic-protein-design.html" class="active">Audited Results Map</a>
     <a href="/projects/agentic-protein-design-plan.html">Open Research Plan</a>
     <a href="/projects/agentic-protein-design-results.html">v2 Tree-Search Results</a>
