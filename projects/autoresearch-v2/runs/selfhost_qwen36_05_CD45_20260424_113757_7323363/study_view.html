@@ -70,6 +70,9 @@ pre.code .num{color:#d19a66}
 .bottom-strip svg{background:#fafafa;border:1px solid #eee;border-radius:4px}
 footer{text-align:center;color:#888;font-size:.75rem;padding:18px 0;border-top:1px solid #e5e5e5;margin-top:0;background:#fff}
 .no-data-banner{background:#fff3e0;border:2px dashed #ff9800;color:#e65100;padding:18px 20px;margin:18px;border-radius:6px;text-align:center;font-size:.9rem}
+.archive-warning{background:#fff7ed;border:1px solid #fed7aa;border-left:4px solid #f59e0b;color:#7c2d12;margin:12px 16px;padding:10px 12px;border-radius:6px;font-size:.82rem;line-height:1.45}
+.archive-warning strong{color:#7c2d12}
+.archive-warning code{background:#ffedd5;border:1px solid #fed7aa;border-radius:4px;padding:1px 4px}
 .diag-table{font-size:.76rem;font-family:'SF Mono',Menlo,monospace;width:100%;border-collapse:collapse}
 .diag-table td{padding:2px 6px;border-bottom:1px solid #f0f0f0;vertical-align:top}
 .diag-table td:first-child{color:#666;width:140px}
@@ -148,6 +151,7 @@ section.diffs .diffs-details>summary{cursor:pointer;font-size:.82rem;color:#0d47
 <span><b>best normalized score:</b> 0.4479</span>
 <span><b>store:</b> <code>[v2_runs]/selfhost_qwen36_05_CD45_20260424_113757_7323363</code></span>
 </div></header>
+<section class="archive-warning"><strong>Archive note.</strong> This tree view contains a presentation metric overlay for the CD45 comparison row. The displayed <code>22/32</code> raw success and <code>5 unique / 21 audit-successful self samples</code> values come from the audited presentation-best CD45 node <code>db45199f978b</code> in <code>selfhost_qwen36_05_CD45_20260420_122615_7179326</code>, not from every node in this 20260424 tree. Use <a href="summary.html">summary.html</a> for the actual per-node metrics of this tree.</section>
 <main>
 <section class="tree-pane">
 <div class="tree-pane-inner">
@@ -335,7 +339,10 @@ window.__PROGRESS_LABEL__ = "Best normalized success rate";
         pieces.push(formatMetric(audit.self_unique_successes, 0) + ' unique self clusters');
       }
       if(audit.self_successful_samples !== null && audit.self_successful_samples !== undefined){
-        pieces.push(formatMetric(audit.self_successful_samples, 0) + ' successful self samples');
+        pieces.push(formatMetric(audit.self_successful_samples, 0) + ' audit-successful self samples');
+      }
+      if(audit.presentation_best_override){
+        pieces.push('presentation overlay');
       }
       return pieces.length ? pieces.join(' / ') : 'available';
     }
@@ -455,21 +462,25 @@ window.__PROGRESS_LABEL__ = "Best normalized success rate";
     var gen = (det.generation == null) ? '?' : det.generation;
     var scoreStr = formatMetric(det.score, 4);
     var metrics = det.metrics || {};
+    var hasOverlay = metrics.audit && metrics.audit.presentation_best_override;
     parts.push('<h2 class="node-hdr">Node #'+escapeHtml(gen)+'</h2>');
     parts.push('<p class="node-meta"><strong>Status:</strong> '+escapeHtml(det.status||'N/A')+'</p>');
     parts.push('<p class="node-meta"><strong>Normalized score:</strong> '+escapeHtml(scoreStr)+' <span class="metric-note">('+escapeHtml(det.score_source||'success_rate')+')</span></p>');
+    if(hasOverlay){
+      parts.push('<div class="archive-warning"><strong>Metric overlay:</strong> the success and unique-audit rows below are presentation-comparison values, not per-node values for this tree. The raw count is <code>22/32</code>; the audit clustered <code>21</code> successful self samples into <code>5</code> unique self clusters.</div>');
+    }
     var rows = [
       ['Target', det.target_label || det.target || 'N/A'],
       ['Target detail', det.target_description || det.target || 'N/A'],
       ['rank key', formatMetric(metrics.rank_key, 4)],
       ['iPAE best', formatMetric(metrics.best_i_pae, 4)],
       ['pLDDT best', formatMetric(metrics.best_plddt, 4)],
-      ['success rate', formatRate(metrics)],
-      ['successful', formatMetric(metrics.n_successful, 0)],
-      ['primary successes', formatMetric(metrics.primary_successes, 0)],
-      ['unique successes', formatMetric(metrics.unique_successes, 0)],
-      ['unique audit', formatAudit(metrics)],
-      ['final designs', formatMetric(metrics.n_finals, 0)],
+      [hasOverlay ? 'presentation raw success' : 'success rate', formatRate(metrics)],
+      [hasOverlay ? 'presentation successful' : 'successful', formatMetric(metrics.n_successful, 0)],
+      [hasOverlay ? 'presentation primary successes' : 'primary successes', formatMetric(metrics.primary_successes, 0)],
+      [hasOverlay ? 'presentation unique successes' : 'unique successes', formatMetric(metrics.unique_successes, 0)],
+      [hasOverlay ? 'presentation unique audit' : 'unique audit', formatAudit(metrics)],
+      [hasOverlay ? 'presentation final designs' : 'final designs', formatMetric(metrics.n_finals, 0)],
       ['wall time min', formatMetric(metrics.wall_time_minutes, 2)]
     ];
     parts.push('<div class="metrics-card">'+renderKV(rows)+'</div>');
