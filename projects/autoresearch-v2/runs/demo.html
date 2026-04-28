@@ -54,7 +54,7 @@ iframe.treeframe{width:100%;height:560px;border:1px solid #d9e2ec;border-radius:
 <main>
   <section class="panel">
     <h2>Core message</h2>
-    <p>Each target is reported as Baseline, Human best, and Ours best. CD45 is the clearest positive case: Baseline is 8/32, Human best is 15/32, and Ours best is 22/32 with 5 unique clusters.</p>
+    <p>Each target is reported as Baseline, Human best, and Ours best. CD45 is the clearest positive case: Baseline is 8/32, Human best is 15/32, and Ours best is 22/32 raw success; the audit resolves 5 unique self clusters among 21 audited successful self samples.</p>
     <p class="muted">Success criterion: a self binder must pass normalized <code>self_complex_i_pAE &lt;= 7/31</code> (~0.226), <code>self_complex_pLDDT &gt;= 0.9</code>, and <code>self_binder_scRMSD_ca &lt; 1.5</code>. Lower iPAE and scRMSD are better; higher pLDDT is better.</p>
   </section>
 
@@ -62,7 +62,7 @@ iframe.treeframe{width:100%;height:560px;border:1px solid #d9e2ec;border-radius:
     <h2>Comparison references</h2>
     <table>
       <tr><th>Target</th><th>Baseline</th><th>Human best</th><th>Ours best</th><th>Audit note</th></tr>
-      <tr><td><strong>CD45</strong></td><td>8/32 = 25%; baseline unique 1/8; iPAE pass 8/32; pLDDT pass 30/32.</td><td>15/32 = 46.9%; human-best unique not available; baseline unique is 1/8.</td><td>22/32 = 68.8%; unique 5; iPAE 0.1931, pLDDT 0.9532.</td><td>Audited unique count available.</td></tr>
+      <tr><td><strong>CD45</strong></td><td>8/32 = 25%; baseline unique 1/8; iPAE pass 8/32; pLDDT pass 30/32.</td><td>15/32 = 46.9%; human-best unique not available; baseline unique is 1/8.</td><td>22/32 = 68.8% raw success; audit self-success 21/32; 5 unique self clusters; iPAE 0.1931, pLDDT 0.9532.</td><td>Audited unique count available.</td></tr>
       <tr><td><strong>BetV1</strong></td><td>6/32 = 18.8%; baseline unique 1/6; iPAE pass 6/32; pLDDT pass 8/32.</td><td>11/32 = 34.4%; human-best unique not available; baseline unique is 1/6.</td><td>10/32 = 31.3%; unique 4; iPAE 0.1529, pLDDT 0.9618.</td><td>Audited unique count available.</td></tr>
       <tr><td><strong>HER2_AAV</strong></td><td>1/32 = 3.1%; compact baseline unique unavailable; iPAE pass 16/32; pLDDT pass 7/32.</td><td>21/32 = 65.6%; human-best unique not available; baseline unique not resolved in compact source.</td><td>9/32 = 28.1%; unique 3; iPAE 0.1867, pLDDT 0.9410.</td><td>Audited unique count available.</td></tr>
       <tr><td><strong>SC2RBD</strong></td><td>0/32 = 0%; baseline unique 0; iPAE pass 0/32; pLDDT pass 0/32.</td><td>5/8 = 62.5%; human-best unique not available; baseline unique is 0 because baseline has 0 successes.</td><td>0/32 = 0%; unique 0.</td><td>Opened tree best row iPAE 0.2510, pLDDT 0.8672.</td></tr>
@@ -71,10 +71,10 @@ iframe.treeframe{width:100%;height:560px;border:1px solid #d9e2ec;border-radius:
 
   <section class="panel">
     <h2>Interactive tree demos</h2>
-    <p>The opened iframe uses the completed search trace that best shows normalized-score scaling over tree steps. The Ours best / unique column keeps the comparison result used elsewhere on this page.</p>
+    <p>The opened iframe uses the completed search trace that best shows normalized-score scaling over tree steps. The Ours best / audited-unique column keeps the comparison result used elsewhere on this page.</p>
     <table>
-      <tr><th>Target</th><th>Opened progress tree</th><th>Normalized progress visible</th><th>Ours best / unique</th></tr>
-      <tr><td><strong>CD45</strong></td><td>14-node larger search</td><td>0.0000 &rarr; 0.1250 &rarr; 0.2031 &rarr; 0.3125 &rarr; 0.3750 &rarr; 0.4479</td><td>22/32, 5 unique</td></tr>
+      <tr><th>Target</th><th>Opened progress tree</th><th>Normalized progress visible</th><th>Ours best / audited unique</th></tr>
+      <tr><td><strong>CD45</strong></td><td>14-node larger search</td><td>0.0000 &rarr; 0.1250 &rarr; 0.2031 &rarr; 0.3125 &rarr; 0.3750 &rarr; 0.4479</td><td>22/32 raw; audit 5 unique among 21 self-successes</td></tr>
       <tr><td><strong>BetV1</strong></td><td>15-node larger search</td><td>0.0000 &rarr; 0.1875</td><td>10/32, 4 unique</td></tr>
       <tr><td><strong>HER2_AAV</strong></td><td>6-node larger search</td><td>0.0000 &rarr; 0.3438 &rarr; 0.3646</td><td>9/32, 3 unique</td></tr>
       <tr><td><strong>SC2RBD</strong></td><td>negative tree</td><td>flat at 0.0000 because no v2 candidate passes</td><td>0/32, 0 unique</td></tr>
@@ -155,7 +155,7 @@ iframe.treeframe{width:100%;height:560px;border:1px solid #d9e2ec;border-radius:
     <h2>Detailed comparison table</h2>
     <table>
       <tr><th>Target</th><th>Baseline</th><th>Human best</th><th>Ours best</th><th>Structure metrics / audit note</th></tr>
-      <tr><td><strong>CD45</strong></td><td>8/32 = 25%; unique 1/8; iPAE pass 8/32; pLDDT pass 30/32.</td><td>15/32 = 46.9%; human-best unique not available; baseline unique is 1/8.</td><td class="good">22/32 = 68.8%; audit self-success 21/32; unique 5.</td><td>Ours best node iPAE 0.1931, pLDDT 0.9532.</td></tr>
+      <tr><td><strong>CD45</strong></td><td>8/32 = 25%; unique 1/8; iPAE pass 8/32; pLDDT pass 30/32.</td><td>15/32 = 46.9%; human-best unique not available; baseline unique is 1/8.</td><td class="good">22/32 = 68.8% raw success; audit self-success 21/32; 5 unique self clusters.</td><td>Ours best node iPAE 0.1931, pLDDT 0.9532.</td></tr>
       <tr><td><strong>BetV1</strong></td><td>6/32 = 18.8%; unique 1/6; iPAE pass 6/32; pLDDT pass 8/32.</td><td>11/32 = 34.4%; human-best unique not available; baseline unique is 1/6.</td><td>10/32 = 31.3%; unique 4.</td><td>Ours best node iPAE 0.1529, pLDDT 0.9618.</td></tr>
       <tr><td><strong>HER2_AAV</strong></td><td>1/32 = 3.1%; unique not resolved in compact summary; iPAE pass 16/32; pLDDT pass 7/32.</td><td>21/32 = 65.6%; human-best unique not available; baseline unique not resolved in compact source.</td><td class="good">9/32 = 28.1%; unique 3.</td><td>Ours best node iPAE 0.1867, pLDDT 0.9410.</td></tr>
       <tr><td><strong>SC2RBD</strong></td><td>0/32 = 0%; unique 0; iPAE pass 0/32; pLDDT pass 0/32.</td><td>5/8 = 62.5%; human-best unique not available; baseline unique is 0 because baseline has 0 successes.</td><td>0 successful binders in preserved Ours searches.</td><td>Opened tree best row iPAE 0.2510, pLDDT 0.8672. No successful unique audit.</td></tr>

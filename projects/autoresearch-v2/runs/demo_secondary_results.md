@@ -5,7 +5,7 @@ These results are intentionally kept out of the main comparison tables in `demo.
 ## CD45
 
 - Audited best shown in demo: `selfhost_qwen36_05_CD45_20260420_122615_7179326`, node `db45199f978b`.
-- Demo metric: `22/32 = 68.8%`, `5` unique FoldSeek clusters among `21` audited successful self samples.
+- Demo metric: `22/32 = 68.8%` raw online success. The audited unique result is `5` FoldSeek/self clusters among `21` audited successful self samples.
 - Larger raw search trace used for the interactive tree iframe but not as the main comparison number: `selfhost_qwen36_05_CD45_20260424_113757_7323363`, node `75a81e6da237`, `86/192 = 44.8%`, best iPAE `0.1458`, best pLDDT `0.9641`.
 - Fixed rerun not used as the main comparison number: `fixed_05_CD45_best_child_n96_20260426_103256_7374150`, `41/96 = 42.7%`, best iPAE `0.1418`, best pLDDT `0.9611`.
 
