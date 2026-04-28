@@ -88,8 +88,24 @@ pre{white-space:pre-wrap;background:#0f172a;color:#e5edf7;border-radius:8px;padd
     <div class="mini"><div class="label">Current Safety Rule</div><div class="value">The executor is single-stage. Multi-stage proposals are rejected in the refiner loop and fed back to the LLM before execution.</div></div>
   </div>
   <div class="note">
-    Last verification: <code>2026-04-27 23:11 EDT</code>. Public pages use repo-relative or bracketed paths. Local run roots are in the active Autoresearch_Denovo checkout under <code>autoresearch_outputs/run_store/</code>, and historical static reports are under <code>projects/autoresearch-v2/runs/</code>.
+    Last verification: <code>2026-04-27 23:32 EDT</code>. Public pages use repo-relative or bracketed paths. Local run roots are in the active Autoresearch_Denovo checkout under <code>autoresearch_outputs/run_store/</code>, and historical static reports are under <code>projects/autoresearch-v2/runs/</code>.
   </div>
+</section>
+
+<section id="terms">
+  <h2>Terminology</h2>
+  <table>
+    <tr><th>Term</th><th>Meaning in the current v2 code path</th></tr>
+    <tr><td><strong>config search</strong></td><td>Search over executable Complexa inference settings. v2 does not train new model weights in this path.</td></tr>
+    <tr><td><strong>idea model</strong></td><td>The LLM used by <code>IdeaResearcher</code> to create structured <code>ResearchIdea</code> records from target metadata, references, prior run evidence, and tool outputs.</td></tr>
+    <tr><td><strong>LLM refiner</strong></td><td>The LLM step that calls <code>propose_refinement</code> and edits allowed fields of a <code>ConfigOnlyInferenceProgram</code>.</td></tr>
+    <tr><td><strong>ConfigOnlyInferenceProgram</strong></td><td>The typed program object that stores Complexa inference configuration choices. The compiler converts it into Hydra overrides.</td></tr>
+    <tr><td><strong>Hydra overrides</strong></td><td>Command-line config assignments passed to <code>python -m proteinfoundation.generate</code>.</td></tr>
+    <tr><td><strong>PUCT tree</strong></td><td>The tree-search policy used to select parent programs, expand child programs, and back up evaluation scores.</td></tr>
+    <tr><td><strong>rank key</strong></td><td>The score tuple used by v2 to rank evaluated programs after Complexa outputs are parsed.</td></tr>
+    <tr><td><strong>single-stage / multi-stage</strong></td><td>The current executor runs one stage only. Proposed <code>append_stage</code> or <code>stage_conditions</code> changes are rejected before execution.</td></tr>
+    <tr><td><strong>Tier-A fields</strong></td><td>The allowed high-impact config fields exposed to the <code>full</code> refiner scope, excluding fixed <code>sampling.guidance_w</code> and <code>sampling.ag_ratio</code> in the current script.</td></tr>
+  </table>
 </section>
 
 <section id="pipeline">
@@ -182,8 +198,8 @@ vLLM: GPU 3, max_model_len=65536</pre>
     <tr>
       <td>2026-04-27</td>
       <td><code>7418786</code><br>CD45 Qwen full config search</td>
-      <td><span class="status pending">pending at 2026-04-27 23:11 EDT</span></td>
-      <td>Clean full run submitted with Qwen 64K. When allocated, the script will place the vLLM server on logical GPU 3 and Complexa workers on logical GPUs 0-2, with <code>budget_evals=30</code>, <code>seed_profile=deep</code>, <code>n_candidate=16</code>.</td>
+      <td><span class="status pending">pending at 2026-04-27 23:32 EDT</span></td>
+      <td>Full run submitted with Qwen 64K. When allocated, the script will place the vLLM server on logical GPU 3 and Complexa workers on logical GPUs 0-2, with <code>budget_evals=30</code>, <code>seed_profile=deep</code>, <code>n_candidate=16</code>.</td>
       <td><code>autoresearch_outputs/run_store/v2_cd45_qwen_full_${SLURM_JOB_ID}/</code></td>
     </tr>
     <tr>
@@ -198,7 +214,7 @@ vLLM: GPU 3, max_model_len=65536</pre>
 
 <section id="baseline">
   <h2>Baseline Reuse Policy</h2>
-  <p>The cleanest current-v2 comparison is to match the exact full-run CLI shape and change only the refiner:</p>
+  <p>The current-v2 baseline comparison shape is to match the exact full-run CLI shape and change only the refiner:</p>
 <pre>LLM search:    --refiner llm    --budget-evals 30 --n-candidate 16 --seed-profile deep
 Random search: --refiner random --budget-evals 30 --n-candidate 16 --seed-profile deep</pre>
   <p>Do not launch that random baseline until the pending full Qwen run either starts producing comparable data or finishes. The seed evaluation will be included inside the full run once it starts, and older <code>paper_beam_K100_n96</code>/<code>paper_gh_1pct_n96</code> artifacts are not clean current-v2 CLI baselines.</p>
