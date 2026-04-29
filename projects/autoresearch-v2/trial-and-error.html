@@ -59,6 +59,8 @@ pre{white-space:pre-wrap;background:#0f172a;color:#e5edf7;border-radius:8px;padd
     <div class="sub">Fact-focused record of issues found while turning the first v2 config-search version into a more robust Qwen-driven search loop. This page separates observed failures from design changes and avoids treating diagnostic partial runs as final experiments.</div>
     <div class="nav">
       <a class="btn" href="current-v2-pipeline.html">Current pipeline</a>
+      <a class="btn secondary" href="#investigation-thread">Investigation thread</a>
+      <a class="btn secondary" href="#root-causes">Root causes</a>
       <a class="btn secondary" href="runs/index.html">Run reports</a>
       <a class="btn secondary" href="#qwen">Qwen vs design</a>
     </div>
@@ -70,7 +72,7 @@ pre{white-space:pre-wrap;background:#0f172a;color:#e5edf7;border-radius:8px;padd
   <h2>Current Conclusion</h2>
   <div class="grid">
     <div class="mini"><div class="label">Primary lesson</div><div class="value">Ideas should help the config refiner, but node-level ideation must not be a hard gate for running a child config.</div></div>
-    <div class="mini"><div class="label">Qwen context</div><div class="value">The local checkpoint advertises <code>max_position_embeddings=262144</code>. Earlier full scripts limited vLLM to <code>--max-model-len 65536</code>; next full scripts default to <code>131072</code>.</div></div>
+    <div class="mini"><div class="label">Qwen context</div><div class="value">The local checkpoint advertises <code>max_position_embeddings=262144</code>. Earlier full scripts limited vLLM to <code>--max-model-len 65536</code>; current full scripts default to <code>131072</code>.</div></div>
     <div class="mini"><div class="label">Observed vLLM capacity</div><div class="value">A 64K server log reported about <code>446688</code> GPU KV-cache tokens, so longer single-request contexts should be possible, with lower concurrency and higher latency.</div></div>
     <div class="mini"><div class="label">Design fix</div><div class="value">Keep thinking enabled, raise context if needed, and also compact tool evidence so the model is not encouraged to read unbounded history.</div></div>
   </div>
@@ -79,10 +81,41 @@ pre{white-space:pre-wrap;background:#0f172a;color:#e5edf7;border-radius:8px;padd
   </div>
 </section>
 
+<section id="scope">
+  <h2>Scope and Non-Claims</h2>
+  <div class="grid">
+    <div class="mini"><div class="label">What this page is</div><div class="value">A chronological engineering record of v2 debugging: observed failures, concrete patches, residual risks, and how CD45/BetV1 diagnostic jobs informed the next change.</div></div>
+    <div class="mini"><div class="label">What it is not</div><div class="value">It is not a final benchmark table and does not claim that a partial diagnostic run is representative of v2 performance.</div></div>
+    <div class="mini"><div class="label">Main code path</div><div class="value"><code>IdeaResearcher</code> proposes research ideas; <code>ConfigRefiner</code> turns those ideas plus feedback into config edits; <code>ProgramExecutor</code> runs one Complexa stage.</div></div>
+    <div class="mini"><div class="label">Current blocker</div><div class="value">The clean rerun should wait for resource accounting for <code>best-of-n</code>/<code>mcts</code> and bounded idea context.</div></div>
+  </div>
+  <div class="note">
+    Numbers in this page are anchored to specific Slurm jobs or run-store artifacts at the stated verification time. Running jobs can move after the snapshot; that is why live BetV1 counts are labeled as partial artifacts.
+  </div>
+</section>
+
 <section id="timeline">
   <h2>Change Log</h2>
   <table>
     <tr><th>Problem observed</th><th>Evidence</th><th>Design change</th><th>Status</th></tr>
+    <tr>
+      <td>Initial Qwen smoke failed before ideation.</td>
+      <td>Job <code>7389941</code> failed after <code>00:02:07</code>. The init command timed out waiting for the vLLM endpoint at <code>127.0.0.1:8766/v1/models</code> while using <code>--max-model-len 32768</code>.</td>
+      <td>Separated infrastructure readiness from v2 algorithm behavior. Later scripts used explicit local model path, vLLM args, and a dedicated log/output layout.</td>
+      <td><span class="status ok">diagnosed</span></td>
+    </tr>
+    <tr>
+      <td>Slurm and run artifacts were initially spread across ad hoc locations.</td>
+      <td>Early logs used <code>autoresearch_outputs/slurm/</code>; later v2 scripts use <code>slurm/logs/</code> and run stores under <code>autoresearch_outputs/run_store/</code>. The user asked to keep <code>/home/mj7341/dev</code> clean.</td>
+      <td>Kept operational artifacts in the active Autoresearch checkout rather than adding new persistent project state under <code>/home/mj7341/dev</code>.</td>
+      <td><span class="status ok">policy set</span></td>
+    </tr>
+    <tr>
+      <td>The v2 role was ambiguous: idea generation vs config search vs code generation.</td>
+      <td>The code path executes config-only programs; <code>ProgramExecutor</code> rejects multi-stage execution and does not run arbitrary generated code in the current v2 path.</td>
+      <td>Documented v2 as config search: ideas are hypotheses that guide allowed config edits, not direct code patches or new model training.</td>
+      <td><span class="status ok">clarified</span></td>
+    </tr>
     <tr>
       <td>Initial v2 exposed multi-stage proposal fields while the executor ran one stage.</td>
       <td>Qwen could mention <code>append_stage</code> or <code>stage_conditions</code>, but <code>ProgramExecutor</code> executes a single <code>ConfigOnlyInferenceProgram</code> stage.</td>
@@ -122,7 +155,7 @@ pre{white-space:pre-wrap;background:#0f172a;color:#e5edf7;border-radius:8px;padd
     <tr>
       <td>IdeaResearcher context could overflow at 64K with Qwen thinking enabled.</td>
       <td>A BetV1 trajectory failed with at least <code>57345</code> prompt tokens plus <code>8192</code> reserved output tokens, exceeding the <code>65536</code> vLLM limit by one token.</td>
-      <td>Keep thinking enabled, allow larger <code>--max-model-len</code> when stable, and compact evidence tools so repeated tree/source reads do not inflate context unnecessarily.</td>
+      <td>Kept thinking enabled, raised full-script default to <code>--max-model-len 131072</code>, and compacted repeated evidence tools so exact duplicate reads do not inflate context unnecessarily.</td>
       <td><span class="status pending">partly fixed</span></td>
     </tr>
     <tr>
@@ -139,15 +172,58 @@ pre{white-space:pre-wrap;background:#0f172a;color:#e5edf7;border-radius:8px;padd
     </tr>
     <tr>
       <td>The resource gate still underestimates non-beam search cost.</td>
-      <td>After the earlier recovery caps, BetV1 job <code>7435023</code> still accumulated <code>37</code> timeouts in the first <code>61</code> evaluations. The validator uses <code>active_beam_width</code>, but <code>best-of-n</code> replicas and <code>mcts.n_simulations</code> are not counted as the active multiplier.</td>
+      <td>After the earlier recovery caps, BetV1 job <code>7435023</code> still accumulated <code>39</code> timeouts in the first <code>63</code> observed evaluations. The validator uses <code>active_beam_width</code>, but <code>best-of-n</code> replicas and <code>mcts.n_simulations</code> are not counted as the active multiplier.</td>
       <td>Required next change: replace the beam-only product with an active work multiplier that covers beam width, best-of-n replicas, and MCTS simulations, then apply the same multiplier in normal validation and post-timeout recovery.</td>
       <td><span class="status pending">open root bug</span></td>
     </tr>
     <tr>
       <td>The refiner prompt can grow with the entire idea bank.</td>
-      <td>By the current BetV1 diagnostic run, the store had <code>165</code> ideas and <code>78</code> idea trajectories. The <code>Other available ideas</code> prompt block lists all ideas not already attached to the parent.</td>
+      <td>By the current BetV1 diagnostic run, the store had <code>166</code> ideas and <code>79</code> idea trajectories at the latest check. The <code>Other available ideas</code> prompt block lists all ideas not already attached to the parent.</td>
       <td>Required next change: cap the idea context to parent-active ideas plus a small recent/top subset, with summaries only. Node-level ideation should also be throttled rather than run on every expansion.</td>
       <td><span class="status pending">open design issue</span></td>
+    </tr>
+    <tr>
+      <td>Target-specific baseline routing was not used in the current full scripts.</td>
+      <td><code>baseline_profiles.py</code> defines routed seeds such as <code>05_CD45 -> noise020</code> and <code>23_BetV1 -> mixed_noise_halluc_g1</code>, but the current full scripts use <code>--seed-profile deep</code>.</td>
+      <td>Recorded as an experiment-design decision point. A clean rerun should either intentionally keep <code>deep</code> for comparability or switch to <code>routed</code> and state that choice.</td>
+      <td><span class="status pending">open decision</span></td>
+    </tr>
+  </table>
+</section>
+
+<section id="investigation-thread">
+  <h2>Investigation Thread</h2>
+  <table>
+    <tr><th>Question during debugging</th><th>Answer reached</th><th>Evidence used</th></tr>
+    <tr>
+      <td>Can v2 use Qwen for idea proposals, or is Qwen only doing tool calls?</td>
+      <td>Qwen is used both to drive the IdeaResearcher tool loop and to produce final structured ideas. It is also used by the config refiner to propose edits.</td>
+      <td>Successful ideation probe <code>7415465</code> generated four valid research ideas; later run stores accumulated many <code>ResearchIdea</code> objects.</td>
+    </tr>
+    <tr>
+      <td>Should Qwen thinking be disabled to save context?</td>
+      <td>No. The decision was to keep thinking enabled because idea quality matters, then increase context and reduce repeated evidence instead.</td>
+      <td>The observed overflow was near the 64K serving limit, not the model's advertised maximum context.</td>
+    </tr>
+    <tr>
+      <td>Is a larger context window alone enough?</td>
+      <td>No. Larger context avoids hard limit errors, but it does not fix malformed tool payloads, hard-gating on empty ideas, unbounded idea-bank prompts, or expensive configs.</td>
+      <td>After 131K full scripts, <code>7435022</code> failed on event schema and <code>7435023</code> showed timeout-heavy behavior.</td>
+    </tr>
+    <tr>
+      <td>Should empty node-level ideation cancel the search?</td>
+      <td>No. Empty node ideas should fall back to the config refiner using parent feedback, history, and existing ideas.</td>
+      <td><code>7428512</code> and <code>7429369</code> stopped early despite successful Slurm completion because empty node ideas/proposal exhaustion halted useful expansion.</td>
+    </tr>
+    <tr>
+      <td>Is the current no-success pattern purely a target difficulty issue?</td>
+      <td>No. CD45 had a near miss at <code>i_pAE=0.18456006</code>, but both targets were also affected by code/schema failures, timeout-heavy configs, and prompt/context design issues.</td>
+      <td>CD45 <code>7435022</code> failed from a Python schema exception. BetV1 <code>7435023</code> had many 30-minute timeouts before reaching a clean 120-eval finish.</td>
+    </tr>
+    <tr>
+      <td>Is v2 ready for a full 120-eval result?</td>
+      <td>Not yet. It can run pieces of the pipeline, but a clean full result should wait for resource accounting and bounded idea context.</td>
+      <td>Latest CD45 failed at <code>15/120</code>; latest BetV1 was still running at verification with <code>39</code> timeouts out of <code>63</code> evaluations.</td>
     </tr>
   </table>
 </section>
@@ -184,7 +260,7 @@ pre{white-space:pre-wrap;background:#0f172a;color:#e5edf7;border-radius:8px;padd
     <tr>
       <td>5</td>
       <td>BetV1 full attempt <code>7435023</code> continued on the pre-patch loaded code.</td>
-      <td>As of the 2026-04-29 check, Slurm state was <code>RUNNING</code> at about <code>10:18:21</code>. Artifacts at that point: <code>61</code> evaluations, <code>165</code> ideas, <code>78</code> trajectories. Execution statuses: <code>22 completed</code>, <code>37 timed_out</code>, <code>2 failed</code>. Best completed metric observed: <code>best_i_pae=0.26955092</code>, <code>best_plddt=0.9129206</code>, <code>8</code> finals, <code>0</code> primary successes.</td>
+      <td>As of the 2026-04-29 check, Slurm state was <code>RUNNING</code> at about <code>10:34:19</code>. Artifacts at that point: <code>63</code> evaluations, <code>166</code> ideas, <code>79</code> trajectories. Execution statuses: <code>22 completed</code>, <code>39 timed_out</code>, <code>2 failed</code>. Best completed metric observed: <code>best_i_pae=0.26955092</code>, <code>best_plddt=0.9129206</code>, <code>8</code> finals, <code>0</code> primary successes.</td>
       <td>This is not a clean full result. It demonstrates that the current resource policy still spends too many evaluations on timeout-prone configs.</td>
     </tr>
     <tr>
@@ -209,6 +285,24 @@ pre{white-space:pre-wrap;background:#0f172a;color:#e5edf7;border-radius:8px;padd
   <h2>Diagnostic Job Ledger</h2>
   <table>
     <tr><th>Job</th><th>Target</th><th>Observed outcome</th><th>Use in analysis</th></tr>
+    <tr>
+      <td><code>7389941</code></td>
+      <td><code>05_CD45</code></td>
+      <td>Slurm <code>FAILED 1:0</code> after <code>00:02:07</code>. The init ideation phase timed out waiting for vLLM at <code>127.0.0.1:8766/v1/models</code> while launching Qwen with <code>--max-model-len 32768</code>.</td>
+      <td>Infrastructure/readiness failure. It should not be interpreted as an IdeaResearcher or config-search result.</td>
+    </tr>
+    <tr>
+      <td><code>7415465</code></td>
+      <td><code>05_CD45</code></td>
+      <td>Slurm <code>COMPLETED 0:0</code> after <code>00:04:54</code>. The 64K ideation probe generated four valid research ideas after parser/context fixes.</td>
+      <td>Evidence that Qwen can produce valid idea objects when the serving and parser path are healthy.</td>
+    </tr>
+    <tr>
+      <td><code>7415636</code></td>
+      <td><code>05_CD45</code></td>
+      <td>Slurm <code>COMPLETED 0:0</code> after <code>00:40:18</code>. The smoke store contains <code>6</code> evaluations, <code>4</code> completed executions, <code>1</code> worker crash, <code>1</code> failed execution, and <code>0</code> successes. Best completed child had <code>best_i_pae=0.22205861</code>, <code>best_plddt=0.9444639</code>, <code>32</code> finals.</td>
+      <td>Showed that smoke execution could proceed through ideation, config refinement, execution, evaluation, and feedback, but did not establish a full-run result.</td>
+    </tr>
     <tr>
       <td><code>7427366</code></td>
       <td><code>23_BetV1</code></td>
@@ -242,8 +336,63 @@ pre{white-space:pre-wrap;background:#0f172a;color:#e5edf7;border-radius:8px;padd
     <tr>
       <td><code>7435023</code></td>
       <td><code>23_BetV1</code></td>
-      <td>Still <code>RUNNING</code> at the 2026-04-29 check. Partial artifacts at <code>61</code> evaluations: <code>22</code> completed, <code>37</code> timed out, <code>2</code> failed, <code>0</code> successes. Best completed child: <code>best_i_pae=0.26955092</code>, <code>best_plddt=0.9129206</code>, <code>8</code> finals.</td>
+      <td>Still <code>RUNNING</code> at the 2026-04-29 check. Partial artifacts at <code>63</code> evaluations: <code>22</code> completed, <code>39</code> timed out, <code>2</code> failed, <code>0</code> successes. Best completed child: <code>best_i_pae=0.26955092</code>, <code>best_plddt=0.9129206</code>, <code>8</code> finals.</td>
       <td>Timeout-heavy diagnostic run. It should not be used as a clean full-search result unless rerun after resource-accounting fixes.</td>
+    </tr>
+  </table>
+</section>
+
+<section id="root-causes">
+  <h2>Root-Cause Families</h2>
+  <table>
+    <tr><th>Family</th><th>What failed</th><th>Current status</th><th>Next action</th></tr>
+    <tr>
+      <td>Serving / environment</td>
+      <td>vLLM readiness could fail before any scientific logic ran, as in <code>7389941</code>.</td>
+      <td><span class="status ok">diagnosed</span></td>
+      <td>Keep Slurm logs and vLLM logs under the project output tree; treat readiness failures separately from search failures.</td>
+    </tr>
+    <tr>
+      <td>LLM output parsing</td>
+      <td>OpenAI-compatible tool parsers can return JSON payloads as strings or partially malformed arrays.</td>
+      <td><span class="status ok">patched</span></td>
+      <td>Keep defensive parsing and preserve failed payload examples in trajectories.</td>
+    </tr>
+    <tr>
+      <td>Prompt/schema contract</td>
+      <td>The LLM could propose paths or multi-stage actions that v2 could not execute.</td>
+      <td><span class="status ok">partly patched</span></td>
+      <td>Continue normalizing/rejecting unsupported paths before execution; keep v2 single-stage until executor support exists.</td>
+    </tr>
+    <tr>
+      <td>Node-level ideation gate</td>
+      <td>Empty node ideas stopped search even though config refinement could still use feedback and history.</td>
+      <td><span class="status ok">patched</span></td>
+      <td>Keep fallback behavior, but throttle node-level ideation to avoid runaway idea-bank growth.</td>
+    </tr>
+    <tr>
+      <td>Logging schema</td>
+      <td>The new fallback event type was emitted before being registered in <code>LOOP_EVENT_TYPES</code>.</td>
+      <td><span class="status ok">patched</span></td>
+      <td>Add schema tests whenever a new loop event is introduced.</td>
+    </tr>
+    <tr>
+      <td>Resource accounting</td>
+      <td>The memory/runtime safety gate undercounts <code>best-of-n</code> and <code>mcts</code> cost.</td>
+      <td><span class="status pending">open</span></td>
+      <td>Implement an active work multiplier and apply it to normal validation, seed capping, and post-timeout recovery.</td>
+    </tr>
+    <tr>
+      <td>Prompt-size control</td>
+      <td>The refiner can see every non-parent idea in <code>Other available ideas</code>, and trajectories can accumulate many tool outputs.</td>
+      <td><span class="status pending">open</span></td>
+      <td>Cap idea-bank context and summarize prior evidence instead of listing all available ideas.</td>
+    </tr>
+    <tr>
+      <td>Experiment design</td>
+      <td>The current full scripts use <code>seed_profile=deep</code> even though target-routed seeds exist.</td>
+      <td><span class="status pending">open decision</span></td>
+      <td>Before the next clean run, decide whether the comparison should use generic <code>deep</code> or target-specific <code>routed</code>.</td>
     </tr>
   </table>
 </section>
@@ -253,7 +402,7 @@ pre{white-space:pre-wrap;background:#0f172a;color:#e5edf7;border-radius:8px;padd
   <p>The failures were not best explained as "Qwen cannot generate ideas." Qwen did generate valid ideas in the 64K ideation probe, and it produced meaningful config-refinement actions, including resource-recovery proposals and a BetV1 child with one primary success in a partial diagnostic run.</p>
   <p>The main failures were integration and prompting-design issues:</p>
   <ul>
-    <li><strong>Context management:</strong> with thinking enabled, the OpenAI-compatible client reserves at least <code>8192</code> completion tokens. A server launched at <code>--max-model-len 65536</code> therefore leaves roughly <code>57344</code> tokens for input. One trajectory reached that boundary because tool evidence was too verbose. The next full scripts use <code>131072</code>.</li>
+    <li><strong>Context management:</strong> with thinking enabled, the OpenAI-compatible client reserves at least <code>8192</code> completion tokens. A server launched at <code>--max-model-len 65536</code> therefore leaves roughly <code>57344</code> tokens for input. One trajectory reached that boundary because tool evidence was too verbose. The current full scripts use <code>131072</code>.</li>
     <li><strong>Tool payload robustness:</strong> Qwen/vLLM sometimes returned a JSON list as a string, not as a native list. The prior parser treated that as zero ideas even when the content was mostly valid.</li>
     <li><strong>Search-loop design:</strong> node-level idea generation was treated as required. That made an empty idea list stop progress even though the refiner could still mutate from parent feedback and run history.</li>
     <li><strong>Schema mismatch:</strong> exposing multi-stage knobs before the executor supported them let the LLM propose configs that could not be faithfully executed.</li>
@@ -273,7 +422,7 @@ pre{white-space:pre-wrap;background:#0f172a;color:#e5edf7;border-radius:8px;padd
     <li>A larger window does not fix malformed tool payloads or hard-gating on empty ideas.</li>
     <li>Unbounded evidence can hide the useful signal inside too much run history; compact tools are still needed.</li>
   </ul>
-  <pre>Next full-run setting
+  <pre>Current full-run setting
 --max-model-len 131072
 
 Reason:
