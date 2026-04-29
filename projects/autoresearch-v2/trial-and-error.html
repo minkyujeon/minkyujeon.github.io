@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Autoresearch v2 Trial and Error</title>
+<style>
+:root{
+  --bg:#f7f9fc;
+  --card:#ffffff;
+  --ink:#14213d;
+  --muted:#5f6f89;
+  --line:#d9e2ec;
+  --accent:#1f6feb;
+  --good:#0f766e;
+  --warn:#b45309;
+  --bad:#b42318;
+  --soft:#eef4ff;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif}
+header{background:#102a43;color:#fff;padding:34px 28px}
+header .wrap,main{max-width:1180px;margin:0 auto}
+.breadcrumb{font-size:13px;color:#bcccdc;margin-bottom:10px}
+.breadcrumb a{color:#dbeafe;text-decoration:none}
+h1{margin:0 0 8px;font-size:32px;line-height:1.15}
+.sub{max-width:900px;color:#d9e2ec;line-height:1.55}
+main{padding:26px 24px 56px}
+section{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:20px;margin:0 0 18px}
+h2{font-size:20px;margin:0 0 12px;color:#102a43}
+h3{font-size:15px;margin:18px 0 8px;color:#243b53}
+p,li{line-height:1.6;color:#334e68}
+a{color:var(--accent)}
+code{font-family:"SF Mono",Menlo,Consolas,monospace;background:#eef2f7;border:1px solid #e3e8ef;border-radius:5px;padding:1px 5px}
+.nav{display:flex;flex-wrap:wrap;gap:9px;margin-top:18px}
+.btn{display:inline-block;text-decoration:none;background:#1f6feb;color:white;padding:8px 11px;border-radius:7px;font-size:13px;font-weight:700}
+.btn.secondary{background:#e8f1ff;color:#1f4fbf}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+.mini{border:1px solid var(--line);border-radius:8px;padding:13px;background:#fbfdff}
+.label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#829ab1;font-weight:800;margin-bottom:6px}
+.value{font-size:14px;color:#243b53}
+table{width:100%;border-collapse:collapse;margin-top:10px}
+th,td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top;font-size:13px}
+th{background:#f0f4f8;color:#334e68}
+.status{display:inline-block;border-radius:999px;padding:2px 8px;font-size:11px;font-weight:800}
+.ok{background:#ccfbf1;color:#0f766e}
+.pending{background:#fef3c7;color:#92400e}
+.fail{background:#fee4e2;color:#b42318}
+.note{border-left:4px solid var(--accent);background:#f8fbff;padding:12px 14px;margin-top:12px;border-radius:6px}
+pre{white-space:pre-wrap;background:#0f172a;color:#e5edf7;border-radius:8px;padding:14px;overflow:auto;font-size:12px;line-height:1.45}
+@media(max-width:840px){main{padding:20px 14px 42px}table{font-size:12px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="breadcrumb"><a href="/projects/">Projects</a> / <a href="/projects/autoresearch-v2/">Autoresearch v2</a></div>
+    <h1>Autoresearch v2 Trial and Error</h1>
+    <div class="sub">Fact-focused record of issues found while turning the first v2 config-search version into a more robust Qwen-driven search loop. This page separates observed failures from design changes and avoids treating diagnostic partial runs as final experiments.</div>
+    <div class="nav">
+      <a class="btn" href="current-v2-pipeline.html">Current pipeline</a>
+      <a class="btn secondary" href="runs/index.html">Run reports</a>
+      <a class="btn secondary" href="#qwen">Qwen vs design</a>
+    </div>
+  </div>
+</header>
+<main>
+
+<section id="snapshot">
+  <h2>Current Conclusion</h2>
+  <div class="grid">
+    <div class="mini"><div class="label">Primary lesson</div><div class="value">Ideas should help the config refiner, but node-level ideation must not be a hard gate for running a child config.</div></div>
+    <div class="mini"><div class="label">Qwen context</div><div class="value">The local checkpoint advertises <code>max_position_embeddings=262144</code>. Earlier full scripts limited vLLM to <code>--max-model-len 65536</code>; next full scripts default to <code>131072</code>.</div></div>
+    <div class="mini"><div class="label">Observed vLLM capacity</div><div class="value">A 64K server log reported about <code>446688</code> GPU KV-cache tokens, so longer single-request contexts should be possible, with lower concurrency and higher latency.</div></div>
+    <div class="mini"><div class="label">Design fix</div><div class="value">Keep thinking enabled, raise context if needed, and also compact tool evidence so the model is not encouraged to read unbounded history.</div></div>
+  </div>
+  <div class="note">
+    Last manual update: <code>2026-04-29</code>. Job ids below are diagnostic records from the active v2 debugging process, not a final benchmark table.
+  </div>
+</section>
+
+<section id="timeline">
+  <h2>Change Log</h2>
+  <table>
+    <tr><th>Problem observed</th><th>Evidence</th><th>Design change</th><th>Status</th></tr>
+    <tr>
+      <td>Initial v2 exposed multi-stage proposal fields while the executor ran one stage.</td>
+      <td>Qwen could mention <code>append_stage</code> or <code>stage_conditions</code>, but <code>ProgramExecutor</code> executes a single <code>ConfigOnlyInferenceProgram</code> stage.</td>
+      <td>Removed multi-stage fields from the active v2 LLM schema and reject any nonzero <code>stage_index</code> before execution.</td>
+      <td><span class="status ok">fixed</span></td>
+    </tr>
+    <tr>
+      <td>LLM-selected idea ids could be overwritten by parent idea ids.</td>
+      <td>Child programs could lose the idea ids selected by the refiner, making later idea-performance analysis unreliable.</td>
+      <td>Preserve child-selected ids when present; use parent ids only as fallback context.</td>
+      <td><span class="status ok">fixed</span></td>
+    </tr>
+    <tr>
+      <td>Seed or child configs could time out or OOM with overly expensive settings.</td>
+      <td>Diagnostic CD45 and BetV1 runs showed timeout/SIGTERM behavior on high product or high-search settings.</td>
+      <td>Added memory/product caps, batch caps, safe recovery limits, MCTS simulation caps, and coarser checkpoint alignment after resource-failure feedback.</td>
+      <td><span class="status ok">fixed in refiner gate</span></td>
+    </tr>
+    <tr>
+      <td>Changing <code>sampling.nsteps</code> without changing <code>step_checkpoints</code> created inconsistent configs.</td>
+      <td>Qwen often changed nsteps as a resource-recovery action but omitted checkpoint updates.</td>
+      <td>Auto-align checkpoints when nsteps changes and checkpoints were not explicitly supplied.</td>
+      <td><span class="status ok">fixed</span></td>
+    </tr>
+    <tr>
+      <td>IdeaResearcher sometimes finalized zero ideas even though the payload contained usable JSON.</td>
+      <td>Observed trajectories had <code>finalize_ideas_called</code> with <code>ideas</code> as a JSON string. Failures included trailing extra data and an otherwise usable JSON array missing the final closing bracket.</td>
+      <td>Parser now accepts dict wrappers, uses JSON raw decoding, and salvages object entries from a partially closed top-level JSON array.</td>
+      <td><span class="status ok">fixed</span></td>
+    </tr>
+    <tr>
+      <td>Node-level ideation could stop the search early.</td>
+      <td>Job <code>7428512</code> completed Slurm successfully but ended at <code>14/120</code>; job <code>7429369</code> ended at <code>8/120</code>. Both were limited by repeated empty node ideas/proposal exhaustion.</td>
+      <td>Parallel and sequential drivers now fall back to selected parent ideas or no ideas, then still call <code>ConfigRefiner</code>.</td>
+      <td><span class="status ok">fixed</span></td>
+    </tr>
+    <tr>
+      <td>IdeaResearcher context could overflow at 64K with Qwen thinking enabled.</td>
+      <td>A BetV1 trajectory failed with at least <code>57345</code> prompt tokens plus <code>8192</code> reserved output tokens, exceeding the <code>65536</code> vLLM limit by one token.</td>
+      <td>Keep thinking enabled, allow larger <code>--max-model-len</code> when stable, and compact evidence tools so repeated tree/source reads do not inflate context unnecessarily.</td>
+      <td><span class="status pending">partly fixed</span></td>
+    </tr>
+    <tr>
+      <td>Exact repeated evidence reads could duplicate large tool results in the prompt.</td>
+      <td>The shared tool loop appended every nonterminal tool result to the conversation, even when the same tool and arguments had already been used earlier in the trajectory.</td>
+      <td>The tool loop now caches exact nonterminal tool calls per trajectory. Repeated calls return a small <code>duplicate_tool_call_skipped</code> message pointing back to the earlier result.</td>
+      <td><span class="status ok">fixed</span></td>
+    </tr>
+    <tr>
+      <td>Fallback event logging crashed the full run.</td>
+      <td>Job <code>7435022</code> on <code>05_CD45</code> failed at <code>15/120</code> with <code>ValueError: invalid loop event type: node_idea_empty_fallback</code>.</td>
+      <td>Added <code>node_idea_empty_fallback</code> and <code>node_idea_fallback_without_ideas</code> to the shared loop event schema so the fallback path can be recorded instead of crashing.</td>
+      <td><span class="status ok">fixed after 7435022</span></td>
+    </tr>
+    <tr>
+      <td>The resource gate still underestimates non-beam search cost.</td>
+      <td>After the earlier recovery caps, BetV1 job <code>7435023</code> still accumulated <code>37</code> timeouts in the first <code>61</code> evaluations. The validator uses <code>active_beam_width</code>, but <code>best-of-n</code> replicas and <code>mcts.n_simulations</code> are not counted as the active multiplier.</td>
+      <td>Required next change: replace the beam-only product with an active work multiplier that covers beam width, best-of-n replicas, and MCTS simulations, then apply the same multiplier in normal validation and post-timeout recovery.</td>
+      <td><span class="status pending">open root bug</span></td>
+    </tr>
+    <tr>
+      <td>The refiner prompt can grow with the entire idea bank.</td>
+      <td>By the current BetV1 diagnostic run, the store had <code>165</code> ideas and <code>78</code> idea trajectories. The <code>Other available ideas</code> prompt block lists all ideas not already attached to the parent.</td>
+      <td>Required next change: cap the idea context to parent-active ideas plus a small recent/top subset, with summaries only. Node-level ideation should also be throttled rather than run on every expansion.</td>
+      <td><span class="status pending">open design issue</span></td>
+    </tr>
+  </table>
+</section>
+
+<section id="latest-full-attempt">
+  <h2>Latest Full-Run Attempt: 2026-04-28 to 2026-04-29</h2>
+  <p>This sequence records the current debugging state after switching from smoke tests to 4-GPU full-run attempts. The purpose was to check whether the recent fixes let v2 run a real config search, not to claim a final target result.</p>
+  <table>
+    <tr><th>Step</th><th>Change or observation</th><th>Result</th><th>Interpretation</th></tr>
+    <tr>
+      <td>1</td>
+      <td>Kept Qwen thinking enabled and ran with a larger context setting after earlier 64K context pressure.</td>
+      <td>Initial ideation succeeded in producing ideas, so the run was no longer blocked at the first idea-generation call.</td>
+      <td>The earlier zero-idea failures were not simply "Qwen cannot think of ideas"; parser robustness, context budget, and tool-history size were part of the failure mode.</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>Changed node-level empty ideation from a hard stop into fallback-to-config-refiner behavior.</td>
+      <td>The code attempted to record <code>node_idea_empty_fallback</code> when node-level IdeaResearcher returned no ideas.</td>
+      <td>The search-loop design was improved, but the logging schema had not been updated to accept the new event type.</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>Submitted CD45 full attempt <code>7435022</code>.</td>
+      <td>Slurm state: <code>FAILED 1:0</code>, elapsed <code>01:42:43</code>. Internal progress reached <code>15/120</code>. Artifacts: <code>15</code> evaluations, <code>48</code> ideas, <code>19</code> trajectories. Execution statuses: <code>8 completed</code>, <code>3 timed_out</code>, <code>4 failed</code>.</td>
+      <td>Failure was a code/schema crash, not a scientific conclusion about CD45. Best completed child was a near miss: <code>best_i_pae=0.18456006</code>, <code>best_plddt=0.9544289</code>, <code>128</code> finals, <code>0</code> primary successes.</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>Patched the shared loop schema after <code>7435022</code>.</td>
+      <td>Added <code>node_idea_empty_fallback</code> and <code>node_idea_fallback_without_ideas</code> to <code>LOOP_EVENT_TYPES</code>.</td>
+      <td>This fixes the immediate crash path for future runs. Already-running jobs do not pick up this patch unless restarted.</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>BetV1 full attempt <code>7435023</code> continued on the pre-patch loaded code.</td>
+      <td>As of the 2026-04-29 check, Slurm state was <code>RUNNING</code> at about <code>10:18:21</code>. Artifacts at that point: <code>61</code> evaluations, <code>165</code> ideas, <code>78</code> trajectories. Execution statuses: <code>22 completed</code>, <code>37 timed_out</code>, <code>2 failed</code>. Best completed metric observed: <code>best_i_pae=0.26955092</code>, <code>best_plddt=0.9129206</code>, <code>8</code> finals, <code>0</code> primary successes.</td>
+      <td>This is not a clean full result. It demonstrates that the current resource policy still spends too many evaluations on timeout-prone configs.</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>Re-audited the resource validator after seeing the timeout-heavy BetV1 pattern.</td>
+      <td><code>_active_beam_width</code> handles beam-like algorithms but returns <code>None</code> for <code>best-of-n</code> and <code>mcts</code>. The product check then falls back to multiplier <code>1</code>.</td>
+      <td>The next minimal code fix should be resource accounting, before another expensive 120-eval run.</td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td>Re-audited idea context after seeing many ideas/trajectories accumulate.</td>
+      <td>The refiner user message includes all <code>Other available ideas</code> not already on the parent. BetV1 had already accumulated more than <code>160</code> stored ideas.</td>
+      <td>Longer Qwen context helps avoid hard context-limit errors, but unbounded idea context can still degrade proposal quality and latency. This should be capped before rerun.</td>
+    </tr>
+  </table>
+  <div class="note">
+    Current recommendation before resubmission: cancel or ignore the current BetV1 diagnostic run as a clean benchmark, fix resource accounting and idea-context caps, then restart CD45 and BetV1 from fresh stores.
+  </div>
+</section>
+
+<section id="jobs">
+  <h2>Diagnostic Job Ledger</h2>
+  <table>
+    <tr><th>Job</th><th>Target</th><th>Observed outcome</th><th>Use in analysis</th></tr>
+    <tr>
+      <td><code>7427366</code></td>
+      <td><code>23_BetV1</code></td>
+      <td>Slurm completed, but the v2 search reached only <code>1/120</code>. Root seed timed out, then recovery proposals still had timeout-prone settings and empty proposals.</td>
+      <td>Bug-driven diagnostic run. Deleted to recover disk space.</td>
+    </tr>
+    <tr>
+      <td><code>7427365</code></td>
+      <td><code>05_CD45</code></td>
+      <td>Slurm completed, but the v2 search reached only <code>2/120</code>. Seed and MCTS-heavy child timed out; refiner exhausted valid proposals.</td>
+      <td>Bug-driven diagnostic run. Deleted to recover disk space.</td>
+    </tr>
+    <tr>
+      <td><code>7428512</code></td>
+      <td><code>23_BetV1</code></td>
+      <td>Slurm <code>COMPLETED 0:0</code>, internal search stopped at <code>14/120</code>. One program had <code>primary_successes=1</code>, best iPAE about <code>0.169</code>, best pLDDT about <code>0.953</code>.</td>
+      <td>Useful diagnostic result, not a full 120-eval run.</td>
+    </tr>
+    <tr>
+      <td><code>7429369</code></td>
+      <td><code>05_CD45</code></td>
+      <td>Slurm <code>COMPLETED 0:0</code>, internal search stopped at <code>8/120</code>. No primary successes were recorded.</td>
+      <td>Useful diagnostic result, not a full 120-eval run.</td>
+    </tr>
+    <tr>
+      <td><code>7435022</code></td>
+      <td><code>05_CD45</code></td>
+      <td>Slurm <code>FAILED 1:0</code>, elapsed <code>01:42:43</code>. Internal search reached <code>15/120</code> then crashed while logging <code>node_idea_empty_fallback</code>. Completed artifacts included <code>8</code> scored children, <code>3</code> timeouts, and <code>4</code> failed executions. Best completed child: <code>best_i_pae=0.18456006</code>, <code>best_plddt=0.9544289</code>, <code>0</code> successes.</td>
+      <td>Code/schema failure. Useful for diagnosing fallback logging and near-miss scoring, not a full run.</td>
+    </tr>
+    <tr>
+      <td><code>7435023</code></td>
+      <td><code>23_BetV1</code></td>
+      <td>Still <code>RUNNING</code> at the 2026-04-29 check. Partial artifacts at <code>61</code> evaluations: <code>22</code> completed, <code>37</code> timed out, <code>2</code> failed, <code>0</code> successes. Best completed child: <code>best_i_pae=0.26955092</code>, <code>best_plddt=0.9129206</code>, <code>8</code> finals.</td>
+      <td>Timeout-heavy diagnostic run. It should not be used as a clean full-search result unless rerun after resource-accounting fixes.</td>
+    </tr>
+  </table>
+</section>
+
+<section id="qwen">
+  <h2>Why Did IdeaResearcher Fail?</h2>
+  <p>The failures were not best explained as "Qwen cannot generate ideas." Qwen did generate valid ideas in the 64K ideation probe, and it produced meaningful config-refinement actions, including resource-recovery proposals and a BetV1 child with one primary success in a partial diagnostic run.</p>
+  <p>The main failures were integration and prompting-design issues:</p>
+  <ul>
+    <li><strong>Context management:</strong> with thinking enabled, the OpenAI-compatible client reserves at least <code>8192</code> completion tokens. A server launched at <code>--max-model-len 65536</code> therefore leaves roughly <code>57344</code> tokens for input. One trajectory reached that boundary because tool evidence was too verbose. The next full scripts use <code>131072</code>.</li>
+    <li><strong>Tool payload robustness:</strong> Qwen/vLLM sometimes returned a JSON list as a string, not as a native list. The prior parser treated that as zero ideas even when the content was mostly valid.</li>
+    <li><strong>Search-loop design:</strong> node-level idea generation was treated as required. That made an empty idea list stop progress even though the refiner could still mutate from parent feedback and run history.</li>
+    <li><strong>Schema mismatch:</strong> exposing multi-stage knobs before the executor supported them let the LLM propose configs that could not be faithfully executed.</li>
+    <li><strong>Repeated evidence:</strong> exact duplicate tool calls are now skipped, but overlapping tools can still contain related information. Bounded summaries remain necessary.</li>
+  </ul>
+  <div class="note">
+    Qwen still contributes operational sensitivity: long thinking traces, repeated evidence reads, and occasional schema-format drift are real behaviors. The current design should absorb those behaviors rather than assuming perfect tool calls.
+  </div>
+</section>
+
+<section id="context">
+  <h2>Context-Length Policy</h2>
+  <p>The local Qwen config supports up to <code>262144</code> positions. The 64K limit came from Slurm script launch arguments, not from the checkpoint config. Raising vLLM to <code>131072</code>, <code>196608</code>, or <code>262144</code> is technically plausible, but it changes runtime behavior:</p>
+  <ul>
+    <li>Longer context lowers maximum concurrency because more KV cache is reserved per request.</li>
+    <li>Prefill latency grows with prompt length, so the LLM loop can become slower even if it does not OOM.</li>
+    <li>A larger window does not fix malformed tool payloads or hard-gating on empty ideas.</li>
+    <li>Unbounded evidence can hide the useful signal inside too much run history; compact tools are still needed.</li>
+  </ul>
+  <pre>Next full-run setting
+--max-model-len 131072
+
+Reason:
+- enough headroom for the observed 64K overflow case
+- lower risk than jumping immediately to 262144
+- still keeps thinking enabled</pre>
+</section>
+
+<section id="current-policy">
+  <h2>Current Design Policy</h2>
+  <ul>
+    <li>Treat ideas as optional structured inspiration, not as a required gate for tree expansion.</li>
+    <li>Let <code>ConfigRefiner</code> propose from parent feedback, score history, stderr tails, and selected ideas when available.</li>
+    <li>Validate resource recovery before execution: batch, product, nsteps, checkpoints, refinement iterations, and MCTS simulations.</li>
+    <li>Parse tool outputs defensively because OpenAI-compatible local serving can vary the exact payload representation.</li>
+    <li>Use longer Qwen context when useful, but keep evidence summaries compact and bounded.</li>
+    <li>Cache exact repeated evidence reads inside one IdeaResearcher trajectory and clean that cache when the trajectory ends.</li>
+  </ul>
+</section>
+
+</main>
+</body>
+</html>

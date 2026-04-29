@@ -83,12 +83,12 @@ pre{white-space:pre-wrap;background:#0f172a;color:#e5edf7;border-radius:8px;padd
   <h2>Current Snapshot</h2>
   <div class="grid">
     <div class="mini"><div class="label">Goal</div><div class="value">v2 is a config search system: search over executable Complexa inference configurations, not over new model weights.</div></div>
-    <div class="mini"><div class="label">Target Focus</div><div class="value"><code>05_CD45</code> full search with Qwen3.6-35B-A3B-FP8 as the idea model and LLM refiner model.</div></div>
+    <div class="mini"><div class="label">Target Focus</div><div class="value"><code>05_CD45</code> and <code>23_BetV1</code> full-search diagnostics with Qwen3.6-35B-A3B-FP8 as the idea model and LLM refiner model.</div></div>
     <div class="mini"><div class="label">GPU Layout</div><div class="value">GPU 3 for vLLM and GPUs 0-2 for Complexa workers.</div></div>
     <div class="mini"><div class="label">Current Safety Rule</div><div class="value">The executor is single-stage. Multi-stage proposals are rejected in the refiner loop and fed back to the LLM before execution.</div></div>
   </div>
   <div class="note">
-    Last verification: <code>2026-04-27 23:32 EDT</code>. Public pages use repo-relative or bracketed paths. Local run roots are in the active Autoresearch_Denovo checkout under <code>autoresearch_outputs/run_store/</code>, and historical static reports are under <code>projects/autoresearch-v2/runs/</code>.
+    Last verification: <code>2026-04-29 EDT</code>. Public pages use repo-relative or bracketed paths. Local run roots are in the active Autoresearch_Denovo checkout under <code>autoresearch_outputs/run_store/</code>, and historical static reports are under <code>projects/autoresearch-v2/runs/</code>.
   </div>
 </section>
 
@@ -152,15 +152,15 @@ pre{white-space:pre-wrap;background:#0f172a;color:#e5edf7;border-radius:8px;padd
       </ul>
     </div>
     <div>
-<pre>Current full run shape
-target: 05_CD45
+<pre>Current diagnostic full-run shape
+targets: 05_CD45, 23_BetV1
 seed_profile: deep
 n_candidate: 16
-budget_evals: 30
+budget_evals: 120
 refiner: llm
 refiner_scope: full
 workers: GPUs 0,1,2
-vLLM: GPU 3, max_model_len=65536</pre>
+vLLM: GPU 3, max_model_len=131072 in current full scripts</pre>
     </div>
   </div>
 </section>
@@ -170,8 +170,10 @@ vLLM: GPU 3, max_model_len=65536</pre>
   <table>
     <tr><th>Failure mode</th><th>Current handling</th><th>Status</th></tr>
     <tr><td>Qwen finalizes ideas as a JSON string instead of a list</td><td><code>_coerce_idea_payload()</code> normalizes JSON strings before validating idea objects.</td><td><span class="status ok">fixed</span></td></tr>
-    <tr><td>Tool-loop context budget</td><td>Current vLLM launches use <code>--max-model-len 65536</code> for Qwen thinking/tool loops, avoiding the earlier short-context ideation failure mode.</td><td><span class="status ok">fixed for current scripts</span></td></tr>
+    <tr><td>Tool-loop context budget</td><td>The local Qwen checkpoint advertises <code>max_position_embeddings=262144</code>. Full scripts now default to <code>--max-model-len 131072</code> after evidence compaction and duplicate tool-call skipping.</td><td><span class="status ok">updated</span></td></tr>
     <tr><td>Complexa OOM or subprocess error</td><td>Executor captures the last log lines as <code>stderr_tail</code>, saves a zero score if needed, and feeds this back through parent feedback/run history.</td><td><span class="status ok">handled</span></td></tr>
+    <tr><td>Search-cost underestimation for non-beam algorithms</td><td>The current resource gate still uses beam width as the main multiplier. <code>best-of-n</code> replicas and <code>mcts.n_simulations</code> need to be counted before the next clean full run.</td><td><span class="status pending">open</span></td></tr>
+    <tr><td>Unbounded idea-bank prompt context</td><td>The refiner currently lists all other available ideas. Recent BetV1 diagnostics accumulated more than 160 stored ideas, so this context should be capped to parent-active plus recent/top summaries.</td><td><span class="status pending">open</span></td></tr>
     <tr><td>Qwen proposes multi-stage v2 programs</td><td>Tool schema no longer advertises multi-stage fields. If they appear anyway, <code>ConfigRefiner</code> rejects them and asks Qwen to retry before execution.</td><td><span class="status ok">fixed after smoke</span></td></tr>
     <tr><td>Fatal driver, server, or init crash</td><td>Can still end the Slurm job. This needs a higher-level checkpoint/resume wrapper if we want automatic Slurm-command retries.</td><td><span class="status pending">remaining risk</span></td></tr>
   </table>
@@ -197,10 +199,31 @@ vLLM: GPU 3, max_model_len=65536</pre>
     </tr>
     <tr>
       <td>2026-04-27</td>
-      <td><code>7418786</code><br>CD45 Qwen full config search</td>
-      <td><span class="status pending">pending at 2026-04-27 23:32 EDT</span></td>
-      <td>Full run submitted with Qwen 64K. When allocated, the script will place the vLLM server on logical GPU 3 and Complexa workers on logical GPUs 0-2, with <code>budget_evals=30</code>, <code>seed_profile=deep</code>, <code>n_candidate=16</code>.</td>
-      <td><code>autoresearch_outputs/run_store/v2_cd45_qwen_full_${SLURM_JOB_ID}/</code></td>
+      <td><code>7428512</code><br>BetV1 Qwen full diagnostic</td>
+      <td><span class="status ok">Slurm completed</span></td>
+      <td>Internal v2 search stopped at <code>14/120</code>, not a full 120-eval run. One child recorded <code>primary_successes=1</code>. The main failure mode was repeated empty node ideation/proposal exhaustion.</td>
+      <td><code>autoresearch_outputs/run_store/v2_betv1_qwen_full_7428512/</code></td>
+    </tr>
+    <tr>
+      <td>2026-04-28</td>
+      <td><code>7435022</code><br>CD45 Qwen full diagnostic</td>
+      <td><span class="status fail">failed</span></td>
+      <td>Slurm failed with <code>ValueError: invalid loop event type: node_idea_empty_fallback</code> after <code>15/120</code>. Artifacts at failure: <code>15</code> evaluations, <code>8</code> completed executions, <code>3</code> timeouts, <code>4</code> failed executions, <code>0</code> successes. Best completed child was a near miss: <code>best_i_pae=0.18456006</code>, <code>best_plddt=0.9544289</code>.</td>
+      <td><code>autoresearch_outputs/run_store/v2_cd45_qwen_full_7435022/</code></td>
+    </tr>
+    <tr>
+      <td>2026-04-29</td>
+      <td><code>7435023</code><br>BetV1 Qwen full diagnostic</td>
+      <td><span class="status pending">running at verification</span></td>
+      <td>Partial artifacts at verification: <code>61</code> evaluations, <code>22</code> completed executions, <code>37</code> timeouts, <code>2</code> failed executions, <code>0</code> successes. This exposed the remaining non-beam resource-accounting bug; it is not a clean full-run result.</td>
+      <td><code>autoresearch_outputs/run_store/v2_betv1_qwen_full_7435023/</code></td>
+    </tr>
+    <tr>
+      <td>2026-04-28</td>
+      <td><code>7429369</code><br>CD45 Qwen full diagnostic</td>
+      <td><span class="status ok">Slurm completed</span></td>
+      <td>Internal v2 search stopped at <code>8/120</code>, not a full 120-eval run. No primary successes were recorded. The main failure mode was repeated empty node ideation/proposal exhaustion.</td>
+      <td><code>autoresearch_outputs/run_store/v2_cd45_qwen_full_7429369/</code></td>
     </tr>
     <tr>
       <td>2026-04-26</td>
@@ -215,9 +238,9 @@ vLLM: GPU 3, max_model_len=65536</pre>
 <section id="baseline">
   <h2>Baseline Reuse Policy</h2>
   <p>The current-v2 baseline comparison shape is to match the exact full-run CLI shape and change only the refiner:</p>
-<pre>LLM search:    --refiner llm    --budget-evals 30 --n-candidate 16 --seed-profile deep
-Random search: --refiner random --budget-evals 30 --n-candidate 16 --seed-profile deep</pre>
-  <p>Do not launch that random baseline until the pending full Qwen run either starts producing comparable data or finishes. The seed evaluation will be included inside the full run once it starts, and older <code>paper_beam_K100_n96</code>/<code>paper_gh_1pct_n96</code> artifacts are not clean current-v2 CLI baselines.</p>
+<pre>LLM search:    --refiner llm    --budget-evals 120 --n-candidate 16 --seed-profile deep
+Random search: --refiner random --budget-evals 120 --n-candidate 16 --seed-profile deep</pre>
+  <p>Do not treat the short diagnostic Qwen runs as final full-run baselines. The older <code>paper_beam_K100_n96</code>/<code>paper_gh_1pct_n96</code> artifacts are not clean current-v2 CLI baselines.</p>
 </section>
 
 </main>
