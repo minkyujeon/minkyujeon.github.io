@@ -223,7 +223,7 @@ pre{white-space:pre-wrap;background:#0f172a;color:#e5edf7;border-radius:8px;padd
     <tr>
       <td>Is v2 ready for a full 120-eval result?</td>
       <td>Not yet. It can run pieces of the pipeline, but a clean full result should wait for resource accounting and bounded idea context.</td>
-      <td>Latest CD45 failed at <code>15/120</code>; latest BetV1 was still running at verification with <code>39</code> timeouts out of <code>63</code> evaluations.</td>
+      <td>Latest CD45 failed at <code>15/120</code>; latest BetV1 diagnostic was cancelled after <code>64/120</code> evaluations with <code>39</code> timeouts and <code>0</code> successes.</td>
     </tr>
   </table>
 </section>
@@ -259,9 +259,9 @@ pre{white-space:pre-wrap;background:#0f172a;color:#e5edf7;border-radius:8px;padd
     </tr>
     <tr>
       <td>5</td>
-      <td>BetV1 full attempt <code>7435023</code> continued on the pre-patch loaded code.</td>
-      <td>As of the 2026-04-29 check, Slurm state was <code>RUNNING</code> at about <code>10:34:19</code>. Artifacts at that point: <code>63</code> evaluations, <code>166</code> ideas, <code>79</code> trajectories. Execution statuses: <code>22 completed</code>, <code>39 timed_out</code>, <code>2 failed</code>. Best completed metric observed: <code>best_i_pae=0.26955092</code>, <code>best_plddt=0.9129206</code>, <code>8</code> finals, <code>0</code> primary successes.</td>
-      <td>This is not a clean full result. It demonstrates that the current resource policy still spends too many evaluations on timeout-prone configs.</td>
+      <td>BetV1 full attempt <code>7435023</code> continued on the pre-patch loaded code and was then cancelled.</td>
+      <td>Final Slurm state after cancellation: <code>CANCELLED</code>, elapsed about <code>10:46:28</code>. Final partial artifacts: <code>64</code> evaluations, <code>174</code> ideas, <code>83</code> trajectories. Execution statuses: <code>23 completed</code>, <code>39 timed_out</code>, <code>2 failed</code>. Best completed metric observed: <code>best_i_pae=0.26955092</code>, <code>best_plddt=0.9129206</code>, <code>8</code> finals, <code>0</code> primary successes.</td>
+      <td>This is not a clean full result. It was stopped because it was mostly sampling the current failure mode: timeout-heavy configs with no improvement signal.</td>
     </tr>
     <tr>
       <td>6</td>
@@ -277,7 +277,7 @@ pre{white-space:pre-wrap;background:#0f172a;color:#e5edf7;border-radius:8px;padd
     </tr>
   </table>
   <div class="note">
-    Current recommendation before resubmission: cancel or ignore the current BetV1 diagnostic run as a clean benchmark, fix resource accounting and idea-context caps, then restart CD45 and BetV1 from fresh stores.
+    Recommendation before resubmission: treat <code>7435023</code> as a diagnostic failure-mode record, fix resource accounting and idea-context caps, then restart CD45 and BetV1 from fresh stores.
   </div>
 </section>
 
@@ -336,8 +336,8 @@ pre{white-space:pre-wrap;background:#0f172a;color:#e5edf7;border-radius:8px;padd
     <tr>
       <td><code>7435023</code></td>
       <td><code>23_BetV1</code></td>
-      <td>Still <code>RUNNING</code> at the 2026-04-29 check. Partial artifacts at <code>63</code> evaluations: <code>22</code> completed, <code>39</code> timed out, <code>2</code> failed, <code>0</code> successes. Best completed child: <code>best_i_pae=0.26955092</code>, <code>best_plddt=0.9129206</code>, <code>8</code> finals.</td>
-      <td>Timeout-heavy diagnostic run. It should not be used as a clean full-search result unless rerun after resource-accounting fixes.</td>
+      <td>Slurm <code>CANCELLED</code> after about <code>10:46:28</code>. Final partial artifacts at cancellation: <code>64</code> evaluations, <code>23</code> completed, <code>39</code> timed out, <code>2</code> failed, <code>0</code> successes. Best completed child: <code>best_i_pae=0.26955092</code>, <code>best_plddt=0.9129206</code>, <code>8</code> finals.</td>
+      <td>Timeout-heavy diagnostic run. It was cancelled to avoid spending more GPU time before fixing resource accounting and idea-context growth.</td>
     </tr>
   </table>
 </section>
