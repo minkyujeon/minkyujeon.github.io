@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Autoresearch v2.2 — clean LLM-guided binder search</title>
+<style>
+:root{
+  --bg:#f7f9fc;
+  --card:#ffffff;
+  --ink:#14213d;
+  --muted:#5f6f89;
+  --line:#d9e2ec;
+  --accent:#1f6feb;
+  --accent2:#0f766e;
+  --warn:#b45309;
+  --bad:#b42318;
+  --soft:#eef4ff;
+  --soft2:#ecfdf5;
+  --soft3:#fff7ed;
+  --code:#0f172a;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif}
+header{background:#102a43;color:#fff;padding:34px 28px}
+header .wrap,main{max-width:1220px;margin:0 auto}
+.breadcrumb{font-size:13px;color:#bcccdc;margin-bottom:10px}
+.breadcrumb a{color:#dbeafe;text-decoration:none}
+h1{margin:0 0 8px;font-size:32px;line-height:1.15}
+.sub{max-width:920px;color:#d9e2ec;line-height:1.55}
+main{padding:26px 24px 56px}
+section{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:20px;margin:0 0 18px}
+h2{font-size:20px;margin:0 0 12px;color:#102a43}
+h3{font-size:15px;margin:18px 0 8px;color:#243b53}
+p,li{line-height:1.6;color:#334e68}
+a{color:var(--accent)}
+code{font-family:"SF Mono",Menlo,Consolas,monospace;background:#eef2f7;border:1px solid #e3e8ef;border-radius:5px;padding:1px 5px;font-size:12.5px}
+pre{white-space:pre-wrap;background:var(--code);color:#e5edf7;border-radius:8px;padding:14px;overflow:auto;font-size:12px;line-height:1.45}
+table{width:100%;border-collapse:collapse;margin-top:10px}
+th,td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top;font-size:13px}
+th{background:#f0f4f8;color:#334e68}
+.note{border-left:4px solid var(--accent);background:#f8fbff;padding:12px 14px;margin-top:12px;border-radius:6px}
+.warn-note{border-left-color:var(--warn);background:#fffaf0}
+.cols{display:grid;grid-template-columns:1.05fr .95fr;gap:14px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.flow{display:grid;grid-template-columns:repeat(4,minmax(170px,1fr));gap:10px;align-items:stretch;margin-top:14px}
+.box{border:1px solid #cbd5e1;background:#f8fafc;border-radius:8px;padding:12px;min-height:108px}
+.box strong{display:block;color:#102a43;margin-bottom:6px}
+.box span{font-size:12px;color:#52606d;line-height:1.45;display:block}
+.box.accent{background:var(--soft);border-color:#b7cdfa}
+.box.good{background:var(--soft2);border-color:#99f6e4}
+.box.warn{background:var(--soft3);border-color:#fed7aa}
+.pill{display:inline-block;border:1px solid #cbd5e1;background:#f8fafc;border-radius:999px;padding:3px 8px;margin:2px;font-size:12px;color:#334e68}
+.small{font-size:12px;color:var(--muted)}
+.mono{font-family:"SF Mono",Menlo,Consolas,monospace}
+@media(max-width:900px){
+  main{padding:20px 14px 42px}
+  .cols,.two{grid-template-columns:1fr}
+  .flow{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="breadcrumb"><a href="/projects/">Projects</a> / <a href="/projects/autoresearch-v2/">Autoresearch v2</a> / v2.2</div>
+    <h1>Autoresearch v2.2</h1>
+    <div class="sub">A clean rebuild of the LLM-guided test-time optimization pipeline for de novo protein binder design. Wraps a fixed Proteina-Complexa backend with an analyst → refiner → verifier → executor → supervisor loop. Config-first: the LLM proposes JSON inference programs, never edits backend source.</div>
+  </div>
+</header>
+
+<main>
+
+<section>
+  <h2>What changed from v2</h2>
+  <div class="two">
+    <div>
+      <h3>Scope kept</h3>
+      <ul>
+        <li>SCORE-style tree search with parent_portfolio (exploit / explore / rescue / backup).</li>
+        <li>Local Qwen3.6-27B-FP8 served via vLLM on one GPU; remaining GPUs run Proteina-Complexa children.</li>
+        <li>Schema-first proposals; deterministic verifier in front of every launch.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>What v2.2 adds</h3>
+      <ul>
+        <li><b>Capability-manifest-as-protocol</b> with hard / soft bound severity.</li>
+        <li><b>V8 evidence enrichment</b>: proposal_history + operator-family fatigue warnings.</li>
+        <li><b>Primary-success-rate cap</b> (= 2.0) to stop one hot child from dominating the portfolio.</li>
+        <li><b>Multi-route per iteration</b>: <code>--worker-gpu-ids 1,2,3</code> launches N children in parallel.</li>
+        <li><b>Analyst modes</b>: <code>three_experts</code>, <code>single_phd</code>, <code>three_phds</code>, <code>two_phds_one_system</code>.</li>
+        <li><b>Per-iter codegen</b> with diversification cues (sandboxed <code>analyze()</code> over recent runs).</li>
+        <li><b>Refiner-as-scribe</b> with one repair attempt when JSON fails.</li>
+        <li>81 unit tests (schemas, store, manifest, adapter, search policy, roles, controller, reports).</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Pipeline at a glance</h2>
+  <div class="flow">
+    <div class="box accent">
+      <strong>1 · Evidence</strong>
+      <span>TargetSpec + capability_manifest + last N proposals + parent_portfolio + fatigue warning + (optional) computed_analysis.</span>
+    </div>
+    <div class="box">
+      <strong>2 · Analysts</strong>
+      <span>Domain / ML / System experts, or 1–3 PhD-style analysts. Outputs are free-text findings + suggested operator families.</span>
+    </div>
+    <div class="box">
+      <strong>3 · Refiner</strong>
+      <span>Strict-JSON proposal batch. One repair attempt if schema invalid. Prompt sees budget urgency.</span>
+    </div>
+    <div class="box">
+      <strong>4 · Verifier</strong>
+      <span>Manifest hard / soft bounds, budget guard, manifest_bounds summary. Hard fail → blocked, soft fail → warning.</span>
+    </div>
+    <div class="box good">
+      <strong>5 · Executor</strong>
+      <span>Local Complexa runner. <code>--worker-gpu-ids</code> launches N children in parallel per iteration. Timeout floor clamped ≥ 1 min.</span>
+    </div>
+    <div class="box good">
+      <strong>6 · Score</strong>
+      <span>EvalReport → primary success rate (capped at 2.0) + iPAE + diversity. Run-store write per child.</span>
+    </div>
+    <div class="box">
+      <strong>7 · Search update</strong>
+      <span>Tree update + parent_portfolio rebalance + V8 fatigue detection (aggressive ≥ 2/6 or conservative ≥ 3/12).</span>
+    </div>
+    <div class="box accent">
+      <strong>8 · Supervisor</strong>
+      <span>Decides continue / pivot / stop. Decision + parsed JSON kept in transcript for audit.</span>
+    </div>
+  </div>
+  <div class="note small">Per-iteration codegen (<code>--evidence-codegen</code>) inserts an extra Qwen call before step 1: it writes a small <code>analyze()</code> function over recent run results and the sandbox executes it; the structured output joins the next EvidencePack as <code>computed_analysis</code>, plus a <i>diversification cues</i> block listing untried / stuck / successful operator families.</div>
+</section>
+
+<section>
+  <h2>Repository layout</h2>
+<pre>src/autoresearch_v2_2/
+  pipeline/        FullPipelineController, executors, CLI (`pipeline run-local`)
+  llm/             OpenAI-compat client, prompts, role runner, JSON tooling
+  schemas/         EvidencePack, Proposal, EvalReport, Budget, …
+  search/          Tree, parent_portfolio policy, scoring (with primary cap)
+  backends/
+    complexa/      adapter.py, manifest.py, verifier.py, metrics.py
+  analysis_smoke/  Per-iter codegen sandbox + diversification cues
+  structure_smoke/ Structure-aware probe + verifier
+  validation/      Pre-flight verifier
+  validation_gates Schema + manifest gate runner
+  reports/         run_report.json + study summaries
+  store/           On-disk RunStore
+  mvp/             Original benchmark CLI (single-iteration)
+configs/           Per-target run configs (PD-L1, CD45, …)
+slurm/             H100 launchers (1/2/4 GPU, ablations, probes)
+docs/              Design notes, ablation campaign log, senior reviews
+tests/             81 unit tests</pre>
+</section>
+
+<section>
+  <h2>How to run</h2>
+
+  <h3>1 · Start vLLM (one GPU)</h3>
+<pre>python -m vllm.entrypoints.openai.api_server \
+  --model /path/to/Qwen3.6-27B-FP8 \
+  --served-model-name Qwen/Qwen3.6-27B-FP8 \
+  --host 127.0.0.1 --port 8000 --max-model-len 131072 \
+  --gpu-memory-utilization 0.90 \
+  --default-chat-template-kwargs '{"enable_thinking": false}' \
+  --trust-remote-code</pre>
+
+  <h3>2 · Launch the pipeline (1 worker GPU, ~12 h)</h3>
+<pre>PYTHONPATH=src python -m autoresearch_v2_2.pipeline run-local \
+  --config configs/ar22_pdl1_search12h_v3wallclock.json \
+  --run-dir runs/pdl1_demo \
+  --llm-base-url http://127.0.0.1:8000/v1 \
+  --llm-model Qwen/Qwen3.6-27B-FP8 \
+  --worker-gpu-id 1</pre>
+
+  <h3>3 · Multi-route (4 GPU H100, 24 h)</h3>
+<pre>sbatch slurm/search_4gpu_h100.slurm                # three_experts (default)
+sbatch slurm/search_4gpu_h100_codegen.slurm        # + per-iter codegen
+sbatch slurm/search_4gpu_h100_single_phd.slurm     # 1 PhD-style analyst</pre>
+  <p class="small">GPU 0 hosts vLLM; GPUs 1-3 are passed via <code>--worker-gpu-ids 1,2,3</code> and execute children in parallel each iteration.</p>
+
+  <h3>4 · Aggregate the run report</h3>
+<pre>PYTHONPATH=src python -m autoresearch_v2_2.pipeline report \
+  --run-dir runs/pdl1_demo</pre>
+</section>
+
+<section>
+  <h2>CLI flags</h2>
+  <table>
+    <thead><tr><th>Flag</th><th>Default</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><code>--config</code></td><td>required</td><td>Run config JSON (target, budget, llm, search).</td></tr>
+      <tr><td><code>--run-dir</code></td><td>required</td><td>Output directory (created or appended).</td></tr>
+      <tr><td><code>--llm-base-url</code></td><td><code>http://127.0.0.1:8000/v1</code></td><td>OpenAI-compatible endpoint.</td></tr>
+      <tr><td><code>--llm-model</code></td><td>from config</td><td>Served model name.</td></tr>
+      <tr><td><code>--worker-gpu-id</code></td><td><code>1</code></td><td>Single child GPU.</td></tr>
+      <tr><td><code>--worker-gpu-ids</code></td><td>—</td><td>Comma list for multi-route (e.g. <code>1,2,3</code>).</td></tr>
+      <tr><td><code>--walltime-hours</code></td><td>from config</td><td>Wall-clock stop.</td></tr>
+      <tr><td><code>--iterations</code></td><td>from config</td><td>Iteration safety cap.</td></tr>
+      <tr><td><code>--analyst-mode</code></td><td><code>three_experts</code></td><td><code>three_experts</code> | <code>single_phd</code> | <code>three_phds</code> | <code>two_phds_one_system</code>.</td></tr>
+      <tr><td><code>--expert-interaction</code></td><td><code>parallel</code></td><td><code>parallel</code> | <code>sequential</code> (later experts see earlier outputs).</td></tr>
+      <tr><td><code>--evidence-codegen</code></td><td>off</td><td>Per-iter <code>analyze()</code> codegen + diversification cues.</td></tr>
+      <tr><td><code>--baseline-evidence</code></td><td>off</td><td>Disable V8 evidence enrichments.</td></tr>
+      <tr><td><code>--v8-strictness</code></td><td><code>aggressive</code></td><td>Fatigue threshold: <code>aggressive</code> (≥ 2/6) | <code>conservative</code> (≥ 3/12).</td></tr>
+      <tr><td><code>--refiner-temperature</code></td><td><code>0.0</code></td><td>Refiner sampling temperature.</td></tr>
+      <tr><td><code>--paper-context-file</code></td><td>—</td><td>JSON of background-paper summaries.</td></tr>
+      <tr><td><code>--no-analysts</code></td><td>off</td><td>Skip analyst calls (Refiner only).</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Design notes</h2>
+  <div class="cols">
+    <div>
+      <h3>Capability manifest as protocol</h3>
+      <p>The backend declares <code>mutable_fields</code> with <code>bound_type ∈ {hard, soft}</code>. The verifier routes hard violations to <code>blocking_reasons</code> and soft ones to <code>warnings</code>. The Refiner sees a compact <code>manifest_bounds</code> summary (type, range, allowed values, risk) so it can stay inside the box without reading the full manifest.</p>
+      <h3>V8 evidence enrichment</h3>
+      <p>EvidencePack carries <code>proposal_history</code> (last N proposals + outcomes) and <code>operator_family_fatigue_warning</code> when an operator family has been tried repeatedly with no success. Toggle off with <code>--baseline-evidence</code>.</p>
+      <h3>Score cap</h3>
+      <p><code>search/scoring.py</code> caps the primary success rate at 2.0 so one hot child cannot collapse parent_portfolio into a single line of attack.</p>
+    </div>
+    <div>
+      <h3>Refiner-as-scribe</h3>
+      <p>Analysts speak in free text. The Refiner converts that into the strict-JSON <code>Proposal</code> batch the verifier checks. If schema parse fails, one repair attempt at <code>temperature=0</code>; otherwise the iteration falls through to deterministic rescue.</p>
+      <h3>Run store on disk</h3>
+      <p>Every iteration writes <code>iterations/iter_NNN/</code> with <code>evidence_pack.json</code>, <code>analyst_*.json</code>, <code>refiner.json</code>, <code>verifier.json</code>, <code>transcript.jsonl</code>, plus a top-level <code>iteration_summary.json</code> for fast aggregation.</p>
+      <h3>Subgit policy</h3>
+      <p><code>subgit/proteina_complexa</code> is gitignored. Each developer points it at a local clone of Proteina-Complexa; the package never edits backend source during normal search.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Tests</h2>
+<pre>pytest -q
+# 81 passed</pre>
+  <p class="small"><code>pytest.ini</code> sets <code>pythonpath = src</code> and excludes <code>subgit</code>, <code>runs</code>, and pycache. Tests cover schemas, store, manifest, adapter, search policy, LLM roles, controller, reports, and the executor timeout floor.</p>
+</section>
+
+<section>
+  <h2>Where to look next</h2>
+  <ul>
+    <li><code>docs/Architecture.md</code>, <code>docs/AgentRoles.md</code>, <code>docs/Schemas.md</code> — design.</li>
+    <li><code>docs/ComplexaBackend.md</code>, <code>docs/SearchPolicy.md</code>, <code>docs/Reliability.md</code> — backend &amp; policy.</li>
+    <li><code>docs/CodePipelineWalkthrough.md</code>, <code>docs/PipelineStudyGuide.md</code> — code-level tour.</li>
+    <li><code>docs/AblationCampaign_20260502.md</code> — full experimental log (V8, score-cap, multi-GPU, codegen, analyst-mode probes).</li>
+    <li><code>docs/SeniorAIScientistReview_20260501_v2.md</code> — independent senior review.</li>
+    <li><code>docs/TODO_EXPERIMENTS.md</code> — deferred experiment queue with re-launch commands.</li>
+  </ul>
+</section>
+
+<section>
+  <p class="small">Source: branch <code>minkyu_v2_2_init</code> on <a href="https://github.com/Jinyeop3110/Autoresearch_Denovo">Jinyeop3110/Autoresearch_Denovo</a>. Last updated 2026-05-03.</p>
+</section>
+
+</main>
+</body>
+</html>
