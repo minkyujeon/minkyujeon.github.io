@@ -23,11 +23,13 @@ table{border-collapse:collapse;width:100%;margin-top:8px;}th,td{border:1px solid
 <body>
 <header id="top"><h1>Autoresearch v2.2 24H job snapshots</h1><p class="sub">Static dashboard for the current CD45 4-GPU 24h campaign: codegen/diversification, single PhD, and Tier A analyst-mode shootout jobs. Generated 2026-05-04 14:58 UTC from local Slurm outputs.</p></header>
 <main>
-<section class="panel note"><p><b>Current leader by audited successes per GPU-hour: 7632910 (single_phd, 0.944).</b></p><p>This page is a snapshot, not a live auto-refreshing service. Running jobs can change after generation; rerun the builder to refresh.</p></section>
-<section class="panel"><h2>Run Matrix</h2><table><tr><th>job</th><th>variant</th><th>state</th><th>programs</th><th>audited succ</th><th>succ / gpu-h</th><th>min iPAE</th><th>pLDDT at min iPAE</th><th>score / iPAE child</th></tr><tr><td><a href='#job-7619902'>7619902</a></td><td>three_experts + codegen</td><td>TIMEOUT</td><td>48</td><td>18</td><td>0.898</td><td>0.176</td><td>0.955</td><td>child_028 / child_041</td></tr>
-<tr><td><a href='#job-7632910'>7632910</a></td><td>single_phd</td><td>RUNNING</td><td>44</td><td>23</td><td>0.944</td><td>0.177</td><td>0.945</td><td>child_011 / child_011</td></tr>
-<tr><td><a href='#job-7654739'>7654739</a></td><td>three_phds</td><td>RUNNING</td><td>24</td><td>7</td><td>0.603</td><td>0.185</td><td>0.931</td><td>child_000 / child_000</td></tr>
-<tr><td><a href='#job-7654740'>7654740</a></td><td>two_phds_one_system</td><td>RUNNING</td><td>23</td><td>8</td><td>0.694</td><td>0.185</td><td>0.931</td><td>child_000 / child_000</td></tr></table></section>
+<section class="panel note"><p><b>Current leader by audited successes per GPU-hour: 7606343 (three_experts, 1.225).</b></p><p>This page is a snapshot, not a live auto-refreshing service. Running jobs can change after generation; rerun the builder to refresh.</p><p style="margin-top:8px"><b>Setup correction (2026-05-04):</b> earlier labels called 7606343 the "no score-cap" baseline. That was wrong — the score-cap (PRIMARY_SUCCESS_RATE_CAP=2.0) was hardcoded for ALL pre-Tier-A runs (7606343, 7619073, 7619902, 7632910). Only A1 (7654739) and A2 (7654740) ran with cap OFF via the new <code>AR22_PRIMARY_SUCCESS_RATE_CAP=none</code> env override. A1/A2 root child_000 scored 14.36 (uncapped 14.18 succ/gpu-h) and locked the parent_portfolio exploit slot — both runs were cancelled at ~12h with succ/gpu-h trending DOWN; cap=2.0 is being kept as the default.</p></section>
+<section class="panel"><h2>Run Matrix</h2><table><tr><th>job</th><th>variant</th><th>cap</th><th>state</th><th>programs</th><th>audited succ</th><th>succ / gpu-h</th><th>min iPAE</th><th>pLDDT at min iPAE</th><th>score / iPAE child</th></tr><tr><td>7606343</td><td>three_experts</td><td>2.0</td><td>COMPLETED</td><td>35</td><td><b>24</b></td><td><b>1.225</b></td><td>0.170</td><td>—</td><td>child_006 / —</td></tr>
+<tr><td>7619073</td><td>three_experts</td><td>2.0</td><td>COMPLETED</td><td>37</td><td>11</td><td>0.456</td><td>0.184</td><td>—</td><td>child_021 / —</td></tr>
+<tr><td><a href='#job-7619902'>7619902</a></td><td>three_experts + codegen</td><td>2.0</td><td>TIMEOUT</td><td>48</td><td>18</td><td>0.898</td><td>0.176</td><td>0.955</td><td>child_028 / child_041</td></tr>
+<tr><td><a href='#job-7632910'>7632910</a></td><td>single_phd</td><td>2.0</td><td>RUNNING</td><td>44</td><td>23</td><td>0.944</td><td>0.177</td><td>0.945</td><td>child_011 / child_011</td></tr>
+<tr><td><a href='#job-7654739'>7654739</a></td><td>three_phds</td><td>OFF</td><td>CANCELLED</td><td>24</td><td>7</td><td>0.603</td><td>0.185</td><td>0.931</td><td>child_000 / child_000</td></tr>
+<tr><td><a href='#job-7654740'>7654740</a></td><td>two_phds_one_system</td><td>OFF</td><td>CANCELLED</td><td>23</td><td>8</td><td>0.694</td><td>0.185</td><td>0.931</td><td>child_000 / child_000</td></tr></table></section>
 <section class="panel"><h2>Interactive Success Trajectory</h2><p class="muted">Step is child/program order. Cumulative pass rate uses child-level online successes divided by evaluated designs. Audited success is child-reported and may not be globally de-duplicated across all children.</p><div class="controls"><label>Job <select id="jobSelect"></select></label><label>Metric <select id="metricSelect"><option value="cum_online_pass_rate">cumulative online success rate</option><option value="cum_online_success">cumulative online success count</option><option value="cum_child_audited_success">cumulative child-reported audited success</option><option value="audited_success_per_gpu_hour">audited success per GPU-hour</option><option value="best_i_pae_so_far">best iPAE so far</option><option value="best_score_so_far">best score so far</option></select></label></div><div id="trajectoryChart" class="chartbox"></div><div id="trajectoryDetails" class="small"></div></section>
 <section class="panel"><h2>Interactive Search Tree</h2><p class="muted">Compact browser-side tree from each job's <code>search_tree.json</code>. Click a node for score, iPAE, success, intent, and hypothesis.</p><div class="treewrap"><div id="treeSvg"></div><div id="nodeDetails" class="nodebox muted">Select a node.</div></div></section>
 <section class="panel"><h2>CD45 Structure Viewer</h2><p class="muted">Representative complex PDB from each setup's current min-iPAE child. Target chain is blue; generated binder chain is orange.</p><div id="structureButtons" class="viewer-buttons"></div><div class="legend"><span><span class="swatch target"></span> target chain</span><span><span class="swatch binder"></span> generated binder chain</span></div><div id="viewerMeta" class="viewer-meta"></div><div id="structureViewer" class="viewer"></div><p class="small">3Dmol.js is loaded from a public CDN, matching the archived demo page. If it is blocked, the copied PDB files remain under <code>runs/24h_structures/</code>.</p></section>
@@ -153,9 +155,9 @@ table{border-collapse:collapse;width:100%;margin-top:8px;}th,td{border:1px solid
 <section class="card" id="job-7654739">
   <div class="cardhead">
     <div>
-      <span class="badge running">RUNNING</span>
-      <h2>7654739 · three_phds</h2>
-      <p>3 PhD-style analyst calls, prediction calibration ON, score-cap OFF</p>
+      <span class="badge warn">CANCELLED · 12h</span>
+      <h2>7654739 (A1) · three_phds</h2>
+      <p>3 PhD-style analyst calls, prediction calibration ON, <b>score-cap OFF</b>. Cancelled mid-run because succ/gpu-h was trending DOWN (12.4 → 0.60) and the exploit slot of parent_portfolio was permanently anchored on root child_000 (uncapped score 14.36).</p>
     </div>
     <a class="pill" href="#top">top</a>
   </div>
@@ -212,9 +214,9 @@ table{border-collapse:collapse;width:100%;margin-top:8px;}th,td{border:1px solid
 <section class="card" id="job-7654740">
   <div class="cardhead">
     <div>
-      <span class="badge running">RUNNING</span>
-      <h2>7654740 · two_phds_one_system</h2>
-      <p>2 PhD-style calls + 1 SystemExpert, prediction calibration ON, score-cap OFF</p>
+      <span class="badge warn">CANCELLED · 12h</span>
+      <h2>7654740 (A2) · two_phds_one_system</h2>
+      <p>2 PhD-style calls + 1 SystemExpert, prediction calibration ON, <b>score-cap OFF</b>. Cancelled mid-run because succ/gpu-h was trending DOWN (3.7 → 0.59) and the exploit slot of parent_portfolio was permanently anchored on root child_000 (uncapped score 14.36).</p>
     </div>
     <a class="pill" href="#top">top</a>
   </div>
