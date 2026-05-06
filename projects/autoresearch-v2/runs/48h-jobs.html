@@ -289,6 +289,153 @@ th{background:#f1f5f9;color:#41556b}
 </section>
 
 <section>
+<h2>Iteration-by-iteration CoT trace (CD45 cal-ON 7694929)</h2>
+<p class="tinybit">Click any iteration to see what each expert said, what proposals the Refiner generated, what the Verifier did with them, what the Supervisor selected, and what was actually launched + how it scored. This is the agent's chain of thought across 31 iterations on the COMPLETED CD45 cal-ON job.</p>
+<div class="controls" style="display:flex;gap:8px;margin:10px 0">
+  <label>Filter:
+    <select id="iterFilter">
+      <option value="all">all iterations</option>
+      <option value="success">iterations that produced ≥1 audited success</option>
+      <option value="fail">iterations with failed children</option>
+      <option value="parse">iterations with parse/repair issues</option>
+    </select>
+  </label>
+</div>
+<div id="iter-list" style="border:1px solid var(--line);border-radius:8px;padding:8px;max-height:560px;overflow-y:auto;background:#fbfcfe"></div>
+<div id="iter-detail" style="border:1px solid var(--line);border-radius:8px;padding:14px;background:#fff;margin-top:8px;min-height:120px;font-size:12.5px;line-height:1.55"></div>
+<style>
+.iter-row{display:grid;grid-template-columns:50px 1fr 1fr 70px 60px;gap:8px;padding:6px 8px;border-bottom:1px solid #eef2f7;cursor:pointer;font-size:12px;align-items:center}
+.iter-row:hover{background:#f0f5fa}
+.iter-row.active{background:#dbeafe}
+.iter-num{font-weight:700;color:#102a43}
+.iter-algos{color:#52606d;font-family:"SF Mono",Menlo,Consolas,monospace;font-size:11px}
+.iter-decision{color:#0f766e}
+.iter-audit{font-weight:700;color:#0f766e;text-align:right}
+.iter-audit.zero{color:#94a3b8}
+.iter-fail{color:#b45309;text-align:right}
+.cot-block{margin:10px 0;border-left:3px solid #d8e0e8;padding:6px 12px;background:#fafbfd;border-radius:4px}
+.cot-block h4{margin:0 0 4px;font-size:12.5px;color:#102a43;text-transform:uppercase;letter-spacing:.04em}
+.cot-block .role{font-weight:700;color:#243b53}
+.cot-block code{background:#eef2f7;padding:1px 4px;border-radius:3px;font-size:11.5px}
+.cot-prop{margin:4px 0;padding:4px 8px;background:#fff;border:1px solid #e3e8ef;border-radius:4px}
+.cot-prop.rejected{border-left:3px solid #b45309}
+.cot-prop.launched{border-left:3px solid #0f766e}
+.cot-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:2px 0}
+.tag-launch{background:#dcfce7;color:#166534;padding:1px 5px;border-radius:3px;font-size:10.5px;font-weight:700}
+.tag-rej{background:#fef3c7;color:#92400e;padding:1px 5px;border-radius:3px;font-size:10.5px;font-weight:700}
+.tag-sel{background:#dbeafe;color:#1d4ed8;padding:1px 5px;border-radius:3px;font-size:10.5px;font-weight:700}
+</style>
+<script>
+let ITER_DATA = null;
+let CURRENT_ITER = null;
+function fmtAlgos(arr){
+  if(!arr || !arr.length) return '—';
+  const counts={};
+  arr.forEach(c=>{counts[c.algo||'?']=(counts[c.algo||'?']||0)+1});
+  return Object.entries(counts).map(([k,v])=>v>1?`${k}×${v}`:k).join(', ');
+}
+function rowMatches(it, filter){
+  if(filter==='all') return true;
+  if(filter==='success') return it.children.some(c=>c.audited && c.audited>0);
+  if(filter==='fail') return it.children.some(c=>c.status==='failed');
+  if(filter==='parse') return it.refiner_proposals.length===0;
+  return true;
+}
+function renderList(){
+  const filter = document.getElementById('iterFilter').value;
+  const div = document.getElementById('iter-list');
+  div.innerHTML = '';
+  // header
+  const hdr = document.createElement('div');
+  hdr.className = 'iter-row';
+  hdr.style.fontWeight='800';hdr.style.background='#eef2f7';hdr.style.cursor='default';
+  hdr.innerHTML = '<span>iter</span><span>experts → suggested families</span><span>refiner → launched algorithms</span><span style="text-align:right">audited</span><span style="text-align:right">failed</span>';
+  div.appendChild(hdr);
+  ITER_DATA.forEach(it=>{
+    if(!rowMatches(it, filter)) return;
+    const row = document.createElement('div'); row.className = 'iter-row';
+    row.dataset.iter = it.iter;
+    const exps = Object.entries(it.experts).map(([k,v])=>`${k[0]}:${(v.suggested||[]).join('+')||'-'}`).join(' | ');
+    const audit = it.children.reduce((s,c)=>s+(c.audited||0),0);
+    const fail = it.children.filter(c=>c.status==='failed').length;
+    row.innerHTML = `<span class="iter-num">#${it.iter}</span>
+                     <span class="iter-algos">${exps}</span>
+                     <span class="iter-algos">${fmtAlgos(it.children)}</span>
+                     <span class="iter-audit ${audit?'':'zero'}">${audit||0}</span>
+                     <span class="iter-fail">${fail||''}</span>`;
+    row.addEventListener('click',()=>showIter(it.iter, row));
+    div.appendChild(row);
+  });
+}
+function showIter(iter, row){
+  const it = ITER_DATA.find(x=>x.iter===iter); if(!it) return;
+  document.querySelectorAll('.iter-row.active').forEach(r=>r.classList.remove('active'));
+  if(row) row.classList.add('active');
+  CURRENT_ITER = iter;
+  const d = document.getElementById('iter-detail');
+  let html = `<h3 style="margin:0 0 8px;font-size:14px">Iteration ${iter} CoT</h3>`;
+  // experts
+  html += `<div class="cot-block"><h4>3 Experts (each emits findings + family suggestions only — no configs)</h4>`;
+  for(const role of ['Domain','ML','System']){
+    const e = it.experts[role];
+    if(!e) continue;
+    html += `<div style="margin:6px 0"><span class="role">${role}Expert:</span> <i>${(e.first_finding||'').replace(/</g,'&lt;')}</i><br>
+             &nbsp;&nbsp;<span class="role">→ suggested:</span> <code>${(e.suggested||[]).join(', ')||'—'}</code> (${e.n_findings} findings total)</div>`;
+  }
+  html += `</div>`;
+  // refiner
+  html += `<div class="cot-block"><h4>Refiner (synthesizes family names → specific config_patch)</h4>`;
+  if(!it.refiner_proposals.length){
+    html += `<i>no proposals (parse error or no analyst input)</i>`;
+  }
+  it.refiner_proposals.forEach(p=>{
+    const cls = p.launchable===false?'rejected':p.launched?'launched':'';
+    const tag = p.launchable===false?'<span class="tag-rej">VERIFIER REJECTED</span>':p.launchable?'<span class="tag-launch">launchable</span>':'';
+    const sel = it.supervisor.selected && it.supervisor.selected.includes(p.id) ? '<span class="tag-sel">supervisor selected</span>':'';
+    html += `<div class="cot-prop ${cls}">
+      <div class="cot-row"><b>${p.id}</b> <code>${p.algo}</code> ${tag} ${sel}</div>
+      <div style="color:#52606d;font-size:11.5px;margin-top:2px"><i>${(p.intent||'').replace(/</g,'&lt;')}</i></div>
+      <div class="cot-row" style="font-family:monospace;font-size:11px;color:#475569;margin-top:2px">${(p.patches_summary||[]).join(' · ')}</div>
+    </div>`;
+  });
+  html += `</div>`;
+  // supervisor
+  if(it.supervisor && it.supervisor.decision){
+    html += `<div class="cot-block"><h4>Supervisor decision</h4>
+      <div><b>${it.supervisor.decision}</b> · selected: <code>${(it.supervisor.selected||[]).join(', ')||'—'}</code></div>
+      <div style="margin-top:4px;color:#475569"><i>${(it.supervisor.rationale||'').replace(/</g,'&lt;')}</i></div>
+      </div>`;
+  }
+  // launched children + outcomes
+  html += `<div class="cot-block"><h4>Launched children & outcomes</h4>`;
+  if(!it.children.length) html += '<i>none launched</i>';
+  it.children.forEach(c=>{
+    const cls = c.status==='failed'?'rejected': (c.audited && c.audited>0?'launched':'');
+    const ipae = c.iPAE!=null?c.iPAE.toFixed(3):'—';
+    const audit = c.audited!=null?c.audited:'—';
+    html += `<div class="cot-prop ${cls}">
+      <div class="cot-row"><b>${c.cid}</b> <code>${c.algo||'?'}</code> · status=<b>${c.status||'?'}</b> · iPAE=<b>${ipae}</b> · audited=<b>${audit}</b></div>
+    </div>`;
+  });
+  html += `</div>`;
+  d.innerHTML = html;
+}
+fetch('iter_trace_7694929.json').then(r=>r.json()).then(d=>{
+  ITER_DATA = d;
+  renderList();
+  if(d.length){
+    // open the highest-audited iteration by default
+    let best = d[0]; let bestA = -1;
+    d.forEach(it=>{const a=it.children.reduce((s,c)=>s+(c.audited||0),0); if(a>bestA){bestA=a;best=it}});
+    showIter(best.iter, null);
+  }
+});
+document.getElementById('iterFilter').addEventListener('change', renderList);
+</script>
+<p class="tinybit"><b>How to read.</b> Each row is one outer-loop iteration: experts → suggested family names → Refiner builds config_patch → Verifier accepts/rejects → Supervisor selects → controller launches the launchable proposals. Click a row to expand the full CoT for that iteration. Note: Refiner picks 3 of all suggested families per iteration, not exhaustive coverage. <b>If a family is "fatigued" (multiple recent attempts with no success), V8 fatigue removes it from analyst suggestions</b> — that's why beam-search disappears from iter 4-22 even though noise=0.2 + diverse-beam was eventually the winning recipe (rediscovered at iter 25, child_073).</p>
+</section>
+
+<section>
 <p class="tinybit">Source code on the <a href="https://github.com/Jinyeop3110/Autoresearch_Denovo/tree/minkyu_v2_2_init">minkyu_v2_2_init</a> branch. This page is a static snapshot, not auto-refreshing; rerun the builder to update.</p>
 </section>
 
