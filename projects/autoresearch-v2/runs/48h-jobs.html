@@ -77,8 +77,8 @@ th{background:#f1f5f9;color:#41556b}
 <tr><th>Job</th><th>Target</th><th>Calibration</th><th>State</th><th>Iters</th><th>Children evaluated</th><th>Failed children</th><th>Audited successes</th><th>succ / GPU-h</th><th>min iPAE</th><th>pLDDT at min iPAE</th></tr>
 <tr><td>7694929</td><td>05_CD45 (hard)</td><td>ON</td><td><span class="badge done">COMPLETED · 48h</span></td><td>31</td><td>85</td><td>18</td><td><b>26</b></td><td><b>0.583</b></td><td>0.176 ✓</td><td>0.946</td></tr>
 <tr><td>7717876</td><td>05_CD45 (hard)</td><td>OFF</td><td><span class="badge running">RUNNING · ~24h elapsed</span></td><td>19</td><td>43</td><td>8</td><td>12</td><td>0.506</td><td>0.185</td><td>0.931</td></tr>
-<tr><td>7696577</td><td>23_BetV1 (hard)</td><td>ON</td><td><span class="badge running">RUNNING · ~40h elapsed</span></td><td>27</td><td>67</td><td>12</td><td>5</td><td>0.127</td><td>0.153 ✓</td><td>0.938</td></tr>
-<tr><td>7696578</td><td>30_SC2RBD (hard)</td><td>ON</td><td><span class="badge running">RUNNING · ~40h elapsed</span></td><td>34</td><td>78</td><td>11</td><td>1</td><td>0.027</td><td>0.202</td><td>0.905</td></tr>
+<tr><td>7696577</td><td>23_BetV1 (hard)</td><td>ON</td><td><span class="badge done">COMPLETED · 48h</span></td><td>—</td><td>68</td><td>12</td><td>5</td><td>0.126</td><td>0.153 ✓</td><td>0.938</td></tr>
+<tr><td>7696578</td><td>30_SC2RBD (hard)</td><td>ON</td><td><span class="badge done">COMPLETED · 48h</span></td><td>—</td><td>80</td><td>11</td><td>1</td><td>0.025</td><td>0.202</td><td>0.905</td></tr>
 </table>
 <p class="tinybit">Success threshold for the binder design pipeline is <b>iPAE ≤ 0.18</b> AND <b>pLDDT ≥ 0.90</b> per AlphaFold2 evaluation. ✓ marks min iPAE that passed the threshold at least once. "Audited successes" counts globally de-duplicated successful candidates summed across children.</p>
 </section>
@@ -178,7 +178,7 @@ th{background:#f1f5f9;color:#41556b}
 <div class="cardhead">
 <div><h3>7696577 · 23_BetV1 · calibration ON</h3>
 <div class="meta">Difficulty: hard · Walltime 48h · Started 2026-05-04</div></div>
-<span class="badge running">RUNNING</span>
+<span class="badge done">COMPLETED</span>
 </div>
 <div class="metrics">
 <div class="metric"><b>5</b><span>audited so far</span></div>
@@ -208,7 +208,7 @@ th{background:#f1f5f9;color:#41556b}
 <div class="cardhead">
 <div><h3>7696578 · 30_SC2RBD · calibration ON</h3>
 <div class="meta">Difficulty: hard · Walltime 48h · Started 2026-05-04</div></div>
-<span class="badge running">RUNNING</span>
+<span class="badge done">COMPLETED</span>
 </div>
 <div class="metrics">
 <div class="metric"><b>1</b><span>audited so far</span></div>
@@ -256,6 +256,36 @@ th{background:#f1f5f9;color:#41556b}
 <li><b>Calibration injection</b> reads each role's predicted-vs-actual bias on best_i_pae / n_successful / expected_gpu_minutes accumulated so far, and adds it to the analyst's user prompt at iteration ≥ 5 with a "you have over-predicted X" warning. It is removed from the Refiner and Supervisor prompts (decision-safe) so calibration data does not leak into selection.</li>
 <li><b>Failure modes</b> include hard failures (timeout, OOM, backend exception) and soft failures (zero_success, near_miss_interface, duplicate_collapse, proxy_mismatch). Both kinds are surfaced to analysts via <code>proposal_history</code> in the EvidencePack.</li>
 </ul>
+</section>
+
+<section>
+<h2>Pipeline coherence check (verified directly from iter 10 of CD45 7694929)</h2>
+<p>The 3-expert / Refiner / Verifier / Supervisor stack is producing diverse and sensible output. Direct trace of one iteration:</p>
+<table>
+<tr><th>Role</th><th>Findings (first claim)</th><th>Suggested operator families</th></tr>
+<tr><td><b>DomainExpert</b></td><td>Search stuck in a 'near-miss' local optimum: high pLDDT (&gt; 0.93), insufficient interface precision (iPAE ~0.18-0.23). Sequence repeats KAL/ESE noted.</td><td><code>fk-steering, mcts</code></td></tr>
+<tr><td><b>MLExpert</b></td><td>Trapped in a near-miss local optimum where increasing diversity or beam width alone is insufficient to escape the energy basin. Operator fatigue noted on diverse-beam-search.</td><td><code>fk-steering, best-of-n</code></td></tr>
+<tr><td><b>SystemExpert</b></td><td>Metric definition mismatch: online success is 0 despite best_iPAE 0.187 being very close to the 0.18 threshold. High timeout risk on MCTS / FK-Steering.</td><td><code>refinement, single-pass</code></td></tr>
+</table>
+<p>The three experts produced <b>different findings, different focuses, different operator suggestions</b>. The Refiner then emitted three proposals each citing a specific prior child failure ("avoid timeout unlike child_019", "diverge from child_024 noise=0.2", "MCTS n_simulations=8 was insufficient + n_simulations=16 timed out — try 4 with higher exploration"). The Verifier rejected the fk-steering proposal because the Refiner hallucinated a manifest path (<code>fk_steering.steering_strength</code> doesn't exist) — the safety gate worked. The Supervisor selected best-of-n_high_noise; the controller actually launched both verifier-accepted proposals as multi-route children.</p>
+<p class="note">The pipeline design is coherent. The bottleneck is <b>efficiency</b>, not coherence: the agent reasoning is sensible but produces audited successes at a lower rate per sample than older v2 PUCT did.</p>
+</section>
+
+<section>
+<h2>Methodological comparison vs older v2 PUCT</h2>
+<p>The older v2 PUCT campaign (referenced in <a href="../../agentic-protein-design.html#qwen-hard">Section 7 of the legacy results page</a>) reported 22/32 unique 5 on the best CD45 child. We get 5/132 (per the audit count) and 4/32 (per per-sample rate at root). The headline "older v2 looks better" comparison is misleading because:</p>
+<table>
+<tr><th>Aspect</th><th>Older v2 PUCT</th><th>Current v2.2</th></tr>
+<tr><td>Initial seed</td><td><b>Per-target hardcoded human-known good profile</b>: CD45 → <code>noise020</code> (beam_width=8, n_branch=3, noise=0.20)</td><td>Generic <code>root_proposal_for_difficulty("hard")</code>: same beam_width=8, n_branch=3, but noise=0.25 (no target-specific human tuning)</td></tr>
+<tr><td>LLM</td><td>Qwen 3.6 35B FP8</td><td>Qwen 3.6 27B FP8</td></tr>
+<tr><td>Analyst structure</td><td>Single LLM</td><td>3 specialist roles (Domain + ML + System) → Refiner → Supervisor</td></tr>
+<tr><td>Tree expansion</td><td>1 child per parent</td><td>1-3 children per iter (multi-route)</td></tr>
+<tr><td>Verifier</td><td>Loose (full mutation scope)</td><td>Strict deterministic + manifest hard/soft bounds</td></tr>
+<tr><td>Calibration injection</td><td>None</td><td>Per-role bias context at iter ≥ 5 (one A/B variable, only differs between 7694929 and 7717876)</td></tr>
+<tr><td>Search budget</td><td>~6h, budget_evals=20</td><td>48h, walltime-driven (~70-90 evals)</td></tr>
+</table>
+<p><b>The biggest single difference is the starting seed.</b> Older v2 PUCT was effectively a "mutation refinement" task on top of a human-discovered good config. Our v2.2 starts from a generic difficulty-conditioned config (within 0.05 noise of <code>noise020</code> but not target-tuned). Notably, our current 7694929 root child_000 (noise=0.25) produced 4 unique audited successes vs the older v2 root <code>noise020</code> which the legacy page recorded at 1 unique — comparable starting point, similar or slightly better starting performance.</p>
+<p>One observation about agent search direction: at iter 10 in 7694929, the agent proposed raising noise from 0.2 → 0.4 to "break the local optimum". The older v2 winning recipe stayed at noise=0.2. The agent tends to push noise upward when it could productively explore the lower-noise regime that human exploration originally found.</p>
 </section>
 
 <section>
