@@ -1,8 +1,8 @@
 {
   "run_dir": "/scratch/gpfs/ZHONGE/mj7341/research/autoresearch_v2_2_search/job_7717876_cd45_48h_nocalib",
   "n_total_children": 57,
-  "n_children_with_success_csv": 45,
-  "total_gpu_hours": 27.2361,
+  "n_children_with_success_csv": 47,
+  "total_gpu_hours": 27.6732,
   "total_global_unique": 18,
   "discoveries": [
     {
