@@ -289,6 +289,66 @@ th{background:#f1f5f9;color:#41556b}
 </section>
 
 <section>
+<h2>Cumulative global-unique discovery curves (the right metric)</h2>
+<p class="tinybit">Each discovery is one new sequence (cross-child deduplicated by binder_sequence) that passes the AlphaFold2 success threshold. <b>X axis = cumulative GPU-hours used in the run. Y axis = global-unique success count.</b> Dots mark exactly when each new unique was found. The slope of the curve is what we want to maximize. Below each curve, the table shows which child found the unique, that child's algorithm + key parameters, and the iPAE.</p>
+<div class="cards">
+<div class="card blue"><h3 style="margin:0 0 6px;text-transform:none;letter-spacing:0">CD45 cal-ON · 7694929 (COMPLETED)</h3>
+<div class="meta tinybit">26 global unique in 44.6 GPU-h · 0.583 succ/gpu-h · 13/85 children contributed</div>
+<object type="image/svg+xml" data="curve_7694929_cd45_48h.svg" style="width:100%;display:block;margin:8px 0"></object>
+<div id="disc-CD45_cal_on" style="font-size:11px;font-family:'SF Mono',Menlo,Consolas,monospace;max-height:240px;overflow-y:auto;border:1px solid var(--line);border-radius:6px;padding:6px"></div></div>
+
+<div class="card green"><h3 style="margin:0 0 6px;text-transform:none;letter-spacing:0">CD45 cal-OFF · 7717876 (RUNNING)</h3>
+<div class="meta tinybit">18 global unique in 27.2 GPU-h so far · 0.661 succ/gpu-h · 12/57 children contributed</div>
+<object type="image/svg+xml" data="curve_7717876_cd45_48h_nocalib.svg" style="width:100%;display:block;margin:8px 0"></object>
+<div id="disc-CD45_cal_off" style="font-size:11px;font-family:'SF Mono',Menlo,Consolas,monospace;max-height:240px;overflow-y:auto;border:1px solid var(--line);border-radius:6px;padding:6px"></div></div>
+
+<div class="card orange"><h3 style="margin:0 0 6px;text-transform:none;letter-spacing:0">BetV1 · 7696577 (COMPLETED)</h3>
+<div class="meta tinybit">5 global unique in 39.7 GPU-h · 0.126 succ/gpu-h · 5/68 children contributed</div>
+<object type="image/svg+xml" data="curve_7696577_betv1_48h.svg" style="width:100%;display:block;margin:8px 0"></object>
+<div id="disc-BetV1" style="font-size:11px;font-family:'SF Mono',Menlo,Consolas,monospace;max-height:240px;overflow-y:auto;border:1px solid var(--line);border-radius:6px;padding:6px"></div></div>
+
+<div class="card purple"><h3 style="margin:0 0 6px;text-transform:none;letter-spacing:0">SC2RBD · 7696578 (COMPLETED)</h3>
+<div class="meta tinybit">1 global unique in 39.6 GPU-h · 0.025 succ/gpu-h · 1/80 children contributed</div>
+<object type="image/svg+xml" data="curve_7696578_sc2rbd_48h.svg" style="width:100%;display:block;margin:8px 0"></object>
+<div id="disc-SC2RBD" style="font-size:11px;font-family:'SF Mono',Menlo,Consolas,monospace;max-height:240px;overflow-y:auto;border:1px solid var(--line);border-radius:6px;padding:6px"></div></div>
+</div>
+<script>
+function loadDiscoveries(targetId, jsonPath){
+  fetch(jsonPath).then(r=>r.json()).then(d=>{
+    const el = document.getElementById(targetId);
+    if(!el) return;
+    let html = `<div style="display:grid;grid-template-columns:60px 60px 50px 80px 1fr 50px;gap:6px;font-weight:700;border-bottom:1px solid #eef2f7;padding-bottom:3px;margin-bottom:3px;font-size:10.5px"><span>gpu_h</span><span>#unique</span><span>iter</span><span>child</span><span>algo · key params</span><span>iPAE</span></div>`;
+    (d.discoveries||[]).forEach(x=>{
+      const cfg = x.config || {};
+      const params = [];
+      if(cfg.beam_width) params.push(`bw=${cfg.beam_width}`);
+      if(cfg.n_branch) params.push(`nb=${cfg.n_branch}`);
+      if(cfg.replicas) params.push(`R=${cfg.replicas}`);
+      if(cfg.n_simulations) params.push(`ns=${cfg.n_simulations}`);
+      if(cfg.sc_scale_noise!=null) params.push(`noise=${cfg.sc_scale_noise}`);
+      if(cfg.diversity_weight) params.push(`dw=${cfg.diversity_weight}`);
+      const algoStr = (cfg.algorithm || '?') + (params.length ? ' · ' + params.join(' ') : '');
+      const ipae = x.i_pae!=null ? Number(x.i_pae).toFixed(3) : '—';
+      html += `<div style="display:grid;grid-template-columns:60px 60px 50px 80px 1fr 50px;gap:6px;padding:2px 0;border-bottom:1px dotted #f1f5f9;font-size:10.5px">
+        <span>${Number(x.gpu_h_at_discovery).toFixed(2)}</span>
+        <span>${x.n_unique_so_far}</span>
+        <span>${x.iter}</span>
+        <span>${x.child_id}</span>
+        <span style="color:#475569">${algoStr}</span>
+        <span>${ipae}</span></div>`;
+    });
+    el.innerHTML = html || '<i>no discoveries</i>';
+  }).catch(e=>{const el=document.getElementById(targetId); if(el) el.innerHTML='(load failed)';});
+}
+loadDiscoveries('disc-CD45_cal_on', 'run_level_7694929_cd45_48h.json');
+loadDiscoveries('disc-CD45_cal_off', 'run_level_7717876_cd45_48h_nocalib.json');
+loadDiscoveries('disc-BetV1', 'run_level_7696577_betv1_48h.json');
+loadDiscoveries('disc-SC2RBD', 'run_level_7696578_sc2rbd_48h.json');
+</script>
+<p class="tinybit"><b>Reading guide.</b> A flat segment = wasted compute (no new uniques). A steep climb = a productive child or run of children. The annotation table tells you which strategy + parameters were running when each unique was found, so you can connect "this config" to "this success". Compare CD45 cal-ON (44.6 GPU-h → 26) vs CD45 cal-OFF (27.2 GPU-h → 18 so far): cal-OFF currently has slightly higher rate (0.66 vs 0.58 succ/GPU-h) but it's still running and the noise floor on a 26-vs-18 difference is large.</p>
+</section>
+
+<section>
 <h2>Interactive search tree → CoT viewer</h2>
 <p class="tinybit">Each node is one Complexa child. Edges are parent→child (PUCT-selected parents). Color = audited successes (green) / failed (red) / no success (light blue). <b>Click any node</b> to see its eval, the iteration's expert findings, Refiner proposals, and Supervisor decision that produced it.</p>
 <div style="display:flex;gap:12px;margin:8px 0;flex-wrap:wrap;align-items:center">

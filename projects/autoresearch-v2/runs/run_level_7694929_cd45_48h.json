@@ -1,0 +1,1516 @@
+{
+  "run_dir": "/scratch/gpfs/ZHONGE/mj7341/research/autoresearch_v2_2_search/job_7694929_cd45_48h",
+  "n_total_children": 85,
+  "n_children_with_success_csv": 67,
+  "total_gpu_hours": 44.5925,
+  "total_global_unique": 26,
+  "discoveries": [
+    {
+      "n_unique_so_far": 1,
+      "gpu_h_at_discovery": 0.2795,
+      "iter": 0,
+      "child_id": "child_000",
+      "binder_sequence": "STEADAENVKVTNVNSTKVLVKWEPPSSLKDKKLAYFVIYGETGKEPEIESVDSNKREYTIDVKPGVTYTIKVVAKEIVDCKP",
+      "binder_length": 83,
+      "i_pae": 0.209,
+      "plddt": 0.921,
+      "config": {
+        "algorithm": "beam-search",
+        "beam_width": "8",
+        "n_branch": "3",
+        "sc_scale_noise": "0.25",
+        "filter_samples_limit": "32"
+      },
+      "followup_searches": [
+        {
+          "iter": 1,
+          "child_id": "child_004",
+          "algo": "mcts",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 1,
+          "child_id": "child_005",
+          "algo": "diverse-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.234
+        },
+        {
+          "iter": 1,
+          "child_id": "child_006",
+          "algo": "sequence_hallucination",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 2,
+          "child_id": "child_007",
+          "algo": "best-of-n",
+          "audited_in_child": 0,
+          "best_i_pae": 0.246
+        },
+        {
+          "iter": 2,
+          "child_id": "child_008",
+          "algo": "sequence_hallucination",
+          "audited_in_child": 2,
+          "best_i_pae": 0.195
+        },
+        {
+          "iter": 2,
+          "child_id": "child_009",
+          "algo": "stochastic-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.717
+        }
+      ]
+    },
+    {
+      "n_unique_so_far": 2,
+      "gpu_h_at_discovery": 0.2795,
+      "iter": 0,
+      "child_id": "child_000",
+      "binder_sequence": "SSEYNGINVTVTPINSTTALVKWDVPEKLKGKKVSHFVVYGETGKQEEIESVDSNKTEYTIPVKPGVDYTIKVISLEIKDCEP",
+      "binder_length": 83,
+      "i_pae": 0.21,
+      "plddt": 0.904,
+      "config": {
+        "algorithm": "beam-search",
+        "beam_width": "8",
+        "n_branch": "3",
+        "sc_scale_noise": "0.25",
+        "filter_samples_limit": "32"
+      },
+      "followup_searches": [
+        {
+          "iter": 1,
+          "child_id": "child_004",
+          "algo": "mcts",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 1,
+          "child_id": "child_005",
+          "algo": "diverse-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.234
+        },
+        {
+          "iter": 1,
+          "child_id": "child_006",
+          "algo": "sequence_hallucination",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 2,
+          "child_id": "child_007",
+          "algo": "best-of-n",
+          "audited_in_child": 0,
+          "best_i_pae": 0.246
+        },
+        {
+          "iter": 2,
+          "child_id": "child_008",
+          "algo": "sequence_hallucination",
+          "audited_in_child": 2,
+          "best_i_pae": 0.195
+        },
+        {
+          "iter": 2,
+          "child_id": "child_009",
+          "algo": "stochastic-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.717
+        }
+      ]
+    },
+    {
+      "n_unique_so_far": 3,
+      "gpu_h_at_discovery": 0.2795,
+      "iter": 0,
+      "child_id": "child_000",
+      "binder_sequence": "STEADAENVKVTNVNSTKVLVKWEPPSTLKDKKLAYFVIYGETGKEPEIESVDSNKREYTIDVKPGVTYTIKVVATEIVDCKP",
+      "binder_length": 83,
+      "i_pae": 0.19,
+      "plddt": 0.928,
+      "config": {
+        "algorithm": "beam-search",
+        "beam_width": "8",
+        "n_branch": "3",
+        "sc_scale_noise": "0.25",
+        "filter_samples_limit": "32"
+      },
+      "followup_searches": [
+        {
+          "iter": 1,
+          "child_id": "child_004",
+          "algo": "mcts",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 1,
+          "child_id": "child_005",
+          "algo": "diverse-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.234
+        },
+        {
+          "iter": 1,
+          "child_id": "child_006",
+          "algo": "sequence_hallucination",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 2,
+          "child_id": "child_007",
+          "algo": "best-of-n",
+          "audited_in_child": 0,
+          "best_i_pae": 0.246
+        },
+        {
+          "iter": 2,
+          "child_id": "child_008",
+          "algo": "sequence_hallucination",
+          "audited_in_child": 2,
+          "best_i_pae": 0.195
+        },
+        {
+          "iter": 2,
+          "child_id": "child_009",
+          "algo": "stochastic-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.717
+        }
+      ]
+    },
+    {
+      "n_unique_so_far": 4,
+      "gpu_h_at_discovery": 0.2795,
+      "iter": 0,
+      "child_id": "child_000",
+      "binder_sequence": "STEADAENVKVTNVNSTKVLVKWEPPSSLKDKKLAYFVIYGETGKEPEIESVDSNKREYTIDVKPGVTYTIKVVATEIVPCKP",
+      "binder_length": 83,
+      "i_pae": 0.185,
+      "plddt": 0.931,
+      "config": {
+        "algorithm": "beam-search",
+        "beam_width": "8",
+        "n_branch": "3",
+        "sc_scale_noise": "0.25",
+        "filter_samples_limit": "32"
+      },
+      "followup_searches": [
+        {
+          "iter": 1,
+          "child_id": "child_004",
+          "algo": "mcts",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 1,
+          "child_id": "child_005",
+          "algo": "diverse-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.234
+        },
+        {
+          "iter": 1,
+          "child_id": "child_006",
+          "algo": "sequence_hallucination",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 2,
+          "child_id": "child_007",
+          "algo": "best-of-n",
+          "audited_in_child": 0,
+          "best_i_pae": 0.246
+        },
+        {
+          "iter": 2,
+          "child_id": "child_008",
+          "algo": "sequence_hallucination",
+          "audited_in_child": 2,
+          "best_i_pae": 0.195
+        },
+        {
+          "iter": 2,
+          "child_id": "child_009",
+          "algo": "stochastic-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.717
+        }
+      ]
+    },
+    {
+      "n_unique_so_far": 5,
+      "gpu_h_at_discovery": 0.9906,
+      "iter": 0,
+      "child_id": "child_003",
+      "binder_sequence": "NDQATKALITALEKSESENVRSNAAYALGLILADNPQLCERPGVIQALIKALKDESEWVRESAAYALGLIAQEAPQKALPAVEALLEVAKNDVSENVREKAVEALYLISKENEALKQTLGKEFPKEVKKLESTCP",
+      "binder_length": 135,
+      "i_pae": 0.205,
+      "plddt": 0.95,
+      "config": {
+        "algorithm": "sequence_hallucination",
+        "beam_width": "4",
+        "n_branch": "4",
+        "n_temp_iters": "10",
+        "n_hard_iters": "5"
+      },
+      "followup_searches": [
+        {
+          "iter": 1,
+          "child_id": "child_004",
+          "algo": "mcts",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 1,
+          "child_id": "child_005",
+          "algo": "diverse-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.234
+        },
+        {
+          "iter": 1,
+          "child_id": "child_006",
+          "algo": "sequence_hallucination",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 2,
+          "child_id": "child_007",
+          "algo": "best-of-n",
+          "audited_in_child": 0,
+          "best_i_pae": 0.246
+        },
+        {
+          "iter": 2,
+          "child_id": "child_008",
+          "algo": "sequence_hallucination",
+          "audited_in_child": 2,
+          "best_i_pae": 0.195
+        },
+        {
+          "iter": 2,
+          "child_id": "child_009",
+          "algo": "stochastic-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.717
+        }
+      ]
+    },
+    {
+      "n_unique_so_far": 6,
+      "gpu_h_at_discovery": 0.9906,
+      "iter": 0,
+      "child_id": "child_003",
+      "binder_sequence": "TDKAVKALITALEKSESENVRSNAAYALGLILLDNIQLAEDPGVIQALIKALKDESESVRESAAYALGPIAQEAPQKALPAVEALLEVAKNDEKENVREKAVEALYLISKDNEALKQTLLKEFPTERKKLESECP",
+      "binder_length": 135,
+      "i_pae": 0.187,
+      "plddt": 0.951,
+      "config": {
+        "algorithm": "sequence_hallucination",
+        "beam_width": "4",
+        "n_branch": "4",
+        "n_temp_iters": "10",
+        "n_hard_iters": "5"
+      },
+      "followup_searches": [
+        {
+          "iter": 1,
+          "child_id": "child_004",
+          "algo": "mcts",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 1,
+          "child_id": "child_005",
+          "algo": "diverse-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.234
+        },
+        {
+          "iter": 1,
+          "child_id": "child_006",
+          "algo": "sequence_hallucination",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 2,
+          "child_id": "child_007",
+          "algo": "best-of-n",
+          "audited_in_child": 0,
+          "best_i_pae": 0.246
+        },
+        {
+          "iter": 2,
+          "child_id": "child_008",
+          "algo": "sequence_hallucination",
+          "audited_in_child": 2,
+          "best_i_pae": 0.195
+        },
+        {
+          "iter": 2,
+          "child_id": "child_009",
+          "algo": "stochastic-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.717
+        }
+      ]
+    },
+    {
+      "n_unique_so_far": 7,
+      "gpu_h_at_discovery": 5.997,
+      "iter": 2,
+      "child_id": "child_008",
+      "binder_sequence": "TDKAVKALITALEKSESENVRSNAATALGLILLDNPQLAEDPGVIQALIKALKDESESFRESAAYALALIAQEAPQKALPAVEALLEVAKNDESENVREKAVEALYLISKDNEALKQTLLKEFPKEVKKLESTCP",
+      "binder_length": 135,
+      "i_pae": 0.195,
+      "plddt": 0.942,
+      "config": {
+        "algorithm": "sequence_hallucination",
+        "beam_width": "4",
+        "n_branch": "4",
+        "n_temp_iters": "10"
+      },
+      "followup_searches": [
+        {
+          "iter": 3,
+          "child_id": "child_010",
+          "algo": "sequence_hallucination",
+          "audited_in_child": 0,
+          "best_i_pae": 0.227
+        },
+        {
+          "iter": 3,
+          "child_id": "child_011",
+          "algo": "diverse-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.269
+        },
+        {
+          "iter": 4,
+          "child_id": "child_012",
+          "algo": "single-pass",
+          "audited_in_child": 0,
+          "best_i_pae": 0.473
+        },
+        {
+          "iter": 4,
+          "child_id": "child_013",
+          "algo": "mcts",
+          "audited_in_child": 0,
+          "best_i_pae": 0.352
+        },
+        {
+          "iter": 4,
+          "child_id": "child_014",
+          "algo": "sequence_hallucination",
+          "audited_in_child": 0,
+          "best_i_pae": 0.236
+        }
+      ]
+    },
+    {
+      "n_unique_so_far": 8,
+      "gpu_h_at_discovery": 5.997,
+      "iter": 2,
+      "child_id": "child_008",
+      "binder_sequence": "TDKAVKALITKLEGPESENVRTNAAYALGLILSDNPQLAEDPGVIQALIKALKDWSESVRESAAYALGLIAQEAPQKALPAVEALLEVAKNDSSENVREKAVEALYLISKDNEALKQTLLKEFPKEVKKLESTCP",
+      "binder_length": 135,
+      "i_pae": 0.204,
+      "plddt": 0.944,
+      "config": {
+        "algorithm": "sequence_hallucination",
+        "beam_width": "4",
+        "n_branch": "4",
+        "n_temp_iters": "10"
+      },
+      "followup_searches": [
+        {
+          "iter": 3,
+          "child_id": "child_010",
+          "algo": "sequence_hallucination",
+          "audited_in_child": 0,
+          "best_i_pae": 0.227
+        },
+        {
+          "iter": 3,
+          "child_id": "child_011",
+          "algo": "diverse-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.269
+        },
+        {
+          "iter": 4,
+          "child_id": "child_012",
+          "algo": "single-pass",
+          "audited_in_child": 0,
+          "best_i_pae": 0.473
+        },
+        {
+          "iter": 4,
+          "child_id": "child_013",
+          "algo": "mcts",
+          "audited_in_child": 0,
+          "best_i_pae": 0.352
+        },
+        {
+          "iter": 4,
+          "child_id": "child_014",
+          "algo": "sequence_hallucination",
+          "audited_in_child": 0,
+          "best_i_pae": 0.236
+        }
+      ]
+    },
+    {
+      "n_unique_so_far": 9,
+      "gpu_h_at_discovery": 23.7225,
+      "iter": 16,
+      "child_id": "child_044",
+      "binder_sequence": "SLEEQLTKAVEDLKSKDQEIRNKAIETIAELSKSLDPQEIAEALLPVLGEKSPQERQEILEEIKKKNEELYNTLVTLISEECS",
+      "binder_length": 83,
+      "i_pae": 0.221,
+      "plddt": 0.944,
+      "config": {
+        "algorithm": "best-of-n",
+        "replicas": "16",
+        "sc_scale_noise": "0.1"
+      },
+      "followup_searches": [
+        {
+          "iter": 17,
+          "child_id": "child_047",
+          "algo": "best-of-n",
+          "audited_in_child": 1,
+          "best_i_pae": 0.211
+        },
+        {
+          "iter": 17,
+          "child_id": "child_048",
+          "algo": "diverse-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.243
+        },
+        {
+          "iter": 17,
+          "child_id": "child_049",
+          "algo": "beam-search",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 18,
+          "child_id": "child_050",
+          "algo": "stochastic-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.727
+        },
+        {
+          "iter": 18,
+          "child_id": "child_051",
+          "algo": "mcts",
+          "audited_in_child": 0,
+          "best_i_pae": 0.371
+        },
+        {
+          "iter": 18,
+          "child_id": "child_052",
+          "algo": "sequence_hallucination",
+          "audited_in_child": 0,
+          "best_i_pae": 0.247
+        }
+      ]
+    },
+    {
+      "n_unique_so_far": 10,
+      "gpu_h_at_discovery": 24.4676,
+      "iter": 17,
+      "child_id": "child_047",
+      "binder_sequence": "SLDQSIINLYNSFKSLNPNKTVTSFVNLLKHLSNIGDKDAQNILSNSNILNKIKNNIKKLINSVQDLDVENAKNSLSTILNFLDPNSLLYNILNLLGNIALGDKNQAQKALNELEKKLPNSQFVKLIKKELNSCP",
+      "binder_length": 135,
+      "i_pae": 0.211,
+      "plddt": 0.947,
+      "config": {
+        "algorithm": "best-of-n",
+        "replicas": "16",
+        "sc_scale_noise": "0.05"
+      },
+      "followup_searches": [
+        {
+          "iter": 18,
+          "child_id": "child_050",
+          "algo": "stochastic-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.727
+        },
+        {
+          "iter": 18,
+          "child_id": "child_051",
+          "algo": "mcts",
+          "audited_in_child": 0,
+          "best_i_pae": 0.371
+        },
+        {
+          "iter": 18,
+          "child_id": "child_052",
+          "algo": "sequence_hallucination",
+          "audited_in_child": 0,
+          "best_i_pae": 0.247
+        },
+        {
+          "iter": 19,
+          "child_id": "child_053",
+          "algo": "fk-steering",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 19,
+          "child_id": "child_054",
+          "algo": "diverse-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.673
+        },
+        {
+          "iter": 19,
+          "child_id": "child_055",
+          "algo": "sequence_hallucination",
+          "audited_in_child": 3,
+          "best_i_pae": 0.209
+        }
+      ]
+    },
+    {
+      "n_unique_so_far": 11,
+      "gpu_h_at_discovery": 29.245,
+      "iter": 19,
+      "child_id": "child_055",
+      "binder_sequence": "VSSKLLNSVKDLLNTTDGNKAYTSLVNILQILADLGNTSAENILSDKVKMNPIKNNLEKFYNAIQELDVENAKNSLSSILNELKDVPDVKNILEAIGNIMLGPKNKAQSSINKLPQNPNLADVAEYLKKQLDRCP",
+      "binder_length": 135,
+      "i_pae": 0.209,
+      "plddt": 0.936,
+      "config": {
+        "algorithm": "sequence_hallucination",
+        "replicas": "16",
+        "sc_scale_noise": "0.08",
+        "n_temp_iters": "10",
+        "n_hard_iters": "5"
+      },
+      "followup_searches": [
+        {
+          "iter": 20,
+          "child_id": "child_056",
+          "algo": "sequence_hallucination",
+          "audited_in_child": 1,
+          "best_i_pae": 0.176
+        },
+        {
+          "iter": 20,
+          "child_id": "child_057",
+          "algo": "beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.241
+        },
+        {
+          "iter": 20,
+          "child_id": "child_058",
+          "algo": "diverse-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.288
+        },
+        {
+          "iter": 21,
+          "child_id": "child_059",
+          "algo": "sequence_hallucination",
+          "audited_in_child": 1,
+          "best_i_pae": 0.222
+        },
+        {
+          "iter": 21,
+          "child_id": "child_060",
+          "algo": "stochastic-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.635
+        },
+        {
+          "iter": 21,
+          "child_id": "child_061",
+          "algo": "mcts",
+          "audited_in_child": null,
+          "best_i_pae": null
+        }
+      ]
+    },
+    {
+      "n_unique_so_far": 12,
+      "gpu_h_at_discovery": 29.245,
+      "iter": 19,
+      "child_id": "child_055",
+      "binder_sequence": "QNNNILINLSKSNDMKILKIVIDILKKESNPDVKKAILKNLITKKANILKPFCEELLTILERNTNDEVKALIKEILCQIGVDP",
+      "binder_length": 83,
+      "i_pae": 0.217,
+      "plddt": 0.938,
+      "config": {
+        "algorithm": "sequence_hallucination",
+        "replicas": "16",
+        "sc_scale_noise": "0.08",
+        "n_temp_iters": "10",
+        "n_hard_iters": "5"
+      },
+      "followup_searches": [
+        {
+          "iter": 20,
+          "child_id": "child_056",
+          "algo": "sequence_hallucination",
+          "audited_in_child": 1,
+          "best_i_pae": 0.176
+        },
+        {
+          "iter": 20,
+          "child_id": "child_057",
+          "algo": "beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.241
+        },
+        {
+          "iter": 20,
+          "child_id": "child_058",
+          "algo": "diverse-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.288
+        },
+        {
+          "iter": 21,
+          "child_id": "child_059",
+          "algo": "sequence_hallucination",
+          "audited_in_child": 1,
+          "best_i_pae": 0.222
+        },
+        {
+          "iter": 21,
+          "child_id": "child_060",
+          "algo": "stochastic-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.635
+        },
+        {
+          "iter": 21,
+          "child_id": "child_061",
+          "algo": "mcts",
+          "audited_in_child": null,
+          "best_i_pae": null
+        }
+      ]
+    },
+    {
+      "n_unique_so_far": 13,
+      "gpu_h_at_discovery": 29.245,
+      "iter": 19,
+      "child_id": "child_055",
+      "binder_sequence": "VTNFEEYIEMLKKENVDIRFEAIKGLSKLFATTPEGKYFLEEADNNDLSKEIINKYYIFALAYSDNEKAKKILEEITKDENEDIRKAAKEALEISEKGPINCP",
+      "binder_length": 103,
+      "i_pae": 0.221,
+      "plddt": 0.933,
+      "config": {
+        "algorithm": "sequence_hallucination",
+        "replicas": "16",
+        "sc_scale_noise": "0.08",
+        "n_temp_iters": "10",
+        "n_hard_iters": "5"
+      },
+      "followup_searches": [
+        {
+          "iter": 20,
+          "child_id": "child_056",
+          "algo": "sequence_hallucination",
+          "audited_in_child": 1,
+          "best_i_pae": 0.176
+        },
+        {
+          "iter": 20,
+          "child_id": "child_057",
+          "algo": "beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.241
+        },
+        {
+          "iter": 20,
+          "child_id": "child_058",
+          "algo": "diverse-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.288
+        },
+        {
+          "iter": 21,
+          "child_id": "child_059",
+          "algo": "sequence_hallucination",
+          "audited_in_child": 1,
+          "best_i_pae": 0.222
+        },
+        {
+          "iter": 21,
+          "child_id": "child_060",
+          "algo": "stochastic-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.635
+        },
+        {
+          "iter": 21,
+          "child_id": "child_061",
+          "algo": "mcts",
+          "audited_in_child": null,
+          "best_i_pae": null
+        }
+      ]
+    },
+    {
+      "n_unique_so_far": 14,
+      "gpu_h_at_discovery": 29.7972,
+      "iter": 20,
+      "child_id": "child_056",
+      "binder_sequence": "AFIRANAVFALGNIVAETGDEELAKEVVPELIKALKDESEFVRKAAAFALGNIAEHRPYLIEPYLKEVVPELIKALKDESKMERKAAAYALGKIGGSMASEAVEPLIKALKDESEFVEKAAAYALEEIGGESAVEPLKTALKYESMNVSEAAKKALEKIATCP",
+      "binder_length": 163,
+      "i_pae": 0.176,
+      "plddt": 0.933,
+      "config": {
+        "algorithm": "sequence_hallucination",
+        "replicas": "16",
+        "sc_scale_noise": "0.03",
+        "n_temp_iters": "20",
+        "n_hard_iters": "10"
+      },
+      "followup_searches": [
+        {
+          "iter": 21,
+          "child_id": "child_059",
+          "algo": "sequence_hallucination",
+          "audited_in_child": 1,
+          "best_i_pae": 0.222
+        },
+        {
+          "iter": 21,
+          "child_id": "child_060",
+          "algo": "stochastic-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.635
+        },
+        {
+          "iter": 21,
+          "child_id": "child_061",
+          "algo": "mcts",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 22,
+          "child_id": "child_062",
+          "algo": "fk-steering",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 22,
+          "child_id": "child_063",
+          "algo": "diverse-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.269
+        },
+        {
+          "iter": 22,
+          "child_id": "child_064",
+          "algo": "sequence_hallucination",
+          "audited_in_child": 0,
+          "best_i_pae": 0.253
+        }
+      ]
+    },
+    {
+      "n_unique_so_far": 15,
+      "gpu_h_at_discovery": 30.6616,
+      "iter": 21,
+      "child_id": "child_059",
+      "binder_sequence": "SLDQEVKELIEEIVTSEDAEQRVSLNQKLLKLDTEEATRIKNFMDKYNPSHEKFALLLTALHAGYSLEEIEEITGIFKPEIEVFEKELSDIVEYIKSLPKAMC",
+      "binder_length": 103,
+      "i_pae": 0.222,
+      "plddt": 0.942,
+      "config": {
+        "algorithm": "sequence_hallucination",
+        "replicas": "16",
+        "sc_scale_noise": "0.04",
+        "n_temp_iters": "20",
+        "n_hard_iters": "5"
+      },
+      "followup_searches": [
+        {
+          "iter": 22,
+          "child_id": "child_062",
+          "algo": "fk-steering",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 22,
+          "child_id": "child_063",
+          "algo": "diverse-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.269
+        },
+        {
+          "iter": 22,
+          "child_id": "child_064",
+          "algo": "sequence_hallucination",
+          "audited_in_child": 0,
+          "best_i_pae": 0.253
+        },
+        {
+          "iter": 23,
+          "child_id": "child_065",
+          "algo": "best-of-n",
+          "audited_in_child": 0,
+          "best_i_pae": 0.252
+        },
+        {
+          "iter": 23,
+          "child_id": "child_066",
+          "algo": "single-pass",
+          "audited_in_child": 0,
+          "best_i_pae": 0.785
+        },
+        {
+          "iter": 23,
+          "child_id": "child_067",
+          "algo": "stochastic-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.323
+        }
+      ]
+    },
+    {
+      "n_unique_so_far": 16,
+      "gpu_h_at_discovery": 35.4323,
+      "iter": 24,
+      "child_id": "child_068",
+      "binder_sequence": "YNQILSVLKKLLESHQKVVLLYFSATWCGPCKKFNEELKKFLKENPNLHSKLTIIYLSLDKPKFHEKSKQEIINLYNEFPNVKFIIPDESITKKFKKDFNIKGIPTLVFFGDYQSLTEEASEETLNLIKKLTEDC",
+      "binder_length": 135,
+      "i_pae": 0.222,
+      "plddt": 0.906,
+      "config": {
+        "algorithm": "mcts",
+        "n_simulations": "8",
+        "exploration_constant": "2.0",
+        "sc_scale_noise": "0.05"
+      },
+      "followup_searches": [
+        {
+          "iter": 25,
+          "child_id": "child_071",
+          "algo": "fk-steering",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 25,
+          "child_id": "child_072",
+          "algo": "best-of-n",
+          "audited_in_child": 0,
+          "best_i_pae": 0.523
+        },
+        {
+          "iter": 25,
+          "child_id": "child_073",
+          "algo": "diverse-beam-search",
+          "audited_in_child": 2,
+          "best_i_pae": 0.179
+        },
+        {
+          "iter": 26,
+          "child_id": "child_074",
+          "algo": "diverse-beam-search",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 26,
+          "child_id": "child_075",
+          "algo": "stochastic-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.519
+        },
+        {
+          "iter": 26,
+          "child_id": "child_076",
+          "algo": "sequence_hallucination",
+          "audited_in_child": null,
+          "best_i_pae": null
+        }
+      ]
+    },
+    {
+      "n_unique_so_far": 17,
+      "gpu_h_at_discovery": 35.4323,
+      "iter": 24,
+      "child_id": "child_068",
+      "binder_sequence": "YNQILSVLKKLLESHQKVVLLYFSATWCGPCKKFNEELKKFLKENPNLHSKLTIIFLSLDKPKFHEKSKQEIINLFNEFPNVKFIIPDESTTKKFKKDFNIKGIPTLVFFGDYQSLTMEASEETLELIKKLTEDC",
+      "binder_length": 135,
+      "i_pae": 0.225,
+      "plddt": 0.906,
+      "config": {
+        "algorithm": "mcts",
+        "n_simulations": "8",
+        "exploration_constant": "2.0",
+        "sc_scale_noise": "0.05"
+      },
+      "followup_searches": [
+        {
+          "iter": 25,
+          "child_id": "child_071",
+          "algo": "fk-steering",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 25,
+          "child_id": "child_072",
+          "algo": "best-of-n",
+          "audited_in_child": 0,
+          "best_i_pae": 0.523
+        },
+        {
+          "iter": 25,
+          "child_id": "child_073",
+          "algo": "diverse-beam-search",
+          "audited_in_child": 2,
+          "best_i_pae": 0.179
+        },
+        {
+          "iter": 26,
+          "child_id": "child_074",
+          "algo": "diverse-beam-search",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 26,
+          "child_id": "child_075",
+          "algo": "stochastic-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.519
+        },
+        {
+          "iter": 26,
+          "child_id": "child_076",
+          "algo": "sequence_hallucination",
+          "audited_in_child": null,
+          "best_i_pae": null
+        }
+      ]
+    },
+    {
+      "n_unique_so_far": 18,
+      "gpu_h_at_discovery": 35.4323,
+      "iter": 24,
+      "child_id": "child_068",
+      "binder_sequence": "YNQILSVLKKLLETHQKVVLLYFSATWCGPCKKFNEELKKFLKENPNLHSKLTIIFLSLDKPKDHEKSKQEIINLYNEFPNVKFIIPDESTTKKFKKDFNIKGIPTLVFFGDYQSLTEEASEETLNLIKKLTEDC",
+      "binder_length": 135,
+      "i_pae": 0.225,
+      "plddt": 0.907,
+      "config": {
+        "algorithm": "mcts",
+        "n_simulations": "8",
+        "exploration_constant": "2.0",
+        "sc_scale_noise": "0.05"
+      },
+      "followup_searches": [
+        {
+          "iter": 25,
+          "child_id": "child_071",
+          "algo": "fk-steering",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 25,
+          "child_id": "child_072",
+          "algo": "best-of-n",
+          "audited_in_child": 0,
+          "best_i_pae": 0.523
+        },
+        {
+          "iter": 25,
+          "child_id": "child_073",
+          "algo": "diverse-beam-search",
+          "audited_in_child": 2,
+          "best_i_pae": 0.179
+        },
+        {
+          "iter": 26,
+          "child_id": "child_074",
+          "algo": "diverse-beam-search",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 26,
+          "child_id": "child_075",
+          "algo": "stochastic-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.519
+        },
+        {
+          "iter": 26,
+          "child_id": "child_076",
+          "algo": "sequence_hallucination",
+          "audited_in_child": null,
+          "best_i_pae": null
+        }
+      ]
+    },
+    {
+      "n_unique_so_far": 19,
+      "gpu_h_at_discovery": 35.4323,
+      "iter": 24,
+      "child_id": "child_068",
+      "binder_sequence": "YKEVLAYLKKLLKDHQKVVLLYFSATWCGPCKNFNKELKKFLKENPNLHSKLTIIYISLDPEELQSQSKQEIIDLYNEFPEVKFIIPSQEQSKFLKQDFDIKGIPTLIFFGDFKPLTKSASQETINLLKELTKEC",
+      "binder_length": 135,
+      "i_pae": 0.223,
+      "plddt": 0.906,
+      "config": {
+        "algorithm": "mcts",
+        "n_simulations": "8",
+        "exploration_constant": "2.0",
+        "sc_scale_noise": "0.05"
+      },
+      "followup_searches": [
+        {
+          "iter": 25,
+          "child_id": "child_071",
+          "algo": "fk-steering",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 25,
+          "child_id": "child_072",
+          "algo": "best-of-n",
+          "audited_in_child": 0,
+          "best_i_pae": 0.523
+        },
+        {
+          "iter": 25,
+          "child_id": "child_073",
+          "algo": "diverse-beam-search",
+          "audited_in_child": 2,
+          "best_i_pae": 0.179
+        },
+        {
+          "iter": 26,
+          "child_id": "child_074",
+          "algo": "diverse-beam-search",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 26,
+          "child_id": "child_075",
+          "algo": "stochastic-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.519
+        },
+        {
+          "iter": 26,
+          "child_id": "child_076",
+          "algo": "sequence_hallucination",
+          "audited_in_child": null,
+          "best_i_pae": null
+        }
+      ]
+    },
+    {
+      "n_unique_so_far": 20,
+      "gpu_h_at_discovery": 35.4323,
+      "iter": 24,
+      "child_id": "child_068",
+      "binder_sequence": "YNQILSVLKKLLESHQKVVLLYFSATWCGPCKKFNEELKKFLKENPNLHSKLTIIYLSLDKPKFHEKSKQEIINLYNEFPNVKFIIPDESTTKKFKKDFNIKGIPTLVFFGDYQSLTEEASEETLNLIKKLTEDC",
+      "binder_length": 135,
+      "i_pae": 0.225,
+      "plddt": 0.905,
+      "config": {
+        "algorithm": "mcts",
+        "n_simulations": "8",
+        "exploration_constant": "2.0",
+        "sc_scale_noise": "0.05"
+      },
+      "followup_searches": [
+        {
+          "iter": 25,
+          "child_id": "child_071",
+          "algo": "fk-steering",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 25,
+          "child_id": "child_072",
+          "algo": "best-of-n",
+          "audited_in_child": 0,
+          "best_i_pae": 0.523
+        },
+        {
+          "iter": 25,
+          "child_id": "child_073",
+          "algo": "diverse-beam-search",
+          "audited_in_child": 2,
+          "best_i_pae": 0.179
+        },
+        {
+          "iter": 26,
+          "child_id": "child_074",
+          "algo": "diverse-beam-search",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 26,
+          "child_id": "child_075",
+          "algo": "stochastic-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.519
+        },
+        {
+          "iter": 26,
+          "child_id": "child_076",
+          "algo": "sequence_hallucination",
+          "audited_in_child": null,
+          "best_i_pae": null
+        }
+      ]
+    },
+    {
+      "n_unique_so_far": 21,
+      "gpu_h_at_discovery": 35.8638,
+      "iter": 24,
+      "child_id": "child_070",
+      "binder_sequence": "PTMTKLHIEAPGGQDKEVRILLANGADVNAADNFGRTPLHLAASNGHLEIVEVLLWAGADVNAADNEGLTPLHLAASNGHLEIVEVLLKAGADGNAADNNGLTPLHLAASNGHLEIVEVLLYAGADVNAADKNGFTPLHLAASWGKLEIVEVLLKAGADVNKG",
+      "binder_length": 163,
+      "i_pae": 0.205,
+      "plddt": 0.939,
+      "config": {
+        "algorithm": "sequence_hallucination",
+        "replicas": "8",
+        "sc_scale_noise": "0.08",
+        "n_temp_iters": "10"
+      },
+      "followup_searches": [
+        {
+          "iter": 25,
+          "child_id": "child_071",
+          "algo": "fk-steering",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 25,
+          "child_id": "child_072",
+          "algo": "best-of-n",
+          "audited_in_child": 0,
+          "best_i_pae": 0.523
+        },
+        {
+          "iter": 25,
+          "child_id": "child_073",
+          "algo": "diverse-beam-search",
+          "audited_in_child": 2,
+          "best_i_pae": 0.179
+        },
+        {
+          "iter": 26,
+          "child_id": "child_074",
+          "algo": "diverse-beam-search",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 26,
+          "child_id": "child_075",
+          "algo": "stochastic-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.519
+        },
+        {
+          "iter": 26,
+          "child_id": "child_076",
+          "algo": "sequence_hallucination",
+          "audited_in_child": null,
+          "best_i_pae": null
+        }
+      ]
+    },
+    {
+      "n_unique_so_far": 22,
+      "gpu_h_at_discovery": 35.8638,
+      "iter": 24,
+      "child_id": "child_070",
+      "binder_sequence": "YKREKINELKNIANEENISEEVKSAAQGLLAALEGDEESATCIAPNPGDMESNVAKYLGEAVEAFIKDDNEKAIKDLELAKTLSMSEDDKNAITKLIKIIKTG",
+      "binder_length": 103,
+      "i_pae": 0.212,
+      "plddt": 0.916,
+      "config": {
+        "algorithm": "sequence_hallucination",
+        "replicas": "8",
+        "sc_scale_noise": "0.08",
+        "n_temp_iters": "10"
+      },
+      "followup_searches": [
+        {
+          "iter": 25,
+          "child_id": "child_071",
+          "algo": "fk-steering",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 25,
+          "child_id": "child_072",
+          "algo": "best-of-n",
+          "audited_in_child": 0,
+          "best_i_pae": 0.523
+        },
+        {
+          "iter": 25,
+          "child_id": "child_073",
+          "algo": "diverse-beam-search",
+          "audited_in_child": 2,
+          "best_i_pae": 0.179
+        },
+        {
+          "iter": 26,
+          "child_id": "child_074",
+          "algo": "diverse-beam-search",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 26,
+          "child_id": "child_075",
+          "algo": "stochastic-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.519
+        },
+        {
+          "iter": 26,
+          "child_id": "child_076",
+          "algo": "sequence_hallucination",
+          "audited_in_child": null,
+          "best_i_pae": null
+        }
+      ]
+    },
+    {
+      "n_unique_so_far": 23,
+      "gpu_h_at_discovery": 38.5851,
+      "iter": 25,
+      "child_id": "child_073",
+      "binder_sequence": "SKKEEILKNLESEVKKILETNLELDEILEKIENSLNEKKDDFSDELYNKLLTLLKQIKTLYNQLKTDIENNEDVEDIQNISDEIINLFKENKENFRYLLGITD",
+      "binder_length": 103,
+      "i_pae": 0.179,
+      "plddt": 0.962,
+      "config": {
+        "algorithm": "diverse-beam-search",
+        "beam_width": "4",
+        "n_branch": "4",
+        "diversity_weight": "0.9",
+        "sc_scale_noise": "0.2"
+      },
+      "followup_searches": [
+        {
+          "iter": 26,
+          "child_id": "child_074",
+          "algo": "diverse-beam-search",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 26,
+          "child_id": "child_075",
+          "algo": "stochastic-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.519
+        },
+        {
+          "iter": 26,
+          "child_id": "child_076",
+          "algo": "sequence_hallucination",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 27,
+          "child_id": "child_077",
+          "algo": "diverse-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.244
+        },
+        {
+          "iter": 27,
+          "child_id": "child_078",
+          "algo": "stochastic-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.646
+        },
+        {
+          "iter": 27,
+          "child_id": "child_079",
+          "algo": "sequence_hallucination",
+          "audited_in_child": 1,
+          "best_i_pae": 0.199
+        }
+      ]
+    },
+    {
+      "n_unique_so_far": 24,
+      "gpu_h_at_discovery": 38.5851,
+      "iter": 25,
+      "child_id": "child_073",
+      "binder_sequence": "SKKEEILKNLESEVKKILETNLELDEILEKIENSLNNKKDDFSDELYNKLLSLLKQIKKLYNQLKTDIENNKDVEDIQNISDQIIELFKENKENFRYLLGITD",
+      "binder_length": 103,
+      "i_pae": 0.182,
+      "plddt": 0.959,
+      "config": {
+        "algorithm": "diverse-beam-search",
+        "beam_width": "4",
+        "n_branch": "4",
+        "diversity_weight": "0.9",
+        "sc_scale_noise": "0.2"
+      },
+      "followup_searches": [
+        {
+          "iter": 26,
+          "child_id": "child_074",
+          "algo": "diverse-beam-search",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 26,
+          "child_id": "child_075",
+          "algo": "stochastic-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.519
+        },
+        {
+          "iter": 26,
+          "child_id": "child_076",
+          "algo": "sequence_hallucination",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 27,
+          "child_id": "child_077",
+          "algo": "diverse-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.244
+        },
+        {
+          "iter": 27,
+          "child_id": "child_078",
+          "algo": "stochastic-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.646
+        },
+        {
+          "iter": 27,
+          "child_id": "child_079",
+          "algo": "sequence_hallucination",
+          "audited_in_child": 1,
+          "best_i_pae": 0.199
+        }
+      ]
+    },
+    {
+      "n_unique_so_far": 25,
+      "gpu_h_at_discovery": 41.5801,
+      "iter": 27,
+      "child_id": "child_079",
+      "binder_sequence": "NSSKLINLIKDFIKTLNADKAIKNIINLLKLVKENTSVINQLKDENNSNYIKLKNNLEKLFNSFIELDNENQKNSVSNILNVLKSFNLGNDSFNLIKTCLYLKIGEMDKAEKAANKIKNYKKTLINFIKKEKSKC",
+      "binder_length": 135,
+      "i_pae": 0.199,
+      "plddt": 0.947,
+      "config": {
+        "algorithm": "sequence_hallucination",
+        "replicas": "16",
+        "sc_scale_noise": "0.12",
+        "n_temp_iters": "10"
+      },
+      "followup_searches": [
+        {
+          "iter": 28,
+          "child_id": "child_080",
+          "algo": "sequence_hallucination",
+          "audited_in_child": 0,
+          "best_i_pae": 0.371
+        },
+        {
+          "iter": 29,
+          "child_id": "child_081",
+          "algo": "diverse-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.244
+        },
+        {
+          "iter": 29,
+          "child_id": "child_082",
+          "algo": "best-of-n",
+          "audited_in_child": 1,
+          "best_i_pae": 0.176
+        },
+        {
+          "iter": 29,
+          "child_id": "child_083",
+          "algo": "fk-steering",
+          "audited_in_child": null,
+          "best_i_pae": null
+        }
+      ]
+    },
+    {
+      "n_unique_so_far": 26,
+      "gpu_h_at_discovery": 42.5835,
+      "iter": 29,
+      "child_id": "child_082",
+      "binder_sequence": "SLDQSIINLYNSVKSLNPSKTVKSFVNLLKTLSNEGDKDAEKILSNKSVLTKIQNNIKKLINSAQDLDVENAKNSLSSILNELDPKSTLYNILETLGNLLIGDKNKLKSSLDKLEQKLPNSKFVKLLKKELDSCP",
+      "binder_length": 135,
+      "i_pae": 0.176,
+      "plddt": 0.955,
+      "config": {
+        "algorithm": "best-of-n",
+        "replicas": "16",
+        "sc_scale_noise": "0.05"
+      },
+      "followup_searches": [
+        {
+          "iter": 30,
+          "child_id": "child_084",
+          "algo": "diverse-beam-search",
+          "audited_in_child": null,
+          "best_i_pae": null
+        }
+      ]
+    }
+  ]
+}

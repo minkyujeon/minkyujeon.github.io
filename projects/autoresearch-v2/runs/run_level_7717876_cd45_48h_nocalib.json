@@ -1,0 +1,856 @@
+{
+  "run_dir": "/scratch/gpfs/ZHONGE/mj7341/research/autoresearch_v2_2_search/job_7717876_cd45_48h_nocalib",
+  "n_total_children": 57,
+  "n_children_with_success_csv": 45,
+  "total_gpu_hours": 27.2361,
+  "total_global_unique": 18,
+  "discoveries": [
+    {
+      "n_unique_so_far": 1,
+      "gpu_h_at_discovery": 0.2811,
+      "iter": 0,
+      "child_id": "child_000",
+      "binder_sequence": "STEADAENVKVTNVNSTKVLVKWEPPSSLKDKKLAYFVIYGETGKEPEIESVDSNKREYTIDVKPGVTYTIKVVAKEIVDCKP",
+      "binder_length": 83,
+      "i_pae": 0.209,
+      "plddt": 0.921,
+      "config": {
+        "algorithm": "beam-search",
+        "beam_width": "8",
+        "n_branch": "3",
+        "sc_scale_noise": "0.25",
+        "filter_samples_limit": "32"
+      },
+      "followup_searches": [
+        {
+          "iter": 1,
+          "child_id": "child_004",
+          "algo": "best-of-n",
+          "audited_in_child": 1,
+          "best_i_pae": 0.221
+        },
+        {
+          "iter": 2,
+          "child_id": "child_005",
+          "algo": "fk-steering",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 2,
+          "child_id": "child_006",
+          "algo": "stochastic-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.391
+        },
+        {
+          "iter": 2,
+          "child_id": "child_007",
+          "algo": "single-pass",
+          "audited_in_child": null,
+          "best_i_pae": null
+        }
+      ]
+    },
+    {
+      "n_unique_so_far": 2,
+      "gpu_h_at_discovery": 0.2811,
+      "iter": 0,
+      "child_id": "child_000",
+      "binder_sequence": "SSEYNGINVTVTPINSTTALVKWDVPEKLKGKKVSHFVVYGETGKQEEIESVDSNKTEYTIPVKPGVDYTIKVISLEIKDCEP",
+      "binder_length": 83,
+      "i_pae": 0.21,
+      "plddt": 0.904,
+      "config": {
+        "algorithm": "beam-search",
+        "beam_width": "8",
+        "n_branch": "3",
+        "sc_scale_noise": "0.25",
+        "filter_samples_limit": "32"
+      },
+      "followup_searches": [
+        {
+          "iter": 1,
+          "child_id": "child_004",
+          "algo": "best-of-n",
+          "audited_in_child": 1,
+          "best_i_pae": 0.221
+        },
+        {
+          "iter": 2,
+          "child_id": "child_005",
+          "algo": "fk-steering",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 2,
+          "child_id": "child_006",
+          "algo": "stochastic-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.391
+        },
+        {
+          "iter": 2,
+          "child_id": "child_007",
+          "algo": "single-pass",
+          "audited_in_child": null,
+          "best_i_pae": null
+        }
+      ]
+    },
+    {
+      "n_unique_so_far": 3,
+      "gpu_h_at_discovery": 0.2811,
+      "iter": 0,
+      "child_id": "child_000",
+      "binder_sequence": "STEADAENVKVTNVNSTKVLVKWEPPSTLKDKKLAYFVIYGETGKEPEIESVDSNKREYTIDVKPGVTYTIKVVATEIVDCKP",
+      "binder_length": 83,
+      "i_pae": 0.19,
+      "plddt": 0.928,
+      "config": {
+        "algorithm": "beam-search",
+        "beam_width": "8",
+        "n_branch": "3",
+        "sc_scale_noise": "0.25",
+        "filter_samples_limit": "32"
+      },
+      "followup_searches": [
+        {
+          "iter": 1,
+          "child_id": "child_004",
+          "algo": "best-of-n",
+          "audited_in_child": 1,
+          "best_i_pae": 0.221
+        },
+        {
+          "iter": 2,
+          "child_id": "child_005",
+          "algo": "fk-steering",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 2,
+          "child_id": "child_006",
+          "algo": "stochastic-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.391
+        },
+        {
+          "iter": 2,
+          "child_id": "child_007",
+          "algo": "single-pass",
+          "audited_in_child": null,
+          "best_i_pae": null
+        }
+      ]
+    },
+    {
+      "n_unique_so_far": 4,
+      "gpu_h_at_discovery": 0.2811,
+      "iter": 0,
+      "child_id": "child_000",
+      "binder_sequence": "STEADAENVKVTNVNSTKVLVKWEPPSSLKDKKLAYFVIYGETGKEPEIESVDSNKREYTIDVKPGVTYTIKVVATEIVPCKP",
+      "binder_length": 83,
+      "i_pae": 0.185,
+      "plddt": 0.931,
+      "config": {
+        "algorithm": "beam-search",
+        "beam_width": "8",
+        "n_branch": "3",
+        "sc_scale_noise": "0.25",
+        "filter_samples_limit": "32"
+      },
+      "followup_searches": [
+        {
+          "iter": 1,
+          "child_id": "child_004",
+          "algo": "best-of-n",
+          "audited_in_child": 1,
+          "best_i_pae": 0.221
+        },
+        {
+          "iter": 2,
+          "child_id": "child_005",
+          "algo": "fk-steering",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 2,
+          "child_id": "child_006",
+          "algo": "stochastic-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.391
+        },
+        {
+          "iter": 2,
+          "child_id": "child_007",
+          "algo": "single-pass",
+          "audited_in_child": null,
+          "best_i_pae": null
+        }
+      ]
+    },
+    {
+      "n_unique_so_far": 5,
+      "gpu_h_at_discovery": 3.1427,
+      "iter": 1,
+      "child_id": "child_004",
+      "binder_sequence": "SLEEQLTKAVEDLKSKDQEIRNKAIETIAELSKSLDPQEIAEALLPVLGEKSPQERQEILEEIKKKNEELYNTLVTLISEECS",
+      "binder_length": 83,
+      "i_pae": 0.221,
+      "plddt": 0.944,
+      "config": {
+        "algorithm": "best-of-n",
+        "replicas": "16"
+      },
+      "followup_searches": [
+        {
+          "iter": 2,
+          "child_id": "child_005",
+          "algo": "fk-steering",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 2,
+          "child_id": "child_006",
+          "algo": "stochastic-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.391
+        },
+        {
+          "iter": 2,
+          "child_id": "child_007",
+          "algo": "single-pass",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 3,
+          "child_id": "child_008",
+          "algo": "sequence_hallucination",
+          "audited_in_child": 2,
+          "best_i_pae": 0.204
+        },
+        {
+          "iter": 3,
+          "child_id": "child_009",
+          "algo": "diverse-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.269
+        },
+        {
+          "iter": 3,
+          "child_id": "child_010",
+          "algo": "stochastic-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.421
+        }
+      ]
+    },
+    {
+      "n_unique_so_far": 6,
+      "gpu_h_at_discovery": 7.4289,
+      "iter": 3,
+      "child_id": "child_008",
+      "binder_sequence": "TDAAVKALITALEKSESENVRSNAAYALGLILLDNPQLYEDPGVIQALIKALKDESESVRESAAYALGPIAQEAPQKALPAVEALLEVAKNDESENVNEKAVEALYLISKDNEALKETLLKEFPKNVKTLERTCE",
+      "binder_length": 135,
+      "i_pae": 0.208,
+      "plddt": 0.944,
+      "config": {
+        "algorithm": "sequence_hallucination",
+        "beam_width": "4",
+        "n_branch": "4",
+        "n_hard_iters": "3"
+      },
+      "followup_searches": [
+        {
+          "iter": 4,
+          "child_id": "child_011",
+          "algo": "sequence_hallucination",
+          "audited_in_child": 0,
+          "best_i_pae": 0.216
+        },
+        {
+          "iter": 4,
+          "child_id": "child_012",
+          "algo": "mcts",
+          "audited_in_child": 0,
+          "best_i_pae": 0.37
+        },
+        {
+          "iter": 5,
+          "child_id": "child_013",
+          "algo": "sequence_hallucination",
+          "audited_in_child": 2,
+          "best_i_pae": 0.213
+        },
+        {
+          "iter": 5,
+          "child_id": "child_014",
+          "algo": "diverse-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.269
+        }
+      ]
+    },
+    {
+      "n_unique_so_far": 7,
+      "gpu_h_at_discovery": 7.4289,
+      "iter": 3,
+      "child_id": "child_008",
+      "binder_sequence": "TDKAVKALITALEKSESENVRSNAAYASGLILLDNPQLAELPGVIQALIKALKDESETVRESCALALGLIAQEAPQKALPAVEASLEVAKNDESENVREKAVEALYLISKTEEDLKQTLLKEFPKEVKKLISWCP",
+      "binder_length": 135,
+      "i_pae": 0.204,
+      "plddt": 0.954,
+      "config": {
+        "algorithm": "sequence_hallucination",
+        "beam_width": "4",
+        "n_branch": "4",
+        "n_hard_iters": "3"
+      },
+      "followup_searches": [
+        {
+          "iter": 4,
+          "child_id": "child_011",
+          "algo": "sequence_hallucination",
+          "audited_in_child": 0,
+          "best_i_pae": 0.216
+        },
+        {
+          "iter": 4,
+          "child_id": "child_012",
+          "algo": "mcts",
+          "audited_in_child": 0,
+          "best_i_pae": 0.37
+        },
+        {
+          "iter": 5,
+          "child_id": "child_013",
+          "algo": "sequence_hallucination",
+          "audited_in_child": 2,
+          "best_i_pae": 0.213
+        },
+        {
+          "iter": 5,
+          "child_id": "child_014",
+          "algo": "diverse-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.269
+        }
+      ]
+    },
+    {
+      "n_unique_so_far": 8,
+      "gpu_h_at_discovery": 9.6298,
+      "iter": 5,
+      "child_id": "child_013",
+      "binder_sequence": "TDKASKGLIRALEKSLSENVRSNAAYALGLILLDNPQLAEDPVVIQALIKALKDELESVRESAAYALGLIAQEAPQKALPAVEALLTVAKLDESENVREKAVEALYLISKFSEALKQTLLKEFPKEVKKLESVCP",
+      "binder_length": 135,
+      "i_pae": 0.222,
+      "plddt": 0.941,
+      "config": {
+        "algorithm": "sequence_hallucination",
+        "beam_width": "4",
+        "n_branch": "4",
+        "n_temp_iters": "10",
+        "n_hard_iters": "5"
+      },
+      "followup_searches": [
+        {
+          "iter": 6,
+          "child_id": "child_015",
+          "algo": "sequence_hallucination",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 7,
+          "child_id": "child_016",
+          "algo": "sequence_hallucination",
+          "audited_in_child": 0,
+          "best_i_pae": 0.233
+        },
+        {
+          "iter": 7,
+          "child_id": "child_017",
+          "algo": "diverse-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.269
+        }
+      ]
+    },
+    {
+      "n_unique_so_far": 9,
+      "gpu_h_at_discovery": 9.6298,
+      "iter": 5,
+      "child_id": "child_013",
+      "binder_sequence": "TDKAVKALITAIKKSESKNVRSNAAYALGLILLDNPQLAEIEGVIYALIKALKDNSYQVSESAAYALGLIAQEAPQKALPAVEALLEVAKNDESENVREKAVEALYLISFPNEALKQTLLKEFPVEVKKLESTCP",
+      "binder_length": 135,
+      "i_pae": 0.213,
+      "plddt": 0.947,
+      "config": {
+        "algorithm": "sequence_hallucination",
+        "beam_width": "4",
+        "n_branch": "4",
+        "n_temp_iters": "10",
+        "n_hard_iters": "5"
+      },
+      "followup_searches": [
+        {
+          "iter": 6,
+          "child_id": "child_015",
+          "algo": "sequence_hallucination",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 7,
+          "child_id": "child_016",
+          "algo": "sequence_hallucination",
+          "audited_in_child": 0,
+          "best_i_pae": 0.233
+        },
+        {
+          "iter": 7,
+          "child_id": "child_017",
+          "algo": "diverse-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.269
+        }
+      ]
+    },
+    {
+      "n_unique_so_far": 10,
+      "gpu_h_at_discovery": 12.2054,
+      "iter": 8,
+      "child_id": "child_018",
+      "binder_sequence": "TDKAVKALITALEKSESENVRDNAAYQLGLILLDNPQLAEDPGVIQALIKALPDESESVRESAPQALGLLAQEAPQKALPAVESLLEVAKNDFPENVREKSVEALYLISKDNEALKETLLKEFPKEVRKLEETCP",
+      "binder_length": 135,
+      "i_pae": 0.225,
+      "plddt": 0.943,
+      "config": {
+        "algorithm": "sequence_hallucination",
+        "beam_width": "4",
+        "n_branch": "4",
+        "n_temp_iters": "20",
+        "n_hard_iters": "10"
+      },
+      "followup_searches": [
+        {
+          "iter": 9,
+          "child_id": "child_021",
+          "algo": "mcts",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 9,
+          "child_id": "child_022",
+          "algo": "stochastic-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.76
+        },
+        {
+          "iter": 10,
+          "child_id": "child_023",
+          "algo": "diverse-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.243
+        }
+      ]
+    },
+    {
+      "n_unique_so_far": 11,
+      "gpu_h_at_discovery": 12.2054,
+      "iter": 8,
+      "child_id": "child_018",
+      "binder_sequence": "TDKAVKALITALEKSESENVRSNAAYALGLILLDNPQLAEDPHVIQALIKALKDESESVRESAAYALGPIAQEAPQKALPAVEALLEVAKNDESENVREKAVEALYLISKDNEALKQTLLKEFPKEVKKLESTCP",
+      "binder_length": 135,
+      "i_pae": 0.192,
+      "plddt": 0.946,
+      "config": {
+        "algorithm": "sequence_hallucination",
+        "beam_width": "4",
+        "n_branch": "4",
+        "n_temp_iters": "20",
+        "n_hard_iters": "10"
+      },
+      "followup_searches": [
+        {
+          "iter": 9,
+          "child_id": "child_021",
+          "algo": "mcts",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 9,
+          "child_id": "child_022",
+          "algo": "stochastic-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.76
+        },
+        {
+          "iter": 10,
+          "child_id": "child_023",
+          "algo": "diverse-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.243
+        }
+      ]
+    },
+    {
+      "n_unique_so_far": 12,
+      "gpu_h_at_discovery": 22.1985,
+      "iter": 16,
+      "child_id": "child_036",
+      "binder_sequence": "NSVKSNDIIYAANKIIQSSKPVKSLQNFIKKFSDELYKELENILKNKVNEIKLDNLLKKLANSFIELEKEDEKENLLSQALGFLDQLKINKDLEAIFKILFKLILGQPINTSDFNDVSEDLKKIVEDLNQEYSKC",
+      "binder_length": 135,
+      "i_pae": 0.203,
+      "plddt": 0.925,
+      "config": {
+        "algorithm": "best-of-n",
+        "replicas": "16",
+        "sc_scale_noise": "0.3"
+      },
+      "followup_searches": [
+        {
+          "iter": 17,
+          "child_id": "child_038",
+          "algo": "best-of-n",
+          "audited_in_child": 0,
+          "best_i_pae": 0.582
+        },
+        {
+          "iter": 17,
+          "child_id": "child_039",
+          "algo": "diverse-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.269
+        },
+        {
+          "iter": 17,
+          "child_id": "child_040",
+          "algo": "fk-steering",
+          "audited_in_child": null,
+          "best_i_pae": null
+        },
+        {
+          "iter": 18,
+          "child_id": "child_041",
+          "algo": "best-of-n",
+          "audited_in_child": 0,
+          "best_i_pae": 0.396
+        },
+        {
+          "iter": 18,
+          "child_id": "child_042",
+          "algo": "stochastic-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.558
+        },
+        {
+          "iter": 18,
+          "child_id": "child_043",
+          "algo": "mcts",
+          "audited_in_child": 0,
+          "best_i_pae": 0.371
+        }
+      ]
+    },
+    {
+      "n_unique_so_far": 13,
+      "gpu_h_at_discovery": 25.3722,
+      "iter": 19,
+      "child_id": "child_046",
+      "binder_sequence": "SSEDQVDSLLTDLKAPDLKKAYNRLKSKLSSDDKEIIDNSLLDFLKDLQTGSTQNLADLLNSLLPFSSKNPLPITEFLIALAEFLQKNNLEKEAVTVLRFGQLLNPESISLHNFILTNFPKEAAEILSMKKEPCP",
+      "binder_length": 135,
+      "i_pae": 0.208,
+      "plddt": 0.928,
+      "config": {
+        "algorithm": "best-of-n",
+        "replicas": "8",
+        "sc_scale_noise": "0.15"
+      },
+      "followup_searches": [
+        {
+          "iter": 20,
+          "child_id": "child_047",
+          "algo": "best-of-n",
+          "audited_in_child": 1,
+          "best_i_pae": 0.221
+        },
+        {
+          "iter": 20,
+          "child_id": "child_048",
+          "algo": "beam-search",
+          "audited_in_child": 4,
+          "best_i_pae": 0.202
+        },
+        {
+          "iter": 20,
+          "child_id": "child_049",
+          "algo": "sequence_hallucination",
+          "audited_in_child": 1,
+          "best_i_pae": 0.158
+        },
+        {
+          "iter": 21,
+          "child_id": "child_050",
+          "algo": "sequence_hallucination",
+          "audited_in_child": 0,
+          "best_i_pae": 0.262
+        },
+        {
+          "iter": 21,
+          "child_id": "child_051",
+          "algo": "stochastic-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.635
+        },
+        {
+          "iter": 21,
+          "child_id": "child_052",
+          "algo": "diverse-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.256
+        }
+      ]
+    },
+    {
+      "n_unique_so_far": 14,
+      "gpu_h_at_discovery": 26.0932,
+      "iter": 20,
+      "child_id": "child_048",
+      "binder_sequence": "NEKEQILNNTLSKIKKILETNYSLPDIINIANNNLNNNKDDFSEELITNIKTSLNQINNLYNELQNLVKNNEDIKLVQEKSSQLIKIVNDKKDDLKFLIGIKD",
+      "binder_length": 103,
+      "i_pae": 0.202,
+      "plddt": 0.952,
+      "config": {
+        "algorithm": "beam-search",
+        "beam_width": "4",
+        "n_branch": "4",
+        "sc_scale_noise": "0.2"
+      },
+      "followup_searches": [
+        {
+          "iter": 21,
+          "child_id": "child_050",
+          "algo": "sequence_hallucination",
+          "audited_in_child": 0,
+          "best_i_pae": 0.262
+        },
+        {
+          "iter": 21,
+          "child_id": "child_051",
+          "algo": "stochastic-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.635
+        },
+        {
+          "iter": 21,
+          "child_id": "child_052",
+          "algo": "diverse-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.256
+        },
+        {
+          "iter": 22,
+          "child_id": "child_053",
+          "algo": "sequence_hallucination",
+          "audited_in_child": null,
+          "best_i_pae": null
+        }
+      ]
+    },
+    {
+      "n_unique_so_far": 15,
+      "gpu_h_at_discovery": 26.0932,
+      "iter": 20,
+      "child_id": "child_048",
+      "binder_sequence": "NEKEQILNNTLSKIKKILETNYSLPDIINIANNNLNNNKDDFSEELITNIKTSLNEINNLYNELQNLVKNNEDISLVQEKSSELIKIVNDKKDDLKFLIGIKD",
+      "binder_length": 103,
+      "i_pae": 0.202,
+      "plddt": 0.951,
+      "config": {
+        "algorithm": "beam-search",
+        "beam_width": "4",
+        "n_branch": "4",
+        "sc_scale_noise": "0.2"
+      },
+      "followup_searches": [
+        {
+          "iter": 21,
+          "child_id": "child_050",
+          "algo": "sequence_hallucination",
+          "audited_in_child": 0,
+          "best_i_pae": 0.262
+        },
+        {
+          "iter": 21,
+          "child_id": "child_051",
+          "algo": "stochastic-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.635
+        },
+        {
+          "iter": 21,
+          "child_id": "child_052",
+          "algo": "diverse-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.256
+        },
+        {
+          "iter": 22,
+          "child_id": "child_053",
+          "algo": "sequence_hallucination",
+          "audited_in_child": null,
+          "best_i_pae": null
+        }
+      ]
+    },
+    {
+      "n_unique_so_far": 16,
+      "gpu_h_at_discovery": 26.0932,
+      "iter": 20,
+      "child_id": "child_048",
+      "binder_sequence": "NEKEQILNNTLSKIKKILETNYSLPDIINIANNNLNNNKDDFSEELITNIKTSLNEINNLYNELQNLVKNNEDISLVKEKSNQLIKIVNDNKDDLKFLIGIKD",
+      "binder_length": 103,
+      "i_pae": 0.204,
+      "plddt": 0.952,
+      "config": {
+        "algorithm": "beam-search",
+        "beam_width": "4",
+        "n_branch": "4",
+        "sc_scale_noise": "0.2"
+      },
+      "followup_searches": [
+        {
+          "iter": 21,
+          "child_id": "child_050",
+          "algo": "sequence_hallucination",
+          "audited_in_child": 0,
+          "best_i_pae": 0.262
+        },
+        {
+          "iter": 21,
+          "child_id": "child_051",
+          "algo": "stochastic-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.635
+        },
+        {
+          "iter": 21,
+          "child_id": "child_052",
+          "algo": "diverse-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.256
+        },
+        {
+          "iter": 22,
+          "child_id": "child_053",
+          "algo": "sequence_hallucination",
+          "audited_in_child": null,
+          "best_i_pae": null
+        }
+      ]
+    },
+    {
+      "n_unique_so_far": 17,
+      "gpu_h_at_discovery": 26.0932,
+      "iter": 20,
+      "child_id": "child_048",
+      "binder_sequence": "NEKEQILNNTLSKIKKILETNYSLPDIINIANNNLNNNKDDFSEELITNIKTSLNEINNLYNELKNLVKNNEDIKLVQEKSNELIKIVNDNKDDLKFLIGIKD",
+      "binder_length": 103,
+      "i_pae": 0.204,
+      "plddt": 0.953,
+      "config": {
+        "algorithm": "beam-search",
+        "beam_width": "4",
+        "n_branch": "4",
+        "sc_scale_noise": "0.2"
+      },
+      "followup_searches": [
+        {
+          "iter": 21,
+          "child_id": "child_050",
+          "algo": "sequence_hallucination",
+          "audited_in_child": 0,
+          "best_i_pae": 0.262
+        },
+        {
+          "iter": 21,
+          "child_id": "child_051",
+          "algo": "stochastic-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.635
+        },
+        {
+          "iter": 21,
+          "child_id": "child_052",
+          "algo": "diverse-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.256
+        },
+        {
+          "iter": 22,
+          "child_id": "child_053",
+          "algo": "sequence_hallucination",
+          "audited_in_child": null,
+          "best_i_pae": null
+        }
+      ]
+    },
+    {
+      "n_unique_so_far": 18,
+      "gpu_h_at_discovery": 26.3748,
+      "iter": 20,
+      "child_id": "child_049",
+      "binder_sequence": "SGSAQVDSLLTDLKAPMLKKAYNTLKSKLSSSDKEIIDNSLLDFLKSLQNGETQDLPDLLQSLEPFASQNPLPITEFLIALAEFLQKNNLEKEAVKVLKFAQLLNPEEISLHNFILTNFPKEAAEILSMKKEPCP",
+      "binder_length": 135,
+      "i_pae": 0.158,
+      "plddt": 0.944,
+      "config": {
+        "algorithm": "sequence_hallucination",
+        "replicas": "8",
+        "n_temp_iters": "10",
+        "n_hard_iters": "5",
+        "sc_scale_noise": "0.15"
+      },
+      "followup_searches": [
+        {
+          "iter": 21,
+          "child_id": "child_050",
+          "algo": "sequence_hallucination",
+          "audited_in_child": 0,
+          "best_i_pae": 0.262
+        },
+        {
+          "iter": 21,
+          "child_id": "child_051",
+          "algo": "stochastic-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.635
+        },
+        {
+          "iter": 21,
+          "child_id": "child_052",
+          "algo": "diverse-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.256
+        },
+        {
+          "iter": 22,
+          "child_id": "child_053",
+          "algo": "sequence_hallucination",
+          "audited_in_child": null,
+          "best_i_pae": null
+        }
+      ]
+    }
+  ]
+}

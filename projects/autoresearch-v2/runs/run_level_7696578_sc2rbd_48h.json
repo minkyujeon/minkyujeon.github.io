@@ -1,0 +1,61 @@
+{
+  "run_dir": "/scratch/gpfs/ZHONGE/mj7341/research/autoresearch_v2_2_search/job_7696578_sc2rbd_48h",
+  "n_total_children": 80,
+  "n_children_with_success_csv": 68,
+  "total_gpu_hours": 39.5566,
+  "total_global_unique": 1,
+  "discoveries": [
+    {
+      "n_unique_so_far": 1,
+      "gpu_h_at_discovery": 12.9447,
+      "iter": 8,
+      "child_id": "child_017",
+      "binder_sequence": "TIVDQAQQALEALQNTAENDYAKRTRALEMLEEIVWSSQYVNIPQDLDNQIVAELSKYQNSIMENDEIKLQAVAILQKSKAHQ",
+      "binder_length": 83,
+      "i_pae": 0.202,
+      "plddt": 0.905,
+      "config": {
+        "algorithm": "sequence_hallucination",
+        "n_temp_iters": "10",
+        "n_hard_iters": "5"
+      },
+      "followup_searches": [
+        {
+          "iter": 9,
+          "child_id": "child_020",
+          "algo": "?",
+          "audited_in_child": 0,
+          "best_i_pae": 0.659
+        },
+        {
+          "iter": 9,
+          "child_id": "child_021",
+          "algo": "best-of-n",
+          "audited_in_child": 0,
+          "best_i_pae": 0.725
+        },
+        {
+          "iter": 9,
+          "child_id": "child_022",
+          "algo": "stochastic-beam-search",
+          "audited_in_child": 0,
+          "best_i_pae": 0.776
+        },
+        {
+          "iter": 10,
+          "child_id": "child_023",
+          "algo": "sequence_hallucination",
+          "audited_in_child": 0,
+          "best_i_pae": 0.277
+        },
+        {
+          "iter": 10,
+          "child_id": "child_024",
+          "algo": "mcts",
+          "audited_in_child": 0,
+          "best_i_pae": 0.379
+        }
+      ]
+    }
+  ]
+}
