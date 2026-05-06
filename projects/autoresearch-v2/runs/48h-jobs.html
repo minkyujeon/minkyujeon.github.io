@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Autoresearch v2.2 — 48H multi-target campaign</title>
+<style>
+:root{--ink:#14213d;--muted:#5f6f89;--line:#d8e0e8;--panel:#fff;--bg:#f5f7fa;--blue:#2563eb;--green:#0f766e;--orange:#c2410c;--purple:#7c3aed;--warn:#b45309;--bad:#b42318;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+header{background:#102a43;color:#fff;padding:30px 28px}
+header .wrap,main{max-width:1280px;margin:0 auto}
+.breadcrumb{font-size:13px;color:#bcccdc;margin-bottom:8px}
+.breadcrumb a{color:#dbeafe;text-decoration:none}
+h1{margin:0 0 8px;font-size:28px}
+.sub{color:#d7e2ee;max-width:960px;line-height:1.55}
+main{padding:24px 24px 56px}
+section{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:18px;margin:0 0 18px;box-shadow:0 1px 2px rgba(16,42,67,.05)}
+h2{font-size:19px;margin:0 0 10px;color:#102a43}
+h3{font-size:14px;margin:14px 0 6px;color:#243b53;text-transform:uppercase;letter-spacing:.04em}
+p,li{line-height:1.55;color:#334e68}
+.note{border-left:4px solid var(--blue);background:#f8fbff;padding:10px 14px;margin:8px 0 0}
+.warn{border-left-color:var(--warn);background:#fffaf0}
+table{width:100%;border-collapse:collapse;margin-top:8px}
+th,td{border:1px solid var(--line);padding:8px 9px;text-align:left;font-size:12.5px}
+th{background:#f1f5f9;color:#41556b}
+.badge{display:inline-block;border-radius:999px;padding:3px 9px;font-size:11px;font-weight:800;background:#eef2f7;color:#344054}
+.badge.running{background:#e0f2fe;color:#075985}
+.badge.done{background:#dcfce7;color:#166534}
+.badge.warn{background:#fef3c7;color:#92400e}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(560px,1fr));gap:16px}
+.card{border:1px solid var(--line);border-radius:8px;padding:14px;background:white}
+.card.blue{border-top:4px solid var(--blue)}
+.card.green{border-top:4px solid var(--green)}
+.card.orange{border-top:4px solid var(--orange)}
+.card.purple{border-top:4px solid var(--purple)}
+.cardhead{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid #edf1f5;padding-bottom:10px;margin-bottom:12px}
+.cardhead h3{margin:0 0 2px;font-size:15px;letter-spacing:0;text-transform:none;color:#102a43}
+.cardhead .meta{font-size:12px;color:var(--muted)}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:8px 0}
+.metric{border:1px solid #e3e8ef;background:#fbfcfe;border-radius:7px;padding:9px}
+.metric b{display:block;font-size:18px;color:#102a43;font-variant-numeric:tabular-nums}
+.metric span{font-size:11px;color:var(--muted)}
+.opbar{display:grid;grid-template-columns:160px 1fr 30px;align-items:center;gap:8px;font-size:12px;margin:3px 0}
+.opname{color:#41556b}
+.opbarbg{height:8px;background:#e8eef5;border-radius:999px;overflow:hidden}
+.opbarfill{display:block;height:100%;background:#2563eb}
+.card.green .opbarfill{background:var(--green)}
+.card.orange .opbarfill{background:var(--orange)}
+.card.purple .opbarfill{background:var(--purple)}
+.opcnt{color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
+.spark{display:block;margin:8px 0;border:1px solid #e3e8ef;border-radius:6px;background:#fbfcfe}
+.spark-label{font-size:11px;color:var(--muted);margin:6px 0 2px}
+.tinybit{font-size:11.5px;color:var(--muted);margin-top:6px}
+.tinybit b{color:#243b53;font-weight:700}
+@media(max-width:820px){.cards{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<header>
+<div class="wrap">
+<div class="breadcrumb"><a href="/projects/">Projects</a> / <a href="/projects/autoresearch-v2/">Autoresearch v2</a> / 48H multi-target</div>
+<h1>Autoresearch v2.2 — 48H multi-target campaign</h1>
+<p class="sub">Four 4-GPU 48-hour jobs on three targets (CD45, BetV1, SC2RBD) plus a calibration A/B on CD45. All use three_experts + PUCT + cap=2.0; the only single-variable change is whether <code>--disable-calibration-context</code> is on. Snapshot generated 2026-05-06 from local Slurm outputs. Static, not auto-refreshing.</p>
+</div>
+</header>
+<main>
+
+<section>
+<p class="note"><b>Current status (snapshot at this moment):</b> CD45 cal-ON job has completed (26 audited successes). CD45 cal-OFF, BetV1, and SC2RBD are still running. Numbers below are live counts from per-child eval reports, not from final run reports.</p>
+<p class="note warn"><b>Don't over-read single-run differences.</b> Same-config CD45 variance across our prior 24-hour runs is large (7606343 = 24 audited vs 7619073 = 11 audited on identical setup, 2.7× spread). Differences smaller than ~10–15 audited successes between two runs are likely noise.</p>
+</section>
+
+<section>
+<h2>Run Matrix</h2>
+<table>
+<tr><th>Job</th><th>Target</th><th>Calibration</th><th>State</th><th>Iters</th><th>Children evaluated</th><th>Failed children</th><th>Audited successes</th><th>succ / GPU-h</th><th>min iPAE</th><th>pLDDT at min iPAE</th></tr>
+<tr><td>7694929</td><td>05_CD45 (hard)</td><td>ON</td><td><span class="badge done">COMPLETED · 48h</span></td><td>31</td><td>85</td><td>18</td><td><b>26</b></td><td><b>0.583</b></td><td>0.176 ✓</td><td>0.946</td></tr>
+<tr><td>7717876</td><td>05_CD45 (hard)</td><td>OFF</td><td><span class="badge running">RUNNING · ~24h elapsed</span></td><td>19</td><td>43</td><td>8</td><td>12</td><td>0.506</td><td>0.185</td><td>0.931</td></tr>
+<tr><td>7696577</td><td>23_BetV1 (hard)</td><td>ON</td><td><span class="badge running">RUNNING · ~40h elapsed</span></td><td>27</td><td>67</td><td>12</td><td>5</td><td>0.127</td><td>0.153 ✓</td><td>0.938</td></tr>
+<tr><td>7696578</td><td>30_SC2RBD (hard)</td><td>ON</td><td><span class="badge running">RUNNING · ~40h elapsed</span></td><td>34</td><td>78</td><td>11</td><td>1</td><td>0.027</td><td>0.202</td><td>0.905</td></tr>
+</table>
+<p class="tinybit">Success threshold for the binder design pipeline is <b>iPAE ≤ 0.18</b> AND <b>pLDDT ≥ 0.90</b> per AlphaFold2 evaluation. ✓ marks min iPAE that passed the threshold at least once. "Audited successes" counts globally de-duplicated successful candidates summed across children.</p>
+</section>
+
+<section>
+<h2>How to read this page</h2>
+<ul>
+<li><b>succ / GPU-h</b> is the cleanest cross-job comparison: total audited successes divided by total executed GPU-hours. Faster targets (PDL1) and smaller proposals naturally produce more.</li>
+<li><b>min iPAE</b> is the lowest interface PAE produced by any candidate the agent ran. This tells you whether the agent ever found a binder that <i>could</i> succeed, even if it didn't replicate.</li>
+<li><b>Operator family bars</b> show how many child runs the agent allocated to each search strategy. Diverse coverage is good; collapse to one family is a warning sign.</li>
+<li><b>Cumulative audited successes</b> sparkline shows when in the run the discoveries happened — early bursts vs. late discoveries.</li>
+</ul>
+</section>
+
+<section>
+<h2>Setup (identical across 4 jobs unless noted)</h2>
+<table>
+<tr><th>Component</th><th>Value</th></tr>
+<tr><td>Hardware</td><td>4× H100 per job (1 GPU for vLLM, 3 worker GPUs for Complexa children)</td></tr>
+<tr><td>LLM</td><td>Qwen3.6-27B-FP8 (vLLM, 131K context, temperature ≤ 0)</td></tr>
+<tr><td>Backend</td><td>Proteina-Complexa flow-matching latent diffusion + AlphaFold2 evaluation</td></tr>
+<tr><td>Walltime</td><td>48 hours, max_iterations effectively unlimited</td></tr>
+<tr><td>Analyst mode</td><td>three_experts (Domain + ML + System parallel)</td></tr>
+<tr><td>Parent policy</td><td>PUCT (UCB-based parent selection, c=1.4)</td></tr>
+<tr><td>Score cap</td><td>2.0 audited successes per GPU-hour (PRIMARY_SUCCESS_RATE_CAP)</td></tr>
+<tr><td>Calibration injection</td><td>ON for 7694929 / 7696577 / 7696578; <b>OFF for 7717876</b> (the only A/B variable)</td></tr>
+<tr><td>Per-child timeout</td><td>120 minutes</td></tr>
+<tr><td>nsamples</td><td>varies (per-iteration LLM choice within manifest bounds)</td></tr>
+</table>
+</section>
+
+<section>
+<h2>Per-job snapshots</h2>
+<div class="cards">
+
+<div class="card blue" id="job-7694929">
+<div class="cardhead">
+<div><h3>7694929 · 05_CD45 · calibration ON</h3>
+<div class="meta">Difficulty: hard · Walltime 48h · Started 2026-05-04</div></div>
+<span class="badge done">COMPLETED</span>
+</div>
+<div class="metrics">
+<div class="metric"><b>26</b><span>audited successes</span></div>
+<div class="metric"><b>0.583</b><span>succ / gpu-h</span></div>
+<div class="metric"><b>0.176</b><span>min iPAE ✓</span></div>
+<div class="metric"><b>44.6h</b><span>total GPU-hours</span></div>
+<div class="metric"><b>31</b><span>iterations</span></div>
+<div class="metric"><b>85</b><span>children evaluated</span></div>
+<div class="metric"><b>18</b><span>failed (mostly timeout)</span></div>
+<div class="metric"><b>1.34%</b><span>online pass-rate</span></div>
+</div>
+<div class="spark-label">cumulative audited successes over children launched (max = 26)</div>
+<svg class="spark" viewBox="0 0 320 60" style="width:100%;height:60px"><polyline fill="none" stroke="#2563eb" stroke-width="2" points="0.0,46.2 10.7,46.2 21.3,41.5 32.0,41.5 42.7,41.5 53.3,41.5 64.0,41.5 74.7,41.5 85.3,41.5 96.0,41.5 106.7,41.5 117.3,41.5 128.0,41.5 138.7,41.5 149.3,41.5 160.0,41.5 170.7,39.2 181.3,36.9 192.0,36.9 202.7,30.0 213.3,27.7 224.0,25.4 234.7,25.4 245.3,25.4 256.0,9.2 266.7,4.6 277.3,4.6 288.0,2.3 298.7,2.3 309.3,0.0 320.0,0.0"/></svg>
+<h3 style="margin-top:10px">Operator family allocation</h3>
+<div class="opbar"><span class="opname">diverse-beam-search</span><span class="opbarbg"><span class="opbarfill" style="width:23.5%"></span></span><span class="opcnt">20</span></div>
+<div class="opbar"><span class="opname">best-of-n</span><span class="opbarbg"><span class="opbarfill" style="width:21.2%"></span></span><span class="opcnt">18</span></div>
+<div class="opbar"><span class="opname">stochastic-beam-search</span><span class="opbarbg"><span class="opbarfill" style="width:14.1%"></span></span><span class="opcnt">12</span></div>
+<div class="opbar"><span class="opname">mcts</span><span class="opbarbg"><span class="opbarfill" style="width:12.9%"></span></span><span class="opcnt">11</span></div>
+<div class="opbar"><span class="opname">beam-search</span><span class="opbarbg"><span class="opbarfill" style="width:10.6%"></span></span><span class="opcnt">9</span></div>
+<div class="opbar"><span class="opname">fk-steering</span><span class="opbarbg"><span class="opbarfill" style="width:9.4%"></span></span><span class="opcnt">8</span></div>
+<div class="opbar"><span class="opname">single-pass</span><span class="opbarbg"><span class="opbarfill" style="width:7.1%"></span></span><span class="opcnt">6</span></div>
+<div class="opbar"><span class="opname">refinement</span><span class="opbarbg"><span class="opbarfill" style="width:1.2%"></span></span><span class="opcnt">1</span></div>
+<p class="tinybit"><b>Lowest iPAE candidate</b> belongs to child_056. <b>Notes:</b> Stagnated at 8 audited from ~11h to ~26h, then broke through to 26 by walltime. min iPAE crossed the 0.18 threshold at 0.176.</p>
+</div>
+
+<div class="card green" id="job-7717876">
+<div class="cardhead">
+<div><h3>7717876 · 05_CD45 · calibration <b>OFF</b> (A/B control)</h3>
+<div class="meta">Difficulty: hard · Walltime 48h · Started 2026-05-05</div></div>
+<span class="badge running">RUNNING</span>
+</div>
+<div class="metrics">
+<div class="metric"><b>12</b><span>audited so far</span></div>
+<div class="metric"><b>0.506</b><span>succ / gpu-h</span></div>
+<div class="metric"><b>0.185</b><span>min iPAE</span></div>
+<div class="metric"><b>23.7h</b><span>GPU-h so far</span></div>
+<div class="metric"><b>19</b><span>iterations</span></div>
+<div class="metric"><b>43</b><span>children evaluated</span></div>
+<div class="metric"><b>8</b><span>failed</span></div>
+<div class="metric"><b>1.48%</b><span>online pass-rate</span></div>
+</div>
+<div class="spark-label">cumulative audited successes (max = 12 so far)</div>
+<svg class="spark" viewBox="0 0 320 60" style="width:100%;height:60px"><polyline fill="none" stroke="#0f766e" stroke-width="2" points="0.0,40.0 17.8,35.0 35.6,35.0 53.3,25.0 71.1,25.0 88.9,15.0 106.7,15.0 124.4,15.0 142.2,5.0 160.0,5.0 177.8,5.0 195.6,5.0 213.3,5.0 231.1,5.0 248.9,5.0 266.7,5.0 284.4,0.0 302.2,0.0 320.0,0.0"/></svg>
+<h3 style="margin-top:10px">Operator family allocation</h3>
+<div class="opbar"><span class="opname">diverse-beam-search</span><span class="opbarbg"><span class="opbarfill" style="width:20.5%"></span></span><span class="opcnt">9</span></div>
+<div class="opbar"><span class="opname">stochastic-beam-search</span><span class="opbarbg"><span class="opbarfill" style="width:18.2%"></span></span><span class="opcnt">8</span></div>
+<div class="opbar"><span class="opname">best-of-n</span><span class="opbarbg"><span class="opbarfill" style="width:15.9%"></span></span><span class="opcnt">7</span></div>
+<div class="opbar"><span class="opname">beam-search</span><span class="opbarbg"><span class="opbarfill" style="width:13.6%"></span></span><span class="opcnt">6</span></div>
+<div class="opbar"><span class="opname">mcts</span><span class="opbarbg"><span class="opbarfill" style="width:13.6%"></span></span><span class="opcnt">6</span></div>
+<div class="opbar"><span class="opname">fk-steering</span><span class="opbarbg"><span class="opbarfill" style="width:9.1%"></span></span><span class="opcnt">4</span></div>
+<div class="opbar"><span class="opname">single-pass</span><span class="opbarbg"><span class="opbarfill" style="width:4.5%"></span></span><span class="opcnt">2</span></div>
+<div class="opbar"><span class="opname">refinement</span><span class="opbarbg"><span class="opbarfill" style="width:4.5%"></span></span><span class="opcnt">2</span></div>
+<p class="tinybit"><b>A/B comparison vs 7694929:</b> at the same elapsed time (~24h), the calibration-OFF run is roughly tracking the calibration-ON run. Difference ≤ 4 audited so far — well inside the same-config noise floor (±13). <b>Final answer requires waiting for completion (~24h more).</b></p>
+</div>
+
+<div class="card orange" id="job-7696577">
+<div class="cardhead">
+<div><h3>7696577 · 23_BetV1 · calibration ON</h3>
+<div class="meta">Difficulty: hard · Walltime 48h · Started 2026-05-04</div></div>
+<span class="badge running">RUNNING</span>
+</div>
+<div class="metrics">
+<div class="metric"><b>5</b><span>audited so far</span></div>
+<div class="metric"><b>0.127</b><span>succ / gpu-h</span></div>
+<div class="metric"><b>0.153</b><span>min iPAE ✓</span></div>
+<div class="metric"><b>39.4h</b><span>GPU-h so far</span></div>
+<div class="metric"><b>27</b><span>iterations</span></div>
+<div class="metric"><b>67</b><span>children evaluated</span></div>
+<div class="metric"><b>12</b><span>failed</span></div>
+<div class="metric"><b>0.57%</b><span>online pass-rate</span></div>
+</div>
+<div class="spark-label">cumulative audited successes (max = 5 so far)</div>
+<svg class="spark" viewBox="0 0 320 60" style="width:100%;height:60px"><polyline fill="none" stroke="#c2410c" stroke-width="2" points="0.0,48.0 12.3,48.0 24.6,48.0 36.9,48.0 49.2,36.0 61.5,36.0 73.8,36.0 86.2,36.0 98.5,36.0 110.8,24.0 123.1,12.0 135.4,12.0 147.7,12.0 160.0,12.0 172.3,12.0 184.6,12.0 196.9,12.0 209.2,0.0 221.5,0.0 233.8,0.0 246.2,0.0 258.5,0.0 270.8,0.0 283.1,0.0 295.4,0.0 307.7,0.0 320.0,0.0"/></svg>
+<h3 style="margin-top:10px">Operator family allocation</h3>
+<div class="opbar"><span class="opname">diverse-beam-search</span><span class="opbarbg"><span class="opbarfill" style="width:22.1%"></span></span><span class="opcnt">15</span></div>
+<div class="opbar"><span class="opname">best-of-n</span><span class="opbarbg"><span class="opbarfill" style="width:19.1%"></span></span><span class="opcnt">13</span></div>
+<div class="opbar"><span class="opname">stochastic-beam-search</span><span class="opbarbg"><span class="opbarfill" style="width:17.6%"></span></span><span class="opcnt">12</span></div>
+<div class="opbar"><span class="opname">beam-search</span><span class="opbarbg"><span class="opbarfill" style="width:13.2%"></span></span><span class="opcnt">9</span></div>
+<div class="opbar"><span class="opname">mcts</span><span class="opbarbg"><span class="opbarfill" style="width:10.3%"></span></span><span class="opcnt">7</span></div>
+<div class="opbar"><span class="opname">fk-steering</span><span class="opbarbg"><span class="opbarfill" style="width:10.3%"></span></span><span class="opcnt">7</span></div>
+<div class="opbar"><span class="opname">single-pass</span><span class="opbarbg"><span class="opbarfill" style="width:4.4%"></span></span><span class="opcnt">3</span></div>
+<div class="opbar"><span class="opname">refinement</span><span class="opbarbg"><span class="opbarfill" style="width:2.9%"></span></span><span class="opcnt">2</span></div>
+<p class="tinybit"><b>Lowest iPAE candidate</b> belongs to child_023. <b>Notes:</b> First break-through to iPAE = 0.153 (clearly below threshold) happened around iter 10. Successes have come in slowly since (5 total). The min-iPAE candidate is well below the threshold; the bottleneck is converting promising structures into duplicate-free unique designs.</p>
+</div>
+
+<div class="card purple" id="job-7696578">
+<div class="cardhead">
+<div><h3>7696578 · 30_SC2RBD · calibration ON</h3>
+<div class="meta">Difficulty: hard · Walltime 48h · Started 2026-05-04</div></div>
+<span class="badge running">RUNNING</span>
+</div>
+<div class="metrics">
+<div class="metric"><b>1</b><span>audited so far</span></div>
+<div class="metric"><b>0.027</b><span>succ / gpu-h</span></div>
+<div class="metric"><b>0.202</b><span>min iPAE</span></div>
+<div class="metric"><b>37.5h</b><span>GPU-h so far</span></div>
+<div class="metric"><b>34</b><span>iterations</span></div>
+<div class="metric"><b>78</b><span>children evaluated</span></div>
+<div class="metric"><b>11</b><span>failed</span></div>
+<div class="metric"><b>0.04%</b><span>online pass-rate</span></div>
+</div>
+<div class="spark-label">cumulative audited successes (max = 1 so far)</div>
+<svg class="spark" viewBox="0 0 320 60" style="width:100%;height:60px"><polyline fill="none" stroke="#7c3aed" stroke-width="2" points="0.0,60.0 9.7,60.0 19.4,60.0 29.1,60.0 38.8,60.0 48.5,60.0 58.2,60.0 67.9,60.0 77.6,0.0 87.3,0.0 97.0,0.0 106.7,0.0 116.4,0.0 126.1,0.0 135.8,0.0 145.5,0.0 155.2,0.0 164.8,0.0 174.5,0.0 184.2,0.0 193.9,0.0 203.6,0.0 213.3,0.0 223.0,0.0 232.7,0.0 242.4,0.0 252.1,0.0 261.8,0.0 271.5,0.0 281.2,0.0 290.9,0.0 300.6,0.0 310.3,0.0 320.0,0.0"/></svg>
+<h3 style="margin-top:10px">Operator family allocation</h3>
+<div class="opbar"><span class="opname">diverse-beam-search</span><span class="opbarbg"><span class="opbarfill" style="width:21.5%"></span></span><span class="opcnt">17</span></div>
+<div class="opbar"><span class="opname">single-pass</span><span class="opbarbg"><span class="opbarfill" style="width:16.5%"></span></span><span class="opcnt">13</span></div>
+<div class="opbar"><span class="opname">mcts</span><span class="opbarbg"><span class="opbarfill" style="width:15.2%"></span></span><span class="opcnt">12</span></div>
+<div class="opbar"><span class="opname">stochastic-beam-search</span><span class="opbarbg"><span class="opbarfill" style="width:15.2%"></span></span><span class="opcnt">12</span></div>
+<div class="opbar"><span class="opname">best-of-n</span><span class="opbarbg"><span class="opbarfill" style="width:11.4%"></span></span><span class="opcnt">9</span></div>
+<div class="opbar"><span class="opname">beam-search</span><span class="opbarbg"><span class="opbarfill" style="width:8.9%"></span></span><span class="opcnt">7</span></div>
+<div class="opbar"><span class="opname">fk-steering</span><span class="opbarbg"><span class="opbarfill" style="width:7.6%"></span></span><span class="opcnt">6</span></div>
+<div class="opbar"><span class="opname">refinement</span><span class="opbarbg"><span class="opbarfill" style="width:3.8%"></span></span><span class="opcnt">3</span></div>
+<p class="tinybit"><b>Lowest iPAE candidate</b> belongs to child_017. <b>Notes:</b> Single audited success around iter 8 (early), no second success in 26 subsequent iterations. min iPAE never crossed 0.18 threshold. SC2RBD looks structurally harder than CD45/BetV1 with this setup; result is informative even if numerically poor.</p>
+</div>
+
+</div>
+</section>
+
+<section>
+<h2>What this experiment is testing</h2>
+<table>
+<tr><th>Experiment</th><th>Jobs compared</th><th>Question</th><th>Result so far</th></tr>
+<tr><td>Calibration injection A/B</td><td>7694929 (ON, done) vs 7717876 (OFF, ~24h)</td><td>Does injecting per-role calibration bias into analyst prompts at iter ≥ 5 help search outcomes?</td><td>Difference within noise floor; need 7717876 to finish for verdict.</td></tr>
+<tr><td>Multi-target generalization</td><td>CD45 vs BetV1 vs SC2RBD (all calibration ON)</td><td>Does the same setup produce comparable results across distinct hard targets?</td><td>Strongly target-dependent. CD45 ≫ BetV1 > SC2RBD. SC2RBD looks at the limit of what the current setup can solve.</td></tr>
+<tr><td>Replication of prior leader</td><td>7694929 vs prior 7606343 (24h, 24 audited) and 7619073 (24h, 11 audited)</td><td>Is the leading CD45 result reproducible at 48h?</td><td>26 audited at 48h on 44.6 GPU-h matches the leader band (history range 11–24 at 24h on ~20 GPU-h).</td></tr>
+</table>
+</section>
+
+<section>
+<h2>Methodology notes</h2>
+<ul>
+<li><b>Score</b> is a per-child compute-normalized rate: <code>audited_unique_success / gpu_hours</code>, capped at 2.0, plus small soft bonuses for low iPAE / high pLDDT / low duplicate fraction. Cap exists to prevent a single fast small-denominator winner from anchoring the parent portfolio.</li>
+<li><b>"Audited" successes</b> are the AlphaFold2-evaluated unique candidates that meet iPAE ≤ 0.18 AND pLDDT ≥ 0.90, after de-duplication on sequence. <b>"Online" successes</b> use a softer per-fold criterion that the backend reports during sampling.</li>
+<li><b>PUCT</b> is the AlphaZero-style upper-confidence-bound parent selector. Q is the per-child score; visit count is the number of expansions per parent.</li>
+<li><b>Calibration injection</b> reads each role's predicted-vs-actual bias on best_i_pae / n_successful / expected_gpu_minutes accumulated so far, and adds it to the analyst's user prompt at iteration ≥ 5 with a "you have over-predicted X" warning. It is removed from the Refiner and Supervisor prompts (decision-safe) so calibration data does not leak into selection.</li>
+<li><b>Failure modes</b> include hard failures (timeout, OOM, backend exception) and soft failures (zero_success, near_miss_interface, duplicate_collapse, proxy_mismatch). Both kinds are surfaced to analysts via <code>proposal_history</code> in the EvidencePack.</li>
+</ul>
+</section>
+
+<section>
+<p class="tinybit">Source code on the <a href="https://github.com/Jinyeop3110/Autoresearch_Denovo/tree/minkyu_v2_2_init">minkyu_v2_2_init</a> branch. This page is a static snapshot, not auto-refreshing; rerun the builder to update.</p>
+</section>
+
+</main>
+</body>
+</html>
