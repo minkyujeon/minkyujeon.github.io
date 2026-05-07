@@ -68,6 +68,203 @@ iter 1+:
                 ▼
     node score computed → portfolio re-evaluated → next EvidencePack</pre><div class="table-scroll"><table><thead><tr><th>module</th><th>inputs</th><th>outputs</th><th>artifact examples</th></tr></thead><tbody><tr><td>EvidencePack builder</td><td><span class="mono">SearchTree</span>, selected <span class="mono">parent_portfolio</span>, target config, remaining budget, capability manifest, recent proposal history, optional background papers.</td><td><span class="mono">evidence_pack</span> with target, budget_remaining, parent_portfolio, search_state/global_progress, allowed_actions_ref, immutable_rules, metric_semantics, proposal_history, and optional warnings.</td><td><span class="mono">iteration_summary.json</span> contains parent_portfolio; prompt payload is captured in role transcripts/results.</td></tr><tr><td>Analysts: Domain/ML/System</td><td>EvidencePack, structure dossier, manifest bounds, optional prior expert findings, optional calibration context. In these A/B jobs calibration context is OFF.</td><td>Each analyst returns JSON with <span class="mono">findings</span>, <span class="mono">suggested_operator_families</span>, calibration-only <span class="mono">predictions</span>, and <span class="mono">questions_for_supervisor</span>.</td><td><span class="mono">domain_expert_result.json</span>, <span class="mono">ml_expert_result.json</span>, <span class="mono">system_expert_result.json</span>.</td></tr><tr><td>Decision-safe filter</td><td>Raw analyst results and EvidencePack.</td><td>Analyst results with <span class="mono">predictions</span> removed; EvidencePack with calibration-only fields removed. This filtered object is what Refiner and Supervisor see.</td><td>Implemented by <span class="mono">_decision_safe_analyst_results</span> and <span class="mono">_decision_safe_evidence_pack</span>.</td></tr><tr><td>Refiner</td><td>Decision-safe EvidencePack, parent_portfolio, decision-safe analyst findings, capability manifest, budget, used GPU-hours, <span class="mono">n_proposals=max_agent_children</span>, and proposal lane mode.</td><td><span class="mono">proposals[]</span>; each proposal has <span class="mono">proposal_id</span>, <span class="mono">operator_family</span>, <span class="mono">parent_program_ids</span>, <span class="mono">intent</span>, <span class="mono">hypothesis</span>, JSON Pointer <span class="mono">config_patch</span>, expected_signal, resource_estimate, rollback_condition.</td><td><span class="mono">refiner_result.json</span>.</td></tr><tr><td>Verifier</td><td>Refiner proposals, Complexa capability manifest, budget, and used GPU-hours.</td><td><span class="mono">verifier_results[]</span>; each entry annotates a proposal with status, launchable boolean, blocking_reasons, warnings, translation_hints, and normalized_proposal.</td><td>Stored inside <span class="mono">refiner_result.json</span>.</td></tr><tr><td>Supervisor</td><td>Decision-safe EvidencePack, parent_portfolio, decision-safe analyst findings, verifier_results.</td><td>Final selection JSON with <span class="mono">decision</span>, selected_proposal_id / selected_proposal_ids, rationale, repair_instruction, and human_question. It selects among Refiner proposals after Verifier annotation; it does not write new config patches.</td><td><span class="mono">supervisor_result.json</span>.</td></tr><tr><td>Executor / Complexa adapter</td><td>Selected launchable proposals, child ids, parent ids, worker GPU ids, timeout, and resolved config patches.</td><td>One child directory per launched backend run; each child records proposal, execution settings, logs, failure state, structure dossier, and EvalReport.</td><td><span class="mono">iterations/iter_XXX/children/child_NNN/</span>, <span class="mono">complexa.log</span>, <span class="mono">execution_settings.json</span>, <span class="mono">failure_record.json</span>, <span class="mono">structure_dossier.json</span>.</td></tr><tr><td>EvalReport</td><td>Complexa generation/filter/evaluation outputs plus audited strict-success parser.</td><td>Per-child metrics such as status, gpu_hours, best_i_pae, best_plddt, best_binder_scrmsd_ca, audited_unique_success, audited_success_sequences, failure_modes, and best_joint_candidate.</td><td><span class="mono">eval_report.json</span>.</td></tr><tr><td>SearchTree update</td><td>Child proposal, parent ids, EvalReport, failure record.</td><td>Updated node with score and children links. The next iteration recomputes the parent portfolio from the updated tree.</td><td><span class="mono">search_tree.json</span>, <span class="mono">context_summary.json</span>, <span class="mono">run_report.json</span>.</td></tr></tbody></table></div></details>
 
+
+<details class="details-block" open id="component-io-examples"><summary>Concrete component I/O examples for one iteration</summary>
+<p class="small">These are representative JSON shapes from the current Autoresearch v2.2 pipeline. The exact values are illustrative; the field ownership and control flow are factual. Current code source anchors: <span class="mono">controller._evidence_pack(parent_portfolio)</span>, <span class="mono">prompts.analyst_prompt</span>, <span class="mono">prompts.refiner_prompt</span>, <span class="mono">verify_proposal_against_manifest</span>, <span class="mono">prompts.supervisor_prompt</span>, and Complexa <span class="mono">eval_report.json</span>.</p>
+
+<div class="detail-card"><h4>0. EvidencePack: primary shared input</h4><p>Built by the controller from the selected <span class="mono">parent_portfolio</span>, remaining budget, current <span class="mono">SearchTree</span> summary, recent proposal history, immutable rules, and metric semantics. Analysts see the full pack. Refiner/Supervisor receive a decision-safe version with calibration-only fields stripped.</p><pre class="mono small" style="white-space:pre-wrap;line-height:1.45">{
+  "schema_version": "evidence_pack.v1",
+  "target": {"id": "05_CD45", "difficulty_hint": "hard"},
+  "budget_remaining": {
+    "gpu_hours": 96.0,
+    "search_time_hours": 48,
+    "max_gpu_minutes_per_child": 120,
+    "max_active_path_multiplier": 32,
+    "max_children_per_iteration": 3,
+    "default_batch_size": 16,
+    "default_nsamples": 4,
+    "default_search_max_batch_size": 16,
+    "max_forward_batch_size": 16,
+    "max_expanded_work_product_default": 512,
+    "max_expanded_work_product_cap": 1024
+  },
+  "parent_portfolio": [
+    {"category": "exploit", "program_id": "child_007", "score": 1.42,
+     "reason": "best compute-normalized score"},
+    {"category": "ipae_near_miss", "program_id": "child_011", "score": 0.31,
+     "reason": "iPAE near miss with high pLDDT; refine same branch"},
+    {"category": "explore", "program_id": "child_002", "score": 0.05,
+     "reason": "underexplored MCTS family"}
+  ],
+  "search_state": {
+    "schema_version": "context_summary.v2",
+    "objective": "maximize total cumulative global-unique successes across the run",
+    "global_progress": {
+      "total_global_unique": 12,
+      "total_gpu_hours": 18.4,
+      "global_unique_per_gpu_hour": 0.65,
+      "strict_success_by_family": {"beam-search": 7, "best-of-n": 3, "mcts": 2},
+      "recent_marginal_unique_last_5": 3,
+      "recent_gpu_hours_last_5": 4.2
+    },
+    "best_program_id": "child_007",
+    "best_score": 1.42,
+    "n_nodes": 14
+  },
+  "proposal_history": [
+    {"child_id": "child_007", "operator_family": "beam-search",
+     "key_params": {"beam_width": 4, "n_branch": 2, "sc_scale_noise": 0.2},
+     "outcome": {"best_i_pae": 0.18, "best_plddt": 0.93,
+                 "online_success": 8, "audited_unique_success": 4,
+                 "failure_modes": []}},
+    {"child_id": "child_011", "operator_family": "beam-search",
+     "key_params": {"beam_width": 4, "n_branch": 3, "sc_scale_noise": 0.3},
+     "outcome": {"best_i_pae": 0.24, "best_plddt": 0.92,
+                 "online_success": 0, "audited_unique_success": 0,
+                 "failure_modes": ["zero_success", "near_miss_interface"]}}
+  ],
+  "operator_family_fatigue_warning": null,
+  "metric_semantics": {"i_pae": "lower is better", "plddt": "higher is better"},
+  "immutable_rules": ["do_not_change_target", "do_not_change_success_thresholds",
+                      "do_not_increase_budget_without_human"]
+}</pre></div>
+
+<div class="detail-card"><h4>1. Analysts: DomainExpert / MLExpert / SystemExpert</h4><p>Input is EvidencePack plus optional <span class="mono">structure_dossier</span>, manifest bounds, sequential prior findings, and calibration context when enabled. In these A/B jobs calibration context is OFF. Three-expert mode makes three calls with role-specific perspective text; analysts do not create executable config patches.</p><pre class="mono small" style="white-space:pre-wrap;line-height:1.45">SYSTEM:
+  "You are the DomainExpert role in Autoresearch v2.2..."
+
+USER JSON:
+{
+  "task": "Diagnose the current search state without proposing executable paths unless they are in the manifest.",
+  "evidence_pack": {...},
+  "structure_dossier": {...},
+  "manifest_bounds": {...},
+  "consistency_checks": [...],
+  "rules": [...]
+}
+
+OUTPUT JSON:
+{
+  "findings": [
+    {"claim": "child_011 is an iPAE near-miss: i_pae=0.24 with pLDDT=0.92",
+     "evidence": ["proposal_history[child_011].outcome"],
+     "confidence": "high"}
+  ],
+  "suggested_operator_families": ["beam-search", "diverse-beam-search"],
+  "predictions": [
+    {"source_role": "DomainExpert",
+     "operator_family": "beam-search",
+     "expected_metrics": {"best_i_pae": 0.21, "n_successful": 4, "expected_gpu_minutes": 60},
+     "rationale": "grounded in near-miss evidence",
+     "would_pivot_if": "best_i_pae stays above 7/31 and scRMSD_ca exceeds 1.5"}
+  ],
+  "questions_for_supervisor": []
+}</pre><p class="small">Important: analyst <span class="mono">predictions[]</span> are calibration-log fields only. They are removed before Refiner and Supervisor decisions.</p></div>
+
+<div class="detail-card"><h4>2. Refiner: config proposal creator</h4><p>The Refiner is the LLM component that creates executable candidate experiments. It receives the decision-safe EvidencePack, parent portfolio, decision-safe analyst findings, capability manifest, budget fields, and <span class="mono">n_proposals</span>. It emits proposal JSON; it does not launch anything.</p><pre class="mono small" style="white-space:pre-wrap;line-height:1.45">{
+  "proposals": [
+    {
+      "schema_version": "proposal.v1",
+      "proposal_id": "iter12_beam_refine_a",
+      "action_type": "backend_config_patch",
+      "operator_family": "beam-search",
+      "parent_program_ids": ["child_011"],
+      "intent": "Diverge from child_011 by tightening to narrow beam at lower noise",
+      "hypothesis": "Lower noise plus narrower beam preserves pLDDT confidence and pushes iPAE below 7/31",
+      "config_patch": [
+        {"op": "replace", "path": "/generation/search/algorithm", "value": "beam-search"},
+        {"op": "replace", "path": "/generation/search/beam_search/beam_width", "value": 4},
+        {"op": "replace", "path": "/generation/search/beam_search/n_branch", "value": 2},
+        {"op": "replace", "path": "/generation/dataloader/dataset/nres/nsamples", "value": 4},
+        {"op": "replace", "path": "/generation/model/bb_ca/simulation_step_params/sc_scale_noise", "value": 0.15},
+        {"op": "replace", "path": "/generation/search/max_batch_size", "value": 16}
+      ],
+      "expected_signal": {"primary": "i_pae median below 0.20", "secondary": "scRMSD_ca median below 1.2"},
+      "resource_estimate": {"expected_gpu_minutes": 50, "active_path_multiplier": 8},
+      "rollback_condition": "Stop on OOM, timeout, or expanded_work_product overflow"
+    }
+  ]
+}</pre></div>
+
+<div class="detail-card"><h4>3. Verifier: deterministic gate, not a proposal writer</h4><p>The Verifier checks one Refiner proposal at a time against schema, manifest, forbidden paths, runtime hazards, and budget. It does not invent config patches. Its output annotates the proposal with <span class="mono">launchable</span>, blocking reasons, warnings, translation hints, and a normalized proposal.</p><pre class="mono small" style="white-space:pre-wrap;line-height:1.45">ACCEPTED:
+{
+  "proposal_id": "iter12_beam_refine_a",
+  "status": "accepted",
+  "accepted": true,
+  "launchable": true,
+  "blocking_reasons": [],
+  "warnings": [],
+  "translation_hints": {
+    "/generation/search/algorithm": ["enum:beam-search"],
+    "/generation/search/beam_search/n_branch": ["int_range:[1, 8]"]
+  },
+  "normalized_proposal": {...}
+}
+
+REJECTED:
+{
+  "proposal_id": "iter12_huge_beam",
+  "status": "rejected",
+  "accepted": false,
+  "launchable": false,
+  "blocking_reasons": [
+    "expanded_work_product 1280 exceeds cap 1024 (batch_size=16, nsamples=8, active_path_multiplier=10)",
+    "expected_gpu_minutes 150 exceeds max 120"
+  ],
+  "warnings": ["high active_path_multiplier; watch for OOM"],
+  "normalized_proposal": null
+}</pre></div>
+
+<div class="detail-card"><h4>4. Supervisor: control decision and launch selection</h4><p>The Supervisor receives decision-safe EvidencePack, parent portfolio, decision-safe analyst findings, and verifier results. It does not make new backend configs. It chooses one control action and, for <span class="mono">launch</span>, selects only verifier-launchable proposal ids.</p><div class="table-scroll"><table><thead><tr><th>decision</th><th>meaning</th><th>controller result</th></tr></thead><tbody><tr><td><span class="mono">launch</span></td><td>At least one verifier-launchable proposal is worth running.</td><td>Controller launches selected proposal ids on worker GPUs.</td></tr><tr><td><span class="mono">repair</span></td><td>Proposal batch is not launchable or needs focused correction.</td><td>Controller re-prompts Refiner with <span class="mono">repair_instruction</span>, then verifies again.</td></tr><tr><td><span class="mono">analysis_only</span></td><td>No child should launch this step; gather/report analysis only.</td><td>No Complexa child launched.</td></tr><tr><td><span class="mono">human_review</span></td><td>Ambiguous or policy-sensitive situation.</td><td>Run pauses with <span class="mono">human_question</span>.</td></tr><tr><td><span class="mono">stop</span></td><td>Terminate the search.</td><td>Run ends.</td></tr></tbody></table></div><pre class="mono small" style="white-space:pre-wrap;line-height:1.45">{
+  "decision": "launch",
+  "selected_proposal_id": "iter12_beam_refine_a",
+  "selected_proposal_ids": ["iter12_beam_refine_a", "iter12_diverse_beam_b"],
+  "rationale": "Both selected proposals are verifier-launchable and cover exploit plus diversity.",
+  "repair_instruction": null,
+  "human_question": null
+}</pre><p class="small">Controller-level enforcement takes the intersection of Supervisor-selected ids and <span class="mono">verifier_results[].launchable == true</span>. A Supervisor-selected but verifier-rejected proposal is not launched.</p></div>
+
+<div class="detail-card"><h4>5. Executor and EvalReport: Complexa result becomes a SearchTree node</h4><p>The selected launchable proposals run through Complexa generate → filter → evaluate → analyze. The adapter writes execution settings, logs, failure record if any, structure dossier, and EvalReport. EvalReport is then attached to the SearchTree node and scored.</p><pre class="mono small" style="white-space:pre-wrap;line-height:1.45">{
+  "schema_version": "eval_report.v1",
+  "program_id": "child_018",
+  "status": "completed",
+  "target_id": "05_CD45",
+  "proposal_id": "iter12_beam_refine_a",
+  "metrics": {
+    "online_success": 9,
+    "audited_unique_success": 5,
+    "audited_success_sequences": ["STEADA...", "SSEYNG...", "..."],
+    "strict_success_rows": 7,
+    "pass_rate": 0.625,
+    "gpu_hours": 0.83,
+    "online_success_per_gpu_hour": 10.84,
+    "audited_unique_success_per_gpu_hour": 6.02,
+    "best_i_pae": 0.162,
+    "median_i_pae": 0.21,
+    "best_plddt": 0.928,
+    "median_plddt": 0.91,
+    "best_binder_scrmsd_ca": 0.605,
+    "median_binder_scrmsd_ca": 0.92,
+    "n_evaluated": 16,
+    "evaluated_unique_sequences": 12,
+    "duplicate_fraction": 0.286
+  },
+  "failure_modes": [],
+  "artifacts": {"combined_results_csv": "...", "structure_dossier": "...", "complexa_log": "..."},
+  "complexa": {"base_config": "configs/search_binder_local_pipeline.yaml", "overrides": ["++generation.search.algorithm=beam-search", "..."]}
+}
+
+FAILED NODE:
+{
+  "program_id": "child_023",
+  "status": "failed",
+  "metrics": {"gpu_hours": 0.12, "online_success": 0, "audited_unique_success": 0,
+              "audited_success_sequences": []},
+  "failure_modes": ["oom"]
+}</pre></div>
+
+<div class="detail-card"><h4>One-line role split</h4><div class="table-scroll"><table><thead><tr><th>component</th><th>creates config?</th><th>primary decision</th></tr></thead><tbody><tr><td>Refiner</td><td>Yes: emits <span class="mono">config_patch</span> proposal batch.</td><td>What experiments should be tried next?</td></tr><tr><td>Verifier</td><td>No.</td><td>Is each Refiner proposal schema-valid, manifest-valid, runtime-safe, and budget-safe?</td></tr><tr><td>Supervisor</td><td>No.</td><td>Choose <span class="mono">launch|repair|analysis_only|human_review|stop</span>; if launch, choose verifier-launchable proposal id(s).</td></tr></tbody></table></div></div>
+</details>
+
 <details class="details-block" open><summary>Score and parent-policy formulas</summary><div class="table-scroll"><table><thead><tr><th>item</th><th>definition used by the code</th></tr></thead><tbody><tr><td>Strict success criterion</td><td>A candidate is counted as strict success when normalized <span class="mono">i_pae &lt;= 7/31</span>, <span class="mono">plddt &gt;= 0.90</span>, and <span class="mono">binder_scrmsd_ca &lt; 1.5</span>. The page deduplicates successes globally by binder sequence.</td></tr><tr><td>Node score, rate mode</td><td><span class="mono">score_eval_report</span> uses <span class="mono">audited_unique_success_per_gpu_hour</span> if available, otherwise <span class="mono">online_success_per_gpu_hour</span>. The primary component is capped by <span class="mono">AR22_PRIMARY_SUCCESS_RATE_CAP</span>; default cap is 2.0 unless disabled by environment.</td></tr><tr><td>Node score, smoothed mode</td><td>If <span class="mono">AR22_SCORING_MODE=smoothed_rate</span>, primary score is <span class="mono">count / (gpu_hours + tau)</span> with <span class="mono">AR22_SCORING_TAU</span> default 0.5. These A/B jobs are labeled by policy/calibration; the page does not infer an env override beyond the recorded run artifacts.</td></tr><tr><td>Node soft bonuses</td><td>The score adds near-miss/interface, confidence, binder scRMSD, strict-success, and diversity bonuses. It subtracts penalties for OOM/timeout/backend exception, proxy mismatch, and non-completed status.</td></tr><tr><td><span class="mono">puct</span> Q</td><td><span class="mono">Q = node.score</span>. This is a per-child score, not a subtree cumulative score.</td></tr><tr><td><span class="mono">puct</span> UCB</td><td><span class="mono">UCB = Q + c_puct * P * sqrt(N_total) / (1 + N_child)</span>, with uniform <span class="mono">P = 1 / N_completed</span>, <span class="mono">N_child = len(node.children)</span>, and <span class="mono">N_total = sum(len(node.children))</span> over completed nodes. Top five UCB nodes become parents.</td></tr><tr><td><span class="mono">puct_marginal</span> Q</td><td><span class="mono">Q_branch = subtree_audited / (subtree_gpu_hours + tau) + 0.5 * recent_marginal_yield_rate</span>. Subtree audited counts audited success sequences from the node plus descendants, deduplicated when <span class="mono">audited_success_sequences</span> is present.</td></tr><tr><td><span class="mono">puct_marginal</span> recency</td><td>Recent marginal yield uses the node's most recent direct children. Sequences already present in the earlier branch are not credited as new marginal discoveries when sequence lists are available.</td></tr><tr><td><span class="mono">puct_marginal</span> bailout</td><td>If a node has at least three recent children and their recent audited count is zero, its base Q is multiplied by 0.5 before adding the recency-rate term.</td></tr><tr><td><span class="mono">puct_marginal</span> UCB</td><td>The UCB equation is the same as PUCT, but <span class="mono">Q</span> is <span class="mono">Q_branch</span> instead of <span class="mono">node.score</span>.</td></tr><tr><td>Diverse-family backup</td><td>In <span class="mono">puct_marginal</span>, if the last selected parent duplicates an operator family already represented in earlier slots, the last slot can be replaced by the highest-UCB node from an unrepresented family. The category is <span class="mono">diverse_family_backup</span>.</td></tr><tr><td>Portfolio policy not shown in A/B</td><td>The non-PUCT <span class="mono">portfolio</span> policy has exploit, iPAE-near-miss, pLDDT-near-miss, explore, and rescue slots. These A/B jobs use <span class="mono">puct</span> or <span class="mono">puct_marginal</span>, not <span class="mono">portfolio</span>.</td></tr></tbody></table></div></details>
 
 <section class="policy-compare" id="puct-vs-puct-marginal">
