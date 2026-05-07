@@ -2884,7 +2884,7 @@
               "role": "MLExpert",
               "findings": [
                 {
-                  "claim": "The 'best-of-n' operator family is the only successful strategy, while 'stochastic-beam-search' and 'diverse-beam-search' have reached the pivot signal threshold (≥3 attempts with zero audited success).",
+                  "claim": "The 'best-of-n' operator family is the only successful strategy, while 'stochastic-beam-search' and 'diverse-beam-search' have reached the pivot signal threshold (\u22653 attempts with zero audited success).",
                   "confidence": "high",
                   "evidence": [
                     "proposal_history shows 'stochastic-beam-search' (child_001, child_007, child_010) and 'diverse-beam-search' (child_003, child_006, child_009) each have 3 attempts with 0 audited_unique_success.",
@@ -3162,7 +3162,7 @@
               "role": "MLExpert",
               "findings": [
                 {
-                  "claim": "The 'diverse-beam-search' and 'stochastic-beam-search' families are pivot signals, having accumulated ≥3 attempts with zero audited unique success.",
+                  "claim": "The 'diverse-beam-search' and 'stochastic-beam-search' families are pivot signals, having accumulated \u22653 attempts with zero audited unique success.",
                   "confidence": "high",
                   "evidence": [
                     "proposal_history shows child_003, child_006, child_009, child_012 (diverse-beam-search) all with audited_unique_success: 0.",
@@ -3441,7 +3441,7 @@
               "role": "MLExpert",
               "findings": [
                 {
-                  "claim": "The 'diverse-beam-search' and 'stochastic-beam-search' families are pivot signals, having accumulated ≥3 attempts with zero audited unique success.",
+                  "claim": "The 'diverse-beam-search' and 'stochastic-beam-search' families are pivot signals, having accumulated \u22653 attempts with zero audited unique success.",
                   "confidence": "high",
                   "evidence": [
                     "proposal_history shows child_006, child_009, child_012, child_016 (diverse-beam-search) all with audited_unique_success: 0.",
@@ -3722,7 +3722,7 @@
               "role": "MLExpert",
               "findings": [
                 {
-                  "claim": "The 'diverse-beam-search' and 'stochastic-beam-search' families are pivot signals, having accumulated ≥3 attempts with zero audited unique success.",
+                  "claim": "The 'diverse-beam-search' and 'stochastic-beam-search' families are pivot signals, having accumulated \u22653 attempts with zero audited unique success.",
                   "confidence": "high",
                   "evidence": [
                     "proposal_history shows child_009, child_012, child_016 (diverse-beam-search) all with audited_unique_success: 0.",
@@ -4012,7 +4012,7 @@
               "role": "MLExpert",
               "findings": [
                 {
-                  "claim": "The 'search' operator family (specifically diverse-beam-search and high-noise best-of-n) is a pivot signal, having accumulated ≥3 attempts with zero audited unique success.",
+                  "claim": "The 'search' operator family (specifically diverse-beam-search and high-noise best-of-n) is a pivot signal, having accumulated \u22653 attempts with zero audited unique success.",
                   "confidence": "high",
                   "evidence": [
                     "child_011 (search, best-of-n, sc_scale_noise=0.5): 0 audited_unique_success, best_i_pae=0.274",
@@ -4756,7 +4756,7 @@
               "role": "MLExpert",
               "findings": [
                 {
-                  "claim": "The 'search' operator family (encompassing beam-search variants) has reached a pivot signal with ≥3 attempts and zero audited unique success.",
+                  "claim": "The 'search' operator family (encompassing beam-search variants) has reached a pivot signal with \u22653 attempts and zero audited unique success.",
                   "confidence": "high",
                   "evidence": [
                     "child_021 (search, best-of-n): audited_unique_success=0, best_i_pae=0.227 (near miss)",
@@ -5647,7 +5647,9 @@
             "B": 1035
           }
         }
-      ]
+      ],
+      "seed_status": "no_child_seed_override_detected_in_current_artifacts",
+      "seed_note": "Artifact audit found no ++seed override in completed children from jobs 7785624-7785627. Interpret these running Phase 6 A/B curves as batch16, calibration-off, V8-fatigue-off, diverse-root comparisons under Complexa's default seed behavior. The repo now contains child-indexed runtime seed override code, but that code is not reflected in these already running jobs; a seed-fixed agentic A/B requires a restart."
     },
     {
       "job_id": "7785625",
@@ -9630,7 +9632,7 @@
               "role": "MLExpert",
               "findings": [
                 {
-                  "claim": "The 'search' operator family (specifically stochastic-beam-search and diverse-beam-search) has reached a pivot signal with ≥3 attempts and zero audited success.",
+                  "claim": "The 'search' operator family (specifically stochastic-beam-search and diverse-beam-search) has reached a pivot signal with \u22653 attempts and zero audited success.",
                   "confidence": "high",
                   "evidence": [
                     "child_013 (stochastic-beam-search): audited_unique_success=0, best_i_pae=0.267",
@@ -10424,7 +10426,9 @@
             "B": 1032
           }
         }
-      ]
+      ],
+      "seed_status": "no_child_seed_override_detected_in_current_artifacts",
+      "seed_note": "Artifact audit found no ++seed override in completed children from jobs 7785624-7785627. Interpret these running Phase 6 A/B curves as batch16, calibration-off, V8-fatigue-off, diverse-root comparisons under Complexa's default seed behavior. The repo now contains child-indexed runtime seed override code, but that code is not reflected in these already running jobs; a seed-fixed agentic A/B requires a restart."
     },
     {
       "job_id": "7785626",
@@ -15616,7 +15620,9 @@
             "B": 557
           }
         }
-      ]
+      ],
+      "seed_status": "no_child_seed_override_detected_in_current_artifacts",
+      "seed_note": "Artifact audit found no ++seed override in completed children from jobs 7785624-7785627. Interpret these running Phase 6 A/B curves as batch16, calibration-off, V8-fatigue-off, diverse-root comparisons under Complexa's default seed behavior. The repo now contains child-indexed runtime seed override code, but that code is not reflected in these already running jobs; a seed-fixed agentic A/B requires a restart."
     },
     {
       "job_id": "7785627",
@@ -18794,7 +18800,7 @@
               "role": "MLExpert",
               "findings": [
                 {
-                  "claim": "The 'search' operator family (encompassing diverse-beam-search and stochastic-beam-search) has reached a pivot signal with ≥3 attempts and zero audited success.",
+                  "claim": "The 'search' operator family (encompassing diverse-beam-search and stochastic-beam-search) has reached a pivot signal with \u22653 attempts and zero audited success.",
                   "confidence": "high",
                   "evidence": [
                     "proposal_history shows child_005, child_007, child_008, child_009, child_010, child_011, child_012, child_015 all have operator_family 'search' and audited_unique_success: 0.",
@@ -18991,7 +18997,7 @@
               "role": "MLExpert",
               "findings": [
                 {
-                  "claim": "The 'search' operator family (specifically diverse-beam-search and stochastic-beam-search) has reached a pivot signal with ≥3 attempts and zero audited unique success.",
+                  "claim": "The 'search' operator family (specifically diverse-beam-search and stochastic-beam-search) has reached a pivot signal with \u22653 attempts and zero audited unique success.",
                   "confidence": "high",
                   "evidence": [
                     "proposal_history shows child_008, child_009, child_010, child_011, child_012, child_015, child_018, child_019 all have operator_family 'search' and audited_unique_success: 0.",
@@ -19611,7 +19617,9 @@
             "B": 551
           }
         }
-      ]
+      ],
+      "seed_status": "no_child_seed_override_detected_in_current_artifacts",
+      "seed_note": "Artifact audit found no ++seed override in completed children from jobs 7785624-7785627. Interpret these running Phase 6 A/B curves as batch16, calibration-off, V8-fatigue-off, diverse-root comparisons under Complexa's default seed behavior. The repo now contains child-indexed runtime seed override code, but that code is not reflected in these already running jobs; a seed-fixed agentic A/B requires a restart."
     }
   ],
   "structures": [
@@ -19695,7 +19703,10 @@
     "tree": "Each node is one Complexa child; edges are proposal parent_program_ids -> child when available.",
     "global_unique_sequences": "All evaluated unique binder sequences, regardless of strict success.",
     "global_strict_unique": "Globally deduplicated binder sequences passing the strict success criterion; this is the plotted objective.",
-    "baseline_same_seed": "The current official beam baseline jobs reused Complexa seed 5; the panel is diagnostic and the wrapper has been fixed for future seeded repeats."
+    "baseline_same_seed": "The current official beam baseline jobs reused Complexa seed 5; the panel is diagnostic and the wrapper has been fixed for future seeded repeats.",
+    "seeded_baseline_jobs": "Corrected official beam baselines are now running as CD45 job 7807074 and BetV1 job 7807073, with per-repeat seed = BASE_SEED + repeat_idx.",
+    "agentic_ab_seed_status": "Artifact audit found no ++seed override in completed children from jobs 7785624-7785627. Interpret these running Phase 6 A/B curves as batch16, calibration-off, V8-fatigue-off, diverse-root comparisons under Complexa's default seed behavior. The repo now contains child-indexed runtime seed override code, but that code is not reflected in these already running jobs; a seed-fixed agentic A/B requires a restart.",
+    "last_manual_audit": "2026-05-07 12:56:06 EDT"
   },
   "baselines": [
     {
@@ -19708,13 +19719,13 @@
       "case": "cd45_beam",
       "run_dir": "/scratch/gpfs/ZHONGE/mj7341/research/autoresearch_v2_2_search/official_baseline_curves/job_7782563_cd45_beam",
       "slurm": {
-        "state": "RUNNING",
-        "elapsed": "13:07:45",
+        "state": "CANCELLED",
+        "elapsed": "13:08:40",
         "node": "della-h19g2"
       },
       "baseline_type": "official_complexa_beam_repeated_same_seed_diagnostic",
       "seed_status": "fixed_seed_5_detected",
-      "warning": "Current baseline repeats reused Complexa seed 5; only the first repeat contributes new sequence diversity. This panel is a diagnostic snapshot, not the corrected seeded baseline.",
+      "warning": "This same-seed diagnostic job was cancelled after confirming seed 5 reuse. Replacement seeded baseline job 7807074 is running with base_seed=620000 and seed_rule=BASE_SEED+repeat_idx.",
       "completed_repeats": 5,
       "total_completed_gpu_hours": 12.997222,
       "total_accounted_gpu_hours": 12.997222,
@@ -19884,6 +19895,15 @@
         "plddt_min": 0.9,
         "binder_scrmsd_ca_max": 1.5,
         "pass_if": "i_pae * i_pae_scale <= i_pae_scaled_max and plddt >= plddt_min and binder_scrmsd_ca < binder_scrmsd_ca_max"
+      },
+      "replacement_seeded_job": {
+        "job_id": "7807074",
+        "target": "CD45",
+        "case": "cd45_beam",
+        "state": "RUNNING",
+        "base_seed": 620000,
+        "seed_rule": "BASE_SEED+repeat_idx",
+        "run_dir": "/scratch/gpfs/ZHONGE/mj7341/research/autoresearch_v2_2_search/official_baseline_curves/job_7807074_cd45_beam"
       }
     },
     {
@@ -19896,13 +19916,13 @@
       "case": "betv1_beam",
       "run_dir": "/scratch/gpfs/ZHONGE/mj7341/research/autoresearch_v2_2_search/official_baseline_curves/job_7782562_betv1_beam",
       "slurm": {
-        "state": "RUNNING",
-        "elapsed": "13:07:45",
+        "state": "CANCELLED",
+        "elapsed": "13:08:40",
         "node": "della-h19g2"
       },
       "baseline_type": "official_complexa_beam_repeated_same_seed_diagnostic",
       "seed_status": "fixed_seed_5_detected",
-      "warning": "Current baseline repeats reused Complexa seed 5; only the first repeat contributes new sequence diversity. This panel is a diagnostic snapshot, not the corrected seeded baseline.",
+      "warning": "This same-seed diagnostic job was cancelled after confirming seed 5 reuse. Replacement seeded baseline job 7807073 is running with base_seed=610000 and seed_rule=BASE_SEED+repeat_idx.",
       "completed_repeats": 4,
       "total_completed_gpu_hours": 10.698333,
       "total_accounted_gpu_hours": 10.698333,
@@ -20013,7 +20033,36 @@
         "plddt_min": 0.9,
         "binder_scrmsd_ca_max": 1.5,
         "pass_if": "i_pae * i_pae_scale <= i_pae_scaled_max and plddt >= plddt_min and binder_scrmsd_ca < binder_scrmsd_ca_max"
+      },
+      "replacement_seeded_job": {
+        "job_id": "7807073",
+        "target": "BetV1",
+        "case": "betv1_beam",
+        "state": "RUNNING",
+        "base_seed": 610000,
+        "seed_rule": "BASE_SEED+repeat_idx",
+        "run_dir": "/scratch/gpfs/ZHONGE/mj7341/research/autoresearch_v2_2_search/official_baseline_curves/job_7807073_betv1_beam"
       }
+    }
+  ],
+  "seeded_baseline_jobs": [
+    {
+      "job_id": "7807074",
+      "target": "CD45",
+      "case": "cd45_beam",
+      "state": "RUNNING",
+      "base_seed": 620000,
+      "seed_rule": "BASE_SEED+repeat_idx",
+      "run_dir": "/scratch/gpfs/ZHONGE/mj7341/research/autoresearch_v2_2_search/official_baseline_curves/job_7807074_cd45_beam"
+    },
+    {
+      "job_id": "7807073",
+      "target": "BetV1",
+      "case": "betv1_beam",
+      "state": "RUNNING",
+      "base_seed": 610000,
+      "seed_rule": "BASE_SEED+repeat_idx",
+      "run_dir": "/scratch/gpfs/ZHONGE/mj7341/research/autoresearch_v2_2_search/official_baseline_curves/job_7807073_betv1_beam"
     }
   ]
 }
