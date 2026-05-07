@@ -7,19 +7,26 @@ permalink: /
 
 # About
 
-Minkyu Jeon is a Ph.D. student in the Department of Computer Science at [Princeton University](https://www.cs.princeton.edu/), advised by [Prof. Ellen D. Zhong](https://ezlab.princeton.edu/). He is a former summer research intern and contractor at [Prescient Design (Genentech)](https://www.gene.com/scientists/our-scientists/prescient-design), and a former Associate Computational Biologist and visiting graduate student at the [Broad Institute of MIT and Harvard](https://www.broadinstitute.org/).
+Minkyu Jeon is a Ph.D. candidate in the Department of Computer Science at [Princeton University](https://www.cs.princeton.edu/), advised by [Prof. Ellen D. Zhong](https://ezlab.princeton.edu/). His research develops generative and representation learning methods for scientific inverse problems, with a current focus on heterogeneous cryo-EM reconstruction and AI-driven de novo protein design. He is a former summer research intern and contractor at [Prescient Design (Genentech)](https://www.gene.com/scientists/our-scientists/prescient-design), and a former Associate Computational Biologist and visiting graduate student at the [Broad Institute of MIT and Harvard](https://www.broadinstitute.org/).
 {:.lead}
 
 ## Research Interests
 
-My research focuses on **3D reconstruction** and **generative models**, and their applications to inverse problems in computer vision, with an emphasis on scientific imaging modalities such as **cryo-EM heterogeneous 3D reconstruction**.
+My research focuses on **generative models**, **representation learning**, and **3D reconstruction** for scientific inverse problems, with an emphasis on **cryo-EM heterogeneous 3D reconstruction**.
 
-Another key area of my research is **AI for Science**. I am currently working on **adaptive masked diffusion models** and **scalable generative models** for vision and proteins, with applications to **protein design** and **de novo protein design**, helping advance scientific discovery through machine learning.
+Another key area of my research is **AI for Science**. I am currently working on **AI agents for scientific discovery**, **adaptive masked diffusion models**, and **scalable generative models** for vision and proteins. A major current direction is **agentic inference-time scaling for de novo protein design**, where LLM-guided search, structural validation, and iterative refinement are combined into executable design workflows.
+
+## Selected Projects
+
+- **Agentic Inference-Time Scaling for De Novo Protein Design**: AI-agent workflows for protein binder and scaffold design, with live tracking of Qwen-guided config search, validation runs, and hard-target diagnostics. [Project hub](/projects/autoresearch-v2/) / [Historical archive](/projects/agentic-protein-design.html)
+- **CryoBench and Heterogeneous Cryo-EM Reconstruction**: datasets and amortized reconstruction methods for challenging conformational heterogeneity problems in cryo-EM. [CryoBench](https://cryobench.cs.princeton.edu/)
 
 ## News
 
 | Date | Update |
 |:-----|:-------|
+| `05-2026` | Added the current project hub for **agentic inference-time scaling for de novo protein design**. |
+| `04-2026` | Preprint released: [ConforNets](https://arxiv.org/abs/2604.18559) — Latents-Based Conformational Control in OpenFold3. |
 | `09-2024` | Our [work](https://arxiv.org/abs/2512.06332), a transformer-based hypernetwork for cryo-EM reconstruction, has been accepted to **CVPR 2026**. |
 | `06-2025` | Preprint released: [CryoHype](https://arxiv.org/pdf/2512.06332) — Reconstructing a thousand cryo-EM structures with transformer-based hypernetworks. |
 | `06-2025` | Preprint released: [CHIMERA](https://www.arxiv.org/abs/2512.07155) — Adaptive Cache Injection and Semantic Anchor Prompting for Zero-shot Image Morphing. |

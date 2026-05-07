@@ -15,6 +15,11 @@ hide_description: true
   **CVPR 2026**
   [Paper](https://arxiv.org/pdf/2512.06332) / [Project page](https://arxiv.org/pdf/2512.06332)
 
+- **ConforNets: Latents-Based Conformational Control in OpenFold3**<br>
+  Minji Lee, Colin Kalicki, **Minkyu Jeon**, Aymen Qabel, Alisia Fadini, Mohammed AlQuraishi
+  *arXiv preprint*, 2026
+  [Paper](https://arxiv.org/abs/2604.18559)
+
 ---
 
 ## 2025

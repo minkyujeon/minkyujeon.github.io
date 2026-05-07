@@ -1,0 +1,207 @@
+\documentclass[10pt,letterpaper]{article}
+
+\usepackage[margin=0.68in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{tabularx}
+\usepackage{array}
+
+\definecolor{accent}{HTML}{1F5FBF}
+\hypersetup{colorlinks=true,urlcolor=accent,linkcolor=accent}
+\urlstyle{same}
+
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+\setlist[itemize]{leftmargin=1.15em, topsep=2pt, itemsep=2pt, parsep=0pt}
+
+\newcommand{\minkyu}{\underline{\textbf{Minkyu Jeon}}}
+\newcommand{\cofirst}{\textsuperscript{*}}
+\newcommand{\cvsection}[1]{%
+  \vspace{8pt}
+  {\large\bfseries\color{accent} #1}\par
+  \vspace{2pt}\hrule\vspace{5pt}
+}
+\newcommand{\entry}[4]{%
+  \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}X r@{}}
+    \textbf{#1} & \textit{#2}\\
+    #3 & #4
+  \end{tabularx}\vspace{2pt}
+}
+\newcommand{\paper}[4]{%
+  \begin{tabularx}{\textwidth}{@{}p{2.45cm}>{\raggedright\arraybackslash}X@{}}
+    \textbf{#1} & \textbf{#2}\\
+    & #3\\
+    & {\small #4}
+  \end{tabularx}\vspace{4pt}
+}
+\newcommand{\compactitem}[1]{\begin{itemize}#1\end{itemize}\vspace{1pt}}
+
+\begin{document}
+\small
+
+\begin{center}
+  {\LARGE \textbf{Minkyu Jeon}}\\
+  \vspace{3pt}
+  Ph.D. Candidate, Computer Science, Princeton University\\
+  \href{mailto:mj7341@princeton.edu}{mj7341@princeton.edu}
+  \quad|\quad
+  \href{https://minkyujeon.github.io}{minkyujeon.github.io}
+  \quad|\quad
+  \href{https://scholar.google.com/citations?hl=en&user=kyQR6ecAAAAJ}{Google Scholar}
+  \quad|\quad
+  \href{https://www.linkedin.com/in/minkyu-jeon-9a5b92152/}{LinkedIn}
+  \quad|\quad
+  \href{https://x.com/MinkyuJeon19791}{X}
+\end{center}
+
+\cvsection{Research Summary}
+Ph.D. candidate in Computer Science at Princeton University, advised by Prof. Ellen D. Zhong. My research develops generative and representation learning methods for scientific inverse problems, with a focus on heterogeneous cryo-EM reconstruction and AI-driven de novo protein design.
+
+\vspace{3pt}
+\textbf{Interests:} AI agents for scientific discovery; de novo protein design; protein generative models; diffusion and flow matching in 3D structure spaces; cryo-EM heterogeneity; representation learning; 3D vision.
+
+\cvsection{Education}
+\entry{Princeton University}{2023--present}{Ph.D. Candidate, Computer Science}{Princeton, NJ}
+\entry{Korea University}{2020--2023}{M.S., Computer Science and Engineering}{Seoul, Korea}
+\entry{Konkuk University}{2014--2020}{B.S., Applied Statistics and Computer Engineering, double major}{Seoul, Korea}
+
+\cvsection{Selected Research Projects}
+\entry{Agentic Inference-Time Scaling for De Novo Protein Design}{2025--present}{Princeton University}{}
+\compactitem{
+  \item Building AI-agent workflows for protein binder and scaffold design that combine LLM-guided search, structural validation, and iterative sequence/structure refinement.
+  \item Developing evaluation pipelines for hard de novo design targets, including diagnostics for structure confidence, interface quality, diversity, and reproducibility.
+  \item Exploring how inference-time search, self-refinement, and targeted experimental routing can improve practical protein design beyond one-shot generative sampling.
+}
+
+\entry{Heterogeneous Cryo-EM Reconstruction}{2023--present}{Princeton University}{}
+\compactitem{
+  \item Developing amortized and transformer-based methods for reconstructing continuous conformational heterogeneity from cryo-EM particle images.
+  \item Co-led CryoBench, a benchmark suite for diverse and challenging cryo-EM heterogeneity problems, accepted as a NeurIPS 2024 Spotlight.
+}
+
+\cvsection{Publications}
+\textsuperscript{*} denotes equal contribution.
+
+\vspace{4pt}
+\paper{CVPR 2026}{CryoHype: Reconstructing a thousand cryo-EM structures with transformer-based hypernetworks}
+{Jeffrey Gu\cofirst, \minkyu\cofirst, Ambri Ma, Serena Yeung-Levy, Ellen D. Zhong}
+{\href{https://arxiv.org/pdf/2512.06332}{paper}}
+
+\paper{arXiv 2026}{ConforNets: Latents-Based Conformational Control in OpenFold3}
+{Minji Lee, Colin Kalicki, \minkyu, Aymen Qabel, Alisia Fadini, Mohammed AlQuraishi}
+{\href{https://arxiv.org/abs/2604.18559}{paper}}
+
+\paper{NeurIPS MLSB 2025}{Separating signal from noise: a self-distillation approach for amortized heterogeneous cryo-EM reconstruction}
+{\minkyu\cofirst, Jeffrey Gu\cofirst, Ambri Ma, Serena Yeung-Levy, Vincent Sitzmann, Ellen D. Zhong}
+{Oral presentation. \href{https://openreview.net/pdf?id=YIvDrdPCo2}{paper}}
+
+\paper{NeurIPS 2024}{CryoBench: Diverse and challenging datasets for the heterogeneity problem in cryo-EM}
+{\minkyu, Rishwanth Raghu, Miro Astore, Geoffrey Woollard, Ryan Feathers, Alkin Kaz, Sonya M. Hanson, Pilar Cossio, Ellen D. Zhong}
+{Spotlight. \href{https://arxiv.org/pdf/2408.05526}{paper} / \href{https://cryobench.cs.princeton.edu/}{project}}
+
+\paper{NeurIPS 2022}{SageMix: Saliency-Guided Mixup for Point Clouds}
+{Sanghyeok Lee\cofirst, \minkyu\cofirst, Injae Kim, Yunyang Xiong, Hyunwoo J. Kim}
+{\href{https://openreview.net/pdf?id=q-FRENiEP_d}{paper} / \href{https://github.com/mlvlab/SageMix/}{code}}
+
+\paper{ECCV 2022}{$k$-SALSA: $k$-anonymous synthetic averaging of retinal images via local style alignment}
+{\minkyu, Hyeonjin Park, Hyunwoo J. Kim, Michael Morley, Hyunghoon Cho}
+{\href{https://arxiv.org/pdf/2303.10824}{paper} / \href{https://github.com/hcholab/k-salsa/}{code}}
+
+\paper{JMIR 2024}{A multivariable prediction model for mild cognitive impairment and dementia: algorithm development and validation}
+{Sarah Soyeon Oh, Bada Kang, Dahye Hong, Jennifer Ivy Kim, Hyewon Jeong, Jinyeop Song, \minkyu}
+{}
+
+\paper{Information Sciences 2023}{Randomly shuffled convolution for self-supervised representation learning}
+{Youngjin Oh\cofirst, \minkyu\cofirst, Dohwan Ko, Hyunwoo J. Kim}
+{\href{https://www.sciencedirect.com/science/article/pii/S0020025522013032}{paper} / \href{https://github.com/minkyujeon/CROFFLE/tree/main/}{code}}
+
+\paper{IEEE Access 2021}{Learning to Balance Local Losses via Meta-Learning}
+{Seungdong Yoa, \minkyu, Youngjin Oh, Hyunwoo J. Kim}
+{\href{https://ieeexplore.ieee.org/document/9541196}{paper}}
+
+\paper{In submission}{CHIMERA: Adaptive Cache Injection and Semantic Anchor Prompting for Zero-shot Image Morphing with Morphing-oriented Metrics}
+{Dahyeon Kye, Jaehun Sung, \minkyu, Jihyong Oh}
+{\href{https://www.arxiv.org/abs/2512.07155}{paper} / \href{https://cmlab-korea.github.io/CHIMERA/}{project}}
+
+\paper{arXiv 2025}{R3eVision: A Survey on Robust Rendering, Restoration, and Enhancement for 3D Low-Level Vision}
+{Weeyoung Kwon, Jeahun Sung, \minkyu, Chanho Eom, Jihyong Oh}
+{\href{https://arxiv.org/abs/2506.16262}{paper}}
+
+\cvsection{Research Experience}
+\entry{Prescient Design, Genentech}{Nov 2025--Mar 2026}{Contractor}{New York, NY}
+\compactitem{
+  \item Worked on protein representation learning and generative modeling for protein design, with emphasis on modern 3D generative models including diffusion and flow matching.
+  \item Studied limitations of voxel- and structure-space generative models and developed design/evaluation workflows for improved generation performance.
+}
+
+\entry{Prescient Design, Genentech}{Jun 2025--Aug 2025}{Research Intern}{New York, NY}
+\compactitem{
+  \item Led a project on understanding and improving modern generative models in 3D spaces, with applications to protein generation and design.
+}
+
+\entry{AI4ALL}{Jul 2024--Aug 2024}{Instructor}{Princeton, NJ}
+\compactitem{
+  \item Instructed high school students in AI and mentored team projects on medical image analysis using deep learning.
+}
+
+\entry{Broad Institute of MIT and Harvard}{Jan 2023--Aug 2023}{Associate Computational Biologist; advisor: Dr. Hyunghoon Cho}{Cambridge, MA}
+\compactitem{
+  \item Led a project on synthesizing privacy-preserving retinal image datasets with diffusion-based generative models.
+}
+
+\entry{Broad Institute of MIT and Harvard}{Sep 2021--Apr 2022}{Visiting Graduate Student; advisor: Dr. Hyunghoon Cho}{Cambridge, MA}
+\compactitem{
+  \item Led GAN and GAN-inversion based retinal image synthesis research for privacy-preserving data generation, resulting in an ECCV 2022 publication.
+}
+
+\entry{Korea University}{Jan 2020--Aug 2020}{Research Intern; advisor: Prof. Hyunwoo J. Kim}{Seoul, Korea}
+\compactitem{
+  \item Conducted meta-learning research for layer-wise optimization and co-authored an IEEE Access publication.
+  \item Designed algorithms, implemented experiments, and contributed to related work, method, and experiment sections.
+}
+
+\entry{MakinaRocks}{Mar 2019--Aug 2019}{ML Research Engineer Intern}{Seoul, Korea}
+\compactitem{
+  \item Conducted anomaly detection research using variational autoencoders and latent-space regularization.
+}
+
+\entry{Korea Institute of Science and Technology}{Jul 2018--Dec 2018}{ML Research Intern; advisor: Dr. Yong Moo Kwon}{Seoul, Korea}
+\compactitem{
+  \item Worked on an active chatbot project using rule-based NLP and deep learning methods for situation-aware conversation.
+}
+
+\cvsection{Awards and Service}
+\begin{tabularx}{\textwidth}{@{}p{2.45cm}>{\raggedright\arraybackslash}X@{}}
+2024--2027 & \textbf{Asan Foundation Biomedical Science Scholarship}. Three-year doctoral scholarship.\\
+2023--present & \textbf{Reviewer}. CVPR (2026), ECCV (2026), ICLR (2025, 2026), NeurIPS (2025, 2026), NeurIPS Workshop (2023, 2024), Information Sciences (2024).\\
+Aug 2024 & \textbf{Invited talk}. Flatiron Institute, Simons Foundation.\\
+Feb 2024 & \textbf{Invited talk}. CMU MetaMobility Lab.\\
+Sep 2019 & \textbf{Dean's List}. Department of Applied Statistics, Konkuk University.\\
+Sep 2019 & \textbf{Konkuk University Scholarship}. 40\% tuition scholarship.\\
+Jul 2016 & \textbf{Certificate of Commendation}. Republic of Korea Marine Corps.\\
+\end{tabularx}
+
+\cvsection{Teaching}
+\begin{tabularx}{\textwidth}{@{}p{2.45cm}>{\raggedright\arraybackslash}X@{}}
+Fall 2024 & Teaching Assistant, COS302: Mathematics for Numerical Computing and Machine Learning, Princeton University.\\
+Spring 2021 & Teaching Assistant, COSE361: Artificial Intelligence, Korea University.\\
+Fall 2020 & Teaching Assistant, AAA712: AI Security, Korea University.\\
+Fall 2020 & Tutorial Teaching Fellow, Deep Learning, Korea University.\\
+\end{tabularx}
+
+\cvsection{Skills}
+\begin{tabularx}{\textwidth}{@{}p{2.45cm}>{\raggedright\arraybackslash}X@{}}
+Programming & Python, PyTorch, TensorFlow, Keras, R, C, Git.\\
+Systems & Linux, macOS, Windows, scientific computing workflows.\\
+Research & Generative modeling, diffusion/flow matching, protein design, cryo-EM reconstruction, representation learning, 3D vision.\\
+\end{tabularx}
+
+\cvsection{Additional Experience}
+\entry{I-Corps Program}{May 2021--Aug 2021}{Received \$35,000 in government support for customer discovery and technology-based startup exploration.}{}
+\entry{Republic of Korea Marine Corps}{Mar 2015--Dec 2016}{Military service, Yeonpyeong Island, South Korea; received commendation for communication and performance during early warning situations.}{}
+
+\end{document}
