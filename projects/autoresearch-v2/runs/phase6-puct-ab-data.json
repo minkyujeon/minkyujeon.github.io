@@ -19706,7 +19706,9 @@
     "baseline_same_seed": "The current official beam baseline jobs reused Complexa seed 5; the panel is diagnostic and the wrapper has been fixed for future seeded repeats.",
     "seeded_baseline_jobs": "Corrected official beam baselines are now running as CD45 job 7807074 and BetV1 job 7807073, with per-repeat seed = BASE_SEED + repeat_idx.",
     "agentic_ab_seed_status": "Artifact audit found no ++seed override in completed children from jobs 7785624-7785627. Interpret these running Phase 6 A/B curves as batch16, calibration-off, V8-fatigue-off, diverse-root comparisons under Complexa's default seed behavior. The repo now contains child-indexed runtime seed override code, but that code is not reflected in these already running jobs; a seed-fixed agentic A/B requires a restart.",
-    "last_manual_audit": "2026-05-07 12:56:06 EDT"
+    "last_manual_audit": "2026-05-07 12:56:06 EDT",
+    "score_definition": "Per-node score is score_eval_report(eval_report): capped audited_unique_success_per_gpu_hour plus structural/diversity bonuses and failure penalties. puct uses Q=node.score; puct_marginal uses subtree/global-marginal Q instead.",
+    "targetspec_definition": "TargetSpec is documentation terminology in this v2.2 page; the code stores it as RunConfig.target dict and passes target.id to Complexa as generation.task_name."
   },
   "baselines": [
     {
