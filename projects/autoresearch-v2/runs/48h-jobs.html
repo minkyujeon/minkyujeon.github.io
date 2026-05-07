@@ -67,29 +67,29 @@ th{background:#f1f5f9;color:#41556b}
 <main>
 
 <section>
-<p class="note"><b>Current status (snapshot at this moment):</b> CD45 cal-ON, BetV1, and SC2RBD have completed; CD45 cal-OFF is still running. Numbers below come from per-child eval reports plus a run-level global sequence dedupe audit, not from final best-child evaluation.</p>
-<p class="note warn"><b>Don't over-read single-run differences.</b> Same-config CD45 variance across our prior 24-hour runs is large (7606343 = 24 audited/global-unique vs 7619073 = 11 on identical setup, 2.7× spread). Differences smaller than ~10–15 audited successes between two runs are likely noise.</p>
+<p class="note"><b>Current status (snapshot at this moment):</b> CD45 cal-ON, BetV1, and SC2RBD have completed; CD45 cal-OFF is still running. Numbers below are strict Proteina-Complexa protein_binder counts recomputed from each child's full Complexa candidate CSV: self_complex_i_pAE × 31 ≤ 7.0, self_complex_pLDDT ≥ 0.90, and self_binder_scRMSD_ca &lt; 1.5 Å, then globally de-duplicated by binder sequence.</p>
+<p class="note warn"><b>Don't over-read single-run differences.</b> Same-config CD45 variance across our prior 24-hour runs is large, but older 24h pages used earlier audit/reporting semantics. Use this page's official-PC counts for the 48h jobs. Runtime agent traces may still mention the older 0.18 assumption because those prompts were generated before this audit correction.</p>
 </section>
 
 <section>
 <h2>Run Matrix</h2>
 <table>
-<tr><th>Job</th><th>Target</th><th>Calibration</th><th>State</th><th>Iters</th><th>Children evaluated</th><th>Failed children</th><th>Global-unique successes</th><th>succ / GPU-h</th><th>min iPAE</th><th>pLDDT at min iPAE</th></tr>
+<tr><th>Job</th><th>Target</th><th>Calibration</th><th>State</th><th>Iters</th><th>Children evaluated</th><th>Failed children</th><th>Strict global-unique successes</th><th>strict succ / GPU-h</th><th>min iPAE</th><th>pLDDT at min iPAE</th></tr>
 <tr><td>7694929</td><td>05_CD45 (hard)</td><td>ON</td><td><span class="badge done">COMPLETED · 48h</span></td><td>31</td><td>85</td><td>18</td><td><b>26</b></td><td><b>0.583</b></td><td>0.176 ✓</td><td>0.933</td></tr>
-<tr><td>7717876</td><td>05_CD45 (hard)</td><td>OFF</td><td><span class="badge running">RUNNING · ~28 GPU-h snapshot</span></td><td>24</td><td>57</td><td>10</td><td>18</td><td>0.650</td><td>0.158 ✓</td><td>0.944</td></tr>
+<tr><td>7717876</td><td>05_CD45 (hard)</td><td>OFF</td><td><span class="badge running">RUNNING · ~30 GPU-h snapshot</span></td><td>24</td><td>57</td><td>10</td><td>18</td><td>0.604</td><td>0.158 ✓</td><td>0.944</td></tr>
 <tr><td>7696577</td><td>23_BetV1 (hard)</td><td>ON</td><td><span class="badge done">COMPLETED · 48h</span></td><td>27</td><td>68</td><td>12</td><td>5</td><td>0.126</td><td>0.153 ✓</td><td>0.931</td></tr>
-<tr><td>7696578</td><td>30_SC2RBD (hard)</td><td>ON</td><td><span class="badge done">COMPLETED · 48h</span></td><td>35</td><td>80</td><td>12</td><td>1</td><td>0.025</td><td>0.202</td><td>0.905</td></tr>
+<tr><td>7696578</td><td>30_SC2RBD (hard)</td><td>ON</td><td><span class="badge done">COMPLETED · 48h</span></td><td>35</td><td>80</td><td>12</td><td>1</td><td>0.025</td><td>0.202 ✓</td><td>0.905</td></tr>
 </table>
-<p class="tinybit">The run-level success count is computed from Complexa's <code>all_successes_protein_binder_self.csv</code> files, then globally de-duplicated by binder sequence across the whole run. The ✓ mark is a stricter fixed-threshold diagnostic: at least one evaluated row had <b>iPAE ≤ 0.18</b> and <b>pLDDT ≥ 0.90</b>. These can differ, so use the global-unique count for discovery-rate comparisons and the min-iPAE column as a structural-quality diagnostic.</p>
+<p class="tinybit">The run-level success count is computed from each child's full <code>RAW_protein_binder_results...combined.csv</code>, filtered to the official Proteina-Complexa protein_binder criteria: <b>i_pAE × 31 ≤ 7.0</b> (normalized cutoff ≈ <b>0.225806</b>), <b>pLDDT ≥ 0.90</b>, and <b>binder scRMSD_ca &lt; 1.5 Å</b>, then globally de-duplicated by binder sequence. The regenerated raw-CSV counts match <code>all_successes_protein_binder_self.csv</code> for these runs.</p>
 </section>
 
 <section>
 <h2>How to read this page</h2>
 <ul>
-<li><b>succ / GPU-h</b> is the cleanest budget-normalized reporting metric here: run-level global-unique successes divided by total executed GPU-hours. Cross-target comparisons still include target difficulty, so the CD45 calibration A/B is the cleaner causal comparison.</li>
+<li><b>strict succ / GPU-h</b> is the cleanest budget-normalized reporting metric here: strict run-level global-unique successes divided by total executed GPU-hours. Cross-target comparisons still include target difficulty, so the CD45 calibration A/B is the cleaner causal comparison.</li>
 <li><b>min iPAE</b> is the lowest interface PAE produced by any candidate the agent ran. This tells you whether the agent ever found a binder that <i>could</i> succeed, even if it didn't replicate.</li>
 <li><b>Operator family bars</b> show how many child runs the agent allocated to each search strategy. Diverse coverage is good; collapse to one family is a warning sign.</li>
-<li><b>Cumulative global-unique successes</b> show when in the run the discoveries happened — early bursts vs. late discoveries.</li>
+<li><b>Cumulative strict global-unique successes</b> show when in the run the audited discoveries happened — early bursts vs. late discoveries.</li>
 </ul>
 </section>
 
@@ -103,7 +103,7 @@ th{background:#f1f5f9;color:#41556b}
 <tr><td>Walltime</td><td>48 hours, max_iterations effectively unlimited</td></tr>
 <tr><td>Analyst mode</td><td>three_experts (Domain + ML + System parallel)</td></tr>
 <tr><td>Parent policy</td><td>PUCT (UCB-based parent selection, c=1.4)</td></tr>
-<tr><td>Score cap</td><td>2.0 audited successes per GPU-hour (PRIMARY_SUCCESS_RATE_CAP)</td></tr>
+<tr><td>Score cap</td><td>Runtime jobs used the then-current <code>audited_unique_success</code> metric capped at 2.0 per GPU-hour. The page now re-audits outcomes offline with the official Proteina-Complexa i_pAE×31 / pLDDT / binder-scRMSD criterion; future code uses the same definition.</td></tr>
 <tr><td>Calibration injection</td><td>ON for 7694929 / 7696577 / 7696578; <b>OFF for 7717876</b> (the CD45 A/B variable)</td></tr>
 <tr><td>Per-child timeout</td><td>120 minutes</td></tr>
 <tr><td>nsamples</td><td>varies (per-iteration LLM choice within manifest bounds)</td></tr>
@@ -121,8 +121,8 @@ th{background:#f1f5f9;color:#41556b}
 <span class="badge done">COMPLETED</span>
 </div>
 <div class="metrics">
-<div class="metric"><b>26</b><span>global unique</span></div>
-<div class="metric"><b>0.583</b><span>succ / gpu-h</span></div>
+<div class="metric"><b>26</b><span>strict global unique</span></div>
+<div class="metric"><b>0.583</b><span>strict succ / gpu-h</span></div>
 <div class="metric"><b>0.176</b><span>min iPAE ✓</span></div>
 <div class="metric"><b>44.6h</b><span>total GPU-hours</span></div>
 <div class="metric"><b>31</b><span>iterations</span></div>
@@ -130,7 +130,7 @@ th{background:#f1f5f9;color:#41556b}
 <div class="metric"><b>18</b><span>failed (mostly timeout)</span></div>
 <div class="metric"><b>1.34%</b><span>online pass-rate</span></div>
 </div>
-<div class="spark-label">cumulative global-unique successes over iterations (max = 26)</div>
+<div class="spark-label">cumulative strict global-unique successes over iterations (max = 26)</div>
 <svg class="spark" viewBox="0 0 320 60" style="width:100%;height:60px"><polyline fill="none" stroke="#2563eb" stroke-width="2" points="0.0,46.2 10.7,46.2 21.3,41.5 32.0,41.5 42.7,41.5 53.3,41.5 64.0,41.5 74.7,41.5 85.3,41.5 96.0,41.5 106.7,41.5 117.3,41.5 128.0,41.5 138.7,41.5 149.3,41.5 160.0,41.5 170.7,39.2 181.3,36.9 192.0,36.9 202.7,30.0 213.3,27.7 224.0,25.4 234.7,25.4 245.3,25.4 256.0,9.2 266.7,4.6 277.3,4.6 288.0,2.3 298.7,2.3 309.3,0.0 320.0,0.0"/></svg>
 <h3 style="margin-top:10px">Operator family allocation</h3>
 <div class="opbar"><span class="opname">diverse-beam-search</span><span class="opbarbg"><span class="opbarfill" style="width:23.5%"></span></span><span class="opcnt">20</span></div>
@@ -141,7 +141,7 @@ th{background:#f1f5f9;color:#41556b}
 <div class="opbar"><span class="opname">fk-steering</span><span class="opbarbg"><span class="opbarfill" style="width:9.4%"></span></span><span class="opcnt">8</span></div>
 <div class="opbar"><span class="opname">single-pass</span><span class="opbarbg"><span class="opbarfill" style="width:7.1%"></span></span><span class="opcnt">6</span></div>
 <div class="opbar"><span class="opname">unknown</span><span class="opbarbg"><span class="opbarfill" style="width:1.2%"></span></span><span class="opcnt">1</span></div>
-<p class="tinybit"><b>Lowest iPAE candidate</b> belongs to child_056. <b>Notes:</b> Stagnated at 8 global uniques from ~11h to ~26h, then broke through to 26 by walltime. min iPAE crossed the 0.18 threshold at 0.176.</p>
+<p class="tinybit"><b>Lowest iPAE candidate</b> belongs to child_056. <b>Notes:</b> Official-PC successes are distributed across 13 contributing children. child_000 already produced 4 global-unique successes under i_pAE×31≤7, pLDDT≥0.90, binder scRMSD_ca&lt;1.5; child_068 is the best single child with 5.</p>
 </div>
 
 <div class="card green" id="job-7717876">
@@ -151,16 +151,16 @@ th{background:#f1f5f9;color:#41556b}
 <span class="badge running">RUNNING</span>
 </div>
 <div class="metrics">
-<div class="metric"><b>18</b><span>global unique so far</span></div>
-<div class="metric"><b>0.650</b><span>succ / gpu-h</span></div>
+<div class="metric"><b>18</b><span>strict global unique so far</span></div>
+<div class="metric"><b>0.604</b><span>strict succ / gpu-h</span></div>
 <div class="metric"><b>0.158</b><span>min iPAE ✓</span></div>
-<div class="metric"><b>27.7h</b><span>GPU-h so far</span></div>
+<div class="metric"><b>29.8h</b><span>GPU-h so far</span></div>
 <div class="metric"><b>24</b><span>iterations</span></div>
 <div class="metric"><b>57</b><span>children evaluated</span></div>
 <div class="metric"><b>10</b><span>failed</span></div>
 <div class="metric"><b>1.51%</b><span>online pass-rate</span></div>
 </div>
-<div class="spark-label">cumulative global-unique successes (max = 18 so far)</div>
+<div class="spark-label">cumulative strict global-unique successes (max = 18 so far)</div>
 <svg class="spark" viewBox="0 0 320 60" style="width:100%;height:60px"><polyline fill="none" stroke="#0f766e" stroke-width="2" points="0.0,46.7 13.9,43.3 27.8,43.3 41.7,36.7 55.7,36.7 69.6,30.0 83.5,30.0 97.4,30.0 111.3,23.3 125.2,23.3 139.1,23.3 153.0,23.3 167.0,23.3 180.9,23.3 194.8,23.3 208.7,23.3 222.6,20.0 236.5,20.0 250.4,20.0 264.3,16.7 278.3,0.0 292.2,0.0 306.1,0.0 320.0,0.0"/></svg>
 <h3 style="margin-top:10px">Operator family allocation</h3>
 <div class="opbar"><span class="opname">diverse-beam-search</span><span class="opbarbg"><span class="opbarfill" style="width:21.1%"></span></span><span class="opcnt">12</span></div>
@@ -171,7 +171,7 @@ th{background:#f1f5f9;color:#41556b}
 <div class="opbar"><span class="opname">fk-steering</span><span class="opbarbg"><span class="opbarfill" style="width:8.8%"></span></span><span class="opcnt">5</span></div>
 <div class="opbar"><span class="opname">single-pass</span><span class="opbarbg"><span class="opbarfill" style="width:5.3%"></span></span><span class="opcnt">3</span></div>
 <div class="opbar"><span class="opname">unknown</span><span class="opbarbg"><span class="opbarfill" style="width:3.5%"></span></span><span class="opcnt">2</span></div>
-<p class="tinybit"><b>A/B comparison vs 7694929:</b> at this snapshot, calibration-OFF has 18 global uniques in 27.7 GPU-h. The calibration-ON run had 10 global uniques by the same compute point and finished with 26 in 44.6 GPU-h. That is a real early-slope advantage for cal-OFF so far, but the same-config noise floor is large and the OFF run is still incomplete.</p>
+<p class="tinybit"><b>A/B comparison vs 7694929:</b> at this snapshot, calibration-OFF has 18 strict global uniques in 29.8 GPU-h. The completed calibration-ON run has 26 strict global uniques in 44.6 GPU-h. Because 7717876 is still running, compare slopes and final totals only after it completes.</p>
 </div>
 
 <div class="card orange" id="job-7696577">
@@ -181,8 +181,8 @@ th{background:#f1f5f9;color:#41556b}
 <span class="badge done">COMPLETED</span>
 </div>
 <div class="metrics">
-<div class="metric"><b>5</b><span>global unique</span></div>
-<div class="metric"><b>0.126</b><span>succ / gpu-h</span></div>
+<div class="metric"><b>5</b><span>strict global unique</span></div>
+<div class="metric"><b>0.126</b><span>strict succ / gpu-h</span></div>
 <div class="metric"><b>0.153</b><span>min iPAE ✓</span></div>
 <div class="metric"><b>39.7h</b><span>total GPU-hours</span></div>
 <div class="metric"><b>27</b><span>iterations</span></div>
@@ -190,7 +190,7 @@ th{background:#f1f5f9;color:#41556b}
 <div class="metric"><b>12</b><span>failed</span></div>
 <div class="metric"><b>0.56%</b><span>online pass-rate</span></div>
 </div>
-<div class="spark-label">cumulative global-unique successes (max = 5)</div>
+<div class="spark-label">cumulative strict global-unique successes (max = 5)</div>
 <svg class="spark" viewBox="0 0 320 60" style="width:100%;height:60px"><polyline fill="none" stroke="#c2410c" stroke-width="2" points="0.0,48.0 12.3,48.0 24.6,48.0 36.9,48.0 49.2,36.0 61.5,36.0 73.8,36.0 86.2,36.0 98.5,36.0 110.8,24.0 123.1,12.0 135.4,12.0 147.7,12.0 160.0,12.0 172.3,12.0 184.6,12.0 196.9,12.0 209.2,0.0 221.5,0.0 233.8,0.0 246.2,0.0 258.5,0.0 270.8,0.0 283.1,0.0 295.4,0.0 307.7,0.0 320.0,0.0"/></svg>
 <h3 style="margin-top:10px">Operator family allocation</h3>
 <div class="opbar"><span class="opname">diverse-beam-search</span><span class="opbarbg"><span class="opbarfill" style="width:22.1%"></span></span><span class="opcnt">15</span></div>
@@ -201,7 +201,7 @@ th{background:#f1f5f9;color:#41556b}
 <div class="opbar"><span class="opname">fk-steering</span><span class="opbarbg"><span class="opbarfill" style="width:10.3%"></span></span><span class="opcnt">7</span></div>
 <div class="opbar"><span class="opname">single-pass</span><span class="opbarbg"><span class="opbarfill" style="width:4.4%"></span></span><span class="opcnt">3</span></div>
 <div class="opbar"><span class="opname">unknown</span><span class="opbarbg"><span class="opbarfill" style="width:2.9%"></span></span><span class="opcnt">2</span></div>
-<p class="tinybit"><b>Lowest iPAE candidate</b> belongs to child_023. <b>Notes:</b> First break-through to iPAE = 0.153 (clearly below threshold) happened around iter 10. Successes have come in slowly since (5 total). The min-iPAE candidate is well below the threshold; the bottleneck is converting promising structures into duplicate-free unique designs.</p>
+<p class="tinybit"><b>Lowest iPAE candidate</b> belongs to child_023. <b>Notes:</b> Five official-PC global uniques were found across five children. The lowest-iPAE child_023 is one contributor, but the cumulative curve is the right summary because successes are spread across the tree.</p>
 </div>
 
 <div class="card purple" id="job-7696578">
@@ -211,16 +211,16 @@ th{background:#f1f5f9;color:#41556b}
 <span class="badge done">COMPLETED</span>
 </div>
 <div class="metrics">
-<div class="metric"><b>1</b><span>global unique</span></div>
-<div class="metric"><b>0.025</b><span>succ / gpu-h</span></div>
-<div class="metric"><b>0.202</b><span>min iPAE</span></div>
+<div class="metric"><b>1</b><span>strict global unique</span></div>
+<div class="metric"><b>0.025</b><span>strict succ / gpu-h</span></div>
+<div class="metric"><b>0.202</b><span>min iPAE ✓</span></div>
 <div class="metric"><b>39.6h</b><span>total GPU-hours</span></div>
 <div class="metric"><b>35</b><span>iterations</span></div>
 <div class="metric"><b>80</b><span>children evaluated</span></div>
 <div class="metric"><b>12</b><span>failed</span></div>
 <div class="metric"><b>0.04%</b><span>online pass-rate</span></div>
 </div>
-<div class="spark-label">cumulative global-unique successes (max = 1)</div>
+<div class="spark-label">cumulative strict global-unique successes (max = 1)</div>
 <svg class="spark" viewBox="0 0 320 60" style="width:100%;height:60px"><polyline fill="none" stroke="#7c3aed" stroke-width="2" points="0.0,60.0 9.4,60.0 18.8,60.0 28.2,60.0 37.6,60.0 47.1,60.0 56.5,60.0 65.9,60.0 75.3,0.0 84.7,0.0 94.1,0.0 103.5,0.0 112.9,0.0 122.4,0.0 131.8,0.0 141.2,0.0 150.6,0.0 160.0,0.0 169.4,0.0 178.8,0.0 188.2,0.0 197.6,0.0 207.1,0.0 216.5,0.0 225.9,0.0 235.3,0.0 244.7,0.0 254.1,0.0 263.5,0.0 272.9,0.0 282.4,0.0 291.8,0.0 301.2,0.0 310.6,0.0 320.0,0.0"/></svg>
 <h3 style="margin-top:10px">Operator family allocation</h3>
 <div class="opbar"><span class="opname">diverse-beam-search</span><span class="opbarbg"><span class="opbarfill" style="width:21.3%"></span></span><span class="opcnt">17</span></div>
@@ -231,7 +231,7 @@ th{background:#f1f5f9;color:#41556b}
 <div class="opbar"><span class="opname">beam-search</span><span class="opbarbg"><span class="opbarfill" style="width:8.8%"></span></span><span class="opcnt">7</span></div>
 <div class="opbar"><span class="opname">fk-steering</span><span class="opbarbg"><span class="opbarfill" style="width:7.5%"></span></span><span class="opcnt">6</span></div>
 <div class="opbar"><span class="opname">unknown</span><span class="opbarbg"><span class="opbarfill" style="width:3.8%"></span></span><span class="opcnt">3</span></div>
-<p class="tinybit"><b>Lowest iPAE candidate</b> belongs to child_017. <b>Notes:</b> Single global-unique success around iter 8 (early), no second success in 26 subsequent iterations. min iPAE never crossed 0.18 threshold. SC2RBD looks structurally harder than CD45/BetV1 with this setup; result is informative even if numerically poor.</p>
+<p class="tinybit"><b>Lowest iPAE candidate</b> belongs to child_017. <b>Notes:</b> One official-PC global unique was found at child_017: i_pAE=0.202, scaled i_pAE=6.26, pLDDT=0.905, binder scRMSD_ca=0.104 Å. This passes the official criterion even though it fails the older 0.18 assumption.</p>
 </div>
 
 </div>
@@ -241,17 +241,17 @@ th{background:#f1f5f9;color:#41556b}
 <h2>What this experiment is testing</h2>
 <table>
 <tr><th>Experiment</th><th>Jobs compared</th><th>Question</th><th>Result so far</th></tr>
-<tr><td>Calibration injection A/B</td><td>7694929 (ON, done) vs 7717876 (OFF, running; 27.7 GPU-h snapshot)</td><td>Does injecting per-role calibration bias into analyst prompts at iter ≥ 5 help search outcomes?</td><td>Cal-OFF has the better early cumulative-global slope so far (18 by 27.7 GPU-h vs 10 for cal-ON at the same compute), but final verdict requires completion and replicates.</td></tr>
-<tr><td>Multi-target generalization</td><td>CD45 vs BetV1 vs SC2RBD (all calibration ON)</td><td>Does the same setup produce comparable results across distinct hard targets?</td><td>Strongly target-dependent. CD45 ≫ BetV1 > SC2RBD. SC2RBD looks at the limit of what the current setup can solve.</td></tr>
-<tr><td>Replication of prior leader</td><td>7694929 vs prior 7606343 (24h, 24 audited) and 7619073 (24h, 11 audited)</td><td>Is the leading CD45 result reproducible at 48h?</td><td>26 global uniques at 48h on 44.6 GPU-h matches the leader band (history range 11–24 at 24h on ~20 GPU-h).</td></tr>
+<tr><td>Calibration injection A/B</td><td>7694929 (ON, done) vs 7717876 (OFF, running; 29.8 GPU-h snapshot)</td><td>Does injecting per-role calibration bias into analyst prompts at iter ≥ 5 help search outcomes?</td><td>Current official-PC snapshot: cal-OFF has 18 strict uniques at 29.8 GPU-h; cal-ON has 26 strict uniques at 44.6 GPU-h. Wait for cal-OFF completion before declaring a winner.</td></tr>
+<tr><td>Multi-target generalization</td><td>CD45 vs BetV1 vs SC2RBD (all calibration ON)</td><td>Does the same setup produce comparable results across distinct hard targets?</td><td>Strongly target-dependent under official-PC audit: CD45 cal-ON = 26, BetV1 = 5, SC2RBD = 1.</td></tr>
+<tr><td>Replication of prior leader</td><td>7694929 vs prior 7606343 (24h, 24 audited) and 7619073 (24h, 11 audited)</td><td>Is the leading CD45 result reproducible at 48h?</td><td>Not comparable until the prior 24h runs are re-audited with the same official-PC threshold. Under official-PC audit, 7694929 has 26 global-unique successes at 48h.</td></tr>
 </table>
 </section>
 
 <section>
 <h2>Methodology notes</h2>
 <ul>
-<li><b>Score</b> is a per-child compute-normalized rate: <code>audited_unique_success / gpu_hours</code>, capped at 2.0, plus small soft bonuses for low iPAE / high pLDDT / low duplicate fraction. Cap exists to prevent a single fast small-denominator winner from anchoring the parent portfolio.</li>
-<li><b>"Audited" successes</b> are the AlphaFold2-evaluated unique candidates that meet iPAE ≤ 0.18 AND pLDDT ≥ 0.90, after de-duplication on sequence. <b>"Online" successes</b> use a softer per-fold criterion that the backend reports during sampling.</li>
+<li><b>Score</b> is a per-child compute-normalized rate: <code>audited_unique_success / gpu_hours</code>, capped at 2.0, plus small soft bonuses for low iPAE / high pLDDT / low duplicate fraction. For these already-finished jobs, runtime scoring used the per-child audited_unique_success field; the reporting on this page recomputes run-level global uniques from raw candidate CSVs with the same official Proteina-Complexa i_pAE×31 / pLDDT / binder-scRMSD definition.</li>
+<li><b>"Audited" successes</b> are the AlphaFold2-evaluated unique candidates that meet i_pAE×31 ≤ 7.0, pLDDT ≥ 0.90, and binder scRMSD_ca &lt; 1.5 Å, after de-duplication on sequence. <b>"Online" successes</b> use a softer per-fold criterion that the backend reports during sampling.</li>
 <li><b>PUCT</b> is the AlphaZero-style upper-confidence-bound parent selector. Q is the per-child score; visit count is the number of expansions per parent.</li>
 <li><b>Calibration injection</b> reads each role's predicted-vs-actual bias on best_i_pae / n_successful / expected_gpu_minutes accumulated so far, and adds it to the analyst's user prompt at iteration ≥ 5 with a "you have over-predicted X" warning. It is removed from the Refiner and Supervisor prompts (decision-safe) so calibration data does not leak into selection.</li>
 <li><b>Failure modes</b> include hard failures (timeout, OOM, backend exception) and soft failures (zero_success, near_miss_interface, duplicate_collapse, proxy_mismatch). Both kinds are surfaced to analysts via <code>proposal_history</code> in the EvidencePack.</li>
@@ -265,10 +265,10 @@ th{background:#f1f5f9;color:#41556b}
 <tr><th>Role</th><th>Findings (first claim)</th><th>Suggested operator families</th></tr>
 <tr><td><b>DomainExpert</b></td><td>Search stuck in a 'near-miss' local optimum: high pLDDT (&gt; 0.93), insufficient interface precision (iPAE ~0.18-0.23). Sequence repeats KAL/ESE noted.</td><td><code>fk-steering, mcts</code></td></tr>
 <tr><td><b>MLExpert</b></td><td>Trapped in a near-miss local optimum where increasing diversity or beam width alone is insufficient to escape the energy basin. Operator fatigue noted on diverse-beam-search.</td><td><code>fk-steering, best-of-n</code></td></tr>
-<tr><td><b>SystemExpert</b></td><td>Metric definition mismatch: online success is 0 despite best_iPAE 0.187 being very close to the 0.18 threshold. High timeout risk on MCTS / FK-Steering.</td><td><code>refinement, single-pass</code></td></tr>
+<tr><td><b>SystemExpert</b></td><td>Runtime agent noted a metric-definition mismatch under its then-assumed 0.18 threshold; the corrected audit uses the official i_pAE×31≤7 criterion. High timeout risk on MCTS / FK-Steering.</td><td><code>refinement, single-pass</code></td></tr>
 </table>
 <p>The three experts produced <b>different findings, different focuses, different operator suggestions</b>. The Refiner then emitted three proposals each citing a specific prior child failure ("avoid timeout unlike child_019", "diverge from child_024 noise=0.2", "MCTS n_simulations=8 was insufficient + n_simulations=16 timed out — try 4 with higher exploration"). The Verifier rejected the fk-steering proposal because the Refiner hallucinated a manifest path (<code>fk_steering.steering_strength</code> doesn't exist) — the safety gate worked. The Supervisor selected best-of-n_high_noise; the controller actually launched both verifier-accepted proposals as multi-route children.</p>
-<p class="note">The pipeline design is coherent. The bottleneck is <b>efficiency</b>, not coherence: the agent reasoning is sensible but produces audited successes at a lower rate per sample than older v2 PUCT did.</p>
+<p class="note">The pipeline design is coherent. The bottleneck is <b>strict audited efficiency</b>, not coherence: the agent reasoning is sensible, but official-PC successes are still target-dependent and older v2 comparisons need the same re-audit before ranking.</p>
 </section>
 
 <section>
@@ -284,31 +284,31 @@ th{background:#f1f5f9;color:#41556b}
 <tr><td>Calibration injection</td><td>None</td><td>Per-role bias context at iter ≥ 5 (one A/B variable, only differs between 7694929 and 7717876)</td></tr>
 <tr><td>Search budget</td><td>~6h, budget_evals=20</td><td>48h, walltime-driven (~70-90 evals)</td></tr>
 </table>
-<p><b>The biggest single difference is the starting seed.</b> Older v2 PUCT was effectively a "mutation refinement" task on top of a human-discovered good config. Our v2.2 starts from a generic difficulty-conditioned config (within 0.05 noise of <code>noise020</code> but not target-tuned). Notably, our current 7694929 root child_000 (noise=0.25) produced 4 global-unique successes vs the older v2 root <code>noise020</code> which the legacy page recorded at 1 unique — comparable starting point, similar or slightly better starting performance.</p>
+<p><b>The biggest single difference is the starting seed.</b> Older v2 PUCT was effectively a "mutation refinement" task on top of a human-discovered good config. Our v2.2 starts from a generic difficulty-conditioned config (within 0.05 noise of <code>noise020</code> but not target-tuned). Notably, our current 7694929 root child_000 (noise=0.25) produced 4 official-PC global uniques; the older v2 root <code>noise020</code> also needs strict re-audit before direct comparison. Direct seed-performance claims should use the official-PC re-audited numbers, not older mixed reporting semantics.</p>
 <p>One observation about agent search direction: at iter 10 in 7694929, the agent proposed raising noise from 0.2 → 0.4 to "break the local optimum". The older v2 winning recipe stayed at noise=0.2. The agent tends to push noise upward when it could productively explore the lower-noise regime that human exploration originally found.</p>
 </section>
 
 <section>
-<h2>Cumulative global-unique discovery curves (the right metric)</h2>
-<p class="tinybit">Each discovery is one new sequence from Complexa's success CSVs, cross-child deduplicated by binder_sequence. <b>X axis = cumulative GPU-hours used in the run. Y axis = global-unique success count.</b> Dots mark exactly when each new unique was found. The slope of the curve is what we want to maximize. Below each curve, the table shows which child found the unique, that child's algorithm + key parameters, and the iPAE.</p>
+<h2>Cumulative strict global-unique discovery curves (the right metric)</h2>
+<p class="tinybit">Each discovery is one new strict-success sequence from the full Complexa candidate CSV, filtered by i_pAE×31 ≤ 7.0, pLDDT ≥ 0.90, and binder scRMSD_ca &lt; 1.5 Å, then cross-child deduplicated by binder_sequence. <b>X axis = cumulative GPU-hours used in the run. Y axis = strict global-unique success count.</b> Dots mark exactly when each new unique was found. The slope of the curve is what we want to maximize. Below each curve, the table shows which child found the unique, that child's algorithm + key parameters, and the iPAE.</p>
 <div class="cards">
 <div class="card blue"><h3 style="margin:0 0 6px;text-transform:none;letter-spacing:0">CD45 cal-ON · 7694929 (COMPLETED)</h3>
-<div class="meta tinybit">26 global unique in 44.6 GPU-h · 0.583 succ/gpu-h · 13/85 children contributed</div>
+<div class="meta tinybit">26 strict global unique in 44.6 GPU-h · 0.583 strict succ/gpu-h · 13/85 children contributed</div>
 <object type="image/svg+xml" data="curve_7694929_cd45_48h.svg" style="width:100%;display:block;margin:8px 0"></object>
 <div id="disc-CD45_cal_on" style="font-size:11px;font-family:'SF Mono',Menlo,Consolas,monospace;max-height:240px;overflow-y:auto;border:1px solid var(--line);border-radius:6px;padding:6px"></div></div>
 
 <div class="card green"><h3 style="margin:0 0 6px;text-transform:none;letter-spacing:0">CD45 cal-OFF · 7717876 (RUNNING)</h3>
-<div class="meta tinybit">18 global unique in 27.7 GPU-h so far · 0.650 succ/gpu-h · 12/57 children contributed</div>
+<div class="meta tinybit">18 strict global unique in 29.8 GPU-h so far · 0.604 strict succ/gpu-h · 9/57 evaluated children contributed</div>
 <object type="image/svg+xml" data="curve_7717876_cd45_48h_nocalib.svg" style="width:100%;display:block;margin:8px 0"></object>
 <div id="disc-CD45_cal_off" style="font-size:11px;font-family:'SF Mono',Menlo,Consolas,monospace;max-height:240px;overflow-y:auto;border:1px solid var(--line);border-radius:6px;padding:6px"></div></div>
 
 <div class="card orange"><h3 style="margin:0 0 6px;text-transform:none;letter-spacing:0">BetV1 · 7696577 (COMPLETED)</h3>
-<div class="meta tinybit">5 global unique in 39.7 GPU-h · 0.126 succ/gpu-h · 5/68 children contributed</div>
+<div class="meta tinybit">5 strict global unique in 39.7 GPU-h · 0.126 strict succ/gpu-h · 5/68 children contributed</div>
 <object type="image/svg+xml" data="curve_7696577_betv1_48h.svg" style="width:100%;display:block;margin:8px 0"></object>
 <div id="disc-BetV1" style="font-size:11px;font-family:'SF Mono',Menlo,Consolas,monospace;max-height:240px;overflow-y:auto;border:1px solid var(--line);border-radius:6px;padding:6px"></div></div>
 
 <div class="card purple"><h3 style="margin:0 0 6px;text-transform:none;letter-spacing:0">SC2RBD · 7696578 (COMPLETED)</h3>
-<div class="meta tinybit">1 global unique in 39.6 GPU-h · 0.025 succ/gpu-h · 1/80 children contributed</div>
+<div class="meta tinybit">1 strict global unique in 39.6 GPU-h · 0.025 strict succ/gpu-h · 1/80 children contributed</div>
 <object type="image/svg+xml" data="curve_7696578_sc2rbd_48h.svg" style="width:100%;display:block;margin:8px 0"></object>
 <div id="disc-SC2RBD" style="font-size:11px;font-family:'SF Mono',Menlo,Consolas,monospace;max-height:240px;overflow-y:auto;border:1px solid var(--line);border-radius:6px;padding:6px"></div></div>
 </div>
@@ -317,7 +317,7 @@ function loadDiscoveries(targetId, jsonPath){
   fetch(jsonPath).then(r=>r.json()).then(d=>{
     const el = document.getElementById(targetId);
     if(!el) return;
-    let html = `<div style="display:grid;grid-template-columns:60px 60px 50px 80px 1fr 50px;gap:6px;font-weight:700;border-bottom:1px solid #eef2f7;padding-bottom:3px;margin-bottom:3px;font-size:10.5px"><span>gpu_h</span><span>#unique</span><span>iter</span><span>child</span><span>algo · key params</span><span>iPAE</span></div>`;
+    let html = `<div style="display:grid;grid-template-columns:55px 55px 42px 70px 1fr 45px 45px 52px;gap:6px;font-weight:700;border-bottom:1px solid #eef2f7;padding-bottom:3px;margin-bottom:3px;font-size:10.5px"><span>gpu_h</span><span>#unique</span><span>iter</span><span>child</span><span>algo · key params</span><span>iPAE</span><span>×31</span><span>RMSD</span></div>`;
     (d.discoveries||[]).forEach(x=>{
       const cfg = x.config || {};
       const params = [];
@@ -329,13 +329,17 @@ function loadDiscoveries(targetId, jsonPath){
       if(cfg.diversity_weight) params.push(`dw=${cfg.diversity_weight}`);
       const algoStr = (cfg.algorithm || '?') + (params.length ? ' · ' + params.join(' ') : '');
       const ipae = x.i_pae!=null ? Number(x.i_pae).toFixed(3) : '—';
-      html += `<div style="display:grid;grid-template-columns:60px 60px 50px 80px 1fr 50px;gap:6px;padding:2px 0;border-bottom:1px dotted #f1f5f9;font-size:10.5px">
+      const ipaeScaled = x.i_pae!=null ? (Number(x.i_pae) * 31).toFixed(2) : '—';
+      const rmsd = x.scrmsd_ca!=null ? Number(x.scrmsd_ca).toFixed(2) : '—';
+      html += `<div style="display:grid;grid-template-columns:55px 55px 42px 70px 1fr 45px 45px 52px;gap:6px;padding:2px 0;border-bottom:1px dotted #f1f5f9;font-size:10.5px">
         <span>${Number(x.gpu_h_at_discovery).toFixed(2)}</span>
         <span>${x.n_unique_so_far}</span>
         <span>${x.iter}</span>
         <span>${x.child_id}</span>
         <span style="color:#475569">${algoStr}</span>
-        <span>${ipae}</span></div>`;
+        <span>${ipae}</span>
+        <span>${ipaeScaled}</span>
+        <span>${rmsd}</span></div>`;
     });
     el.innerHTML = html || '<i>no discoveries</i>';
   }).catch(e=>{const el=document.getElementById(targetId); if(el) el.innerHTML='(load failed)';});
@@ -345,21 +349,21 @@ loadDiscoveries('disc-CD45_cal_off', 'run_level_7717876_cd45_48h_nocalib.json');
 loadDiscoveries('disc-BetV1', 'run_level_7696577_betv1_48h.json');
 loadDiscoveries('disc-SC2RBD', 'run_level_7696578_sc2rbd_48h.json');
 </script>
-<p class="tinybit"><b>Reading guide.</b> A flat segment = wasted compute (no new uniques). A steep climb = a productive child or run of children. The annotation table tells you which strategy + parameters were running when each unique was found, so you can connect "this config" to "this success". Compare CD45 cal-ON (44.6 GPU-h → 26) vs CD45 cal-OFF (27.7 GPU-h → 18 so far): cal-OFF currently has a higher early rate (0.65 vs 0.58 succ/GPU-h), but it is still running and the same-config noise floor remains large.</p>
+<p class="tinybit"><b>Reading guide.</b> A flat segment = wasted compute (no new uniques). A steep climb = a productive child or run of children. The annotation table tells you which strategy + parameters were running when each unique was found, so you can connect "this config" to "this success". Compare CD45 cal-ON (44.6 GPU-h → 26) vs CD45 cal-OFF (29.8 GPU-h → 18 so far): cal-OFF is still running, so the calibration A/B is not settled.</p>
 </section>
 
 <section>
 <h2>Interactive search tree → decision trace viewer</h2>
-<p class="tinybit">Each node is one Complexa child. Edges are parent→child (PUCT-selected parents). Color = audited successes (green) / failed (red) / no success (light blue). <b>Click any node</b> to see its eval, the iteration's expert findings, Refiner proposals, and Supervisor decision that produced it.</p>
+<p class="tinybit">Each node is one Complexa child. Edges are parent→child (PUCT-selected parents). Color = strict audited successes (green) / failed (red) / no success (light blue). <b>Click any node</b> to see its eval, the iteration's expert findings, Refiner proposals, and Supervisor decision that produced it.</p>
 <div style="display:flex;gap:12px;margin:8px 0;flex-wrap:wrap;align-items:center">
   <label>Job:
     <select id="treeJob">
-      <option value="CD45_cal_on_7694929">CD45 cal-ON · 7694929 (26 global unique)</option>
-      <option value="BetV1_7696577">BetV1 · 7696577 (5 global unique)</option>
-      <option value="SC2RBD_7696578">SC2RBD · 7696578 (1 global unique)</option>
+      <option value="CD45_cal_on_7694929">CD45 cal-ON · 7694929 (26 strict global unique)</option>
+      <option value="BetV1_7696577">BetV1 · 7696577 (5 strict global unique)</option>
+      <option value="SC2RBD_7696578">SC2RBD · 7696578 (1 strict global unique)</option>
     </select>
   </label>
-  <span class="tinybit"><span class="swatch" style="background:#16a34a;display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px"></span> audited&gt;0 · <span class="swatch" style="background:#ef4444;display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px"></span> failed · <span class="swatch" style="background:#93c5fd;display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px"></span> no success</span>
+  <span class="tinybit"><span class="swatch" style="background:#16a34a;display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px"></span> strict audited&gt;0 · <span class="swatch" style="background:#ef4444;display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px"></span> failed · <span class="swatch" style="background:#93c5fd;display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px"></span> no success</span>
 </div>
 <div style="display:grid;grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr);gap:14px">
   <div id="treeSvg" style="border:1px solid var(--line);border-radius:8px;background:#fff;min-height:480px;overflow:auto"></div>
@@ -459,7 +463,7 @@ function drawTree(){
   document.querySelectorAll('.tnode').forEach(el=>{
     el.addEventListener('click', ()=>showNode(el.getAttribute('data-id')));
   });
-  // Open the node with the highest audited by default
+  // Open the node with the highest strict audited count by default
   const best = nodes.reduce((a,b)=>(b.audited||0) > (a.audited||0) ? b : a, nodes[0]||{});
   if(best && best.program_id) showNode(best.program_id);
 }
@@ -478,7 +482,7 @@ function showNode(pid){
       <div>algo: <code>${esc(n.algo)}</code></div>
       <div>status: <b>${esc(n.status)}</b> · score: ${n.score==null?'—':Number(n.score).toFixed(3)}</div>
       <div>iPAE: ${n.ipae==null?'—':Number(n.ipae).toFixed(3)} · pLDDT: ${n.plddt==null?'—':Number(n.plddt).toFixed(3)}</div>
-      <div>audited: <b>${n.audited??'—'}</b> · online: ${n.online??'—'}</div>
+      <div>strict audited: <b>${n.audited??'—'}</b> · online: ${n.online??'—'}</div>
       <div>parents: ${(n.parents||[]).map(esc).join(', ') || '(root)'}</div>
       <div style="margin-top:6px;font-size:11.5px;color:#475569"><i>intent:</i> ${esc(n.intent)}</div>
       <div style="font-size:11.5px;color:#475569"><i>hypothesis:</i> ${esc(n.hypothesis)}</div>
@@ -517,7 +521,7 @@ function showNode(pid){
 document.getElementById('treeJob').addEventListener('change', e=>{CURRENT_JOB=e.target.value;drawTree()});
 fetch('jobs_tree_cot.json').then(r=>r.json()).then(d=>{TREE_DATA=d;drawTree()});
 </script>
-<p class="tinybit">The tree is laid out left-to-right by iteration. Bigger green nodes had more audited successes. Edges show which prior child the agent picked as parent (PUCT-selected). Click any node to load its structured decision context — what the experts said, what the Refiner proposed, what the Verifier accepted/rejected, and what the Supervisor selected.</p>
+<p class="tinybit">The tree is laid out left-to-right by iteration. Bigger green nodes had more strict audited successes. Edges show which prior child the agent picked as parent (PUCT-selected). Click any node to load its structured decision context — what the experts said, what the Refiner proposed, what the Verifier accepted/rejected, and what the Supervisor selected.</p>
 </section>
 
 <section>
@@ -527,7 +531,7 @@ fetch('jobs_tree_cot.json').then(r=>r.json()).then(d=>{TREE_DATA=d;drawTree()});
   <label>Filter:
     <select id="iterFilter">
       <option value="all">all iterations</option>
-      <option value="success">iterations that produced ≥1 audited success</option>
+      <option value="success">iterations that produced ≥1 strict audited success</option>
       <option value="fail">iterations with failed children</option>
       <option value="parse">iterations with parse/repair issues</option>
     </select>
@@ -581,7 +585,7 @@ function renderList(){
   const hdr = document.createElement('div');
   hdr.className = 'iter-row';
   hdr.style.fontWeight='800';hdr.style.background='#eef2f7';hdr.style.cursor='default';
-  hdr.innerHTML = '<span>iter</span><span>experts → suggested families</span><span>refiner → launched algorithms</span><span style="text-align:right">audited</span><span style="text-align:right">failed</span>';
+  hdr.innerHTML = '<span>iter</span><span>experts → suggested families</span><span>refiner → launched algorithms</span><span style="text-align:right">strict audited</span><span style="text-align:right">failed</span>';
   div.appendChild(hdr);
   ITER_DATA.forEach(it=>{
     if(!rowMatches(it, filter)) return;
@@ -646,7 +650,7 @@ function showIter(iter, row){
     const ipae = c.iPAE!=null?c.iPAE.toFixed(3):'—';
     const audit = c.audited!=null?c.audited:'—';
     html += `<div class="cot-prop ${cls}">
-      <div class="cot-row"><b>${c.cid}</b> <code>${c.algo||'?'}</code> · status=<b>${c.status||'?'}</b> · iPAE=<b>${ipae}</b> · audited=<b>${audit}</b></div>
+      <div class="cot-row"><b>${c.cid}</b> <code>${c.algo||'?'}</code> · status=<b>${c.status||'?'}</b> · iPAE=<b>${ipae}</b> · strict audited=<b>${audit}</b></div>
     </div>`;
   });
   html += `</div>`;
@@ -656,7 +660,7 @@ fetch('iter_trace_7694929.json').then(r=>r.json()).then(d=>{
   ITER_DATA = d;
   renderList();
   if(d.length){
-    // open the highest-audited iteration by default
+    // open the highest strict-audited iteration by default
     let best = d[0]; let bestA = -1;
     d.forEach(it=>{const a=it.children.reduce((s,c)=>s+(c.audited||0),0); if(a>bestA){bestA=a;best=it}});
     showIter(best.iter, null);

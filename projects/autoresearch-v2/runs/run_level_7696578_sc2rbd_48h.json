@@ -1,7 +1,19 @@
 {
   "run_dir": "/scratch/gpfs/ZHONGE/mj7341/research/autoresearch_v2_2_search/job_7696578_sc2rbd_48h",
+  "metric_definition": "strict_global_unique_success",
+  "strict_thresholds": {
+    "i_pae_max": 0.22580645161290322,
+    "i_pae_scale": 31.0,
+    "i_pae_scaled_max": 7.0,
+    "plddt_min": 0.9,
+    "binder_scrmsd_ca_max": 1.5,
+    "pass_if": "i_pae * i_pae_scale <= i_pae_scaled_max and plddt >= plddt_min and binder_scrmsd_ca < binder_scrmsd_ca_max"
+  },
   "n_total_children": 80,
+  "n_children_with_candidate_csv": 68,
   "n_children_with_success_csv": 68,
+  "n_backend_success_rows_seen": 1,
+  "n_strict_success_rows_seen": 1,
   "total_gpu_hours": 39.5566,
   "total_global_unique": 1,
   "discoveries": [
@@ -14,48 +26,13 @@
       "binder_length": 83,
       "i_pae": 0.202,
       "plddt": 0.905,
+      "scrmsd_ca": 0.1042088717222213,
       "config": {
         "algorithm": "sequence_hallucination",
         "n_temp_iters": "10",
         "n_hard_iters": "5"
       },
-      "followup_searches": [
-        {
-          "iter": 9,
-          "child_id": "child_020",
-          "algo": "?",
-          "audited_in_child": 0,
-          "best_i_pae": 0.659
-        },
-        {
-          "iter": 9,
-          "child_id": "child_021",
-          "algo": "best-of-n",
-          "audited_in_child": 0,
-          "best_i_pae": 0.725
-        },
-        {
-          "iter": 9,
-          "child_id": "child_022",
-          "algo": "stochastic-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.776
-        },
-        {
-          "iter": 10,
-          "child_id": "child_023",
-          "algo": "sequence_hallucination",
-          "audited_in_child": 0,
-          "best_i_pae": 0.277
-        },
-        {
-          "iter": 10,
-          "child_id": "child_024",
-          "algo": "mcts",
-          "audited_in_child": 0,
-          "best_i_pae": 0.379
-        }
-      ]
+      "success_criterion": "self_complex_i_pAE * 31 <= 7.0 and self_complex_pLDDT >= 0.90 and self_binder_scRMSD_ca < 1.5"
     }
   ]
 }

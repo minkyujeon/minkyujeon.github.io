@@ -1,0 +1,2 @@
+n_unique_so_far,gpu_h_at_discovery,iter,child_id,binder_sequence,binder_length,i_pae,i_pae_scaled,plddt,scrmsd_ca,algorithm,sc_scale_noise,beam_width,n_branch,replicas,n_simulations,success_criterion
+1,12.9447,8,child_017,TIVDQAQQALEALQNTAENDYAKRTRALEMLEEIVWSSQYVNIPQDLDNQIVAELSKYQNSIMENDEIKLQAVAILQKSKAHQ,83,0.202,6.262,0.905,0.1042088717222213,sequence_hallucination,,,,,,self_complex_i_pAE * 31 <= 7.0 and self_complex_pLDDT >= 0.90 and self_binder_scRMSD_ca < 1.5

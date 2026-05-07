@@ -1,7 +1,19 @@
 {
   "run_dir": "/scratch/gpfs/ZHONGE/mj7341/research/autoresearch_v2_2_search/job_7694929_cd45_48h",
+  "metric_definition": "strict_global_unique_success",
+  "strict_thresholds": {
+    "i_pae_max": 0.22580645161290322,
+    "i_pae_scale": 31.0,
+    "i_pae_scaled_max": 7.0,
+    "plddt_min": 0.9,
+    "binder_scrmsd_ca_max": 1.5,
+    "pass_if": "i_pae * i_pae_scale <= i_pae_scaled_max and plddt >= plddt_min and binder_scrmsd_ca < binder_scrmsd_ca_max"
+  },
   "n_total_children": 85,
+  "n_children_with_candidate_csv": 67,
   "n_children_with_success_csv": 67,
+  "n_backend_success_rows_seen": 31,
+  "n_strict_success_rows_seen": 31,
   "total_gpu_hours": 44.5925,
   "total_global_unique": 26,
   "discoveries": [
@@ -14,6 +26,7 @@
       "binder_length": 83,
       "i_pae": 0.209,
       "plddt": 0.921,
+      "scrmsd_ca": 0.6046435832977295,
       "config": {
         "algorithm": "beam-search",
         "beam_width": "8",
@@ -21,50 +34,7 @@
         "sc_scale_noise": "0.25",
         "filter_samples_limit": "32"
       },
-      "followup_searches": [
-        {
-          "iter": 1,
-          "child_id": "child_004",
-          "algo": "mcts",
-          "audited_in_child": null,
-          "best_i_pae": null
-        },
-        {
-          "iter": 1,
-          "child_id": "child_005",
-          "algo": "diverse-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.234
-        },
-        {
-          "iter": 1,
-          "child_id": "child_006",
-          "algo": "sequence_hallucination",
-          "audited_in_child": null,
-          "best_i_pae": null
-        },
-        {
-          "iter": 2,
-          "child_id": "child_007",
-          "algo": "best-of-n",
-          "audited_in_child": 0,
-          "best_i_pae": 0.246
-        },
-        {
-          "iter": 2,
-          "child_id": "child_008",
-          "algo": "sequence_hallucination",
-          "audited_in_child": 2,
-          "best_i_pae": 0.195
-        },
-        {
-          "iter": 2,
-          "child_id": "child_009",
-          "algo": "stochastic-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.717
-        }
-      ]
+      "success_criterion": "self_complex_i_pAE * 31 <= 7.0 and self_complex_pLDDT >= 0.90 and self_binder_scRMSD_ca < 1.5"
     },
     {
       "n_unique_so_far": 2,
@@ -75,6 +45,7 @@
       "binder_length": 83,
       "i_pae": 0.21,
       "plddt": 0.904,
+      "scrmsd_ca": 0.8997645378112793,
       "config": {
         "algorithm": "beam-search",
         "beam_width": "8",
@@ -82,50 +53,7 @@
         "sc_scale_noise": "0.25",
         "filter_samples_limit": "32"
       },
-      "followup_searches": [
-        {
-          "iter": 1,
-          "child_id": "child_004",
-          "algo": "mcts",
-          "audited_in_child": null,
-          "best_i_pae": null
-        },
-        {
-          "iter": 1,
-          "child_id": "child_005",
-          "algo": "diverse-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.234
-        },
-        {
-          "iter": 1,
-          "child_id": "child_006",
-          "algo": "sequence_hallucination",
-          "audited_in_child": null,
-          "best_i_pae": null
-        },
-        {
-          "iter": 2,
-          "child_id": "child_007",
-          "algo": "best-of-n",
-          "audited_in_child": 0,
-          "best_i_pae": 0.246
-        },
-        {
-          "iter": 2,
-          "child_id": "child_008",
-          "algo": "sequence_hallucination",
-          "audited_in_child": 2,
-          "best_i_pae": 0.195
-        },
-        {
-          "iter": 2,
-          "child_id": "child_009",
-          "algo": "stochastic-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.717
-        }
-      ]
+      "success_criterion": "self_complex_i_pAE * 31 <= 7.0 and self_complex_pLDDT >= 0.90 and self_binder_scRMSD_ca < 1.5"
     },
     {
       "n_unique_so_far": 3,
@@ -136,6 +64,7 @@
       "binder_length": 83,
       "i_pae": 0.19,
       "plddt": 0.928,
+      "scrmsd_ca": 0.6337562203407288,
       "config": {
         "algorithm": "beam-search",
         "beam_width": "8",
@@ -143,50 +72,7 @@
         "sc_scale_noise": "0.25",
         "filter_samples_limit": "32"
       },
-      "followup_searches": [
-        {
-          "iter": 1,
-          "child_id": "child_004",
-          "algo": "mcts",
-          "audited_in_child": null,
-          "best_i_pae": null
-        },
-        {
-          "iter": 1,
-          "child_id": "child_005",
-          "algo": "diverse-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.234
-        },
-        {
-          "iter": 1,
-          "child_id": "child_006",
-          "algo": "sequence_hallucination",
-          "audited_in_child": null,
-          "best_i_pae": null
-        },
-        {
-          "iter": 2,
-          "child_id": "child_007",
-          "algo": "best-of-n",
-          "audited_in_child": 0,
-          "best_i_pae": 0.246
-        },
-        {
-          "iter": 2,
-          "child_id": "child_008",
-          "algo": "sequence_hallucination",
-          "audited_in_child": 2,
-          "best_i_pae": 0.195
-        },
-        {
-          "iter": 2,
-          "child_id": "child_009",
-          "algo": "stochastic-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.717
-        }
-      ]
+      "success_criterion": "self_complex_i_pAE * 31 <= 7.0 and self_complex_pLDDT >= 0.90 and self_binder_scRMSD_ca < 1.5"
     },
     {
       "n_unique_so_far": 4,
@@ -197,6 +83,7 @@
       "binder_length": 83,
       "i_pae": 0.185,
       "plddt": 0.931,
+      "scrmsd_ca": 0.579824686050415,
       "config": {
         "algorithm": "beam-search",
         "beam_width": "8",
@@ -204,50 +91,7 @@
         "sc_scale_noise": "0.25",
         "filter_samples_limit": "32"
       },
-      "followup_searches": [
-        {
-          "iter": 1,
-          "child_id": "child_004",
-          "algo": "mcts",
-          "audited_in_child": null,
-          "best_i_pae": null
-        },
-        {
-          "iter": 1,
-          "child_id": "child_005",
-          "algo": "diverse-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.234
-        },
-        {
-          "iter": 1,
-          "child_id": "child_006",
-          "algo": "sequence_hallucination",
-          "audited_in_child": null,
-          "best_i_pae": null
-        },
-        {
-          "iter": 2,
-          "child_id": "child_007",
-          "algo": "best-of-n",
-          "audited_in_child": 0,
-          "best_i_pae": 0.246
-        },
-        {
-          "iter": 2,
-          "child_id": "child_008",
-          "algo": "sequence_hallucination",
-          "audited_in_child": 2,
-          "best_i_pae": 0.195
-        },
-        {
-          "iter": 2,
-          "child_id": "child_009",
-          "algo": "stochastic-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.717
-        }
-      ]
+      "success_criterion": "self_complex_i_pAE * 31 <= 7.0 and self_complex_pLDDT >= 0.90 and self_binder_scRMSD_ca < 1.5"
     },
     {
       "n_unique_so_far": 5,
@@ -258,6 +102,7 @@
       "binder_length": 135,
       "i_pae": 0.205,
       "plddt": 0.95,
+      "scrmsd_ca": 0.0620153583586216,
       "config": {
         "algorithm": "sequence_hallucination",
         "beam_width": "4",
@@ -265,50 +110,7 @@
         "n_temp_iters": "10",
         "n_hard_iters": "5"
       },
-      "followup_searches": [
-        {
-          "iter": 1,
-          "child_id": "child_004",
-          "algo": "mcts",
-          "audited_in_child": null,
-          "best_i_pae": null
-        },
-        {
-          "iter": 1,
-          "child_id": "child_005",
-          "algo": "diverse-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.234
-        },
-        {
-          "iter": 1,
-          "child_id": "child_006",
-          "algo": "sequence_hallucination",
-          "audited_in_child": null,
-          "best_i_pae": null
-        },
-        {
-          "iter": 2,
-          "child_id": "child_007",
-          "algo": "best-of-n",
-          "audited_in_child": 0,
-          "best_i_pae": 0.246
-        },
-        {
-          "iter": 2,
-          "child_id": "child_008",
-          "algo": "sequence_hallucination",
-          "audited_in_child": 2,
-          "best_i_pae": 0.195
-        },
-        {
-          "iter": 2,
-          "child_id": "child_009",
-          "algo": "stochastic-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.717
-        }
-      ]
+      "success_criterion": "self_complex_i_pAE * 31 <= 7.0 and self_complex_pLDDT >= 0.90 and self_binder_scRMSD_ca < 1.5"
     },
     {
       "n_unique_so_far": 6,
@@ -319,6 +121,7 @@
       "binder_length": 135,
       "i_pae": 0.187,
       "plddt": 0.951,
+      "scrmsd_ca": 0.0569344907999038,
       "config": {
         "algorithm": "sequence_hallucination",
         "beam_width": "4",
@@ -326,50 +129,7 @@
         "n_temp_iters": "10",
         "n_hard_iters": "5"
       },
-      "followup_searches": [
-        {
-          "iter": 1,
-          "child_id": "child_004",
-          "algo": "mcts",
-          "audited_in_child": null,
-          "best_i_pae": null
-        },
-        {
-          "iter": 1,
-          "child_id": "child_005",
-          "algo": "diverse-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.234
-        },
-        {
-          "iter": 1,
-          "child_id": "child_006",
-          "algo": "sequence_hallucination",
-          "audited_in_child": null,
-          "best_i_pae": null
-        },
-        {
-          "iter": 2,
-          "child_id": "child_007",
-          "algo": "best-of-n",
-          "audited_in_child": 0,
-          "best_i_pae": 0.246
-        },
-        {
-          "iter": 2,
-          "child_id": "child_008",
-          "algo": "sequence_hallucination",
-          "audited_in_child": 2,
-          "best_i_pae": 0.195
-        },
-        {
-          "iter": 2,
-          "child_id": "child_009",
-          "algo": "stochastic-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.717
-        }
-      ]
+      "success_criterion": "self_complex_i_pAE * 31 <= 7.0 and self_complex_pLDDT >= 0.90 and self_binder_scRMSD_ca < 1.5"
     },
     {
       "n_unique_so_far": 7,
@@ -380,49 +140,14 @@
       "binder_length": 135,
       "i_pae": 0.195,
       "plddt": 0.942,
+      "scrmsd_ca": 0.0703062564134597,
       "config": {
         "algorithm": "sequence_hallucination",
         "beam_width": "4",
         "n_branch": "4",
         "n_temp_iters": "10"
       },
-      "followup_searches": [
-        {
-          "iter": 3,
-          "child_id": "child_010",
-          "algo": "sequence_hallucination",
-          "audited_in_child": 0,
-          "best_i_pae": 0.227
-        },
-        {
-          "iter": 3,
-          "child_id": "child_011",
-          "algo": "diverse-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.269
-        },
-        {
-          "iter": 4,
-          "child_id": "child_012",
-          "algo": "single-pass",
-          "audited_in_child": 0,
-          "best_i_pae": 0.473
-        },
-        {
-          "iter": 4,
-          "child_id": "child_013",
-          "algo": "mcts",
-          "audited_in_child": 0,
-          "best_i_pae": 0.352
-        },
-        {
-          "iter": 4,
-          "child_id": "child_014",
-          "algo": "sequence_hallucination",
-          "audited_in_child": 0,
-          "best_i_pae": 0.236
-        }
-      ]
+      "success_criterion": "self_complex_i_pAE * 31 <= 7.0 and self_complex_pLDDT >= 0.90 and self_binder_scRMSD_ca < 1.5"
     },
     {
       "n_unique_so_far": 8,
@@ -433,49 +158,14 @@
       "binder_length": 135,
       "i_pae": 0.204,
       "plddt": 0.944,
+      "scrmsd_ca": 0.0549145005643367,
       "config": {
         "algorithm": "sequence_hallucination",
         "beam_width": "4",
         "n_branch": "4",
         "n_temp_iters": "10"
       },
-      "followup_searches": [
-        {
-          "iter": 3,
-          "child_id": "child_010",
-          "algo": "sequence_hallucination",
-          "audited_in_child": 0,
-          "best_i_pae": 0.227
-        },
-        {
-          "iter": 3,
-          "child_id": "child_011",
-          "algo": "diverse-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.269
-        },
-        {
-          "iter": 4,
-          "child_id": "child_012",
-          "algo": "single-pass",
-          "audited_in_child": 0,
-          "best_i_pae": 0.473
-        },
-        {
-          "iter": 4,
-          "child_id": "child_013",
-          "algo": "mcts",
-          "audited_in_child": 0,
-          "best_i_pae": 0.352
-        },
-        {
-          "iter": 4,
-          "child_id": "child_014",
-          "algo": "sequence_hallucination",
-          "audited_in_child": 0,
-          "best_i_pae": 0.236
-        }
-      ]
+      "success_criterion": "self_complex_i_pAE * 31 <= 7.0 and self_complex_pLDDT >= 0.90 and self_binder_scRMSD_ca < 1.5"
     },
     {
       "n_unique_so_far": 9,
@@ -486,55 +176,13 @@
       "binder_length": 83,
       "i_pae": 0.221,
       "plddt": 0.944,
+      "scrmsd_ca": 0.4307506680488586,
       "config": {
         "algorithm": "best-of-n",
         "replicas": "16",
         "sc_scale_noise": "0.1"
       },
-      "followup_searches": [
-        {
-          "iter": 17,
-          "child_id": "child_047",
-          "algo": "best-of-n",
-          "audited_in_child": 1,
-          "best_i_pae": 0.211
-        },
-        {
-          "iter": 17,
-          "child_id": "child_048",
-          "algo": "diverse-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.243
-        },
-        {
-          "iter": 17,
-          "child_id": "child_049",
-          "algo": "beam-search",
-          "audited_in_child": null,
-          "best_i_pae": null
-        },
-        {
-          "iter": 18,
-          "child_id": "child_050",
-          "algo": "stochastic-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.727
-        },
-        {
-          "iter": 18,
-          "child_id": "child_051",
-          "algo": "mcts",
-          "audited_in_child": 0,
-          "best_i_pae": 0.371
-        },
-        {
-          "iter": 18,
-          "child_id": "child_052",
-          "algo": "sequence_hallucination",
-          "audited_in_child": 0,
-          "best_i_pae": 0.247
-        }
-      ]
+      "success_criterion": "self_complex_i_pAE * 31 <= 7.0 and self_complex_pLDDT >= 0.90 and self_binder_scRMSD_ca < 1.5"
     },
     {
       "n_unique_so_far": 10,
@@ -545,55 +193,13 @@
       "binder_length": 135,
       "i_pae": 0.211,
       "plddt": 0.947,
+      "scrmsd_ca": 0.5024094581604004,
       "config": {
         "algorithm": "best-of-n",
         "replicas": "16",
         "sc_scale_noise": "0.05"
       },
-      "followup_searches": [
-        {
-          "iter": 18,
-          "child_id": "child_050",
-          "algo": "stochastic-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.727
-        },
-        {
-          "iter": 18,
-          "child_id": "child_051",
-          "algo": "mcts",
-          "audited_in_child": 0,
-          "best_i_pae": 0.371
-        },
-        {
-          "iter": 18,
-          "child_id": "child_052",
-          "algo": "sequence_hallucination",
-          "audited_in_child": 0,
-          "best_i_pae": 0.247
-        },
-        {
-          "iter": 19,
-          "child_id": "child_053",
-          "algo": "fk-steering",
-          "audited_in_child": null,
-          "best_i_pae": null
-        },
-        {
-          "iter": 19,
-          "child_id": "child_054",
-          "algo": "diverse-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.673
-        },
-        {
-          "iter": 19,
-          "child_id": "child_055",
-          "algo": "sequence_hallucination",
-          "audited_in_child": 3,
-          "best_i_pae": 0.209
-        }
-      ]
+      "success_criterion": "self_complex_i_pAE * 31 <= 7.0 and self_complex_pLDDT >= 0.90 and self_binder_scRMSD_ca < 1.5"
     },
     {
       "n_unique_so_far": 11,
@@ -604,6 +210,7 @@
       "binder_length": 135,
       "i_pae": 0.209,
       "plddt": 0.936,
+      "scrmsd_ca": 0.0717168152332305,
       "config": {
         "algorithm": "sequence_hallucination",
         "replicas": "16",
@@ -611,50 +218,7 @@
         "n_temp_iters": "10",
         "n_hard_iters": "5"
       },
-      "followup_searches": [
-        {
-          "iter": 20,
-          "child_id": "child_056",
-          "algo": "sequence_hallucination",
-          "audited_in_child": 1,
-          "best_i_pae": 0.176
-        },
-        {
-          "iter": 20,
-          "child_id": "child_057",
-          "algo": "beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.241
-        },
-        {
-          "iter": 20,
-          "child_id": "child_058",
-          "algo": "diverse-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.288
-        },
-        {
-          "iter": 21,
-          "child_id": "child_059",
-          "algo": "sequence_hallucination",
-          "audited_in_child": 1,
-          "best_i_pae": 0.222
-        },
-        {
-          "iter": 21,
-          "child_id": "child_060",
-          "algo": "stochastic-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.635
-        },
-        {
-          "iter": 21,
-          "child_id": "child_061",
-          "algo": "mcts",
-          "audited_in_child": null,
-          "best_i_pae": null
-        }
-      ]
+      "success_criterion": "self_complex_i_pAE * 31 <= 7.0 and self_complex_pLDDT >= 0.90 and self_binder_scRMSD_ca < 1.5"
     },
     {
       "n_unique_so_far": 12,
@@ -665,6 +229,7 @@
       "binder_length": 83,
       "i_pae": 0.217,
       "plddt": 0.938,
+      "scrmsd_ca": 0.0413289926946163,
       "config": {
         "algorithm": "sequence_hallucination",
         "replicas": "16",
@@ -672,50 +237,7 @@
         "n_temp_iters": "10",
         "n_hard_iters": "5"
       },
-      "followup_searches": [
-        {
-          "iter": 20,
-          "child_id": "child_056",
-          "algo": "sequence_hallucination",
-          "audited_in_child": 1,
-          "best_i_pae": 0.176
-        },
-        {
-          "iter": 20,
-          "child_id": "child_057",
-          "algo": "beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.241
-        },
-        {
-          "iter": 20,
-          "child_id": "child_058",
-          "algo": "diverse-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.288
-        },
-        {
-          "iter": 21,
-          "child_id": "child_059",
-          "algo": "sequence_hallucination",
-          "audited_in_child": 1,
-          "best_i_pae": 0.222
-        },
-        {
-          "iter": 21,
-          "child_id": "child_060",
-          "algo": "stochastic-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.635
-        },
-        {
-          "iter": 21,
-          "child_id": "child_061",
-          "algo": "mcts",
-          "audited_in_child": null,
-          "best_i_pae": null
-        }
-      ]
+      "success_criterion": "self_complex_i_pAE * 31 <= 7.0 and self_complex_pLDDT >= 0.90 and self_binder_scRMSD_ca < 1.5"
     },
     {
       "n_unique_so_far": 13,
@@ -726,6 +248,7 @@
       "binder_length": 103,
       "i_pae": 0.221,
       "plddt": 0.933,
+      "scrmsd_ca": 0.0744454488158226,
       "config": {
         "algorithm": "sequence_hallucination",
         "replicas": "16",
@@ -733,50 +256,7 @@
         "n_temp_iters": "10",
         "n_hard_iters": "5"
       },
-      "followup_searches": [
-        {
-          "iter": 20,
-          "child_id": "child_056",
-          "algo": "sequence_hallucination",
-          "audited_in_child": 1,
-          "best_i_pae": 0.176
-        },
-        {
-          "iter": 20,
-          "child_id": "child_057",
-          "algo": "beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.241
-        },
-        {
-          "iter": 20,
-          "child_id": "child_058",
-          "algo": "diverse-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.288
-        },
-        {
-          "iter": 21,
-          "child_id": "child_059",
-          "algo": "sequence_hallucination",
-          "audited_in_child": 1,
-          "best_i_pae": 0.222
-        },
-        {
-          "iter": 21,
-          "child_id": "child_060",
-          "algo": "stochastic-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.635
-        },
-        {
-          "iter": 21,
-          "child_id": "child_061",
-          "algo": "mcts",
-          "audited_in_child": null,
-          "best_i_pae": null
-        }
-      ]
+      "success_criterion": "self_complex_i_pAE * 31 <= 7.0 and self_complex_pLDDT >= 0.90 and self_binder_scRMSD_ca < 1.5"
     },
     {
       "n_unique_so_far": 14,
@@ -787,6 +267,7 @@
       "binder_length": 163,
       "i_pae": 0.176,
       "plddt": 0.933,
+      "scrmsd_ca": 0.1713332086801529,
       "config": {
         "algorithm": "sequence_hallucination",
         "replicas": "16",
@@ -794,50 +275,7 @@
         "n_temp_iters": "20",
         "n_hard_iters": "10"
       },
-      "followup_searches": [
-        {
-          "iter": 21,
-          "child_id": "child_059",
-          "algo": "sequence_hallucination",
-          "audited_in_child": 1,
-          "best_i_pae": 0.222
-        },
-        {
-          "iter": 21,
-          "child_id": "child_060",
-          "algo": "stochastic-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.635
-        },
-        {
-          "iter": 21,
-          "child_id": "child_061",
-          "algo": "mcts",
-          "audited_in_child": null,
-          "best_i_pae": null
-        },
-        {
-          "iter": 22,
-          "child_id": "child_062",
-          "algo": "fk-steering",
-          "audited_in_child": null,
-          "best_i_pae": null
-        },
-        {
-          "iter": 22,
-          "child_id": "child_063",
-          "algo": "diverse-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.269
-        },
-        {
-          "iter": 22,
-          "child_id": "child_064",
-          "algo": "sequence_hallucination",
-          "audited_in_child": 0,
-          "best_i_pae": 0.253
-        }
-      ]
+      "success_criterion": "self_complex_i_pAE * 31 <= 7.0 and self_complex_pLDDT >= 0.90 and self_binder_scRMSD_ca < 1.5"
     },
     {
       "n_unique_so_far": 15,
@@ -848,6 +286,7 @@
       "binder_length": 103,
       "i_pae": 0.222,
       "plddt": 0.942,
+      "scrmsd_ca": 0.0569194965064525,
       "config": {
         "algorithm": "sequence_hallucination",
         "replicas": "16",
@@ -855,50 +294,7 @@
         "n_temp_iters": "20",
         "n_hard_iters": "5"
       },
-      "followup_searches": [
-        {
-          "iter": 22,
-          "child_id": "child_062",
-          "algo": "fk-steering",
-          "audited_in_child": null,
-          "best_i_pae": null
-        },
-        {
-          "iter": 22,
-          "child_id": "child_063",
-          "algo": "diverse-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.269
-        },
-        {
-          "iter": 22,
-          "child_id": "child_064",
-          "algo": "sequence_hallucination",
-          "audited_in_child": 0,
-          "best_i_pae": 0.253
-        },
-        {
-          "iter": 23,
-          "child_id": "child_065",
-          "algo": "best-of-n",
-          "audited_in_child": 0,
-          "best_i_pae": 0.252
-        },
-        {
-          "iter": 23,
-          "child_id": "child_066",
-          "algo": "single-pass",
-          "audited_in_child": 0,
-          "best_i_pae": 0.785
-        },
-        {
-          "iter": 23,
-          "child_id": "child_067",
-          "algo": "stochastic-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.323
-        }
-      ]
+      "success_criterion": "self_complex_i_pAE * 31 <= 7.0 and self_complex_pLDDT >= 0.90 and self_binder_scRMSD_ca < 1.5"
     },
     {
       "n_unique_so_far": 16,
@@ -909,56 +305,14 @@
       "binder_length": 135,
       "i_pae": 0.222,
       "plddt": 0.906,
+      "scrmsd_ca": 0.4323441088199615,
       "config": {
         "algorithm": "mcts",
         "n_simulations": "8",
         "exploration_constant": "2.0",
         "sc_scale_noise": "0.05"
       },
-      "followup_searches": [
-        {
-          "iter": 25,
-          "child_id": "child_071",
-          "algo": "fk-steering",
-          "audited_in_child": null,
-          "best_i_pae": null
-        },
-        {
-          "iter": 25,
-          "child_id": "child_072",
-          "algo": "best-of-n",
-          "audited_in_child": 0,
-          "best_i_pae": 0.523
-        },
-        {
-          "iter": 25,
-          "child_id": "child_073",
-          "algo": "diverse-beam-search",
-          "audited_in_child": 2,
-          "best_i_pae": 0.179
-        },
-        {
-          "iter": 26,
-          "child_id": "child_074",
-          "algo": "diverse-beam-search",
-          "audited_in_child": null,
-          "best_i_pae": null
-        },
-        {
-          "iter": 26,
-          "child_id": "child_075",
-          "algo": "stochastic-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.519
-        },
-        {
-          "iter": 26,
-          "child_id": "child_076",
-          "algo": "sequence_hallucination",
-          "audited_in_child": null,
-          "best_i_pae": null
-        }
-      ]
+      "success_criterion": "self_complex_i_pAE * 31 <= 7.0 and self_complex_pLDDT >= 0.90 and self_binder_scRMSD_ca < 1.5"
     },
     {
       "n_unique_so_far": 17,
@@ -969,56 +323,14 @@
       "binder_length": 135,
       "i_pae": 0.225,
       "plddt": 0.906,
+      "scrmsd_ca": 0.4122410118579864,
       "config": {
         "algorithm": "mcts",
         "n_simulations": "8",
         "exploration_constant": "2.0",
         "sc_scale_noise": "0.05"
       },
-      "followup_searches": [
-        {
-          "iter": 25,
-          "child_id": "child_071",
-          "algo": "fk-steering",
-          "audited_in_child": null,
-          "best_i_pae": null
-        },
-        {
-          "iter": 25,
-          "child_id": "child_072",
-          "algo": "best-of-n",
-          "audited_in_child": 0,
-          "best_i_pae": 0.523
-        },
-        {
-          "iter": 25,
-          "child_id": "child_073",
-          "algo": "diverse-beam-search",
-          "audited_in_child": 2,
-          "best_i_pae": 0.179
-        },
-        {
-          "iter": 26,
-          "child_id": "child_074",
-          "algo": "diverse-beam-search",
-          "audited_in_child": null,
-          "best_i_pae": null
-        },
-        {
-          "iter": 26,
-          "child_id": "child_075",
-          "algo": "stochastic-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.519
-        },
-        {
-          "iter": 26,
-          "child_id": "child_076",
-          "algo": "sequence_hallucination",
-          "audited_in_child": null,
-          "best_i_pae": null
-        }
-      ]
+      "success_criterion": "self_complex_i_pAE * 31 <= 7.0 and self_complex_pLDDT >= 0.90 and self_binder_scRMSD_ca < 1.5"
     },
     {
       "n_unique_so_far": 18,
@@ -1029,56 +341,14 @@
       "binder_length": 135,
       "i_pae": 0.225,
       "plddt": 0.907,
+      "scrmsd_ca": 0.4199323654174804,
       "config": {
         "algorithm": "mcts",
         "n_simulations": "8",
         "exploration_constant": "2.0",
         "sc_scale_noise": "0.05"
       },
-      "followup_searches": [
-        {
-          "iter": 25,
-          "child_id": "child_071",
-          "algo": "fk-steering",
-          "audited_in_child": null,
-          "best_i_pae": null
-        },
-        {
-          "iter": 25,
-          "child_id": "child_072",
-          "algo": "best-of-n",
-          "audited_in_child": 0,
-          "best_i_pae": 0.523
-        },
-        {
-          "iter": 25,
-          "child_id": "child_073",
-          "algo": "diverse-beam-search",
-          "audited_in_child": 2,
-          "best_i_pae": 0.179
-        },
-        {
-          "iter": 26,
-          "child_id": "child_074",
-          "algo": "diverse-beam-search",
-          "audited_in_child": null,
-          "best_i_pae": null
-        },
-        {
-          "iter": 26,
-          "child_id": "child_075",
-          "algo": "stochastic-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.519
-        },
-        {
-          "iter": 26,
-          "child_id": "child_076",
-          "algo": "sequence_hallucination",
-          "audited_in_child": null,
-          "best_i_pae": null
-        }
-      ]
+      "success_criterion": "self_complex_i_pAE * 31 <= 7.0 and self_complex_pLDDT >= 0.90 and self_binder_scRMSD_ca < 1.5"
     },
     {
       "n_unique_so_far": 19,
@@ -1089,56 +359,14 @@
       "binder_length": 135,
       "i_pae": 0.223,
       "plddt": 0.906,
+      "scrmsd_ca": 0.5112866163253784,
       "config": {
         "algorithm": "mcts",
         "n_simulations": "8",
         "exploration_constant": "2.0",
         "sc_scale_noise": "0.05"
       },
-      "followup_searches": [
-        {
-          "iter": 25,
-          "child_id": "child_071",
-          "algo": "fk-steering",
-          "audited_in_child": null,
-          "best_i_pae": null
-        },
-        {
-          "iter": 25,
-          "child_id": "child_072",
-          "algo": "best-of-n",
-          "audited_in_child": 0,
-          "best_i_pae": 0.523
-        },
-        {
-          "iter": 25,
-          "child_id": "child_073",
-          "algo": "diverse-beam-search",
-          "audited_in_child": 2,
-          "best_i_pae": 0.179
-        },
-        {
-          "iter": 26,
-          "child_id": "child_074",
-          "algo": "diverse-beam-search",
-          "audited_in_child": null,
-          "best_i_pae": null
-        },
-        {
-          "iter": 26,
-          "child_id": "child_075",
-          "algo": "stochastic-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.519
-        },
-        {
-          "iter": 26,
-          "child_id": "child_076",
-          "algo": "sequence_hallucination",
-          "audited_in_child": null,
-          "best_i_pae": null
-        }
-      ]
+      "success_criterion": "self_complex_i_pAE * 31 <= 7.0 and self_complex_pLDDT >= 0.90 and self_binder_scRMSD_ca < 1.5"
     },
     {
       "n_unique_so_far": 20,
@@ -1149,56 +377,14 @@
       "binder_length": 135,
       "i_pae": 0.225,
       "plddt": 0.905,
+      "scrmsd_ca": 0.4409426748752594,
       "config": {
         "algorithm": "mcts",
         "n_simulations": "8",
         "exploration_constant": "2.0",
         "sc_scale_noise": "0.05"
       },
-      "followup_searches": [
-        {
-          "iter": 25,
-          "child_id": "child_071",
-          "algo": "fk-steering",
-          "audited_in_child": null,
-          "best_i_pae": null
-        },
-        {
-          "iter": 25,
-          "child_id": "child_072",
-          "algo": "best-of-n",
-          "audited_in_child": 0,
-          "best_i_pae": 0.523
-        },
-        {
-          "iter": 25,
-          "child_id": "child_073",
-          "algo": "diverse-beam-search",
-          "audited_in_child": 2,
-          "best_i_pae": 0.179
-        },
-        {
-          "iter": 26,
-          "child_id": "child_074",
-          "algo": "diverse-beam-search",
-          "audited_in_child": null,
-          "best_i_pae": null
-        },
-        {
-          "iter": 26,
-          "child_id": "child_075",
-          "algo": "stochastic-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.519
-        },
-        {
-          "iter": 26,
-          "child_id": "child_076",
-          "algo": "sequence_hallucination",
-          "audited_in_child": null,
-          "best_i_pae": null
-        }
-      ]
+      "success_criterion": "self_complex_i_pAE * 31 <= 7.0 and self_complex_pLDDT >= 0.90 and self_binder_scRMSD_ca < 1.5"
     },
     {
       "n_unique_so_far": 21,
@@ -1209,56 +395,14 @@
       "binder_length": 163,
       "i_pae": 0.205,
       "plddt": 0.939,
+      "scrmsd_ca": 0.1145616248250007,
       "config": {
         "algorithm": "sequence_hallucination",
         "replicas": "8",
         "sc_scale_noise": "0.08",
         "n_temp_iters": "10"
       },
-      "followup_searches": [
-        {
-          "iter": 25,
-          "child_id": "child_071",
-          "algo": "fk-steering",
-          "audited_in_child": null,
-          "best_i_pae": null
-        },
-        {
-          "iter": 25,
-          "child_id": "child_072",
-          "algo": "best-of-n",
-          "audited_in_child": 0,
-          "best_i_pae": 0.523
-        },
-        {
-          "iter": 25,
-          "child_id": "child_073",
-          "algo": "diverse-beam-search",
-          "audited_in_child": 2,
-          "best_i_pae": 0.179
-        },
-        {
-          "iter": 26,
-          "child_id": "child_074",
-          "algo": "diverse-beam-search",
-          "audited_in_child": null,
-          "best_i_pae": null
-        },
-        {
-          "iter": 26,
-          "child_id": "child_075",
-          "algo": "stochastic-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.519
-        },
-        {
-          "iter": 26,
-          "child_id": "child_076",
-          "algo": "sequence_hallucination",
-          "audited_in_child": null,
-          "best_i_pae": null
-        }
-      ]
+      "success_criterion": "self_complex_i_pAE * 31 <= 7.0 and self_complex_pLDDT >= 0.90 and self_binder_scRMSD_ca < 1.5"
     },
     {
       "n_unique_so_far": 22,
@@ -1269,56 +413,14 @@
       "binder_length": 103,
       "i_pae": 0.212,
       "plddt": 0.916,
+      "scrmsd_ca": 0.0676009804010391,
       "config": {
         "algorithm": "sequence_hallucination",
         "replicas": "8",
         "sc_scale_noise": "0.08",
         "n_temp_iters": "10"
       },
-      "followup_searches": [
-        {
-          "iter": 25,
-          "child_id": "child_071",
-          "algo": "fk-steering",
-          "audited_in_child": null,
-          "best_i_pae": null
-        },
-        {
-          "iter": 25,
-          "child_id": "child_072",
-          "algo": "best-of-n",
-          "audited_in_child": 0,
-          "best_i_pae": 0.523
-        },
-        {
-          "iter": 25,
-          "child_id": "child_073",
-          "algo": "diverse-beam-search",
-          "audited_in_child": 2,
-          "best_i_pae": 0.179
-        },
-        {
-          "iter": 26,
-          "child_id": "child_074",
-          "algo": "diverse-beam-search",
-          "audited_in_child": null,
-          "best_i_pae": null
-        },
-        {
-          "iter": 26,
-          "child_id": "child_075",
-          "algo": "stochastic-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.519
-        },
-        {
-          "iter": 26,
-          "child_id": "child_076",
-          "algo": "sequence_hallucination",
-          "audited_in_child": null,
-          "best_i_pae": null
-        }
-      ]
+      "success_criterion": "self_complex_i_pAE * 31 <= 7.0 and self_complex_pLDDT >= 0.90 and self_binder_scRMSD_ca < 1.5"
     },
     {
       "n_unique_so_far": 23,
@@ -1329,6 +431,7 @@
       "binder_length": 103,
       "i_pae": 0.179,
       "plddt": 0.962,
+      "scrmsd_ca": 0.380609929561615,
       "config": {
         "algorithm": "diverse-beam-search",
         "beam_width": "4",
@@ -1336,50 +439,7 @@
         "diversity_weight": "0.9",
         "sc_scale_noise": "0.2"
       },
-      "followup_searches": [
-        {
-          "iter": 26,
-          "child_id": "child_074",
-          "algo": "diverse-beam-search",
-          "audited_in_child": null,
-          "best_i_pae": null
-        },
-        {
-          "iter": 26,
-          "child_id": "child_075",
-          "algo": "stochastic-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.519
-        },
-        {
-          "iter": 26,
-          "child_id": "child_076",
-          "algo": "sequence_hallucination",
-          "audited_in_child": null,
-          "best_i_pae": null
-        },
-        {
-          "iter": 27,
-          "child_id": "child_077",
-          "algo": "diverse-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.244
-        },
-        {
-          "iter": 27,
-          "child_id": "child_078",
-          "algo": "stochastic-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.646
-        },
-        {
-          "iter": 27,
-          "child_id": "child_079",
-          "algo": "sequence_hallucination",
-          "audited_in_child": 1,
-          "best_i_pae": 0.199
-        }
-      ]
+      "success_criterion": "self_complex_i_pAE * 31 <= 7.0 and self_complex_pLDDT >= 0.90 and self_binder_scRMSD_ca < 1.5"
     },
     {
       "n_unique_so_far": 24,
@@ -1390,6 +450,7 @@
       "binder_length": 103,
       "i_pae": 0.182,
       "plddt": 0.959,
+      "scrmsd_ca": 0.3820701837539673,
       "config": {
         "algorithm": "diverse-beam-search",
         "beam_width": "4",
@@ -1397,50 +458,7 @@
         "diversity_weight": "0.9",
         "sc_scale_noise": "0.2"
       },
-      "followup_searches": [
-        {
-          "iter": 26,
-          "child_id": "child_074",
-          "algo": "diverse-beam-search",
-          "audited_in_child": null,
-          "best_i_pae": null
-        },
-        {
-          "iter": 26,
-          "child_id": "child_075",
-          "algo": "stochastic-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.519
-        },
-        {
-          "iter": 26,
-          "child_id": "child_076",
-          "algo": "sequence_hallucination",
-          "audited_in_child": null,
-          "best_i_pae": null
-        },
-        {
-          "iter": 27,
-          "child_id": "child_077",
-          "algo": "diverse-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.244
-        },
-        {
-          "iter": 27,
-          "child_id": "child_078",
-          "algo": "stochastic-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.646
-        },
-        {
-          "iter": 27,
-          "child_id": "child_079",
-          "algo": "sequence_hallucination",
-          "audited_in_child": 1,
-          "best_i_pae": 0.199
-        }
-      ]
+      "success_criterion": "self_complex_i_pAE * 31 <= 7.0 and self_complex_pLDDT >= 0.90 and self_binder_scRMSD_ca < 1.5"
     },
     {
       "n_unique_so_far": 25,
@@ -1451,42 +469,14 @@
       "binder_length": 135,
       "i_pae": 0.199,
       "plddt": 0.947,
+      "scrmsd_ca": 0.0761890485882759,
       "config": {
         "algorithm": "sequence_hallucination",
         "replicas": "16",
         "sc_scale_noise": "0.12",
         "n_temp_iters": "10"
       },
-      "followup_searches": [
-        {
-          "iter": 28,
-          "child_id": "child_080",
-          "algo": "sequence_hallucination",
-          "audited_in_child": 0,
-          "best_i_pae": 0.371
-        },
-        {
-          "iter": 29,
-          "child_id": "child_081",
-          "algo": "diverse-beam-search",
-          "audited_in_child": 0,
-          "best_i_pae": 0.244
-        },
-        {
-          "iter": 29,
-          "child_id": "child_082",
-          "algo": "best-of-n",
-          "audited_in_child": 1,
-          "best_i_pae": 0.176
-        },
-        {
-          "iter": 29,
-          "child_id": "child_083",
-          "algo": "fk-steering",
-          "audited_in_child": null,
-          "best_i_pae": null
-        }
-      ]
+      "success_criterion": "self_complex_i_pAE * 31 <= 7.0 and self_complex_pLDDT >= 0.90 and self_binder_scRMSD_ca < 1.5"
     },
     {
       "n_unique_so_far": 26,
@@ -1497,20 +487,13 @@
       "binder_length": 135,
       "i_pae": 0.176,
       "plddt": 0.955,
+      "scrmsd_ca": 0.3912176191806793,
       "config": {
         "algorithm": "best-of-n",
         "replicas": "16",
         "sc_scale_noise": "0.05"
       },
-      "followup_searches": [
-        {
-          "iter": 30,
-          "child_id": "child_084",
-          "algo": "diverse-beam-search",
-          "audited_in_child": null,
-          "best_i_pae": null
-        }
-      ]
+      "success_criterion": "self_complex_i_pAE * 31 <= 7.0 and self_complex_pLDDT >= 0.90 and self_binder_scRMSD_ca < 1.5"
     }
   ]
 }
