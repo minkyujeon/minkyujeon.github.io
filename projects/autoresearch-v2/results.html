@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Autoresearch v2 Results</title><style>body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;background:#f6f7f9;color:#1f2933}
+main{max-width:1040px;margin:0 auto;padding:48px 24px 72px}
+h1{font-size:32px;margin:0 0 10px;color:#102a43}
+h2{font-size:20px;margin:30px 0 12px;color:#102a43}
+p,li{color:#52606d;line-height:1.6}
+.note{border-left:4px solid #2563eb;background:#eff6ff;color:#1e3a8a;padding:12px 14px;margin:16px 0}
+.card{background:white;border:1px solid #d9e2ec;border-radius:8px;padding:16px;margin:14px 0}
+table{width:100%;border-collapse:collapse;background:white;border:1px solid #d9e2ec;margin:12px 0}
+th,td{border:1px solid #d9e2ec;padding:8px 10px;text-align:left;font-size:13px;vertical-align:top}
+th{background:#f1f5f9;color:#334e68}
+a.btn{display:inline-block;background:#1f6feb;color:white;text-decoration:none;padding:9px 13px;border-radius:7px;font-weight:700;margin:6px 6px 0 0}
+.muted{color:#829ab1;font-size:12px}
+.metric{font-weight:800;color:#102a43}</style></head><body><main>
+
+<h1>Autoresearch v2 Results</h1>
+<p>Public result snapshot for the current fixed-budget de novo binder search study. Internal research details are intentionally omitted during manuscript preparation.</p>
+<div class="note">Metric shown: cumulative globally unique strict successes discovered within the run, normalized by Complexa child-runtime GPU-hours where applicable.</div>
+<h2>Current adaptive runs</h2>
+<table><tr><th>run</th><th>state</th><th>strict global-unique successes</th><th>strict unique / GPU-h</th><th>Complexa GPU-h</th><th>completed / children</th></tr>
+<tr><td>CD45 adaptive run A</td><td>RUNNING</td><td class='metric'>24</td><td>1.703</td><td>14.093022</td><td>45 / 46</td></tr>
+<tr><td>CD45 adaptive run B</td><td>RUNNING</td><td class='metric'>21</td><td>1.4513</td><td>14.470023</td><td>30 / 33</td></tr>
+<tr><td>BetV1 adaptive run A</td><td>RUNNING</td><td class='metric'>7</td><td>0.9345</td><td>7.49043</td><td>35 / 38</td></tr>
+<tr><td>BetV1 adaptive run B</td><td>RUNNING</td><td class='metric'>4</td><td>0.4483</td><td>8.923441</td><td>35 / 37</td></tr>
+</table>
+<h2>Baseline diagnostic</h2>
+<table><tr><th>run</th><th>state</th><th>strict global-unique successes</th><th>strict unique / GPU-h</th><th>Complexa GPU-h</th><th>completed repeats</th></tr>
+<tr><td>CD45 official-style baseline diagnostic</td><td>CANCELLED</td><td class='metric'>7</td><td>0.5386</td><td>12.997222</td><td>5</td></tr>
+<tr><td>BetV1 official-style baseline diagnostic</td><td>CANCELLED</td><td class='metric'>0</td><td>0.0</td><td>10.698333</td><td>4</td></tr>
+</table>
+<p>Additional result tables and figures may be updated when the manuscript draft stabilizes.</p>
+
+<p class="muted">Public snapshot sanitized on 2026-05-07 while the manuscript is in preparation. Internal implementation notes and traces were moved to a private local backup.</p>
+</main></body></html>

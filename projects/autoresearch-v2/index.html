@@ -1,65 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Autoresearch v2</title>
-<style>
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;background:#f6f7f9;color:#1f2933}
-main{max-width:920px;margin:0 auto;padding:52px 24px}
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Autoresearch v2</title><style>body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;background:#f6f7f9;color:#1f2933}
+main{max-width:1040px;margin:0 auto;padding:48px 24px 72px}
 h1{font-size:32px;margin:0 0 10px;color:#102a43}
-p{color:#52606d;line-height:1.65}
-a.btn{display:inline-block;margin:8px 8px 0 0;background:#1f6feb;color:white;text-decoration:none;padding:10px 14px;border-radius:7px;font-weight:700}
-a.secondary{background:#eef4ff;color:#1f6feb}
-.note{margin-top:26px;border:1px solid #d9e2ec;background:white;border-radius:8px;padding:14px 16px}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:22px}
-.card{border:1px solid #d9e2ec;background:white;border-radius:8px;padding:16px}
-.card h2{font-size:18px;margin:0 0 8px;color:#102a43}
-code{font-family:"SF Mono",Menlo,Consolas,monospace;background:#eef2f7;padding:2px 5px;border-radius:5px}
-</style>
-</head>
-<body><main>
+h2{font-size:20px;margin:30px 0 12px;color:#102a43}
+p,li{color:#52606d;line-height:1.6}
+.note{border-left:4px solid #2563eb;background:#eff6ff;color:#1e3a8a;padding:12px 14px;margin:16px 0}
+.card{background:white;border:1px solid #d9e2ec;border-radius:8px;padding:16px;margin:14px 0}
+table{width:100%;border-collapse:collapse;background:white;border:1px solid #d9e2ec;margin:12px 0}
+th,td{border:1px solid #d9e2ec;padding:8px 10px;text-align:left;font-size:13px;vertical-align:top}
+th{background:#f1f5f9;color:#334e68}
+a.btn{display:inline-block;background:#1f6feb;color:white;text-decoration:none;padding:9px 13px;border-radius:7px;font-weight:700;margin:6px 6px 0 0}
+.muted{color:#829ab1;font-size:12px}
+.metric{font-weight:800;color:#102a43}</style></head><body><main>
+
 <h1>Autoresearch v2</h1>
-<p>Static tracking hub for the current v2 config-search pipeline and the published tree-search run reports. The operational page is the place to keep current implementation state, active jobs, failure handling, and baseline decisions; the run index keeps generated study views and per-run summaries.</p>
-<div class="cards">
-  <div class="card">
-    <h2>Current Pipeline</h2>
-    <p>Architecture diagram, active Qwen run ledger, error-handling notes, and baseline reuse policy.</p>
-    <a class="btn" href="current-v2-pipeline.html">Open current v2 pipeline</a>
-  </div>
-  <div class="card">
-    <h2>Trial and Error</h2>
-    <p>Bug-driven design notes: why early v2 runs stopped, how recovery and ideation were changed, and what the Qwen context failures actually meant.</p>
-    <a class="btn" href="trial-and-error.html">Open trial-and-error notes</a>
-  </div>
-  <div class="card">
-    <h2>ML-Intern + SCORE Plan</h2>
-    <p>System map for using ML-Intern as the research/tool layer and Autoresearch v2 as the SCORE-style protein TTO search kernel.</p>
-    <a class="btn" href="ml-intern-score-tto-plan.html">Open integration plan</a>
-  </div>
-  <div class="card">
-    <h2>48H Multi-target Campaign</h2>
-    <p>Four 4-GPU 48h jobs on three hard targets (CD45, BetV1, SC2RBD) plus a calibration-injection A/B on CD45. Live snapshot.</p>
-    <a class="btn" href="runs/48h-jobs.html">Open 48H snapshots</a>
-  </div>
-  <div class="card">
-    <h2>24H Job Snapshots</h2>
-    <p>Earlier CD45 4-GPU 24h campaign dashboard: codegen/diversification, single PhD, and Tier A analyst-mode shootout snapshots.</p>
-    <a class="btn" href="runs/24h-jobs.html">Open 24H snapshots</a>
-  </div>
-  <div class="card">
-    <h2>Archived Run Reports</h2>
-    <p>Historical static snapshots of older v2 tree-search visualizations, table summaries, fixed N=96 reruns, and presentation demos.</p>
-    <a class="btn secondary" href="runs/index.html">Open archived runs index</a>
-  </div>
-  <div class="card">
-    <h2>Historical Baseline Archive</h2>
-    <p>Older audited baseline maps and intervention summaries are preserved for reference, but this archive is no longer the main project entry point.</p>
-    <a class="btn secondary" href="../agentic-protein-design.html">Open baseline archive</a>
-  </div>
-</div>
-<div class="note">
-<p><b>Last manual update:</b> 2026-04-29 local time.</p>
-<p>Full private LLM prompt transcripts and local absolute filesystem paths are not part of the public snapshot. Summarized strategy traces, run metrics, and operational decisions remain available through the linked pages.</p>
-</div>
+<p>Public result hub for the ongoing de novo binder design study. Internal research details are private during manuscript preparation.</p>
+<div class="card"><h2>Current results</h2><p>Fixed-budget search results and baseline diagnostic summaries.</p><p><a class="btn" href="results.html">Open current results</a></p></div>
+<div class="card"><h2>48H multi-target results</h2><p>Result-only summary for the earlier 48-hour campaign.</p><p><a class="btn" href="runs/48h-jobs.html">Open 48H results</a></p></div>
+<div class="card"><h2>Archived summaries</h2><p>Older static result summaries remain available where they do not expose internal traces.</p><p><a class="btn" href="runs/index.html">Open archive index</a></p></div>
+
+<p class="muted">Public snapshot sanitized on 2026-05-07 while the manuscript is in preparation. Internal implementation notes and traces were moved to a private local backup.</p>
 </main></body></html>
