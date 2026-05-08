@@ -2735,7 +2735,10 @@
         }
       ],
       "backend_worker_gpus": 3,
-      "comparison_axis_note": "backend runtime GPU-hours; not total allocated GPU-hours"
+      "comparison_axis_note": "backend runtime GPU-hours; not total allocated GPU-hours",
+      "variant": "puct_marginal",
+      "variant_summary": "branch-yield-aware PUCT variant",
+      "variant_note": "Uses branch-level cumulative/recent strict-success yield per backend GPU-hour in the exploitation term, plus the usual exploration bonus."
     },
     {
       "target": "CD45",
@@ -5271,7 +5274,10 @@
         }
       ],
       "backend_worker_gpus": 3,
-      "comparison_axis_note": "backend runtime GPU-hours; not total allocated GPU-hours"
+      "comparison_axis_note": "backend runtime GPU-hours; not total allocated GPU-hours",
+      "variant": "puct",
+      "variant_summary": "standard PUCT",
+      "variant_note": "Uses the current node score in the exploitation term, plus the usual exploration bonus."
     },
     {
       "target": "BetV1",
@@ -7790,7 +7796,10 @@
         }
       ],
       "backend_worker_gpus": 3,
-      "comparison_axis_note": "backend runtime GPU-hours; not total allocated GPU-hours"
+      "comparison_axis_note": "backend runtime GPU-hours; not total allocated GPU-hours",
+      "variant": "puct_marginal",
+      "variant_summary": "branch-yield-aware PUCT variant",
+      "variant_note": "Uses branch-level cumulative/recent strict-success yield per backend GPU-hour in the exploitation term, plus the usual exploration bonus."
     },
     {
       "target": "BetV1",
@@ -10635,7 +10644,10 @@
         }
       ],
       "backend_worker_gpus": 3,
-      "comparison_axis_note": "backend runtime GPU-hours; not total allocated GPU-hours"
+      "comparison_axis_note": "backend runtime GPU-hours; not total allocated GPU-hours",
+      "variant": "puct",
+      "variant_summary": "standard PUCT",
+      "variant_note": "Uses the current node score in the exploitation term, plus the usual exploration bonus."
     }
   ],
   "baselines": [
@@ -11009,5 +11021,15 @@
     "resource_accounting": "Adaptive runs use three backend worker GPUs in parallel. The seeded baseline shown here is a one-GPU serial baseline. Current curves are therefore compute-efficiency curves against completed backend runtime, not equal-wall-clock equal-GPU-allocation curves.",
     "adaptive_time_source": "Adaptive x-axis sums per-child backend timing from eval_report metrics. Most completed children use Complexa timing_summary.total_evaluation_time_h; timeout/failure fallbacks use child subprocess elapsed time. Controller, orchestration, queue, and idle time are excluded.",
     "baseline_time_source": "Baseline x-axis uses runs.tsv elapsed_seconds for completed one-GPU official-style repeats."
+  },
+  "variant_definitions": {
+    "puct": "Standard PUCT parent selection: exploitation is based on the selected node's score, then an exploration bonus is added.",
+    "puct_marginal": "Branch-yield-aware PUCT variant: exploitation is based on cumulative/recent strict-success yield produced by a branch per completed backend GPU-hour, then an exploration bonus is added."
+  },
+  "metric_definitions": {
+    "strict_global_unique": "Number of globally deduplicated binder sequences in the run that pass the strict success criteria.",
+    "gpu_hours": "Completed backend child-runtime GPU-hours from Proteina/Complexa artifacts. LLM/controller/queue/idle time is excluded.",
+    "example": "62 / 42.10 GPU-h means 62 strict globally unique successful binders after 42.10 completed backend GPU-hours.",
+    "rate": "strict_global_unique divided by gpu_hours gives strict globally unique successes per backend GPU-hour."
   }
 }
