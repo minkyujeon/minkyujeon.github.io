@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-07",
+  "generated_at": "2026-05-08",
   "success_criterion": "strict evaluator pass, globally deduplicated by binder sequence",
   "time_axis": "Complexa child-runtime GPU-hours only",
   "runs": [
@@ -12,7 +12,106 @@
       "strict_unique_per_complexa_gpu_hour": 1.703,
       "total_complexa_gpu_hours": 14.093022,
       "n_completed": 45,
-      "n_children": 46
+      "n_children": 46,
+      "color": "#2563eb",
+      "discoveries": [
+        {
+          "gpu_hours": 0.438097,
+          "strict_global_unique": 1
+        },
+        {
+          "gpu_hours": 0.438097,
+          "strict_global_unique": 2
+        },
+        {
+          "gpu_hours": 3.716596,
+          "strict_global_unique": 3
+        },
+        {
+          "gpu_hours": 3.716596,
+          "strict_global_unique": 4
+        },
+        {
+          "gpu_hours": 4.276443,
+          "strict_global_unique": 5
+        },
+        {
+          "gpu_hours": 4.276443,
+          "strict_global_unique": 6
+        },
+        {
+          "gpu_hours": 4.276443,
+          "strict_global_unique": 7
+        },
+        {
+          "gpu_hours": 5.582212,
+          "strict_global_unique": 8
+        },
+        {
+          "gpu_hours": 5.582212,
+          "strict_global_unique": 9
+        },
+        {
+          "gpu_hours": 5.582212,
+          "strict_global_unique": 10
+        },
+        {
+          "gpu_hours": 6.159251,
+          "strict_global_unique": 11
+        },
+        {
+          "gpu_hours": 6.159251,
+          "strict_global_unique": 12
+        },
+        {
+          "gpu_hours": 6.159251,
+          "strict_global_unique": 13
+        },
+        {
+          "gpu_hours": 6.731026,
+          "strict_global_unique": 14
+        },
+        {
+          "gpu_hours": 7.297901,
+          "strict_global_unique": 15
+        },
+        {
+          "gpu_hours": 7.297901,
+          "strict_global_unique": 16
+        },
+        {
+          "gpu_hours": 7.297901,
+          "strict_global_unique": 17
+        },
+        {
+          "gpu_hours": 8.436226,
+          "strict_global_unique": 18
+        },
+        {
+          "gpu_hours": 8.436226,
+          "strict_global_unique": 19
+        },
+        {
+          "gpu_hours": 8.436226,
+          "strict_global_unique": 20
+        },
+        {
+          "gpu_hours": 8.802919,
+          "strict_global_unique": 21
+        },
+        {
+          "gpu_hours": 10.792166,
+          "strict_global_unique": 22
+        },
+        {
+          "gpu_hours": 12.149778,
+          "strict_global_unique": 23
+        },
+        {
+          "gpu_hours": 12.861764,
+          "strict_global_unique": 24
+        }
+      ]
     },
     {
       "target": "CD45",
@@ -23,7 +122,94 @@
       "strict_unique_per_complexa_gpu_hour": 1.4513,
       "total_complexa_gpu_hours": 14.470023,
       "n_completed": 30,
-      "n_children": 33
+      "n_children": 33,
+      "color": "#0f766e",
+      "discoveries": [
+        {
+          "gpu_hours": 0.437428,
+          "strict_global_unique": 1
+        },
+        {
+          "gpu_hours": 0.437428,
+          "strict_global_unique": 2
+        },
+        {
+          "gpu_hours": 2.576403,
+          "strict_global_unique": 3
+        },
+        {
+          "gpu_hours": 3.283311,
+          "strict_global_unique": 4
+        },
+        {
+          "gpu_hours": 3.283311,
+          "strict_global_unique": 5
+        },
+        {
+          "gpu_hours": 5.139088,
+          "strict_global_unique": 6
+        },
+        {
+          "gpu_hours": 5.139088,
+          "strict_global_unique": 7
+        },
+        {
+          "gpu_hours": 5.139088,
+          "strict_global_unique": 8
+        },
+        {
+          "gpu_hours": 5.698255,
+          "strict_global_unique": 9
+        },
+        {
+          "gpu_hours": 6.974002,
+          "strict_global_unique": 10
+        },
+        {
+          "gpu_hours": 7.557216,
+          "strict_global_unique": 11
+        },
+        {
+          "gpu_hours": 8.121516,
+          "strict_global_unique": 12
+        },
+        {
+          "gpu_hours": 8.121516,
+          "strict_global_unique": 13
+        },
+        {
+          "gpu_hours": 8.121516,
+          "strict_global_unique": 14
+        },
+        {
+          "gpu_hours": 8.70681,
+          "strict_global_unique": 15
+        },
+        {
+          "gpu_hours": 10.594837,
+          "strict_global_unique": 16
+        },
+        {
+          "gpu_hours": 10.594837,
+          "strict_global_unique": 17
+        },
+        {
+          "gpu_hours": 10.594837,
+          "strict_global_unique": 18
+        },
+        {
+          "gpu_hours": 11.174223,
+          "strict_global_unique": 19
+        },
+        {
+          "gpu_hours": 11.174223,
+          "strict_global_unique": 20
+        },
+        {
+          "gpu_hours": 14.470023,
+          "strict_global_unique": 21
+        }
+      ]
     },
     {
       "target": "BetV1",
@@ -34,7 +220,38 @@
       "strict_unique_per_complexa_gpu_hour": 0.9345,
       "total_complexa_gpu_hours": 7.49043,
       "n_completed": 35,
-      "n_children": 38
+      "n_children": 38,
+      "color": "#7c3aed",
+      "discoveries": [
+        {
+          "gpu_hours": 2.278292,
+          "strict_global_unique": 1
+        },
+        {
+          "gpu_hours": 2.780703,
+          "strict_global_unique": 2
+        },
+        {
+          "gpu_hours": 2.927528,
+          "strict_global_unique": 3
+        },
+        {
+          "gpu_hours": 3.500986,
+          "strict_global_unique": 4
+        },
+        {
+          "gpu_hours": 5.644858,
+          "strict_global_unique": 5
+        },
+        {
+          "gpu_hours": 6.927864,
+          "strict_global_unique": 6
+        },
+        {
+          "gpu_hours": 7.347255,
+          "strict_global_unique": 7
+        }
+      ]
     },
     {
       "target": "BetV1",
@@ -45,32 +262,84 @@
       "strict_unique_per_complexa_gpu_hour": 0.4483,
       "total_complexa_gpu_hours": 8.923441,
       "n_completed": 35,
-      "n_children": 37
+      "n_children": 37,
+      "color": "#b45309",
+      "discoveries": [
+        {
+          "gpu_hours": 3.572263,
+          "strict_global_unique": 1
+        },
+        {
+          "gpu_hours": 6.267443,
+          "strict_global_unique": 2
+        },
+        {
+          "gpu_hours": 6.827424,
+          "strict_global_unique": 3
+        },
+        {
+          "gpu_hours": 8.216174,
+          "strict_global_unique": 4
+        }
+      ]
     }
   ],
   "baselines": [
     {
-      "job_id": "7782563",
       "target": "CD45",
       "public_label": "CD45 official-style baseline diagnostic",
       "state": "CANCELLED",
       "strict_global_unique": 7,
       "strict_unique_per_complexa_gpu_hour": 0.5386,
-      "total_completed_gpu_hours": 12.997222,
-      "completed_repeats": 5
+      "total_complexa_gpu_hours": 12.997222,
+      "completed_repeats": 5,
+      "color": "#64748b",
+      "discoveries": [
+        {
+          "gpu_hours": 2.582778,
+          "strict_global_unique": 1
+        },
+        {
+          "gpu_hours": 2.582778,
+          "strict_global_unique": 2
+        },
+        {
+          "gpu_hours": 2.582778,
+          "strict_global_unique": 3
+        },
+        {
+          "gpu_hours": 2.582778,
+          "strict_global_unique": 4
+        },
+        {
+          "gpu_hours": 2.582778,
+          "strict_global_unique": 5
+        },
+        {
+          "gpu_hours": 2.582778,
+          "strict_global_unique": 6
+        },
+        {
+          "gpu_hours": 2.582778,
+          "strict_global_unique": 7
+        }
+      ],
+      "note": "preliminary cancelled diagnostic"
     },
     {
-      "job_id": "7782562",
       "target": "BetV1",
       "public_label": "BetV1 official-style baseline diagnostic",
       "state": "CANCELLED",
       "strict_global_unique": 0,
       "strict_unique_per_complexa_gpu_hour": 0.0,
-      "total_completed_gpu_hours": 10.698333,
-      "completed_repeats": 4
+      "total_complexa_gpu_hours": 10.698333,
+      "completed_repeats": 4,
+      "color": "#94a3b8",
+      "discoveries": [],
+      "note": "preliminary cancelled diagnostic"
     }
   ],
   "notes": {
-    "public_scope": "High-level result summary only. Internal research details are omitted during manuscript preparation."
+    "public_scope": "High-level result summary and public-safe curves only. Internal implementation details, traces, configuration names, and agent records are omitted during manuscript preparation."
   }
 }

@@ -1,35 +1,73 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Autoresearch v2 Results</title><style>body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;background:#f6f7f9;color:#1f2933}
-main{max-width:1040px;margin:0 auto;padding:48px 24px 72px}
+<title>Autoresearch v2 Results</title><style>
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;background:#f6f7f9;color:#1f2933}
+main{max-width:1120px;margin:0 auto;padding:48px 24px 72px}
 h1{font-size:32px;margin:0 0 10px;color:#102a43}
 h2{font-size:20px;margin:30px 0 12px;color:#102a43}
 p,li{color:#52606d;line-height:1.6}
 .note{border-left:4px solid #2563eb;background:#eff6ff;color:#1e3a8a;padding:12px 14px;margin:16px 0}
 .card{background:white;border:1px solid #d9e2ec;border-radius:8px;padding:16px;margin:14px 0}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 table{width:100%;border-collapse:collapse;background:white;border:1px solid #d9e2ec;margin:12px 0}
 th,td{border:1px solid #d9e2ec;padding:8px 10px;text-align:left;font-size:13px;vertical-align:top}
 th{background:#f1f5f9;color:#334e68}
-a.btn{display:inline-block;background:#1f6feb;color:white;text-decoration:none;padding:9px 13px;border-radius:7px;font-weight:700;margin:6px 6px 0 0}
+button{border:1px solid #cbd5e1;background:#fff;color:#102a43;border-radius:7px;padding:7px 11px;font-weight:700;cursor:pointer}
+button.active{background:#102a43;color:#fff;border-color:#102a43}
+.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0 12px}
+.chart{width:100%;min-height:430px;display:block;background:#fff;border:1px solid #d9e2ec;border-radius:8px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:#52606d;margin-top:10px}
+.legend-item{display:flex;align-items:center;gap:7px}
+.swatch{width:22px;height:3px;display:inline-block}
 .muted{color:#829ab1;font-size:12px}
-.metric{font-weight:800;color:#102a43}</style></head><body><main>
-
+.metric{font-weight:800;color:#102a43}
+.kpi{background:white;border:1px solid #d9e2ec;border-radius:8px;padding:14px}
+.kpi-title{font-size:12px;font-weight:800;color:#627d98;text-transform:uppercase;letter-spacing:.04em}
+.kpi-value{font-size:25px;font-weight:800;color:#102a43;margin-top:7px}
+.kpi-sub{font-size:12px;color:#52606d;margin-top:5px}
+@media(max-width:760px){main{padding:30px 14px 52px}.grid{grid-template-columns:1fr}.chart{min-height:360px}}
+</style></head><body><main>
 <h1>Autoresearch v2 Results</h1>
 <p>Public result snapshot for the current fixed-budget de novo binder search study. Internal research details are intentionally omitted during manuscript preparation.</p>
 <div class="note">Metric shown: cumulative globally unique strict successes discovered within the run, normalized by Complexa child-runtime GPU-hours where applicable.</div>
-<h2>Current adaptive runs</h2>
-<table><tr><th>run</th><th>state</th><th>strict global-unique successes</th><th>strict unique / GPU-h</th><th>Complexa GPU-h</th><th>completed / children</th></tr>
-<tr><td>CD45 adaptive run A</td><td>RUNNING</td><td class='metric'>24</td><td>1.703</td><td>14.093022</td><td>45 / 46</td></tr>
-<tr><td>CD45 adaptive run B</td><td>RUNNING</td><td class='metric'>21</td><td>1.4513</td><td>14.470023</td><td>30 / 33</td></tr>
-<tr><td>BetV1 adaptive run A</td><td>RUNNING</td><td class='metric'>7</td><td>0.9345</td><td>7.49043</td><td>35 / 38</td></tr>
-<tr><td>BetV1 adaptive run B</td><td>RUNNING</td><td class='metric'>4</td><td>0.4483</td><td>8.923441</td><td>35 / 37</td></tr>
-</table>
-<h2>Baseline diagnostic</h2>
-<table><tr><th>run</th><th>state</th><th>strict global-unique successes</th><th>strict unique / GPU-h</th><th>Complexa GPU-h</th><th>completed repeats</th></tr>
-<tr><td>CD45 official-style baseline diagnostic</td><td>CANCELLED</td><td class='metric'>7</td><td>0.5386</td><td>12.997222</td><td>5</td></tr>
-<tr><td>BetV1 official-style baseline diagnostic</td><td>CANCELLED</td><td class='metric'>0</td><td>0.0</td><td>10.698333</td><td>4</td></tr>
-</table>
-<p>Additional result tables and figures may be updated when the manuscript draft stabilizes.</p>
 
-<p class="muted">Public snapshot sanitized on 2026-05-07 while the manuscript is in preparation. Internal implementation notes and traces were moved to a private local backup.</p>
-</main></body></html>
+<section class="grid" id="kpis"></section>
+
+<h2>Cumulative Strict Discovery Curves</h2>
+<p>The y-axis is cumulative globally unique strict successes. The x-axis counts completed backend child-runtime GPU-hours only.</p>
+<div class="card">
+  <div class="controls">
+    <span class="muted">Target</span>
+    <button type="button" data-target="CD45" class="active">CD45</button>
+    <button type="button" data-target="BetV1">BetV1</button>
+  </div>
+  <svg id="curve" class="chart" viewBox="0 0 920 430" role="img" aria-label="Cumulative strict discovery curve"></svg>
+  <div id="legend" class="legend"></div>
+</div>
+
+<h2>Strict Unique Rate Snapshot</h2>
+<div class="card">
+  <svg id="bars" class="chart" viewBox="0 0 920 390" role="img" aria-label="Strict unique per GPU-hour bar chart"></svg>
+</div>
+
+<h2>Current Adaptive Runs</h2>
+<table id="runsTable"></table>
+<h2>Baseline Diagnostic</h2>
+<table id="baselineTable"></table>
+<p class="muted">Public snapshot sanitized while the manuscript is in preparation. Internal implementation notes and traces are kept in a private local archive.</p>
+
+<script id="results-data" type="application/json">{"generated_at":"2026-05-08","success_criterion":"strict evaluator pass, globally deduplicated by binder sequence","time_axis":"Complexa child-runtime GPU-hours only","runs":[{"target":"CD45","public_label":"CD45 adaptive run A","state":"RUNNING","elapsed":"11:59:15","strict_global_unique":24,"strict_unique_per_complexa_gpu_hour":1.703,"total_complexa_gpu_hours":14.093022,"n_completed":45,"n_children":46,"color":"#2563eb","discoveries":[{"gpu_hours":0.438097,"strict_global_unique":1},{"gpu_hours":0.438097,"strict_global_unique":2},{"gpu_hours":3.716596,"strict_global_unique":3},{"gpu_hours":3.716596,"strict_global_unique":4},{"gpu_hours":4.276443,"strict_global_unique":5},{"gpu_hours":4.276443,"strict_global_unique":6},{"gpu_hours":4.276443,"strict_global_unique":7},{"gpu_hours":5.582212,"strict_global_unique":8},{"gpu_hours":5.582212,"strict_global_unique":9},{"gpu_hours":5.582212,"strict_global_unique":10},{"gpu_hours":6.159251,"strict_global_unique":11},{"gpu_hours":6.159251,"strict_global_unique":12},{"gpu_hours":6.159251,"strict_global_unique":13},{"gpu_hours":6.731026,"strict_global_unique":14},{"gpu_hours":7.297901,"strict_global_unique":15},{"gpu_hours":7.297901,"strict_global_unique":16},{"gpu_hours":7.297901,"strict_global_unique":17},{"gpu_hours":8.436226,"strict_global_unique":18},{"gpu_hours":8.436226,"strict_global_unique":19},{"gpu_hours":8.436226,"strict_global_unique":20},{"gpu_hours":8.802919,"strict_global_unique":21},{"gpu_hours":10.792166,"strict_global_unique":22},{"gpu_hours":12.149778,"strict_global_unique":23},{"gpu_hours":12.861764,"strict_global_unique":24}]},{"target":"CD45","public_label":"CD45 adaptive run B","state":"RUNNING","elapsed":"11:59:15","strict_global_unique":21,"strict_unique_per_complexa_gpu_hour":1.4513,"total_complexa_gpu_hours":14.470023,"n_completed":30,"n_children":33,"color":"#0f766e","discoveries":[{"gpu_hours":0.437428,"strict_global_unique":1},{"gpu_hours":0.437428,"strict_global_unique":2},{"gpu_hours":2.576403,"strict_global_unique":3},{"gpu_hours":3.283311,"strict_global_unique":4},{"gpu_hours":3.283311,"strict_global_unique":5},{"gpu_hours":5.139088,"strict_global_unique":6},{"gpu_hours":5.139088,"strict_global_unique":7},{"gpu_hours":5.139088,"strict_global_unique":8},{"gpu_hours":5.698255,"strict_global_unique":9},{"gpu_hours":6.974002,"strict_global_unique":10},{"gpu_hours":7.557216,"strict_global_unique":11},{"gpu_hours":8.121516,"strict_global_unique":12},{"gpu_hours":8.121516,"strict_global_unique":13},{"gpu_hours":8.121516,"strict_global_unique":14},{"gpu_hours":8.70681,"strict_global_unique":15},{"gpu_hours":10.594837,"strict_global_unique":16},{"gpu_hours":10.594837,"strict_global_unique":17},{"gpu_hours":10.594837,"strict_global_unique":18},{"gpu_hours":11.174223,"strict_global_unique":19},{"gpu_hours":11.174223,"strict_global_unique":20},{"gpu_hours":14.470023,"strict_global_unique":21}]},{"target":"BetV1","public_label":"BetV1 adaptive run A","state":"RUNNING","elapsed":"11:59:15","strict_global_unique":7,"strict_unique_per_complexa_gpu_hour":0.9345,"total_complexa_gpu_hours":7.49043,"n_completed":35,"n_children":38,"color":"#7c3aed","discoveries":[{"gpu_hours":2.278292,"strict_global_unique":1},{"gpu_hours":2.780703,"strict_global_unique":2},{"gpu_hours":2.927528,"strict_global_unique":3},{"gpu_hours":3.500986,"strict_global_unique":4},{"gpu_hours":5.644858,"strict_global_unique":5},{"gpu_hours":6.927864,"strict_global_unique":6},{"gpu_hours":7.347255,"strict_global_unique":7}]},{"target":"BetV1","public_label":"BetV1 adaptive run B","state":"RUNNING","elapsed":"9:29:13","strict_global_unique":4,"strict_unique_per_complexa_gpu_hour":0.4483,"total_complexa_gpu_hours":8.923441,"n_completed":35,"n_children":37,"color":"#b45309","discoveries":[{"gpu_hours":3.572263,"strict_global_unique":1},{"gpu_hours":6.267443,"strict_global_unique":2},{"gpu_hours":6.827424,"strict_global_unique":3},{"gpu_hours":8.216174,"strict_global_unique":4}]}],"baselines":[{"target":"CD45","public_label":"CD45 official-style baseline diagnostic","state":"CANCELLED","strict_global_unique":7,"strict_unique_per_complexa_gpu_hour":0.5386,"total_complexa_gpu_hours":12.997222,"completed_repeats":5,"color":"#64748b","discoveries":[{"gpu_hours":2.582778,"strict_global_unique":1},{"gpu_hours":2.582778,"strict_global_unique":2},{"gpu_hours":2.582778,"strict_global_unique":3},{"gpu_hours":2.582778,"strict_global_unique":4},{"gpu_hours":2.582778,"strict_global_unique":5},{"gpu_hours":2.582778,"strict_global_unique":6},{"gpu_hours":2.582778,"strict_global_unique":7}],"note":"preliminary cancelled diagnostic"},{"target":"BetV1","public_label":"BetV1 official-style baseline diagnostic","state":"CANCELLED","strict_global_unique":0,"strict_unique_per_complexa_gpu_hour":0.0,"total_complexa_gpu_hours":10.698333,"completed_repeats":4,"color":"#94a3b8","discoveries":[],"note":"preliminary cancelled diagnostic"}],"notes":{"public_scope":"High-level result summary and public-safe curves only. Internal implementation details, traces, configuration names, and agent records are omitted during manuscript preparation."}}</script>
+<script>
+const DATA=JSON.parse(document.getElementById('results-data').textContent);
+const safe=s=>String(s??'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const num=(v,f=0)=>Number.isFinite(Number(v))?Number(v):f;
+function stepPath(points,x,y){if(!points.length)return'';let d=`M ${x(points[0].x).toFixed(1)} ${y(points[0].y).toFixed(1)}`;for(let i=1;i<points.length;i++)d+=` H ${x(points[i].x).toFixed(1)} V ${y(points[i].y).toFixed(1)}`;return d}
+function allSeries(target){return [...DATA.runs.filter(r=>r.target===target),...DATA.baselines.filter(r=>r.target===target)]}
+function pointsFor(run){const pts=[{x:0,y:0}];for(const d of(run.discoveries||[]))pts.push({x:num(d.gpu_hours),y:num(d.strict_global_unique)});pts.push({x:num(run.total_complexa_gpu_hours),y:num(run.strict_global_unique)});return pts}
+function renderKpis(){const best=[...DATA.runs].sort((a,b)=>num(b.strict_global_unique)-num(a.strict_global_unique))[0];const total=DATA.runs.reduce((s,r)=>s+num(r.strict_global_unique),0);const gpu=DATA.runs.reduce((s,r)=>s+num(r.total_complexa_gpu_hours),0);document.getElementById('kpis').innerHTML=`<div class="kpi"><div class="kpi-title">Best current run</div><div class="kpi-value">${safe(best.public_label)}</div><div class="kpi-sub">${best.strict_global_unique} strict global-unique successes</div></div><div class="kpi"><div class="kpi-title">Adaptive runs shown</div><div class="kpi-value">${DATA.runs.length}</div><div class="kpi-sub">${total} total strict successes across displayed run snapshots; ${gpu.toFixed(2)} backend GPU-h accounted</div></div>`}
+function renderCurve(target){document.querySelectorAll('[data-target]').forEach(b=>b.classList.toggle('active',b.dataset.target===target));const runs=allSeries(target);const W=920,H=430,ml=66,mr=28,mt=30,mb=70,pw=W-ml-mr,ph=H-mt-mb;const maxX=Math.max(1,...runs.map(r=>num(r.total_complexa_gpu_hours)));const maxY=Math.max(1,...runs.map(r=>num(r.strict_global_unique)));const x=v=>ml+pw*num(v)/maxX;const y=v=>mt+ph-ph*num(v)/maxY;let out=`<rect width="${W}" height="${H}" fill="#fff"/>`;out+=`<text x="${W/2}" y="20" text-anchor="middle" font-size="14" font-weight="800" fill="#102a43">${safe(target)} cumulative strict global-unique successes</text>`;for(let i=0;i<=5;i++){const gx=maxX*i/5,px=x(gx);out+=`<line x1="${px}" y1="${mt}" x2="${px}" y2="${mt+ph}" stroke="#edf2f7"/><text x="${px}" y="${mt+ph+20}" text-anchor="middle" font-size="11" fill="#52606d">${gx.toFixed(1)}</text>`}for(let i=0;i<=5;i++){const gy=Math.round(maxY*i/5),py=y(gy);out+=`<line x1="${ml}" y1="${py}" x2="${ml+pw}" y2="${py}" stroke="#edf2f7"/><text x="${ml-8}" y="${py+4}" text-anchor="end" font-size="11" fill="#52606d">${gy}</text>`}out+=`<line x1="${ml}" y1="${mt+ph}" x2="${ml+pw}" y2="${mt+ph}" stroke="#94a3b8"/><line x1="${ml}" y1="${mt}" x2="${ml}" y2="${mt+ph}" stroke="#94a3b8"/>`;for(const run of runs){const pts=pointsFor(run);const dash=(run.note||'').includes('diagnostic')?' stroke-dasharray="8 6"':'';out+=`<path d="${stepPath(pts,x,y)}" fill="none" stroke="${run.color}" stroke-width="3"${dash}/>`;for(const d of(run.discoveries||[])){out+=`<circle cx="${x(d.gpu_hours).toFixed(1)}" cy="${y(d.strict_global_unique).toFixed(1)}" r="3.5" fill="${run.color}"><title>${safe(run.public_label)}: ${d.strict_global_unique} at ${Number(d.gpu_hours).toFixed(2)} GPU-h</title></circle>`}out+=`<circle cx="${x(run.total_complexa_gpu_hours).toFixed(1)}" cy="${y(run.strict_global_unique).toFixed(1)}" r="5" fill="${run.color}"><title>${safe(run.public_label)} final snapshot</title></circle>`}out+=`<text x="${ml+pw/2}" y="${H-28}" text-anchor="middle" font-size="12" fill="#102a43">cumulative backend GPU-hours</text><text x="18" y="${mt+ph/2}" text-anchor="middle" font-size="12" fill="#102a43" transform="rotate(-90 18 ${mt+ph/2})">strict global-unique count</text>`;document.getElementById('curve').innerHTML=out;document.getElementById('legend').innerHTML=runs.map(r=>`<span class="legend-item"><span class="swatch" style="background:${r.color}"></span>${safe(r.public_label)}: ${r.strict_global_unique} / ${Number(r.total_complexa_gpu_hours).toFixed(2)} GPU-h</span>`).join('')}
+function renderBars(){const rows=[...DATA.runs,...DATA.baselines];const W=920,H=390,ml=74,mr=28,mt=28,mb=120,pw=W-ml-mr,ph=H-mt-mb;const maxV=Math.max(1,...rows.map(r=>num(r.strict_unique_per_complexa_gpu_hour)));const bw=pw/rows.length*0.62;let out=`<rect width="${W}" height="${H}" fill="#fff"/>`;out+=`<text x="${W/2}" y="20" text-anchor="middle" font-size="14" font-weight="800" fill="#102a43">Strict global-unique successes per backend GPU-hour</text>`;for(let i=0;i<=4;i++){const v=maxV*i/4,py=mt+ph-ph*v/maxV;out+=`<line x1="${ml}" y1="${py}" x2="${ml+pw}" y2="${py}" stroke="#edf2f7"/><text x="${ml-8}" y="${py+4}" text-anchor="end" font-size="11" fill="#52606d">${v.toFixed(2)}</text>`}rows.forEach((r,i)=>{const cx=ml+pw*(i+0.5)/rows.length;const h=ph*num(r.strict_unique_per_complexa_gpu_hour)/maxV;const y=mt+ph-h;out+=`<rect x="${cx-bw/2}" y="${y}" width="${bw}" height="${h}" rx="4" fill="${r.color}"><title>${safe(r.public_label)}: ${r.strict_unique_per_complexa_gpu_hour}/GPU-h</title></rect><text x="${cx}" y="${y-6}" text-anchor="middle" font-size="11" font-weight="800" fill="#102a43">${Number(r.strict_unique_per_complexa_gpu_hour).toFixed(2)}</text><text x="${cx}" y="${mt+ph+18}" text-anchor="middle" font-size="10.5" fill="#52606d">${safe(r.target)}</text><text x="${cx}" y="${mt+ph+34}" text-anchor="middle" font-size="10.5" fill="#52606d">${safe(r.public_label.replace(r.target+' ',''))}</text>`});out+=`<line x1="${ml}" y1="${mt+ph}" x2="${ml+pw}" y2="${mt+ph}" stroke="#94a3b8"/><text x="18" y="${mt+ph/2}" text-anchor="middle" font-size="12" fill="#102a43" transform="rotate(-90 18 ${mt+ph/2})">strict unique / GPU-h</text>`;document.getElementById('bars').innerHTML=out}
+function renderTables(){document.getElementById('runsTable').innerHTML='<tr><th>run</th><th>state</th><th>strict global-unique successes</th><th>strict unique / GPU-h</th><th>backend GPU-h</th><th>completed / children</th></tr>'+DATA.runs.map(r=>`<tr><td>${safe(r.public_label)}</td><td>${safe(r.state)}</td><td class="metric">${r.strict_global_unique}</td><td>${r.strict_unique_per_complexa_gpu_hour}</td><td>${r.total_complexa_gpu_hours}</td><td>${r.n_completed} / ${r.n_children}</td></tr>`).join('');document.getElementById('baselineTable').innerHTML='<tr><th>run</th><th>state</th><th>strict global-unique successes</th><th>strict unique / GPU-h</th><th>backend GPU-h</th><th>completed repeats</th><th>note</th></tr>'+DATA.baselines.map(r=>`<tr><td>${safe(r.public_label)}</td><td>${safe(r.state)}</td><td class="metric">${r.strict_global_unique}</td><td>${r.strict_unique_per_complexa_gpu_hour}</td><td>${r.total_complexa_gpu_hours}</td><td>${r.completed_repeats}</td><td>${safe(r.note)}</td></tr>`).join('')}
+document.querySelectorAll('[data-target]').forEach(b=>b.addEventListener('click',()=>renderCurve(b.dataset.target)));
+renderKpis(); renderCurve('CD45'); renderBars(); renderTables();
+</script></main></body></html>
