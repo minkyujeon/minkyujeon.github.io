@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-08 15:00:10",
+  "generated_at": "2026-05-08 15:32:19",
   "success_criterion": "strict evaluator pass, globally deduplicated by binder sequence",
   "time_axis": "completed backend child-runtime GPU-hours only",
   "runs": [
@@ -7,16 +7,16 @@
       "target": "CD45",
       "public_label": "CD45 adaptive run A",
       "state": "RUNNING",
-      "elapsed": "1-14:23:18",
-      "strict_global_unique": 70,
-      "strict_unique_per_complexa_gpu_hour": 1.49,
-      "total_complexa_gpu_hours": 46.979844,
-      "n_completed": 108,
+      "elapsed": "1-14:55:27",
+      "strict_global_unique": 75,
+      "strict_unique_per_complexa_gpu_hour": 1.5635,
+      "total_complexa_gpu_hours": 47.970302,
+      "n_completed": 111,
       "n_failed": 2,
-      "n_children": 110,
-      "per_child_audited_sum": 96,
+      "n_children": 113,
+      "per_child_audited_sum": 101,
       "cross_child_duplicate_successes": 26,
-      "strict_success_rows": 97,
+      "strict_success_rows": 102,
       "color": "#2563eb",
       "discoveries": [
         {
@@ -298,13 +298,33 @@
         {
           "gpu_hours": 46.836977,
           "strict_global_unique": 70
+        },
+        {
+          "gpu_hours": 47.540066,
+          "strict_global_unique": 71
+        },
+        {
+          "gpu_hours": 47.540066,
+          "strict_global_unique": 72
+        },
+        {
+          "gpu_hours": 47.540066,
+          "strict_global_unique": 73
+        },
+        {
+          "gpu_hours": 47.540066,
+          "strict_global_unique": 74
+        },
+        {
+          "gpu_hours": 47.82441,
+          "strict_global_unique": 75
         }
       ],
       "strategy_categories": {
+        "sequence refinement": 24,
         "diversified local search": 23,
-        "sequence refinement": 23,
         "independent sampling + sequence refinement": 23,
-        "diversified local search + sequence refinement": 13,
+        "diversified local search + sequence refinement": 15,
         "independent sampling": 11,
         "stochastic local search": 4,
         "tree exploration": 4,
@@ -1679,7 +1699,8 @@
             "child_065",
             "child_066",
             "child_085",
-            "child_109"
+            "child_109",
+            "child_112"
           ],
           "status": "completed",
           "score": 2.3784,
@@ -2620,7 +2641,8 @@
             "child_093",
             "child_103",
             "child_107",
-            "child_108"
+            "child_108",
+            "child_112"
           ],
           "status": "completed",
           "score": 2.3629,
@@ -2789,7 +2811,8 @@
             "child_085"
           ],
           "children": [
-            "child_104"
+            "child_104",
+            "child_111"
           ],
           "status": "completed",
           "score": 2.1529,
@@ -2883,7 +2906,9 @@
           "parents": [
             "child_092"
           ],
-          "children": [],
+          "children": [
+            "child_110"
+          ],
           "status": "completed",
           "score": 2.3732,
           "category": "independent sampling + sequence refinement",
@@ -2905,7 +2930,9 @@
             "child_096",
             "child_099"
           ],
-          "children": [],
+          "children": [
+            "child_111"
+          ],
           "status": "completed",
           "score": 2.1339,
           "category": "sequence refinement",
@@ -2951,7 +2978,9 @@
             "child_100",
             "child_097"
           ],
-          "children": [],
+          "children": [
+            "child_110"
+          ],
           "status": "completed",
           "score": 2.3831,
           "category": "sequence refinement",
@@ -3032,6 +3061,75 @@
             "zero_audited_success",
             "near_miss_interface"
           ]
+        },
+        {
+          "id": "child_110",
+          "iter": 16,
+          "parents": [
+            "child_106",
+            "child_103"
+          ],
+          "children": [],
+          "status": "completed",
+          "score": 2.3836,
+          "category": "sequence refinement",
+          "intent": "Exploit the high-yield 'refinement' family by fine-tuning sampling variation within the proven successful range (0.05-0.06) identified in Child_106 and Child_103. This diverges from Child_106 by slightly increasing sampling variation to 0.055 to test sensitivity, and from Child_103 by slightly decreasing it. We continue using sequence refinement as it is the only refinement method yielding global bests.",
+          "hypothesis": "The 'refinement' family with low sampling variation (0.05-0.07) is the dominant success driver. Child_106 (sampling variation 0.05) and Child_103 (sampling variation 0.06) yielded 3 successes each. Interpolating to 0.055 may capture the optimal sampling variation floor for this target, avoiding the degradation seen at 0.12 (Child_102) while maintaining the high success rate of the lower sampling variation settings. Sequence hallucination is required to achieve the global best metrics.",
+          "expected_signal": "{'primary': 'audited_unique_success > 0', 'secondary': 'best_i_pae < 0.15'}",
+          "rollback_condition": "If audited_unique_success is 0 or best_i_pae > 0.25, revert to sampling variation 0.05 or 0.06.",
+          "audited_unique_success": 4,
+          "gpu_hours": 0.560222,
+          "best_i_pae": 0.153,
+          "best_plddt": 0.958,
+          "best_binder_scrmsd_ca": 0.04275809973478317,
+          "failure_modes": []
+        },
+        {
+          "id": "child_111",
+          "iter": 12,
+          "parents": [
+            "child_099",
+            "child_104"
+          ],
+          "children": [],
+          "status": "completed",
+          "score": 2.3708,
+          "category": "diversified local search + sequence refinement",
+          "intent": "Explore the upper bound of the successful sampling variation range. Child_102 (0.12) failed, but Child_099/104 (0.07) succeeded. 0.08 is a logical next step to see if the success rate drops off gradually or abruptly. Reducing replicas to 8 keeps expected_gpu_minutes well within bounds (~45 mins) and allows for more parallel experiments if needed.",
+          "hypothesis": "While sampling variation 0.12 failed (Child_102), sampling variation 0.07 yielded successes (Child_099, Child_104). Testing 0.08 with fewer replicas (8) allows for a broader exploration of the sampling variation landscape between the high-success low-sampling variation region and the failed high-sampling variation region, with reduced compute risk. This may uncover new unique successes that are slightly more diverse than those from 0.05-0.06.",
+          "expected_signal": "{'primary': 'audited_unique_success > 0', 'secondary': 'diversity of unique sequences'}",
+          "rollback_condition": "If audited_unique_success is 0, conclude that sampling variation > 0.07 is detrimental for this target and focus budget on 0.05-0.06.",
+          "audited_unique_success": 1,
+          "gpu_hours": 0.284344,
+          "best_i_pae": 0.197,
+          "best_plddt": 0.962,
+          "best_binder_scrmsd_ca": 0.04190864413976669,
+          "failure_modes": []
+        },
+        {
+          "id": "child_112",
+          "iter": 13,
+          "parents": [
+            "child_092",
+            "child_054"
+          ],
+          "children": [],
+          "status": "completed",
+          "score": 0.2368,
+          "category": "diversified local search + sequence refinement",
+          "intent": "Attempt to rescue the 'search' family by coupling it with the proven successful sampling variation level (0.05) and aggressive diversity weighting. Child_098 failed with diversity setting 0.2; increasing to 0.5 may overcome the local optimum trapping observed in stochastic local search (Child_109). This uses the the parent-selection policy parents (Child_092, Child_054) which have high UCB scores.",
+          "hypothesis": "Previous diversified local search attempts (Child_098) failed with sampling variation 0.06 and diversity setting 0.2. However, the 'search' family has yielded 0 successes overall. By combining the successful low-sampling variation setting (0.05) from the refinement family with a higher diversity setting (0.5) in diversified local search, we attempt to break the local optimum saturation. The high diversity weight forces the beam to explore orthogonal structures, which may then be refined by sequence hallucination.",
+          "expected_signal": "{'primary': 'audited_unique_success > 0', 'secondary': 'structural diversity from the parent-selection policy parents'}",
+          "rollback_condition": "If audited_unique_success is 0, confirm that search-based operators are ineffective for this target even with high diversity, and reallocate all budget to refinement.",
+          "audited_unique_success": 0,
+          "gpu_hours": 0.145892,
+          "best_i_pae": 0.306,
+          "best_plddt": 0.949,
+          "best_binder_scrmsd_ca": 0.04220524802803993,
+          "failure_modes": [
+            "zero_success",
+            "zero_audited_success"
+          ]
         }
       ]
     },
@@ -3039,16 +3137,16 @@
       "target": "CD45",
       "public_label": "CD45 adaptive run B",
       "state": "RUNNING",
-      "elapsed": "1-14:23:18",
-      "strict_global_unique": 68,
-      "strict_unique_per_complexa_gpu_hour": 1.3086,
-      "total_complexa_gpu_hours": 51.963351,
-      "n_completed": 101,
+      "elapsed": "1-14:55:27",
+      "strict_global_unique": 72,
+      "strict_unique_per_complexa_gpu_hour": 1.3541,
+      "total_complexa_gpu_hours": 53.172979,
+      "n_completed": 104,
       "n_failed": 4,
-      "n_children": 105,
-      "per_child_audited_sum": 97,
-      "cross_child_duplicate_successes": 29,
-      "strict_success_rows": 97,
+      "n_children": 108,
+      "per_child_audited_sum": 102,
+      "cross_child_duplicate_successes": 30,
+      "strict_success_rows": 102,
       "color": "#0f766e",
       "discoveries": [
         {
@@ -3322,11 +3420,27 @@
         {
           "gpu_hours": 50.107979,
           "strict_global_unique": 68
+        },
+        {
+          "gpu_hours": 53.172979,
+          "strict_global_unique": 69
+        },
+        {
+          "gpu_hours": 53.172979,
+          "strict_global_unique": 70
+        },
+        {
+          "gpu_hours": 53.172979,
+          "strict_global_unique": 71
+        },
+        {
+          "gpu_hours": 53.172979,
+          "strict_global_unique": 72
         }
       ],
       "strategy_categories": {
-        "sequence refinement": 42,
-        "diversified local search + sequence refinement": 19,
+        "sequence refinement": 44,
+        "diversified local search + sequence refinement": 20,
         "independent sampling + sequence refinement": 13,
         "diversified local search": 11,
         "independent sampling": 4,
@@ -5598,7 +5712,8 @@
           ],
           "children": [
             "child_096",
-            "child_099"
+            "child_099",
+            "child_106"
           ],
           "status": "completed",
           "score": 2.3831,
@@ -5788,7 +5903,8 @@
             "child_084"
           ],
           "children": [
-            "child_103"
+            "child_103",
+            "child_107"
           ],
           "status": "completed",
           "score": 2.3629,
@@ -5863,7 +5979,9 @@
           "parents": [
             "child_088"
           ],
-          "children": [],
+          "children": [
+            "child_105"
+          ],
           "status": "completed",
           "score": 2.3639,
           "category": "sequence refinement",
@@ -5945,13 +6063,79 @@
             "zero_success",
             "zero_audited_success"
           ]
+        },
+        {
+          "id": "child_105",
+          "iter": 22,
+          "parents": [
+            "child_101"
+          ],
+          "children": [],
+          "status": "completed",
+          "score": 2.1169,
+          "category": "sequence refinement",
+          "intent": "Exploit the proven refinement basin. Unlike child_094 (sampling variation 0.12, failed) or child_103 (sampling variation 0.05, marginal), sampling variation 0.075-0.08 has consistently yielded high-quality binders. We select child_101 as parent due to its high the parent-selection policy score and recent success.",
+          "hypothesis": "Refinement with sampling variation=0.075 is the most robust operator for this target, as evidenced by child_096 (iPAE 0.174) and child_099 (iPAE 0.145). While diminishing returns are observed, this remains the only family yielding consistent unique successes. We exploit this known basin to secure additional unique binders while avoiding the high failure rate of search operators.",
+          "expected_signal": "{'primary': 'audited_unique_success >= 1', 'secondary': 'best_i_pae < 0.18'}",
+          "rollback_condition": "If audited_unique_success is 0 or best_i_pae > 0.25, revert to lower sampling variation (0.06) or switch to diversified local search with strict constraints.",
+          "audited_unique_success": 1,
+          "gpu_hours": 0.571789,
+          "best_i_pae": 0.174,
+          "best_plddt": 0.949,
+          "best_binder_scrmsd_ca": 0.32443007826805115,
+          "failure_modes": []
+        },
+        {
+          "id": "child_106",
+          "iter": 22,
+          "parents": [
+            "child_090"
+          ],
+          "children": [],
+          "status": "completed",
+          "score": 0.132,
+          "category": "diversified local search + sequence refinement",
+          "intent": "Explore new backbone scaffolds. Diverge from child_100 by significantly increasing diversity and parent penalty to avoid the 'near_miss' trap. Use higher sampling variation (0.15) to allow larger structural deviations, which is necessary for escaping the current local optimum identified by the analysis.",
+          "hypothesis": "Previous diversified local search attempts (child_097, 100, 104) failed due to insufficient diversity pressure or inappropriate sampling variation levels. Child_100 failed with 'near_miss_interface' at sampling variation 0.15 but low diversity weight (0.8) and low parent penalty (0.5). By increasing diversity setting to 0.9 and parent_penalty to 0.8, we force the search to explore structurally distinct backbones away from the current local optimum, potentially escaping the basin where refinement is stagnating.",
+          "expected_signal": "{'primary': 'audited_unique_success >= 1 OR best_i_pae < 0.30 with high structural diversity', 'secondary': \"failure_mode != 'near_miss_interface'\"}",
+          "rollback_condition": "If audited_unique_success is 0 and best_i_pae > 0.40, or if failure_mode is 'zero_success' with no near-miss signal, abandon diversified local search for this target and focus solely on refinement.",
+          "audited_unique_success": 0,
+          "gpu_hours": 0.076003,
+          "best_i_pae": 0.773,
+          "best_plddt": 0.892,
+          "best_binder_scrmsd_ca": 0.43193498253822327,
+          "failure_modes": [
+            "zero_success",
+            "zero_audited_success"
+          ]
+        },
+        {
+          "id": "child_107",
+          "iter": 22,
+          "parents": [
+            "child_098"
+          ],
+          "children": [],
+          "status": "completed",
+          "score": 2.3753,
+          "category": "sequence refinement",
+          "intent": "Address developability risks. Unlike child_098 which used standard refinement, this proposal adds sequence refinement to actively break up repetitive motifs. We use child_098 as a parent because it already succeeded at sampling variation 0.06, providing a stable backbone for sequence perturbation.",
+          "hypothesis": "The top candidates (e.g., id_gen 3) suffer from sequence repeats (AAA, EAL) which pose developability risks. Standard refinement preserves the backbone but may not optimize sequence diversity sufficiently. By enabling sequence refinement with low sampling variation (0.06) and limited temperature iterations, we aim to perturb the sequence space to break up repeats while maintaining the high-quality backbone geometry established by child_098 (sampling variation 0.06, success).",
+          "expected_signal": "{'primary': 'audited_unique_success >= 1', 'secondary': 'reduced sequence repeats (AAA, EAL) in top candidates'}",
+          "rollback_condition": "If audited_unique_success is 0 or if sequence repeats persist in top candidates, disable sequence refinement and revert to standard refinement.",
+          "audited_unique_success": 4,
+          "gpu_hours": 0.561836,
+          "best_i_pae": 0.179,
+          "best_plddt": 0.956,
+          "best_binder_scrmsd_ca": 0.05262153223156929,
+          "failure_modes": []
         }
       ]
     },
     {
       "target": "BetV1",
       "public_label": "BetV1 adaptive run A",
-      "state": "CANCELLED",
+      "state": "UNKNOWN",
       "elapsed": null,
       "strict_global_unique": 12,
       "strict_unique_per_complexa_gpu_hour": 0.3958,
@@ -8790,13 +8974,13 @@
       "target": "BetV1",
       "public_label": "BetV1 adaptive run B",
       "state": "RUNNING",
-      "elapsed": "1-11:53:16",
+      "elapsed": "1-12:25:25",
       "strict_global_unique": 46,
-      "strict_unique_per_complexa_gpu_hour": 1.4325,
-      "total_complexa_gpu_hours": 32.112079,
-      "n_completed": 110,
+      "strict_unique_per_complexa_gpu_hour": 1.4013,
+      "total_complexa_gpu_hours": 32.827527,
+      "n_completed": 113,
       "n_failed": 4,
-      "n_children": 114,
+      "n_children": 117,
       "per_child_audited_sum": 46,
       "cross_child_duplicate_successes": 0,
       "strict_success_rows": 46,
@@ -8988,8 +9172,8 @@
         }
       ],
       "strategy_categories": {
-        "sequence refinement": 29,
-        "diversified local search + sequence refinement": 28,
+        "sequence refinement": 31,
+        "diversified local search + sequence refinement": 29,
         "diversified local search": 23,
         "tree exploration": 7,
         "guided local search + sequence refinement": 7,
@@ -11853,7 +12037,10 @@
           ],
           "children": [
             "child_112",
-            "child_110"
+            "child_110",
+            "child_115",
+            "child_116",
+            "child_114"
           ],
           "status": "completed",
           "score": 2.3745,
@@ -11876,7 +12063,8 @@
             "child_109"
           ],
           "children": [
-            "child_113"
+            "child_113",
+            "child_114"
           ],
           "status": "completed",
           "score": 2.3725,
@@ -11898,7 +12086,9 @@
           "parents": [
             "child_104"
           ],
-          "children": [],
+          "children": [
+            "child_116"
+          ],
           "status": "completed",
           "score": 0.1634,
           "category": "sequence refinement",
@@ -11946,7 +12136,9 @@
           "parents": [
             "child_110"
           ],
-          "children": [],
+          "children": [
+            "child_115"
+          ],
           "status": "completed",
           "score": 2.3716,
           "category": "diversified local search + sequence refinement",
@@ -11960,6 +12152,82 @@
           "best_plddt": 0.94,
           "best_binder_scrmsd_ca": 0.09215381741523743,
           "failure_modes": []
+        },
+        {
+          "id": "child_114",
+          "iter": 22,
+          "parents": [
+            "child_109",
+            "child_110"
+          ],
+          "children": [],
+          "status": "completed",
+          "score": 0.1825,
+          "category": "sequence refinement",
+          "intent": "Exploit the known successful basin (child_109/110) but optimize the loss function to address the specific failure mode of near-misses (iPAE > 0.20). Diverges from child_109 by adjusting loss weights to prioritize interface quality.",
+          "hypothesis": "The current bottleneck is interface packing (iPAE), not global fold stability. By increasing the i_pae loss weight relative to pLDDT during refinement, we can prioritize interface registration. Using the proven low-sampling variation (0.1) and zero-diversity settings from child_109/110 ensures we stay in the high-probability success basin while optimizing the specific metric that causes near-misses.",
+          "expected_signal": "{'primary': 'Increase in audited_unique_success by pushing iPAE below 0.18 threshold', 'secondary': 'Maintained pLDDT > 0.94'}",
+          "rollback_condition": "If best_i_pae > 0.22 or audited_unique_success == 0",
+          "audited_unique_success": 0,
+          "gpu_hours": 0.287406,
+          "best_i_pae": 0.242,
+          "best_plddt": 0.939,
+          "best_binder_scrmsd_ca": 0.4792984426021576,
+          "failure_modes": [
+            "zero_success",
+            "zero_audited_success",
+            "near_miss_interface"
+          ]
+        },
+        {
+          "id": "child_115",
+          "iter": 23,
+          "parents": [
+            "child_109",
+            "child_113"
+          ],
+          "children": [],
+          "status": "completed",
+          "score": 0.0891,
+          "category": "diversified local search + sequence refinement",
+          "intent": "Escape local optimum collapse by introducing mild diversity. Diverges from child_109 (diversity=0.0) by adding diversity setting=0.05 and parent_penalty=0.1, while keeping the successful sampling variation=0.1.",
+          "hypothesis": "The current portfolio is collapsing into a single sequence cluster (cluster_index 0). Introducing mild diversity (weight 0.05) and a small parent penalty (0.1) should encourage the search to explore adjacent basins without sacrificing the quality achieved by the low-sampling variation refinement. This addresses the risk of local optimum collapse identified by the analysis.",
+          "expected_signal": "{'primary': 'Discovery of novel unique binders (audited_unique_success > 0) with distinct sequences', 'secondary': 'iPAE < 0.20'}",
+          "rollback_condition": "If audited_unique_success == 0 or best_i_pae > 0.25",
+          "audited_unique_success": 0,
+          "gpu_hours": 0.141825,
+          "best_i_pae": 0.619,
+          "best_plddt": 0.859,
+          "best_binder_scrmsd_ca": 0.4034186601638794,
+          "failure_modes": [
+            "zero_success",
+            "zero_audited_success"
+          ]
+        },
+        {
+          "id": "child_116",
+          "iter": 21,
+          "parents": [
+            "child_109",
+            "child_111"
+          ],
+          "children": [],
+          "status": "completed",
+          "score": 0.096,
+          "category": "sequence refinement",
+          "intent": "Probe lower sampling variation boundary for tighter interface packing. Diverges from child_109 by reducing sampling variation to 0.05 and increasing i_pae loss weight to 2.0.",
+          "hypothesis": "Reducing sidechain sampling variation further (0.05) combined with aggressive iPAE weighting (2.0) may squeeze out the last bit of interface error. Child_111 failed with sampling variation 0.2, but child_109 succeeded with 0.1. Testing 0.05 probes the lower bound of sampling variation tolerance to see if it yields tighter packing than 0.1.",
+          "expected_signal": "{'primary': 'Lower iPAE (< 0.17) due to reduced sampling variation and higher interface weight', 'secondary': 'High pLDDT (> 0.95)'}",
+          "rollback_condition": "If best_i_pae > 0.20 or pLDDT < 0.90",
+          "audited_unique_success": 0,
+          "gpu_hours": 0.286217,
+          "best_i_pae": 0.523,
+          "best_plddt": 0.859,
+          "best_binder_scrmsd_ca": 0.4249800145626068,
+          "failure_modes": [
+            "zero_success",
+            "zero_audited_success"
+          ]
         }
       ]
     }
@@ -11969,7 +12237,7 @@
       "target": "CD45",
       "public_label": "CD45 official-style seeded baseline",
       "state": "RUNNING",
-      "elapsed": "1-02:22:54",
+      "elapsed": "1-02:55:03",
       "strict_global_unique": 53,
       "strict_unique_per_complexa_gpu_hour": 2.4328,
       "total_complexa_gpu_hours": 21.785833,
@@ -12307,7 +12575,7 @@
       "target": "BetV1",
       "public_label": "BetV1 official-style seeded baseline",
       "state": "RUNNING",
-      "elapsed": "1-02:22:54",
+      "elapsed": "1-02:55:03",
       "strict_global_unique": 0,
       "strict_unique_per_complexa_gpu_hour": 0.0,
       "total_complexa_gpu_hours": 25.612222,
