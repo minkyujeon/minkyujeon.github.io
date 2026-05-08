@@ -2733,7 +2733,9 @@
             "zero_audited_success"
           ]
         }
-      ]
+      ],
+      "backend_worker_gpus": 3,
+      "comparison_axis_note": "backend runtime GPU-hours; not total allocated GPU-hours"
     },
     {
       "target": "CD45",
@@ -5267,7 +5269,9 @@
           "best_binder_scrmsd_ca": 0.3119328022003174,
           "failure_modes": []
         }
-      ]
+      ],
+      "backend_worker_gpus": 3,
+      "comparison_axis_note": "backend runtime GPU-hours; not total allocated GPU-hours"
     },
     {
       "target": "BetV1",
@@ -7784,7 +7788,9 @@
             "zero_audited_success"
           ]
         }
-      ]
+      ],
+      "backend_worker_gpus": 3,
+      "comparison_axis_note": "backend runtime GPU-hours; not total allocated GPU-hours"
     },
     {
       "target": "BetV1",
@@ -10627,7 +10633,9 @@
             "zero_audited_success"
           ]
         }
-      ]
+      ],
+      "backend_worker_gpus": 3,
+      "comparison_axis_note": "backend runtime GPU-hours; not total allocated GPU-hours"
     }
   ],
   "baselines": [
@@ -10909,7 +10917,9 @@
           "new_strict_unique": 0,
           "cumulative_strict_unique": 43
         }
-      ]
+      ],
+      "backend_worker_gpus": 1,
+      "comparison_axis_note": "one-GPU serial baseline"
     },
     {
       "target": "BetV1",
@@ -10989,10 +10999,15 @@
           "new_strict_unique": 0,
           "cumulative_strict_unique": 0
         }
-      ]
+      ],
+      "backend_worker_gpus": 1,
+      "comparison_axis_note": "one-GPU serial baseline"
     }
   ],
   "notes": {
-    "tree_trace_scope": "Stored proposal summaries and observed outcomes only; hidden private reasoning trace, raw internal inputs, run paths, and low-level settings are omitted."
+    "tree_trace_scope": "Stored proposal summaries and observed outcomes only; hidden private reasoning trace, raw internal inputs, run paths, and low-level settings are omitted.",
+    "resource_accounting": "Adaptive runs use three backend worker GPUs in parallel. The seeded baseline shown here is a one-GPU serial baseline. Current curves are therefore compute-efficiency curves against completed backend runtime, not equal-wall-clock equal-GPU-allocation curves.",
+    "adaptive_time_source": "Adaptive x-axis sums per-child backend timing from eval_report metrics. Most completed children use Complexa timing_summary.total_evaluation_time_h; timeout/failure fallbacks use child subprocess elapsed time. Controller, orchestration, queue, and idle time are excluded.",
+    "baseline_time_source": "Baseline x-axis uses runs.tsv elapsed_seconds for completed one-GPU official-style repeats."
   }
 }
