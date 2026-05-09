@@ -1,5 +1,14 @@
 {
-  "generated_at": "2026-05-08 23:15:36 ",
+  "generated_at": "2026-05-08 23:30:39 ",
+  "hard_target_set": [
+    "SC2RBD",
+    "CbAgo",
+    "BetV1",
+    "HER2_AAV",
+    "CD45",
+    "SpCas9",
+    "VEGFA"
+  ],
   "metric_definitions": {
     "strict_criterion": "iPAE < 7/31, pLDDT > 0.90, and binder scRMSD < 1.5 A, evaluated as paired per-candidate metrics.",
     "strict_global_unique_count": "Globally deduplicated binder sequences that satisfy the strict benchmark criterion within the whole run.",
@@ -39,7 +48,7 @@
         }
       ],
       "display": "CD45 adaptive run A",
-      "elapsed_slurm": "7:36:33",
+      "elapsed_slurm": "7:51:36",
       "failures": 0,
       "kind": "adaptive",
       "limit": "2-00:00:00",
@@ -271,7 +280,7 @@
         }
       ],
       "display": "BetV1 adaptive run A",
-      "elapsed_slurm": "7:32:13",
+      "elapsed_slurm": "7:47:16",
       "failures": 0,
       "kind": "adaptive",
       "limit": "2-00:00:00",
@@ -615,9 +624,9 @@
       "variant_public": "adaptive search variant A"
     },
     {
-      "best_binder_scrmsd_ca": 0.3822801411151886,
-      "best_i_pae": 0.476,
-      "best_plddt": 0.943,
+      "best_binder_scrmsd_ca": 0.05027385056018829,
+      "best_i_pae": 0.168,
+      "best_plddt": 0.954,
       "curve": [
         {
           "label": "start",
@@ -625,25 +634,25 @@
           "y": 0
         },
         {
-          "label": "current",
-          "x": 0.6079,
-          "y": 0
+          "label": "child_004",
+          "x": 1.0222,
+          "y": 32
         }
       ],
       "display": "CD45 adaptive run B",
-      "elapsed_slurm": "40:05",
+      "elapsed_slurm": "55:08",
       "failures": 0,
       "kind": "adaptive",
       "limit": "2-00:00:00",
-      "n_children": 3,
-      "n_completed_children": 3,
+      "n_children": 5,
+      "n_completed_children": 5,
       "run_id": "cd45_adaptive_b_1",
       "short": "Adaptive B",
       "state": "RUNNING",
-      "strict_rows": 0,
+      "strict_rows": 32,
       "target": "CD45",
-      "total_global_unique": 0,
-      "total_gpu_hours": 0.6079,
+      "total_global_unique": 32,
+      "total_gpu_hours": 1.0222,
       "tree": {
         "edges": [],
         "nodes": []
@@ -674,7 +683,7 @@
       "strict_rows": 0,
       "target": "CD45",
       "total_global_unique": 0,
-      "total_gpu_hours": 0.0,
+      "total_gpu_hours": 0,
       "tree": {
         "edges": [],
         "nodes": []
@@ -692,13 +701,13 @@
           "y": 0
         },
         {
-          "label": "rep ",
+          "label": "repeat",
           "x": 5.7442,
           "y": 15
         }
       ],
       "display": "CD45 official-style seeded baseline",
-      "elapsed_slurm": "6:05:57",
+      "elapsed_slurm": "6:21:00",
       "failures": 0,
       "kind": "baseline",
       "limit": "3-00:00:00",
@@ -734,7 +743,7 @@
         }
       ],
       "display": "BetV1 official-style seeded baseline",
-      "elapsed_slurm": "6:05:57",
+      "elapsed_slurm": "6:21:00",
       "failures": 0,
       "kind": "baseline",
       "limit": "3-00:00:00",
@@ -770,7 +779,7 @@
         }
       ],
       "display": "SC2RBD official-style seeded baseline",
-      "elapsed_slurm": "6:05:57",
+      "elapsed_slurm": "6:21:00",
       "failures": 0,
       "kind": "baseline",
       "limit": "3-00:00:00",
@@ -790,45 +799,30 @@
       "variant_public": "official-style seeded baseline"
     },
     {
-      "best_binder_scrmsd_ca": 0.230063796043396,
-      "best_i_pae": 0.186,
-      "best_plddt": 0.959,
+      "best_binder_scrmsd_ca": null,
+      "best_i_pae": null,
+      "best_plddt": null,
       "curve": [
         {
           "label": "start",
           "x": 0.0,
           "y": 0
-        },
-        {
-          "label": "rep ",
-          "x": 1.7722,
-          "y": 37
-        },
-        {
-          "label": "rep ",
-          "x": 3.5661,
-          "y": 106
-        },
-        {
-          "label": "rep ",
-          "x": 5.3475,
-          "y": 143
         }
       ],
-      "display": "IL7RA official-style seeded baseline",
-      "elapsed_slurm": "6:05:31",
+      "display": "CbAgo-NPIWI official-style seeded baseline",
+      "elapsed_slurm": "0:00",
       "failures": 0,
       "kind": "baseline",
       "limit": "3-00:00:00",
-      "n_children": 3,
-      "n_completed_children": 3,
-      "run_id": "il7ra_official_baseline_1",
+      "n_children": 0,
+      "n_completed_children": 0,
+      "run_id": "cbago_official_baseline_1",
       "short": "Official baseline",
-      "state": "RUNNING",
-      "strict_rows": 209,
-      "target": "IL7RA",
-      "total_global_unique": 143,
-      "total_gpu_hours": 5.3475,
+      "state": "PENDING",
+      "strict_rows": 0,
+      "target": "CbAgo",
+      "total_global_unique": 0,
+      "total_gpu_hours": 0,
       "tree": {
         "edges": [],
         "nodes": []
@@ -836,45 +830,30 @@
       "variant_public": "official-style seeded baseline"
     },
     {
-      "best_binder_scrmsd_ca": 0.24838599562644958,
-      "best_i_pae": 0.125,
-      "best_plddt": 0.967,
+      "best_binder_scrmsd_ca": null,
+      "best_i_pae": null,
+      "best_plddt": null,
       "curve": [
         {
           "label": "start",
           "x": 0.0,
           "y": 0
-        },
-        {
-          "label": "rep ",
-          "x": 1.7886,
-          "y": 149
-        },
-        {
-          "label": "rep ",
-          "x": 3.6436,
-          "y": 300
-        },
-        {
-          "label": "rep ",
-          "x": 5.3947,
-          "y": 429
         }
       ],
-      "display": "DerF21 official-style seeded baseline",
-      "elapsed_slurm": "6:05:31",
+      "display": "HER2_AAV-C170 official-style seeded baseline",
+      "elapsed_slurm": "0:00",
       "failures": 0,
       "kind": "baseline",
       "limit": "3-00:00:00",
-      "n_children": 3,
-      "n_completed_children": 3,
-      "run_id": "derf21_official_baseline_1",
+      "n_children": 0,
+      "n_completed_children": 0,
+      "run_id": "her2_aav_official_baseline_1",
       "short": "Official baseline",
-      "state": "RUNNING",
-      "strict_rows": 499,
-      "target": "DerF21",
-      "total_global_unique": 429,
-      "total_gpu_hours": 5.3947,
+      "state": "PENDING",
+      "strict_rows": 0,
+      "target": "HER2_AAV",
+      "total_global_unique": 0,
+      "total_gpu_hours": 0,
       "tree": {
         "edges": [],
         "nodes": []
@@ -886,7 +865,7 @@
     "CD45",
     "BetV1",
     "SC2RBD",
-    "IL7RA",
-    "DerF21"
+    "CbAgo",
+    "HER2_AAV"
   ]
 }
