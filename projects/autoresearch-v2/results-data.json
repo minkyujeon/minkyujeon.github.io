@@ -10,6 +10,7 @@
     "VEGFA"
   ],
   "metric_definitions": {
+    "official_baseline_setup": "Official-style baseline: clean official Proteina-Complexa repo; one GPU per target; beam-search with n_branch=4, beam_width=4, step_checkpoints=[0,100,200,300,400], max_batch_size=16; repeated with seed=BASE_SEED+repeat_idx.",
     "strict_criterion": "iPAE < 7/31, pLDDT > 0.90, and binder scRMSD < 1.5 A, evaluated as paired per-candidate metrics.",
     "strict_global_unique_count": "Globally deduplicated binder sequences that satisfy the strict benchmark criterion within the whole run.",
     "tree_snapshot": "Observed search nodes with recorded intent/hypothesis and measured outcome. Internal ranking mechanics are intentionally omitted from the public view.",
@@ -20965,6 +20966,7 @@
       "n_children": 23,
       "n_completed_children": 22,
       "run_id": "cd45_official_baseline_1",
+      "setup_public": "Official-style baseline: clean official Proteina-Complexa repo; one GPU per target; beam-search with n_branch=4, beam_width=4, step_checkpoints=[0,100,200,300,400], max_batch_size=16; repeated with seed=BASE_SEED+repeat_idx.",
       "short": "Official baseline",
       "state": "RUNNING",
       "strict_rows": 337,
@@ -20975,7 +20977,7 @@
         "edges": [],
         "nodes": []
       },
-      "variant_public": "official-style seeded baseline"
+      "variant_public": "official-style seeded baseline; beam-search n_branch=4, beam_width=4, checkpoints [0,100,200,300,400], max_batch=16, seed sweep"
     },
     {
       "best_binder_scrmsd_ca": 0.247,
@@ -21109,6 +21111,7 @@
       "n_children": 23,
       "n_completed_children": 22,
       "run_id": "betv1_official_baseline_1",
+      "setup_public": "Official-style baseline: clean official Proteina-Complexa repo; one GPU per target; beam-search with n_branch=4, beam_width=4, step_checkpoints=[0,100,200,300,400], max_batch_size=16; repeated with seed=BASE_SEED+repeat_idx.",
       "short": "Official baseline",
       "state": "RUNNING",
       "strict_rows": 18,
@@ -21119,7 +21122,7 @@
         "edges": [],
         "nodes": []
       },
-      "variant_public": "official-style seeded baseline"
+      "variant_public": "official-style seeded baseline; beam-search n_branch=4, beam_width=4, checkpoints [0,100,200,300,400], max_batch=16, seed sweep"
     },
     {
       "best_binder_scrmsd_ca": 0.283,
@@ -21253,6 +21256,7 @@
       "n_children": 23,
       "n_completed_children": 22,
       "run_id": "sc2rbd_official_baseline_1",
+      "setup_public": "Official-style baseline: clean official Proteina-Complexa repo; one GPU per target; beam-search with n_branch=4, beam_width=4, step_checkpoints=[0,100,200,300,400], max_batch_size=16; repeated with seed=BASE_SEED+repeat_idx.",
       "short": "Official baseline",
       "state": "RUNNING",
       "strict_rows": 0,
@@ -21263,7 +21267,7 @@
         "edges": [],
         "nodes": []
       },
-      "variant_public": "official-style seeded baseline"
+      "variant_public": "official-style seeded baseline; beam-search n_branch=4, beam_width=4, checkpoints [0,100,200,300,400], max_batch=16, seed sweep"
     },
     {
       "best_binder_scrmsd_ca": null,
@@ -21282,6 +21286,7 @@
       "n_children": 0,
       "n_completed_children": 0,
       "run_id": "cbago_official_baseline_1",
+      "setup_public": "Official-style baseline: clean official Proteina-Complexa repo; one GPU per target; beam-search with n_branch=4, beam_width=4, step_checkpoints=[0,100,200,300,400], max_batch_size=16; repeated with seed=BASE_SEED+repeat_idx.",
       "short": "Official baseline",
       "state": "PENDING",
       "strict_rows": 0,
@@ -21292,7 +21297,7 @@
         "edges": [],
         "nodes": []
       },
-      "variant_public": "official-style seeded baseline"
+      "variant_public": "official-style seeded baseline; beam-search n_branch=4, beam_width=4, checkpoints [0,100,200,300,400], max_batch=16, seed sweep"
     },
     {
       "best_binder_scrmsd_ca": 0.259,
@@ -21401,6 +21406,7 @@
       "n_children": 18,
       "n_completed_children": 18,
       "run_id": "her2_aav_official_baseline_1",
+      "setup_public": "Official-style baseline: clean official Proteina-Complexa repo; one GPU per target; beam-search with n_branch=4, beam_width=4, step_checkpoints=[0,100,200,300,400], max_batch_size=16; repeated with seed=BASE_SEED+repeat_idx.",
       "short": "Official baseline",
       "state": "RUNNING",
       "strict_rows": 12,
@@ -21411,7 +21417,7 @@
         "edges": [],
         "nodes": []
       },
-      "variant_public": "official-style seeded baseline"
+      "variant_public": "official-style seeded baseline; beam-search n_branch=4, beam_width=4, checkpoints [0,100,200,300,400], max_batch=16, seed sweep"
     }
   ],
   "targets": [
