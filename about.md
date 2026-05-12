@@ -27,9 +27,9 @@ Another key area of my research is **AI for Science**. I am currently working on
 |:-----|:-------|
 | `05-2026` | Added the current project hub for **agentic inference-time scaling for de novo protein design**. |
 | `04-2026` | Preprint released: [ConforNets](https://arxiv.org/abs/2604.18559) — Latents-Based Conformational Control in OpenFold3. |
-| `09-2024` | Our [work](https://arxiv.org/abs/2512.06332), a transformer-based hypernetwork for cryo-EM reconstruction, has been accepted to **CVPR 2026**. |
-| `06-2025` | Preprint released: [CryoHype](https://arxiv.org/pdf/2512.06332) — Reconstructing a thousand cryo-EM structures with transformer-based hypernetworks. |
-| `06-2025` | Preprint released: [CHIMERA](https://www.arxiv.org/abs/2512.07155) — Adaptive Cache Injection and Semantic Anchor Prompting for Zero-shot Image Morphing. |
+| `02-2026` | Our [work](https://arxiv.org/abs/2512.06332), a transformer-based hypernetwork for cryo-EM reconstruction, has been accepted to **CVPR 2026**. |
+| `12-2025` | Preprint released: [CryoHype](https://arxiv.org/pdf/2512.06332) — Reconstructing a thousand cryo-EM structures with transformer-based hypernetworks. |
+| `12-2025` | Preprint released: [CHIMERA](https://www.arxiv.org/abs/2512.07155) — Adaptive Cache Injection and Semantic Anchor Prompting for Zero-shot Image Morphing. |
 | `11-2025` | Started part-time research internship at **Prescient Design** (Genentech). |
 | `10-2025` | Two papers accepted at **NeurIPS 2025 Machine Learning for Structural Biology** (1 poster and 1 Oral). |
 | `06-2025` | Excited to begin summer internship at Genentech's **Prescient Design**. |
