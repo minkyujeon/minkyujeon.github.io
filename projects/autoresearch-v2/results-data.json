@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-10 10:44:08",
+  "generated_at": "2026-05-13 21:06:27",
   "hard_target_set": [
     "SC2RBD",
     "CbAgo",
@@ -10,13 +10,1522 @@
     "VEGFA"
   ],
   "metric_definitions": {
-    "official_baseline_setup": "Official-style baseline: clean official Proteina-Complexa repo; one GPU per target; beam-search with n_branch=4, beam_width=4, step_checkpoints=[0,100,200,300,400], max_batch_size=16; repeated with seed=BASE_SEED+repeat_idx.",
+    "official_baseline_setup": "Official-style baseline: clean official Proteina-Complexa repo; one GPU per target; beam-search with n_branch=4, beam_width=4, step_checkpoints=[0,100,200,300,400], max_batch_size=16 unless target-specific memory safety requires max_batch_size=4; repeated with seed=BASE_SEED+repeat_idx.",
     "strict_criterion": "iPAE < 7/31, pLDDT > 0.90, and binder scRMSD < 1.5 A, evaluated as paired per-candidate metrics.",
     "strict_global_unique_count": "Globally deduplicated binder sequences that satisfy the strict benchmark criterion within the whole run.",
     "tree_snapshot": "Observed search nodes with recorded intent/hypothesis and measured outcome. Internal ranking mechanics are intentionally omitted from the public view.",
     "x_axis": "Accumulated Proteina-Complexa GPU-hours only. LLM/controller wall time is not included."
   },
   "runs": [
+    {
+      "run_id": "baseline_cd45_official_clean_72h_7867849",
+      "target": "CD45",
+      "variant": "official-style beam-search baseline, max_batch_size=16",
+      "status": "COMPLETE",
+      "state": "COMPLETE",
+      "kind": "baseline",
+      "display": "CD45 official-style beam-search baseline, max_batch_size=16",
+      "short": "Baseline",
+      "variant_public": "official-style beam-search baseline, max_batch_size=16",
+      "n_children": 48,
+      "n_completed": 40,
+      "n_completed_children": 40,
+      "failures": 8,
+      "timeout_partials": 0,
+      "total_gpu_hours": 72.7639,
+      "total_candidate_rows": 10880,
+      "strict_candidate_rows": 543,
+      "strict_rows": 543,
+      "total_global_unique_strict": 363,
+      "total_global_unique": 363,
+      "best_i_pae": 0.165,
+      "best_plddt": 0.969,
+      "best_binder_scrmsd_ca": 0.2563,
+      "curve": [
+        {
+          "label": "start",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "label": "child_000",
+          "x": 1.8803,
+          "y": 0
+        },
+        {
+          "label": "child_001",
+          "x": 3.7758,
+          "y": 0
+        },
+        {
+          "label": "child_002",
+          "x": 5.7442,
+          "y": 15
+        },
+        {
+          "label": "child_003",
+          "x": 7.6308,
+          "y": 23
+        },
+        {
+          "label": "child_004",
+          "x": 9.5036,
+          "y": 44
+        },
+        {
+          "label": "child_005",
+          "x": 11.1561,
+          "y": 44
+        },
+        {
+          "label": "child_006",
+          "x": 12.8922,
+          "y": 44
+        },
+        {
+          "label": "child_007",
+          "x": 14.6847,
+          "y": 44
+        },
+        {
+          "label": "child_008",
+          "x": 16.5269,
+          "y": 58
+        },
+        {
+          "label": "child_009",
+          "x": 18.2978,
+          "y": 59
+        },
+        {
+          "label": "child_010",
+          "x": 20.0769,
+          "y": 69
+        },
+        {
+          "label": "child_011",
+          "x": 21.8342,
+          "y": 124
+        },
+        {
+          "label": "child_012",
+          "x": 23.5761,
+          "y": 124
+        },
+        {
+          "label": "child_013",
+          "x": 25.405,
+          "y": 171
+        },
+        {
+          "label": "child_014",
+          "x": 27.2114,
+          "y": 192
+        },
+        {
+          "label": "child_015",
+          "x": 28.985,
+          "y": 196
+        },
+        {
+          "label": "child_016",
+          "x": 30.7847,
+          "y": 206
+        },
+        {
+          "label": "child_017",
+          "x": 32.61,
+          "y": 209
+        },
+        {
+          "label": "child_018",
+          "x": 34.495,
+          "y": 219
+        },
+        {
+          "label": "child_019",
+          "x": 36.3361,
+          "y": 224
+        },
+        {
+          "label": "child_020",
+          "x": 38.175,
+          "y": 229
+        },
+        {
+          "label": "child_021",
+          "x": 39.9914,
+          "y": 240
+        },
+        {
+          "label": "child_022",
+          "x": 41.8172,
+          "y": 249
+        },
+        {
+          "label": "child_023",
+          "x": 43.6475,
+          "y": 262
+        },
+        {
+          "label": "child_024",
+          "x": 43.6475,
+          "y": 262
+        },
+        {
+          "label": "child_025",
+          "x": 43.6475,
+          "y": 262
+        },
+        {
+          "label": "child_026",
+          "x": 43.6475,
+          "y": 262
+        },
+        {
+          "label": "child_027",
+          "x": 43.6475,
+          "y": 262
+        },
+        {
+          "label": "child_028",
+          "x": 43.6475,
+          "y": 262
+        },
+        {
+          "label": "child_029",
+          "x": 43.6475,
+          "y": 262
+        },
+        {
+          "label": "child_030",
+          "x": 43.6475,
+          "y": 262
+        },
+        {
+          "label": "child_031",
+          "x": 45.5536,
+          "y": 265
+        },
+        {
+          "label": "child_032",
+          "x": 47.3553,
+          "y": 266
+        },
+        {
+          "label": "child_033",
+          "x": 49.255,
+          "y": 275
+        },
+        {
+          "label": "child_034",
+          "x": 50.9564,
+          "y": 298
+        },
+        {
+          "label": "child_035",
+          "x": 52.7819,
+          "y": 298
+        },
+        {
+          "label": "child_036",
+          "x": 54.5425,
+          "y": 298
+        },
+        {
+          "label": "child_037",
+          "x": 56.3372,
+          "y": 300
+        },
+        {
+          "label": "child_038",
+          "x": 58.1147,
+          "y": 301
+        },
+        {
+          "label": "child_039",
+          "x": 59.9044,
+          "y": 322
+        },
+        {
+          "label": "child_040",
+          "x": 61.7114,
+          "y": 324
+        },
+        {
+          "label": "child_041",
+          "x": 63.4942,
+          "y": 339
+        },
+        {
+          "label": "child_042",
+          "x": 65.6175,
+          "y": 339
+        },
+        {
+          "label": "child_043",
+          "x": 67.4422,
+          "y": 339
+        },
+        {
+          "label": "child_044",
+          "x": 69.2581,
+          "y": 339
+        },
+        {
+          "label": "child_045",
+          "x": 71.0203,
+          "y": 360
+        },
+        {
+          "label": "child_046",
+          "x": 71.0203,
+          "y": 360
+        },
+        {
+          "label": "child_047",
+          "x": 72.7639,
+          "y": 363
+        }
+      ],
+      "tree": {
+        "edges": [],
+        "nodes": []
+      },
+      "notes": [
+        "Updated from original 72h baseline plus completed add-on jobs where applicable.",
+        "Non-zero-exit children are shown as flat curve points and are not counted as completed GPU-hours."
+      ],
+      "source_jobs": [
+        {
+          "label": "CD45 72h official beam baseline",
+          "runs_path": "/scratch/gpfs/ZHONGE/mj7341/research/autoresearch_v2_2_search/official_clean_baseline_72h/job_7867849_cd45_beam/runs.tsv",
+          "n_children": 31,
+          "n_completed": 24,
+          "failures": 7,
+          "timeout_partials": 0,
+          "missing_csv_count": 0
+        },
+        {
+          "label": "CD45 30h official beam add-on",
+          "runs_path": "/scratch/gpfs/ZHONGE/mj7341/research/autoresearch_v2_2_search/official_clean_baseline_30h/job_8018999_cd45_beam/runs.tsv",
+          "n_children": 17,
+          "n_completed": 16,
+          "failures": 1,
+          "timeout_partials": 0,
+          "missing_csv_count": 0
+        }
+      ],
+      "baseline_setup": "Official-style baseline: clean official Proteina-Complexa repo; one GPU per target; beam-search with n_branch=4, beam_width=4, step_checkpoints=[0,100,200,300,400], max_batch_size=16 unless target-specific memory safety requires max_batch_size=4; repeated with seed=BASE_SEED+repeat_idx."
+    },
+    {
+      "run_id": "baseline_betv1_official_clean_72h_7867850",
+      "target": "BetV1",
+      "variant": "official-style beam-search baseline, max_batch_size=16",
+      "status": "COMPLETE_WITH_TIMEOUT_PARTIAL",
+      "state": "COMPLETE_WITH_TIMEOUT_PARTIAL",
+      "kind": "baseline",
+      "display": "BetV1 official-style beam-search baseline, max_batch_size=16",
+      "short": "Baseline",
+      "variant_public": "official-style beam-search baseline, max_batch_size=16",
+      "n_children": 43,
+      "n_completed": 39,
+      "n_completed_children": 39,
+      "failures": 4,
+      "timeout_partials": 1,
+      "total_gpu_hours": 72.9889,
+      "total_candidate_rows": 10608,
+      "strict_candidate_rows": 43,
+      "strict_rows": 43,
+      "total_global_unique_strict": 15,
+      "total_global_unique": 15,
+      "best_i_pae": 0.173,
+      "best_plddt": 0.948,
+      "best_binder_scrmsd_ca": 0.2468,
+      "curve": [
+        {
+          "label": "start",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "label": "child_000",
+          "x": 1.8856,
+          "y": 0
+        },
+        {
+          "label": "child_001",
+          "x": 3.7781,
+          "y": 0
+        },
+        {
+          "label": "child_002",
+          "x": 5.5861,
+          "y": 0
+        },
+        {
+          "label": "child_003",
+          "x": 7.3664,
+          "y": 0
+        },
+        {
+          "label": "child_004",
+          "x": 9.1892,
+          "y": 0
+        },
+        {
+          "label": "child_005",
+          "x": 10.9625,
+          "y": 0
+        },
+        {
+          "label": "child_006",
+          "x": 12.725,
+          "y": 0
+        },
+        {
+          "label": "child_007",
+          "x": 14.5389,
+          "y": 0
+        },
+        {
+          "label": "child_008",
+          "x": 16.4461,
+          "y": 0
+        },
+        {
+          "label": "child_009",
+          "x": 18.3172,
+          "y": 0
+        },
+        {
+          "label": "child_010",
+          "x": 20.2125,
+          "y": 0
+        },
+        {
+          "label": "child_011",
+          "x": 22.0225,
+          "y": 0
+        },
+        {
+          "label": "child_012",
+          "x": 23.8194,
+          "y": 3
+        },
+        {
+          "label": "child_013",
+          "x": 25.7058,
+          "y": 3
+        },
+        {
+          "label": "child_014",
+          "x": 27.6289,
+          "y": 3
+        },
+        {
+          "label": "child_015",
+          "x": 29.5494,
+          "y": 4
+        },
+        {
+          "label": "child_016",
+          "x": 31.3506,
+          "y": 4
+        },
+        {
+          "label": "child_017",
+          "x": 33.3872,
+          "y": 4
+        },
+        {
+          "label": "child_018",
+          "x": 35.4122,
+          "y": 4
+        },
+        {
+          "label": "child_019",
+          "x": 37.3156,
+          "y": 5
+        },
+        {
+          "label": "child_020",
+          "x": 39.0908,
+          "y": 5
+        },
+        {
+          "label": "child_021",
+          "x": 41.0228,
+          "y": 6
+        },
+        {
+          "label": "child_022",
+          "x": 42.8928,
+          "y": 14
+        },
+        {
+          "label": "child_023",
+          "x": 44.7775,
+          "y": 14
+        },
+        {
+          "label": "child_024",
+          "x": 44.7775,
+          "y": 14
+        },
+        {
+          "label": "child_025",
+          "x": 44.7775,
+          "y": 14
+        },
+        {
+          "label": "child_026",
+          "x": 44.7775,
+          "y": 14
+        },
+        {
+          "label": "child_027",
+          "x": 46.5853,
+          "y": 14
+        },
+        {
+          "label": "child_028",
+          "x": 48.5358,
+          "y": 14
+        },
+        {
+          "label": "child_029",
+          "x": 50.3494,
+          "y": 14
+        },
+        {
+          "label": "child_030",
+          "x": 52.2956,
+          "y": 14
+        },
+        {
+          "label": "child_031",
+          "x": 54.1064,
+          "y": 15
+        },
+        {
+          "label": "child_032",
+          "x": 55.9661,
+          "y": 15
+        },
+        {
+          "label": "child_033",
+          "x": 57.875,
+          "y": 15
+        },
+        {
+          "label": "child_034",
+          "x": 59.8028,
+          "y": 15
+        },
+        {
+          "label": "child_035",
+          "x": 61.6708,
+          "y": 15
+        },
+        {
+          "label": "child_036",
+          "x": 63.5947,
+          "y": 15
+        },
+        {
+          "label": "child_037",
+          "x": 65.4406,
+          "y": 15
+        },
+        {
+          "label": "child_038",
+          "x": 67.3108,
+          "y": 15
+        },
+        {
+          "label": "child_039",
+          "x": 69.2097,
+          "y": 15
+        },
+        {
+          "label": "child_040",
+          "x": 71.1006,
+          "y": 15
+        },
+        {
+          "label": "child_041",
+          "x": 72.9889,
+          "y": 15
+        },
+        {
+          "label": "child_042",
+          "x": 72.9889,
+          "y": 15
+        }
+      ],
+      "tree": {
+        "edges": [],
+        "nodes": []
+      },
+      "notes": [
+        "Updated from original 72h baseline plus completed add-on jobs where applicable.",
+        "Non-zero-exit children are shown as flat curve points and are not counted as completed GPU-hours."
+      ],
+      "source_jobs": [
+        {
+          "label": "BetV1 72h official beam baseline",
+          "runs_path": "/scratch/gpfs/ZHONGE/mj7341/research/autoresearch_v2_2_search/official_clean_baseline_72h/job_7867850_betv1_beam/runs.tsv",
+          "n_children": 27,
+          "n_completed": 24,
+          "failures": 3,
+          "timeout_partials": 0,
+          "missing_csv_count": 0
+        },
+        {
+          "label": "BetV1 30h official beam add-on",
+          "runs_path": "/scratch/gpfs/ZHONGE/mj7341/research/autoresearch_v2_2_search/official_clean_baseline_30h/job_8019000_betv1_beam/runs.tsv",
+          "n_children": 16,
+          "n_completed": 15,
+          "failures": 1,
+          "timeout_partials": 1,
+          "missing_csv_count": 0
+        }
+      ],
+      "baseline_setup": "Official-style baseline: clean official Proteina-Complexa repo; one GPU per target; beam-search with n_branch=4, beam_width=4, step_checkpoints=[0,100,200,300,400], max_batch_size=16 unless target-specific memory safety requires max_batch_size=4; repeated with seed=BASE_SEED+repeat_idx."
+    },
+    {
+      "run_id": "baseline_sc2rbd_official_clean_72h_7867851",
+      "target": "SC2RBD",
+      "variant": "MCTS+hallucination baseline add-on, max_batch_size=16",
+      "status": "COMPLETE",
+      "state": "COMPLETE",
+      "kind": "baseline",
+      "display": "SC2RBD MCTS+hallucination baseline add-on, max_batch_size=16",
+      "short": "Baseline",
+      "variant_public": "MCTS+hallucination baseline add-on, max_batch_size=16",
+      "n_children": 27,
+      "n_completed": 26,
+      "n_completed_children": 26,
+      "failures": 1,
+      "timeout_partials": 0,
+      "total_gpu_hours": 48.6828,
+      "total_candidate_rows": 7072,
+      "strict_candidate_rows": 0,
+      "strict_rows": 0,
+      "total_global_unique_strict": 0,
+      "total_global_unique": 0,
+      "best_i_pae": 0.252,
+      "best_plddt": 0.882,
+      "best_binder_scrmsd_ca": 0.2828,
+      "curve": [
+        {
+          "label": "start",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "label": "child_000",
+          "x": 1.9186,
+          "y": 0
+        },
+        {
+          "label": "child_001",
+          "x": 3.8614,
+          "y": 0
+        },
+        {
+          "label": "child_002",
+          "x": 5.8025,
+          "y": 0
+        },
+        {
+          "label": "child_003",
+          "x": 7.6969,
+          "y": 0
+        },
+        {
+          "label": "child_004",
+          "x": 9.6386,
+          "y": 0
+        },
+        {
+          "label": "child_005",
+          "x": 11.5728,
+          "y": 0
+        },
+        {
+          "label": "child_006",
+          "x": 13.3989,
+          "y": 0
+        },
+        {
+          "label": "child_007",
+          "x": 15.2764,
+          "y": 0
+        },
+        {
+          "label": "child_008",
+          "x": 17.185,
+          "y": 0
+        },
+        {
+          "label": "child_009",
+          "x": 18.9908,
+          "y": 0
+        },
+        {
+          "label": "child_010",
+          "x": 20.8492,
+          "y": 0
+        },
+        {
+          "label": "child_011",
+          "x": 22.6803,
+          "y": 0
+        },
+        {
+          "label": "child_012",
+          "x": 24.5522,
+          "y": 0
+        },
+        {
+          "label": "child_013",
+          "x": 26.4081,
+          "y": 0
+        },
+        {
+          "label": "child_014",
+          "x": 28.2847,
+          "y": 0
+        },
+        {
+          "label": "child_015",
+          "x": 30.145,
+          "y": 0
+        },
+        {
+          "label": "child_016",
+          "x": 31.9781,
+          "y": 0
+        },
+        {
+          "label": "child_017",
+          "x": 33.8617,
+          "y": 0
+        },
+        {
+          "label": "child_018",
+          "x": 35.7486,
+          "y": 0
+        },
+        {
+          "label": "child_019",
+          "x": 37.6125,
+          "y": 0
+        },
+        {
+          "label": "child_020",
+          "x": 39.4606,
+          "y": 0
+        },
+        {
+          "label": "child_021",
+          "x": 41.3367,
+          "y": 0
+        },
+        {
+          "label": "child_022",
+          "x": 43.1372,
+          "y": 0
+        },
+        {
+          "label": "child_023",
+          "x": 45.0081,
+          "y": 0
+        },
+        {
+          "label": "child_024",
+          "x": 45.0081,
+          "y": 0
+        },
+        {
+          "label": "child_025",
+          "x": 46.8653,
+          "y": 0
+        },
+        {
+          "label": "child_026",
+          "x": 48.6828,
+          "y": 0
+        }
+      ],
+      "tree": {
+        "edges": [],
+        "nodes": []
+      },
+      "notes": [
+        "Updated from original 72h baseline plus completed add-on jobs where applicable.",
+        "Non-zero-exit children are shown as flat curve points and are not counted as completed GPU-hours."
+      ],
+      "source_jobs": [
+        {
+          "label": "SC2RBD 72h official beam baseline",
+          "runs_path": "/scratch/gpfs/ZHONGE/mj7341/research/autoresearch_v2_2_search/official_clean_baseline_72h/job_7867851_sc2rbd_beam/runs.tsv",
+          "n_children": 27,
+          "n_completed": 26,
+          "failures": 1,
+          "timeout_partials": 0,
+          "missing_csv_count": 0
+        }
+      ],
+      "baseline_setup": "Official-style baseline: clean official Proteina-Complexa repo; one GPU per target; beam-search with n_branch=4, beam_width=4, step_checkpoints=[0,100,200,300,400], max_batch_size=16 unless target-specific memory safety requires max_batch_size=4; repeated with seed=BASE_SEED+repeat_idx."
+    },
+    {
+      "run_id": "baseline_her2_aav_c170_official_clean_72h_7879945",
+      "target": "HER2_AAV",
+      "variant": "official-style beam-search baseline, max_batch_size=16",
+      "status": "COMPLETE_WITH_TIMEOUT_PARTIAL",
+      "state": "COMPLETE_WITH_TIMEOUT_PARTIAL",
+      "kind": "baseline",
+      "display": "HER2_AAV official-style beam-search baseline, max_batch_size=16",
+      "short": "Baseline",
+      "variant_public": "official-style beam-search baseline, max_batch_size=16",
+      "n_children": 42,
+      "n_completed": 34,
+      "n_completed_children": 34,
+      "failures": 8,
+      "timeout_partials": 1,
+      "total_gpu_hours": 63.7856,
+      "total_candidate_rows": 9248,
+      "strict_candidate_rows": 30,
+      "strict_rows": 30,
+      "total_global_unique_strict": 17,
+      "total_global_unique": 17,
+      "best_i_pae": 0.206,
+      "best_plddt": 0.93,
+      "best_binder_scrmsd_ca": 0.2588,
+      "curve": [
+        {
+          "label": "start",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "label": "child_000",
+          "x": 1.825,
+          "y": 0
+        },
+        {
+          "label": "child_001",
+          "x": 3.6881,
+          "y": 0
+        },
+        {
+          "label": "child_002",
+          "x": 5.5306,
+          "y": 2
+        },
+        {
+          "label": "child_003",
+          "x": 7.4117,
+          "y": 2
+        },
+        {
+          "label": "child_004",
+          "x": 9.2728,
+          "y": 2
+        },
+        {
+          "label": "child_005",
+          "x": 11.145,
+          "y": 6
+        },
+        {
+          "label": "child_006",
+          "x": 12.9625,
+          "y": 6
+        },
+        {
+          "label": "child_007",
+          "x": 14.8442,
+          "y": 6
+        },
+        {
+          "label": "child_008",
+          "x": 16.7411,
+          "y": 6
+        },
+        {
+          "label": "child_009",
+          "x": 18.6403,
+          "y": 7
+        },
+        {
+          "label": "child_010",
+          "x": 20.4536,
+          "y": 7
+        },
+        {
+          "label": "child_011",
+          "x": 22.2889,
+          "y": 7
+        },
+        {
+          "label": "child_012",
+          "x": 24.1856,
+          "y": 7
+        },
+        {
+          "label": "child_013",
+          "x": 26.0569,
+          "y": 7
+        },
+        {
+          "label": "child_014",
+          "x": 27.9442,
+          "y": 7
+        },
+        {
+          "label": "child_015",
+          "x": 29.8125,
+          "y": 7
+        },
+        {
+          "label": "child_016",
+          "x": 31.635,
+          "y": 7
+        },
+        {
+          "label": "child_017",
+          "x": 33.6292,
+          "y": 7
+        },
+        {
+          "label": "child_018",
+          "x": 35.7778,
+          "y": 7
+        },
+        {
+          "label": "child_019",
+          "x": 35.7778,
+          "y": 7
+        },
+        {
+          "label": "child_020",
+          "x": 35.7778,
+          "y": 7
+        },
+        {
+          "label": "child_021",
+          "x": 35.7778,
+          "y": 7
+        },
+        {
+          "label": "child_022",
+          "x": 35.7778,
+          "y": 7
+        },
+        {
+          "label": "child_023",
+          "x": 35.7778,
+          "y": 7
+        },
+        {
+          "label": "child_024",
+          "x": 35.7778,
+          "y": 7
+        },
+        {
+          "label": "child_025",
+          "x": 35.7778,
+          "y": 7
+        },
+        {
+          "label": "child_026",
+          "x": 37.6556,
+          "y": 7
+        },
+        {
+          "label": "child_027",
+          "x": 39.5053,
+          "y": 7
+        },
+        {
+          "label": "child_028",
+          "x": 41.4286,
+          "y": 7
+        },
+        {
+          "label": "child_029",
+          "x": 43.2875,
+          "y": 14
+        },
+        {
+          "label": "child_030",
+          "x": 45.1333,
+          "y": 14
+        },
+        {
+          "label": "child_031",
+          "x": 47.0081,
+          "y": 14
+        },
+        {
+          "label": "child_032",
+          "x": 48.8844,
+          "y": 17
+        },
+        {
+          "label": "child_033",
+          "x": 50.7614,
+          "y": 17
+        },
+        {
+          "label": "child_034",
+          "x": 52.6467,
+          "y": 17
+        },
+        {
+          "label": "child_035",
+          "x": 54.4922,
+          "y": 17
+        },
+        {
+          "label": "child_036",
+          "x": 56.3597,
+          "y": 17
+        },
+        {
+          "label": "child_037",
+          "x": 58.2264,
+          "y": 17
+        },
+        {
+          "label": "child_038",
+          "x": 60.0642,
+          "y": 17
+        },
+        {
+          "label": "child_039",
+          "x": 61.9047,
+          "y": 17
+        },
+        {
+          "label": "child_040",
+          "x": 63.7856,
+          "y": 17
+        },
+        {
+          "label": "child_041",
+          "x": 63.7856,
+          "y": 17
+        }
+      ],
+      "tree": {
+        "edges": [],
+        "nodes": []
+      },
+      "notes": [
+        "Updated from original 72h baseline plus completed add-on jobs where applicable.",
+        "Non-zero-exit children are shown as flat curve points and are not counted as completed GPU-hours."
+      ],
+      "source_jobs": [
+        {
+          "label": "HER2_AAV 72h official beam baseline",
+          "runs_path": "/scratch/gpfs/ZHONGE/mj7341/research/autoresearch_v2_2_search/official_clean_baseline_72h/job_7879945_her2_aav_c170_beam/runs.tsv",
+          "n_children": 26,
+          "n_completed": 19,
+          "failures": 7,
+          "timeout_partials": 0,
+          "missing_csv_count": 0
+        },
+        {
+          "label": "HER2_AAV 30h official beam add-on",
+          "runs_path": "/scratch/gpfs/ZHONGE/mj7341/research/autoresearch_v2_2_search/official_clean_baseline_30h/job_8019001_her2_aav_c170_beam/runs.tsv",
+          "n_children": 16,
+          "n_completed": 15,
+          "failures": 1,
+          "timeout_partials": 1,
+          "missing_csv_count": 0
+        }
+      ],
+      "baseline_setup": "Official-style baseline: clean official Proteina-Complexa repo; one GPU per target; beam-search with n_branch=4, beam_width=4, step_checkpoints=[0,100,200,300,400], max_batch_size=16 unless target-specific memory safety requires max_batch_size=4; repeated with seed=BASE_SEED+repeat_idx."
+    },
+    {
+      "run_id": "baseline_cbago_npiwi_official_clean_72h_7911723",
+      "target": "CbAgo",
+      "variant": "official-style beam-search baseline, max_batch_size=4",
+      "status": "COMPLETE_WITH_TIMEOUT_PARTIAL",
+      "state": "COMPLETE_WITH_TIMEOUT_PARTIAL",
+      "kind": "baseline",
+      "display": "CbAgo official-style beam-search baseline, max_batch_size=4",
+      "short": "Baseline",
+      "variant_public": "official-style beam-search baseline, max_batch_size=4",
+      "n_children": 13,
+      "n_completed": 12,
+      "n_completed_children": 12,
+      "failures": 1,
+      "timeout_partials": 1,
+      "total_gpu_hours": 29.0119,
+      "total_candidate_rows": 3264,
+      "strict_candidate_rows": 0,
+      "strict_rows": 0,
+      "total_global_unique_strict": 0,
+      "total_global_unique": 0,
+      "best_i_pae": 0.264,
+      "best_plddt": 0.931,
+      "best_binder_scrmsd_ca": 0.2219,
+      "curve": [
+        {
+          "label": "start",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "label": "child_000",
+          "x": 2.4553,
+          "y": 0
+        },
+        {
+          "label": "child_001",
+          "x": 4.7828,
+          "y": 0
+        },
+        {
+          "label": "child_002",
+          "x": 7.4939,
+          "y": 0
+        },
+        {
+          "label": "child_003",
+          "x": 9.6822,
+          "y": 0
+        },
+        {
+          "label": "child_004",
+          "x": 12.0242,
+          "y": 0
+        },
+        {
+          "label": "child_005",
+          "x": 14.4392,
+          "y": 0
+        },
+        {
+          "label": "child_006",
+          "x": 16.6917,
+          "y": 0
+        },
+        {
+          "label": "child_007",
+          "x": 18.8672,
+          "y": 0
+        },
+        {
+          "label": "child_008",
+          "x": 21.6269,
+          "y": 0
+        },
+        {
+          "label": "child_009",
+          "x": 24.04,
+          "y": 0
+        },
+        {
+          "label": "child_010",
+          "x": 26.4661,
+          "y": 0
+        },
+        {
+          "label": "child_011",
+          "x": 29.0119,
+          "y": 0
+        },
+        {
+          "label": "child_012",
+          "x": 29.0119,
+          "y": 0
+        }
+      ],
+      "tree": {
+        "edges": [],
+        "nodes": []
+      },
+      "notes": [
+        "Updated from original 72h baseline plus completed add-on jobs where applicable.",
+        "Non-zero-exit children are shown as flat curve points and are not counted as completed GPU-hours."
+      ],
+      "source_jobs": [
+        {
+          "label": "CbAgo 30h official beam batch4 baseline",
+          "runs_path": "/scratch/gpfs/ZHONGE/mj7341/research/autoresearch_v2_2_search/official_clean_baseline_30h/job_8020453_cbago_npiwi_beam/runs.tsv",
+          "n_children": 13,
+          "n_completed": 12,
+          "failures": 1,
+          "timeout_partials": 1,
+          "missing_csv_count": 0
+        }
+      ],
+      "baseline_setup": "Official-style baseline: clean official Proteina-Complexa repo; one GPU; beam-search with n_branch=4, beam_width=4, step_checkpoints=[0,100,200,300,400], max_batch_size=4 for CbAgo memory safety; repeated with seed=BASE_SEED+repeat_idx."
+    },
+    {
+      "run_id": "baseline_sc2rbd_mcts_halluc_8018247",
+      "target": "SC2RBD",
+      "variant": "MCTS+hallucination baseline add-on, max_batch_size=16",
+      "status": "COMPLETE_WITH_TIMEOUT_PARTIAL",
+      "state": "COMPLETE_WITH_TIMEOUT_PARTIAL",
+      "kind": "baseline",
+      "display": "SC2RBD MCTS+hallucination baseline add-on, max_batch_size=16",
+      "short": "Baseline",
+      "variant_public": "MCTS+hallucination baseline add-on, max_batch_size=16",
+      "n_children": 61,
+      "n_completed": 60,
+      "n_completed_children": 60,
+      "failures": 1,
+      "timeout_partials": 1,
+      "total_gpu_hours": 29.2481,
+      "total_candidate_rows": 1920,
+      "strict_candidate_rows": 12,
+      "strict_rows": 12,
+      "total_global_unique_strict": 12,
+      "total_global_unique": 12,
+      "best_i_pae": 0.171,
+      "best_plddt": 0.929,
+      "best_binder_scrmsd_ca": 0.0616,
+      "curve": [
+        {
+          "label": "start",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "label": "child_000",
+          "x": 0.5078,
+          "y": 0
+        },
+        {
+          "label": "child_001",
+          "x": 0.9989,
+          "y": 0
+        },
+        {
+          "label": "child_002",
+          "x": 1.505,
+          "y": 0
+        },
+        {
+          "label": "child_003",
+          "x": 1.985,
+          "y": 0
+        },
+        {
+          "label": "child_004",
+          "x": 2.4458,
+          "y": 0
+        },
+        {
+          "label": "child_005",
+          "x": 2.9325,
+          "y": 0
+        },
+        {
+          "label": "child_006",
+          "x": 3.4108,
+          "y": 0
+        },
+        {
+          "label": "child_007",
+          "x": 3.8939,
+          "y": 0
+        },
+        {
+          "label": "child_008",
+          "x": 4.4253,
+          "y": 0
+        },
+        {
+          "label": "child_009",
+          "x": 4.9294,
+          "y": 0
+        },
+        {
+          "label": "child_010",
+          "x": 5.4219,
+          "y": 0
+        },
+        {
+          "label": "child_011",
+          "x": 5.9069,
+          "y": 0
+        },
+        {
+          "label": "child_012",
+          "x": 6.3978,
+          "y": 0
+        },
+        {
+          "label": "child_013",
+          "x": 6.9244,
+          "y": 0
+        },
+        {
+          "label": "child_014",
+          "x": 7.4356,
+          "y": 0
+        },
+        {
+          "label": "child_015",
+          "x": 7.9181,
+          "y": 0
+        },
+        {
+          "label": "child_016",
+          "x": 8.3906,
+          "y": 0
+        },
+        {
+          "label": "child_017",
+          "x": 8.8869,
+          "y": 1
+        },
+        {
+          "label": "child_018",
+          "x": 9.3706,
+          "y": 1
+        },
+        {
+          "label": "child_019",
+          "x": 9.8461,
+          "y": 1
+        },
+        {
+          "label": "child_020",
+          "x": 10.3467,
+          "y": 1
+        },
+        {
+          "label": "child_021",
+          "x": 10.8222,
+          "y": 1
+        },
+        {
+          "label": "child_022",
+          "x": 11.3089,
+          "y": 1
+        },
+        {
+          "label": "child_023",
+          "x": 11.8061,
+          "y": 1
+        },
+        {
+          "label": "child_024",
+          "x": 12.2872,
+          "y": 1
+        },
+        {
+          "label": "child_025",
+          "x": 12.81,
+          "y": 2
+        },
+        {
+          "label": "child_026",
+          "x": 13.3064,
+          "y": 12
+        },
+        {
+          "label": "child_027",
+          "x": 13.7911,
+          "y": 12
+        },
+        {
+          "label": "child_028",
+          "x": 14.2675,
+          "y": 12
+        },
+        {
+          "label": "child_029",
+          "x": 14.7536,
+          "y": 12
+        },
+        {
+          "label": "child_030",
+          "x": 15.2611,
+          "y": 12
+        },
+        {
+          "label": "child_031",
+          "x": 15.7244,
+          "y": 12
+        },
+        {
+          "label": "child_032",
+          "x": 16.1856,
+          "y": 12
+        },
+        {
+          "label": "child_033",
+          "x": 16.6436,
+          "y": 12
+        },
+        {
+          "label": "child_034",
+          "x": 17.1281,
+          "y": 12
+        },
+        {
+          "label": "child_035",
+          "x": 17.6261,
+          "y": 12
+        },
+        {
+          "label": "child_036",
+          "x": 18.0692,
+          "y": 12
+        },
+        {
+          "label": "child_037",
+          "x": 18.5906,
+          "y": 12
+        },
+        {
+          "label": "child_038",
+          "x": 19.1039,
+          "y": 12
+        },
+        {
+          "label": "child_039",
+          "x": 19.5722,
+          "y": 12
+        },
+        {
+          "label": "child_040",
+          "x": 20.0225,
+          "y": 12
+        },
+        {
+          "label": "child_041",
+          "x": 20.5031,
+          "y": 12
+        },
+        {
+          "label": "child_042",
+          "x": 20.9586,
+          "y": 12
+        },
+        {
+          "label": "child_043",
+          "x": 21.4547,
+          "y": 12
+        },
+        {
+          "label": "child_044",
+          "x": 21.9647,
+          "y": 12
+        },
+        {
+          "label": "child_045",
+          "x": 22.4667,
+          "y": 12
+        },
+        {
+          "label": "child_046",
+          "x": 22.9264,
+          "y": 12
+        },
+        {
+          "label": "child_047",
+          "x": 23.3994,
+          "y": 12
+        },
+        {
+          "label": "child_048",
+          "x": 23.8911,
+          "y": 12
+        },
+        {
+          "label": "child_049",
+          "x": 24.3706,
+          "y": 12
+        },
+        {
+          "label": "child_050",
+          "x": 24.8592,
+          "y": 12
+        },
+        {
+          "label": "child_051",
+          "x": 25.3203,
+          "y": 12
+        },
+        {
+          "label": "child_052",
+          "x": 25.8167,
+          "y": 12
+        },
+        {
+          "label": "child_053",
+          "x": 26.2961,
+          "y": 12
+        },
+        {
+          "label": "child_054",
+          "x": 26.8044,
+          "y": 12
+        },
+        {
+          "label": "child_055",
+          "x": 27.3011,
+          "y": 12
+        },
+        {
+          "label": "child_056",
+          "x": 27.7694,
+          "y": 12
+        },
+        {
+          "label": "child_057",
+          "x": 28.2411,
+          "y": 12
+        },
+        {
+          "label": "child_058",
+          "x": 28.7506,
+          "y": 12
+        },
+        {
+          "label": "child_059",
+          "x": 29.2481,
+          "y": 12
+        },
+        {
+          "label": "child_060",
+          "x": 29.2481,
+          "y": 12
+        }
+      ],
+      "tree": {
+        "edges": [],
+        "nodes": []
+      },
+      "notes": [
+        "Updated from original 72h baseline plus completed add-on jobs where applicable.",
+        "Non-zero-exit children are shown as flat curve points and are not counted as completed GPU-hours."
+      ],
+      "source_jobs": [
+        {
+          "label": "SC2RBD MCTS+hallucination baseline add-on",
+          "runs_path": "/scratch/gpfs/ZHONGE/mj7341/research/autoresearch_v2_2_search/official_clean_baseline_30h/job_8018247_sc2rbd_mcts_halluc/runs.tsv",
+          "n_children": 61,
+          "n_completed": 60,
+          "failures": 1,
+          "timeout_partials": 1,
+          "missing_csv_count": 0
+        }
+      ],
+      "baseline_setup": "Proteina-Complexa baseline add-on using mcts_then_hallucination; same strict metric parser and GPU-hour accounting as the public official baseline."
+    },
     {
       "best_binder_scrmsd_ca": 0.047,
       "best_i_pae": 0.177,
