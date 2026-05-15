@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-14 21:48:54",
+  "generated_at": "2026-05-14 21:57:33",
   "metric_definitions": {
     "global_new_strict": "Strict successes after global sequence deduplication across completed nodes in a run.",
     "gpu_hours": "Completed child job runtime in Proteina-Complexa GPU-hours. Qwen/vLLM controller time is not included in the curve axis.",
@@ -10,17 +10,17 @@
   "runs": [
     {
       "best_binder_scrmsd_ca": 0.1841,
-      "best_i_pae": 0.199,
+      "best_i_pae": 0.179,
       "best_plddt": 0.963,
       "best_reward": 0.8565,
       "bottleneck_counts": [
         {
           "label": "plddt_scaffold_failure",
-          "n": 432
+          "n": 455
         },
         {
           "label": "ipae_interface_failure",
-          "n": 357
+          "n": 358
         },
         {
           "label": "ipae_plausible_interface",
@@ -28,15 +28,15 @@
         },
         {
           "label": "ipae_wrong_hotspot",
-          "n": 46
+          "n": 50
         },
         {
           "label": "strict_success_global_new",
-          "n": 12
+          "n": 14
         },
         {
           "label": "strict_success_duplicate",
-          "n": 8
+          "n": 10
         },
         {
           "label": "ipae_no_interface",
@@ -209,6 +209,11 @@
             "label": "official_baseline_0031",
             "x": 7.7122,
             "y": 12
+          },
+          {
+            "label": "official_baseline_0032",
+            "x": 7.9394,
+            "y": 14
           }
         ],
         "strict": [
@@ -376,6 +381,11 @@
             "label": "official_baseline_0031",
             "x": 7.7122,
             "y": 20
+          },
+          {
+            "label": "official_baseline_0032",
+            "x": 7.9394,
+            "y": 24
           }
         ],
         "structure_unique": [
@@ -387,33 +397,33 @@
           {
             "aggregate_only": true,
             "label": "run-level Foldseek aggregate",
-            "x": 7.7122,
-            "y": 2
+            "x": 7.9394,
+            "y": 3
           }
         ]
       },
       "display": "CD45 official Complexa baseline",
       "foldseek_status": "completed",
-      "global_new_per_gpu_hour": 1.556,
-      "global_new_rate": 0.0117,
+      "global_new_per_gpu_hour": 1.7633,
+      "global_new_rate": 0.0133,
       "kind": "baseline",
       "lane_counts": [
         {
           "label": "baseline",
-          "n": 32
+          "n": 33
         }
       ],
-      "n_candidates": 1024,
-      "n_completions": 32,
-      "n_global_new": 12,
-      "n_strict": 20,
-      "n_structure_unique_strict_success": 2,
-      "n_submissions": 32,
+      "n_candidates": 1056,
+      "n_completions": 33,
+      "n_global_new": 14,
+      "n_strict": 24,
+      "n_structure_unique_strict_success": 3,
+      "n_submissions": 33,
       "notes": [],
       "operator_counts": [
         {
           "label": "official_seeded_beam_search",
-          "n": 32
+          "n": 33
         }
       ],
       "run_id": "cd45_official_complexa_baseline_8241032",
@@ -421,18 +431,18 @@
       "short": "Official baseline",
       "source_report_public": "v5_official_baseline_report.json",
       "state": "RUNNING",
-      "strict_per_gpu_hour": 2.5933,
-      "strict_rate": 0.0195,
+      "strict_per_gpu_hour": 3.0229,
+      "strict_rate": 0.0227,
       "structure_unique_available": true,
-      "structure_unique_per_gpu_hour": 0.2593,
+      "structure_unique_per_gpu_hour": 0.3779,
       "target": "CD45",
       "template_counts": [
         {
           "label": "beam_search",
-          "n": 32
+          "n": 33
         }
       ],
-      "total_gpu_hours": 7.7122,
+      "total_gpu_hours": 7.9394,
       "tree": {
         "edges": [
           {
@@ -562,6 +572,10 @@
           {
             "source": "root",
             "target": "official_baseline_0031"
+          },
+          {
+            "source": "root",
+            "target": "official_baseline_0032"
           }
         ],
         "nodes": [
@@ -2666,6 +2680,78 @@
             },
             "status": "completed",
             "strict": 0,
+            "structure_unique": 0,
+            "title": "beam_search / baseline",
+            "trigger": ""
+          },
+          {
+            "best_binder_scrmsd_ca": 0.2125,
+            "best_i_pae": 0.179,
+            "best_plddt": 0.952,
+            "best_reward": 0.7761,
+            "bottlenecks": {
+              "ipae_interface_failure": 1,
+              "ipae_wrong_hotspot": 4,
+              "plddt_scaffold_failure": 23,
+              "strict_success_duplicate": 2,
+              "strict_success_global_new": 2
+            },
+            "duplicate_fraction": 0.2188,
+            "error": null,
+            "evidence": [],
+            "falsification_rule": "",
+            "global_new": 2,
+            "gpu_hours": 0.2272,
+            "hypothesis": "Same official beam-search recipe; this repeat changes only the random seed.",
+            "id": "official_baseline_0032",
+            "index": 32,
+            "kind": "baseline_repeat",
+            "lane": "baseline",
+            "n_candidates": 32,
+            "observed": "2 global-new strict; 4 strict; 32 candidates; best iPAE 0.179; best pLDDT 0.952; best RMSD 0.2125",
+            "operator": "beam_search",
+            "recipe": {
+              "beam_width": 4,
+              "max_batch_size": 16,
+              "n_branch": 4,
+              "operator": "beam_search",
+              "seed": "BASE_SEED + repeat_index",
+              "step_checkpoints": [
+                0,
+                100,
+                200,
+                300,
+                400
+              ]
+            },
+            "recommended_lanes": [
+              "local_mutate",
+              "lower_noise",
+              "beam_search",
+              "explore",
+              "recombine",
+              "exploit",
+              "rescue",
+              "fk_steering",
+              "diversify"
+            ],
+            "reward_summary": {
+              "hard_gate_pass_fraction": 0.0,
+              "mean_affinity_proxy_score": 0.654746,
+              "mean_complex_confidence_score": 0.337313,
+              "mean_developability_score": 0.965353,
+              "mean_interface_quality_score": 0.68392,
+              "mean_novelty_score": 0.78125,
+              "mean_reward_value": 0.619157,
+              "mean_strict_metric_score": 0.65489,
+              "mean_target_site_score": 0.09375,
+              "n_candidates": 32,
+              "n_hard_gate_pass": 0,
+              "schema_version": "v5_reward_summary.v1",
+              "top_reward_value": 0.776078
+            },
+            "status": "completed",
+            "strict": 4,
             "structure_unique": 0,
             "title": "beam_search / baseline",
             "trigger": ""
@@ -5854,7 +5940,7 @@
       "bottleneck_counts": [
         {
           "label": "plddt_scaffold_failure",
-          "n": 153
+          "n": 185
         },
         {
           "label": "ipae_plausible_interface",
@@ -5892,6 +5978,11 @@
             "label": "child_004",
             "x": 1.6643,
             "y": 0
+          },
+          {
+            "label": "child_007",
+            "x": 1.9284,
+            "y": 0
           }
         ],
         "strict": [
@@ -5924,6 +6015,11 @@
             "label": "child_004",
             "x": 1.6643,
             "y": 0
+          },
+          {
+            "label": "child_007",
+            "x": 1.9284,
+            "y": 0
           }
         ],
         "structure_unique": [
@@ -5935,7 +6031,7 @@
           {
             "aggregate_only": true,
             "label": "run-level Foldseek aggregate",
-            "x": 1.6643,
+            "x": 1.9284,
             "y": 0
           }
         ]
@@ -5953,19 +6049,23 @@
         {
           "label": "diversify",
           "n": 2
+        },
+        {
+          "label": "local_mutate",
+          "n": 1
         }
       ],
-      "n_candidates": 160,
-      "n_completions": 5,
+      "n_candidates": 192,
+      "n_completions": 6,
       "n_global_new": 0,
       "n_strict": 0,
       "n_structure_unique_strict_success": 0,
-      "n_submissions": 7,
+      "n_submissions": 8,
       "notes": [],
       "operator_counts": [
         {
           "label": "beam_search",
-          "n": 4
+          "n": 5
         },
         {
           "label": "novelty_search_beam",
@@ -5989,14 +6089,14 @@
       "template_counts": [
         {
           "label": "beam_search",
-          "n": 4
+          "n": 5
         },
         {
           "label": "beam_then_hallucination",
           "n": 1
         }
       ],
-      "total_gpu_hours": 1.6643,
+      "total_gpu_hours": 1.9284,
       "tree": {
         "edges": [
           {
@@ -6026,6 +6126,10 @@
           {
             "source": "root",
             "target": "child_006"
+          },
+          {
+            "source": "child_002",
+            "target": "child_007"
           }
         ],
         "nodes": [
@@ -6371,6 +6475,59 @@
             "structure_unique": 0,
             "title": "novelty_search_beam / diversify",
             "trigger": "structure_unique_success_per_gpu_hour is 0.0 with high mean_duplicate_fraction across 4 prior beam_search trials"
+          },
+          {
+            "best_binder_scrmsd_ca": 0.5582,
+            "best_i_pae": 0.489,
+            "best_plddt": 0.86,
+            "best_reward": 0.6883,
+            "bottlenecks": {
+              "plddt_scaffold_failure": 32
+            },
+            "duplicate_fraction": 0.8125,
+            "error": null,
+            "evidence": [
+              "child_002"
+            ],
+            "falsification_rule": "retire exact parameter bin if this produces zero structure-unique strict successes when Foldseek is available",
+            "global_new": 0,
+            "gpu_hours": 0.2641,
+            "hypothesis": "tighten plausible-interface near miss from child_002",
+            "id": "child_007",
+            "index": 7,
+            "kind": "method_card",
+            "lane": "local_mutate",
+            "n_candidates": 32,
+            "observed": "0 global-new strict; 0 strict; 32 candidates; best iPAE 0.489; best pLDDT 0.86; best RMSD 0.5582",
+            "operator": "beam_search",
+            "recipe": {
+              "sc_scale_noise": 0.15
+            },
+            "recommended_lanes": [
+              "local_mutate",
+              "lower_noise",
+              "beam_search"
+            ],
+            "reward_summary": {
+              "hard_gate_pass_fraction": 0.0,
+              "mean_affinity_proxy_score": 0.697593,
+              "mean_complex_confidence_score": 0.479063,
+              "mean_developability_score": 0.981744,
+              "mean_interface_quality_score": 0.722352,
+              "mean_novelty_score": 0.1875,
+              "mean_reward_value": 0.598403,
+              "mean_strict_metric_score": 0.674492,
+              "mean_target_site_score": 0.0,
+              "n_candidates": 32,
+              "n_hard_gate_pass": 0,
+              "schema_version": "v5_reward_summary.v1",
+              "top_reward_value": 0.688311
+            },
+            "status": "completed",
+            "strict": 0,
+            "structure_unique": 0,
+            "title": "beam_search / local_mutate",
+            "trigger": ""
           }
         ]
       },
