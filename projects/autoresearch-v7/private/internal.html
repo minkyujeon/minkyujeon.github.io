@@ -153,11 +153,13 @@ function pills(){
 }
 function load(id){
   curTarget=id;
+  if(rwPlay){clearInterval(rwPlay);rwPlay=null;}
   document.querySelectorAll('.pill').forEach(p=>p.classList.toggle('active',p.dataset.id===id));
   document.getElementById('app').innerHTML='<div class="err">Loading '+id+' bundle…</div>';
   fetch('bundle-'+id+'.json?v=4',{cache:'no-store'})
     .then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
     .then(b=>{
+      if(curTarget!==id) return;   // a newer pill click superseded this fetch
       B=b; curTick=B.ticks.findIndex(t=>(t.su_delta||0)>0); if(curTick<0)curTick=0;
       renderTotals();
       try{ applyView(); }
@@ -210,22 +212,24 @@ function renderReplay(){
 function drawTimeline(){
   const host=document.getElementById('timeline'); if(!host)return; const ts=B.ticks;
   const W=host.clientWidth||860,H=132,m={l:42,r:14,t:12,b:24};
-  const xmax=Math.max(...ts.map(t=>t.gpu_h),1), ymax=Math.max(1,...ts.map(t=>t.su));
-  const xs=v=>m.l+(v/xmax)*(W-m.l-m.r), ys=v=>H-m.b-(v/ymax)*(H-m.t-m.b);
+  // carry-forward gpu_h: evidence-less ticks have gpu_h=null and must not collapse to x=0
+  const gh=[]; let lg=0; for(const t of ts){ if(t.gpu_h!=null) lg=t.gpu_h; gh.push(lg); }
+  const xmax=Math.max(...gh,1), ymax=Math.max(1,...ts.map(t=>t.su||0));
+  const xs=v=>m.l+((v||0)/xmax)*(W-m.l-m.r), ys=v=>H-m.b-((v||0)/ymax)*(H-m.t-m.b);
   let g=`<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}">`;
   for(let i=0;i<=4;i++){const v=ymax*i/4;g+=`<line x1="${m.l}" y1="${ys(v).toFixed(1)}" x2="${W-m.r}" y2="${ys(v).toFixed(1)}" stroke="#16233c"/><text x="${m.l-5}" y="${(ys(v)+3).toFixed(1)}" text-anchor="end" font-size="9" fill="#5f7494">${Math.round(v)}</text>`;}
-  g+=`<path d="${ts.map((t,i)=>(i?'L':'M')+xs(t.gpu_h).toFixed(1)+' '+ys(t.su).toFixed(1)).join(' ')}" fill="none" stroke="#f87171" stroke-width="1.8"/>`;
-  ts.forEach(t=>{if((t.su_delta||0)>0)g+=`<circle cx="${xs(t.gpu_h).toFixed(1)}" cy="${ys(t.su).toFixed(1)}" r="3.4" fill="${STATECOL[t.state]||'#94a3b8'}"/>`;});
-  const c=ts[curTick];
-  g+=`<line x1="${xs(c.gpu_h).toFixed(1)}" y1="${m.t}" x2="${xs(c.gpu_h).toFixed(1)}" y2="${H-m.b}" stroke="#60a5fa" stroke-width="1.4"/>`;
-  g+=`<circle cx="${xs(c.gpu_h).toFixed(1)}" cy="${ys(c.su).toFixed(1)}" r="5" fill="#60a5fa" stroke="#0b1220" stroke-width="1.5"/>`;
+  g+=`<path d="${ts.map((t,i)=>(i?'L':'M')+xs(gh[i]).toFixed(1)+' '+ys(t.su).toFixed(1)).join(' ')}" fill="none" stroke="#f87171" stroke-width="1.8"/>`;
+  ts.forEach((t,i)=>{if((t.su_delta||0)>0)g+=`<circle cx="${xs(gh[i]).toFixed(1)}" cy="${ys(t.su).toFixed(1)}" r="3.2" fill="${STATECOL[t.state]||'#94a3b8'}" stroke="#0b1220" stroke-width="0.6"/>`;});
+  const cx=xs(gh[curTick]);
+  g+=`<line x1="${cx.toFixed(1)}" y1="${m.t}" x2="${cx.toFixed(1)}" y2="${H-m.b}" stroke="#60a5fa" stroke-width="1.4"/>`;
+  g+=`<circle cx="${cx.toFixed(1)}" cy="${ys(ts[curTick].su).toFixed(1)}" r="5" fill="#60a5fa" stroke="#0b1220" stroke-width="1.5"/>`;
   g+=`<text x="${W-m.r}" y="${H-6}" text-anchor="end" fill="#5f7494" font-size="9">worker GPU-hours →</text>`;
   g+=`<rect x="${m.l}" y="${m.t}" width="${W-m.l-m.r}" height="${H-m.t-m.b}" fill="transparent" id="rwov"/></svg>`;
   host.innerHTML=g;
   const ov=host.querySelector('#rwov');
-  const pick=ev=>{const r=host.querySelector('svg').getBoundingClientRect();const gx=((ev.clientX-r.left)*(W/r.width)-m.l)/(W-m.l-m.r)*xmax;let bi=0,bd=1e9;ts.forEach((t,i)=>{const dd=Math.abs(t.gpu_h-gx);if(dd<bd){bd=dd;bi=i;}});return bi;};
+  const pick=ev=>{const r=host.querySelector('svg').getBoundingClientRect();const gxv=((ev.clientX-r.left)/r.width*W-m.l)/(W-m.l-m.r)*xmax;let bi=0,bd=1e9;gh.forEach((v,i)=>{const dd=Math.abs(v-gxv);if(dd<bd){bd=dd;bi=i;}});return bi;};
   ov.onclick=ev=>selectTick(pick(ev));
-  ov.onmousemove=ev=>{const t=ts[pick(ev)];showTip(`tick <b>${t.n}</b> · ${t.gpu_h} GPU-h · SU <b>${t.su}</b>${t.su_delta>0?' (+'+t.su_delta+')':''} · ${t.state}`,ev);};
+  ov.onmousemove=ev=>{const i=pick(ev),t=ts[i];showTip(`tick <b>${t.n}</b> · ${gh[i]} GPU-h · SU <b>${t.su}</b>${t.su_delta>0?' (+'+t.su_delta+')':''} · ${t.state||'—'}`,ev);};
   ov.onmouseleave=hideTip;
 }
 function renderGuide(){
@@ -315,37 +319,12 @@ function renderAttrib(){
      <div><h4>Strict successes × method family (all ticks)</h4>${bars(famStrict)}</div>
    </div></div></div>`;
 }
-function renderSpark(){
-  const W=300,H=64,m=6, ts=B.ticks, xmax=ts.length-1||1, ymax=Math.max(1,...ts.map(t=>t.su));
-  const xs=i=>m+(i/xmax)*(W-2*m), ys=v=>H-m-(v/ymax)*(H-2*m);
-  let d=ts.map((t,i)=>(i?'L':'M')+xs(i).toFixed(1)+' '+ys(t.su).toFixed(1)).join(' ');
-  let g=`<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}">`;
-  g+=`<path d="${d}" fill="none" stroke="#f87171" stroke-width="1.6"/>`;
-  g+=`<text x="${m}" y="11" fill="#93a4bd" font-size="9">SU vs tick (click list below)</text></svg>`;
-  document.getElementById('spark').innerHTML=g;
-}
 function mixbar(mix,w){
   if(!mix) return '<span class="mut">—</span>';
   const order=['exploit','rescue','explore'];
   return `<div class="${w?'mix':'tkrow-mix modebar'}" style="${w?('width:'+w+'px'):''}">`+order.map(k=>{
     const v=mix[k]||0; return v>0?`<div style="width:${(v*100).toFixed(1)}%;background:${MODECOL[k]}">${w&&v>=0.12?(k[0].toUpperCase()+Math.round(v*100)):''}</div>`:'';
   }).join('')+`</div>`;
-}
-function renderTickList(){
-  const html=B.ticks.map((t,i)=>{
-    const sup=t.supervisor||{}; const nl=(t.launches||[]).length; const rsum=t.results_summary||{};
-    return `<div class="tkrow" data-i="${i}">
-      <div class="tn">${t.n}</div>
-      <div>
-        <div><span class="statedot st-${t.state}"></span><span class="su" style="color:${t.su_delta>0?'#34d399':'#cdd9ec'}">SU ${t.su}${t.su_delta>0?' +'+t.su_delta:''}</span>
-          <span class="meta"> · ${t.gpu_h}h · ${nl} launch · ${rsum.strict||0}/${rsum.n||0} strict</span></div>
-        ${mixbar(sup.mode_mixture,0)}
-      </div>
-      <div class="meta">${(t.cards||[]).length}c</div>
-    </div>`;
-  }).join('');
-  document.getElementById('ticklist').innerHTML=html;
-  document.querySelectorAll('.tkrow').forEach(r=>r.onclick=()=>selectTick(+r.dataset.i));
 }
 function selectTick(i){
   curTick=i; const t=B.ticks[i];
@@ -568,6 +547,7 @@ function showMod(i){
     ${ex}`;
 }
 function applyView(){
+  if(rwPlay){clearInterval(rwPlay);rwPlay=null;}   // stop replay before tearing down #app
   if(view==='pipeline'){ renderPipeline(); }
   else if(B){ shell(); renderLegend(); renderAttrib(); renderFamUsage(); renderReplay(); selectTick(curTick); }
   else { document.getElementById('app').innerHTML='<div class="err">Select a target above to load its archive bundle.</div>'; }
@@ -579,6 +559,8 @@ document.getElementById('vtoggle').querySelectorAll('button').forEach(b=>b.oncli
 });
 
 document.getElementById('guideBtn').onclick=()=>{const g=document.getElementById('guideSec');if(g){g.classList.toggle('collapsed');if(!g.classList.contains('collapsed'))g.scrollIntoView({behavior:'smooth',block:'nearest'});}};
+let rwResizeT=null;
+window.addEventListener('resize',()=>{clearTimeout(rwResizeT);rwResizeT=setTimeout(()=>{if(B&&view==='explorer'&&document.getElementById('timeline'))drawTimeline();},150);});
 pills();
 renderGuide();
 applyView();
