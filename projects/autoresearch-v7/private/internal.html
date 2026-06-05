@@ -432,8 +432,8 @@ function renderChain(t){
     LL.map(x=>`<tr><td><b>${esc(x.role)}</b></td><td class="mut">${esc(x.model)}</td><td>${num(x.latency_s,1)}</td><td>${num(x.confidence,2)}</td><td>${esc(x.parse_status)}</td><td>${x.abstain?'yes':''}</td><td>${x.fallback_triggered?'yes':''}</td></tr>`).join('')+`</tbody></table>`:'<span class="mut">none</span>';
   C.push(sec('llm','⑧ LLM calls',LL.length,lc,true));
   // PANEL
-  const ev=t.evidence||{};
-  const pv=ev.production_panel_value, pst=ev.production_panel_status, prc=ev.panel_ready_count, prb=ev.panel_ready_bins_covered, pdb=ev.production_panel_diversity_bins;
+  const pE=t.evidence||{};
+  const pv=pE.production_panel_value, pst=pE.production_panel_status, prc=pE.panel_ready_count, prb=pE.panel_ready_bins_covered, pdb=pE.production_panel_diversity_bins;
   const hasPanel=(pv!=null)||(pst!=null)||(pdb!=null);
   let pn=hasPanel?`<div class="kpi">${kpi('panel value',pv==null?null:num(pv,2))}${kpi('status',pst)}${kpi('panel-ready',prc)}${kpi('ready bins',prb)}</div>
     ${pdb?`<div class="mut">online diversity bins covered: ${esc(JSON.stringify(pdb))}</div>`:''}
