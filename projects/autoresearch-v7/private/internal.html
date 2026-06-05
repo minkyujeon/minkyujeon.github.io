@@ -181,7 +181,7 @@ function renderTotals(){
 }
 function shell(){
   document.getElementById('app').innerHTML=
-    `<div class="exwrap"><div id="legend"></div><div id="attrib"></div><div id="replay"></div><div id="chain"></div></div>`;
+    `<div class="exwrap"><div id="legend"></div><div id="attrib"></div><div id="famusage"></div><div id="replay"></div><div id="chain"></div></div>`;
 }
 function renderReplay(){
   const ts=B.ticks;
@@ -236,11 +236,29 @@ function renderGuide(){
       <ol>
         <li><b>Top bar</b> &mdash; target pills (load a campaign), totals (SU / strict / seq-uniq / GPU-h / ticks / results / cards / LLM calls), and the view toggle.</li>
         <li><b>Read <span class="kbd">Pipeline &amp; schemas</span> first</b> to learn the machine once. Click each of the 11 modules top&rarr;bottom (Archive &rarr; EvidenceReducer &rarr; StateClassifier &rarr; Planner &rarr; Critic &rarr; CandidateBuilder &rarr; Supervisor &rarr; Selector &rarr; Dispatcher &rarr; Parsers &rarr; Finalizer). Each shows its <b>role</b>, <b>input/output</b>, <b>how it works</b>, the real <b>prompt</b> (Planner/Supervisor/Critic), and a <b>live example</b> from the current tick &mdash; use <b>prev/next tick</b> or <b>&#8627; open this tick in Decision explorer</b>.</li>
-        <li><b>Then <span class="kbd">Decision explorer</span></b> to watch it run. Top&rarr;bottom: <b><span class="stepn">1</span>Key / legend</b> (colours &amp; marks) &rarr; <b><span class="stepn">2</span>What produced the SU</b> (SU by strategy &amp; family) &rarr; <b><span class="stepn">3</span>Replay timeline</b> (click a point / play / &#10548; next SU gain; big dots = SU went up) &rarr; <b>the selected tick's module chain</b> (green SU-gained-here callout, then &#9312;Evidence&rarr;&#9313;Planner&rarr;&#9314;Candidates&rarr;&#9315;Supervisor&rarr;&#9316;Selector&rarr;&#9317;Dispatch&rarr;&#9318;Results&rarr;&#9319;LLM&rarr;&#9320;Panel; every box has a raw-JSON expander).</li>
+        <li><b>Then <span class="kbd">Decision explorer</span></b> to watch it run. Top&rarr;bottom: <b><span class="stepn">1</span>Key / legend</b> (colours &amp; marks) &rarr; <b><span class="stepn">2</span>What produced the SU</b> (SU by strategy &amp; family) &amp; <b>Method-family usage</b> (all searches vs SU-producing families) &rarr; <b><span class="stepn">3</span>Replay timeline</b> (click a point / play / &#10548; next SU gain; big dots = SU went up) &rarr; <b>the selected tick's module chain</b> (green SU-gained-here callout, then &#9312;Evidence&rarr;&#9313;Planner&rarr;&#9314;Candidates&rarr;&#9315;Supervisor&rarr;&#9316;Selector&rarr;&#9317;Dispatch&rarr;&#9318;Results&rarr;&#9319;LLM&rarr;&#9320;Panel; every box has a raw-JSON expander).</li>
         <li><b>Suggested first session</b> &mdash; skim the 11 pipeline modules (read the Planner &amp; Supervisor prompts), switch to Decision explorer, press <b>&#10548; next SU gain</b> a few times, and on a winning tick open <b>&#9312; Evidence</b> and <b>&#9315; Supervisor</b> to trace input &rarr; decision &rarr; outcome.</li>
       </ol>
       <span class="mut">Reopen this any time with the <b>&#10067; Guide</b> button in the top bar. This is the internal view &mdash; it exposes the full pipeline; not for public distribution.</span>
     </div></div>`;
+}
+const FAMCOL={complexa_fk_steering:'#34d399',complexa_beam:'#34d399',complexa_mcts:'#34d399',complexa_best_of_n:'#34d399',bindcraft:'#fbbf24',boltzgen:'#a78bfa',proteinmpnn_redesign:'#2dd4bf',structure_refilter:'#60a5fa',chai_refilter:'#94a3b8',boltz_refilter:'#94a3b8'};
+function fbars(obj){const e=Object.entries(obj).sort((a,b)=>b[1]-a[1]);const mx=e.length?e[0][1]:1;
+  return e.length?e.map(([k,v])=>`<div class="bar-row"><div class="bl" title="${esc(k)}">${esc(k)}</div><div class="bt"><div class="bf" style="width:${(v/mx*100).toFixed(1)}%;background:${FAMCOL[k]||'#94a3b8'}"></div></div><div class="bv">${v.toLocaleString()}</div></div>`).join(''):'<span class="mut">—</span>';}
+function renderFamUsage(){
+  const ts=B.ticks, search={}, strict={};
+  ts.forEach(t=>{
+    const bf=(t.results_summary||{}).by_family||{}; for(const f in bf) search[f]=(search[f]||0)+bf[f];
+    (t.results||[]).forEach(r=>{if(r.strict)strict[r.fam]=(strict[r.fam]||0)+1;});
+  });
+  const tot=Object.values(search).reduce((a,b)=>a+b,0), tots=Object.values(strict).reduce((a,b)=>a+b,0);
+  document.getElementById('famusage').innerHTML=`<div class="sec mod-head"><div class="h" onclick="this.parentNode.classList.toggle('collapsed')"><span class="t"><span class="stepn">2</span>Method-family usage during the search — ${esc(B.name)}</span><span class="c">▾</span></div>
+   <div class="b"><div class="atg" style="grid-template-columns:1fr 1fr">
+     <div><h4>① All searches — structures scored per family (${tot.toLocaleString()})</h4>${fbars(search)}
+       <div class="mut" style="font-size:11px;margin-top:5px">every scored structure across all ticks (complete counts).</div></div>
+     <div><h4>② Strict successes per family (${tots.toLocaleString()} &rarr; ${B.totals.su} unique SU)</h4>${fbars(strict)}
+       <div class="mut" style="font-size:11px;margin-top:5px">passing designs. <code>structure_refilter</code>-owned ones originate from BindCraft/BoltzGen/ProteinMPNN rescue (the verifier re-scores them).</div></div>
+   </div></div></div>`;
 }
 function renderLegend(){
   const sw=(c,l)=>`<span style="display:inline-flex;align-items:center;gap:4px;margin:0 12px 4px 0"><span style="width:11px;height:11px;border-radius:3px;background:${c};display:inline-block"></span>${l}</span>`;
@@ -528,7 +546,7 @@ function showMod(i){
 }
 function applyView(){
   if(view==='pipeline'){ renderPipeline(); }
-  else if(B){ shell(); renderLegend(); renderAttrib(); renderReplay(); selectTick(curTick); }
+  else if(B){ shell(); renderLegend(); renderAttrib(); renderFamUsage(); renderReplay(); selectTick(curTick); }
   else { document.getElementById('app').innerHTML='<div class="err">Select a target above to load its archive bundle.</div>'; }
 }
 document.getElementById('vtoggle').querySelectorAll('button').forEach(b=>b.onclick=()=>{
