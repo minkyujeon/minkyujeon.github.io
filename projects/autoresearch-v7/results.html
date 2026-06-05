@@ -168,7 +168,10 @@ td.ours{color:var(--red);font-weight:800}
     <h2>Reasoning replay <span class="hint">— the agent's hypothesis at each step</span></h2>
     <p class="lead">Step through the campaign: each marker is a decision point where the agent formed one or more falsifiable hypotheses about what was limiting success and what to try next. Click a marker — or press play — to read its scientific reasoning and outcome. (Control logic and configurations are not shown.)</p>
     <div class="tl-controls">
+      <button id="tlPrev">◀ prev</button>
       <button id="playBtn">▶ Play</button>
+      <button id="tlNext">next ▶</button>
+      <button id="tlGain">⤴ next SU gain</button>
       <input type="range" id="scrub" min="0" max="0" value="0"/>
       <span class="readout" id="readout"></span>
       <span style="flex:1"></span>
@@ -460,6 +463,9 @@ document.getElementById('playBtn').onclick=function(){
   this.textContent='❚❚ Pause';
   playing=setInterval(()=>{tlIdx++;if(tlIdx>=rows.length){tlIdx=rows.length-1;clearInterval(playing);playing=null;document.getElementById('playBtn').textContent='▶ Play';}renderTimeline();},1100);
 };
+document.getElementById('tlPrev').onclick=()=>{if(tlIdx>0){tlIdx--;renderTimeline();}};
+document.getElementById('tlNext').onclick=()=>{if(tlIdx<tlRows().length-1){tlIdx++;renderTimeline();}};
+document.getElementById('tlGain').onclick=()=>{const rows=tlRows();let i=tlIdx+1;while(i<rows.length&&!(rows[i].su>rows[i-1].su))i++;if(i<rows.length){tlIdx=i;renderTimeline();}};
 
 /* ---------- quality: Ours vs baseline (per target) ---------- */
 const QAXES=[['plddt','pLDDT','↑',1],['ipae','iPAE','↓',3],['scrmsd','scRMSD (Å)','↓',3]];
