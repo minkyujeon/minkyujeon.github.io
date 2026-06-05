@@ -89,6 +89,10 @@ svg{display:block}
 .bt{height:13px;background:#0a1322;border-radius:5px;overflow:hidden}.bf{height:100%;border-radius:5px;min-width:2px}
 .bv{font-weight:700}
 .lgnd b{color:#cdd9ec}
+.exnav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0 10px;font-size:12px;color:var(--mut)}
+.exnav button{border:1px solid var(--line);background:#0e1728;color:#cdd9ec;border-radius:7px;padding:4px 10px;font-weight:700;font-size:11.5px;cursor:pointer}
+.exnav button:hover{border-color:var(--blue)} .exnav button.jump{background:#1d4ed8;border-color:#1d4ed8;color:#fff}
+.err button{margin-top:10px;border:1px solid var(--blue);background:#1d4ed8;color:#fff;border-radius:8px;padding:7px 16px;font-weight:700;cursor:pointer}
 </style></head><body>
 <div class="banner">INTERNAL — full pipeline detail (evidence, planner, supervisor, selector, dispatch, results). Not for public distribution.</div>
 <div class="top">
@@ -104,7 +108,7 @@ svg{display:block}
 <div id="app"></div>
 <script id="idx" type="application/json">{"generated":"2026-06-04","targets":[{"id":"CD45","name":"CD45","status":"running","su":481,"ticks":369,"results":8498,"mb":13.0},{"id":"BetV1","name":"BetV1","status":"running","su":56,"ticks":273,"results":3320,"mb":8.6},{"id":"SC2RBD","name":"SC2RBD","status":"running","su":51,"ticks":325,"results":5773,"mb":12.1},{"id":"HER2_AAV","name":"HER2-AAV","status":"running","su":292,"ticks":356,"results":3957,"mb":11.2},{"id":"CbAgo","name":"CbAgo","status":"running","su":31,"ticks":526,"results":8163,"mb":16.0},{"id":"PDL1","name":"PD-L1","status":"cancelled snapshot","su":430,"ticks":214,"results":3920,"mb":6.9},{"id":"TNFalpha","name":"TNF-\u03b1","status":"early V7.1","su":1,"ticks":54,"results":325,"mb":1.5}]}</script><script>
 const IDX = JSON.parse(document.getElementById('idx').textContent);
-let B=null, curTick=0, view='explorer';
+let B=null, curTick=0, view='explorer', curMod=0, curTarget=null;
 const MODECOL={exploit:'#60a5fa',rescue:'#fbbf24',explore:'#a78bfa',chain_refilter:'#2dd4bf'};
 const esc=s=>(s==null?'':String(s)).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
 const J=(o)=>esc(JSON.stringify(o,null,2));
@@ -118,13 +122,17 @@ function pills(){
   document.querySelectorAll('.pill').forEach(p=>p.onclick=()=>load(p.dataset.id));
 }
 function load(id){
+  curTarget=id;
   document.querySelectorAll('.pill').forEach(p=>p.classList.toggle('active',p.dataset.id===id));
-  document.getElementById('app').innerHTML='<div class="err">Loading bundle…</div>';
-  fetch('bundle-'+id+'.json').then(r=>{if(!r.ok)throw 0;return r.json();}).then(b=>{
+  document.getElementById('app').innerHTML='<div class="err">Loading '+id+' bundle…</div>';
+  fetch('bundle-'+id+'.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw 0;return r.json();}).then(b=>{
     B=b; curTick=B.ticks.findIndex(t=>(t.su_delta||0)>0); if(curTick<0)curTick=0;
     renderTotals(); applyView();
   }).catch(()=>{document.getElementById('app').innerHTML=
-    '<div class="err">Could not fetch <b>bundle-'+id+'.json</b>. Open this page over HTTP, not file://<br>e.g. <code>cd .../autoresearch-v7/private &amp;&amp; python3 -m http.server 8123</code> then visit <code>http://localhost:8123/internal.html</code></div>';});
+    '<div class="err">Could not load <b>bundle-'+id+'.json</b> yet.<br>'+
+    '&bull; On GitHub Pages right after a push, large files take ~1&ndash;2&nbsp;min to deploy &mdash; wait, then retry.<br>'+
+    '&bull; Locally, serve over HTTP (not file://): <code>python3 -m http.server</code> in this folder.<br>'+
+    '<button onclick="load(\''+id+'\')">Retry</button></div>';});
 }
 function renderTotals(){
   const t=B.totals;
@@ -387,11 +395,21 @@ function renderPipeline(){
   document.querySelectorAll('.pnode').forEach(n=>n.onclick=()=>{document.querySelectorAll('.pnode').forEach(x=>x.classList.toggle('psel',x===n));showMod(+n.dataset.i);});
   const f=document.querySelector('.pnode'); if(f)f.classList.add('psel'); showMod(0);
 }
+function stepMod(d){ if(!B)return; curTick=Math.max(0,Math.min(B.ticks.length-1,curTick+d)); showMod(curMod); }
+function jumpTick(i){ curTick=i; view='explorer';
+  document.querySelectorAll('#vtoggle button').forEach(x=>x.classList.toggle('active',x.dataset.v==='explorer'));
+  applyView(); window.scrollTo({top:0,behavior:'smooth'}); }
 function showMod(i){
+  curMod=i;
   const m=MODSPEC[i], t=B?B.ticks[curTick]:null;
   const kb=m.kind==='LLM'?'llm':(m.kind==='off'?'off':'');
   let ex='';
-  if(m.live){ ex=`<h4>Live example${t?` — ${B.name} · tick ${t.n}`:''}</h4>`+(t?m.live(t):'<div class="mut">Load a target (top) to see a real example from the archive.</div>'); }
+  if(m.live){
+    const nav=t?`<div class="exnav"><span>example from <b>${B.name}</b> · tick <b>${t.n}</b> <span class="mut">(${esc(t.tick_id)})</span></span>
+      <span style="flex:1"></span><button onclick="stepMod(-1)">◀ prev tick</button><button onclick="stepMod(1)">next tick ▶</button>
+      <button class="jump" onclick="jumpTick(${curTick})">↳ open this tick in Decision explorer</button></div>`:'';
+    ex=`<h4>Live example</h4>${nav}`+(t?m.live(t):'<div class="mut">Load a target (top) to see a real example from the archive.</div>');
+  }
   document.getElementById('pdetail').innerHTML=`
     <div class="pdh"><span class="pk ${kb}">${m.kind==='LLM'?'LLM':(m.kind==='off'?'offline':'deterministic')}</span><h3>${i+1}. ${m.name}</h3></div>
     <p class="prole">${m.role}</p>
