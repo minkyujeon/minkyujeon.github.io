@@ -93,6 +93,14 @@ svg{display:block}
 .exnav button{border:1px solid var(--line);background:#0e1728;color:#cdd9ec;border-radius:7px;padding:4px 10px;font-weight:700;font-size:11.5px;cursor:pointer}
 .exnav button:hover{border-color:var(--blue)} .exnav button.jump{background:#1d4ed8;border-color:#1d4ed8;color:#fff}
 .err button{margin-top:10px;border:1px solid var(--blue);background:#1d4ed8;color:#fff;border-radius:8px;padding:7px 16px;font-weight:700;cursor:pointer}
+.exwrap{padding:14px 16px 40px}
+.rwc{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px}
+.rwc button{border:1px solid var(--line);background:#0e1728;color:#cdd9ec;border-radius:7px;padding:6px 11px;font-weight:700;font-size:12px;cursor:pointer}
+.rwc button:hover{border-color:var(--blue)}
+.rwc input[type=range]{flex:1;min-width:160px}
+.readout{font-weight:700;color:#cdd9ec;font-size:12px;font-variant-numeric:tabular-nums}
+.tip{position:fixed;pointer-events:none;background:#0a1322;border:1px solid var(--line);color:#e6edf6;padding:7px 9px;border-radius:7px;font-size:11.5px;box-shadow:0 8px 18px rgba(0,0,0,.4);display:none;z-index:60;max-width:300px}
+#timeline{cursor:crosshair}
 </style></head><body>
 <div class="banner">INTERNAL — full pipeline detail (evidence, planner, supervisor, selector, dispatch, results). Not for public distribution.</div>
 <div class="top">
@@ -106,11 +114,17 @@ svg{display:block}
   </div>
 </div>
 <div id="app"></div>
+<div class="tip" id="tip"></div>
 <script id="idx" type="application/json">{"generated":"2026-06-04","targets":[{"id":"CD45","name":"CD45","status":"running","su":481,"ticks":369,"results":8498,"mb":13.0},{"id":"BetV1","name":"BetV1","status":"running","su":56,"ticks":273,"results":3320,"mb":8.6},{"id":"SC2RBD","name":"SC2RBD","status":"running","su":51,"ticks":325,"results":5773,"mb":12.1},{"id":"HER2_AAV","name":"HER2-AAV","status":"running","su":292,"ticks":356,"results":3957,"mb":11.2},{"id":"CbAgo","name":"CbAgo","status":"running","su":31,"ticks":526,"results":8163,"mb":16.0},{"id":"PDL1","name":"PD-L1","status":"cancelled snapshot","su":430,"ticks":214,"results":3920,"mb":6.9},{"id":"TNFalpha","name":"TNF-\u03b1","status":"early V7.1","su":1,"ticks":54,"results":325,"mb":1.5}]}</script><script>
 const IDX = JSON.parse(document.getElementById('idx').textContent);
 let B=null, curTick=0, view='explorer', curMod=0, curTarget=null;
 const MODECOL={exploit:'#60a5fa',rescue:'#fbbf24',explore:'#a78bfa',chain_refilter:'#2dd4bf'};
+const STATECOL={productive:'#34d399',rescue_rich:'#fbbf24',stalled:'#f87171',low_evidence:'#94a3b8'};
+let rwPlay=null;
 const esc=s=>(s==null?'':String(s)).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const TIP=()=>document.getElementById('tip');
+function showTip(html,e){const t=TIP();t.innerHTML=html;t.style.display='block';t.style.left=(e.clientX+13)+'px';t.style.top=(e.clientY+13)+'px';}
+function hideTip(){TIP().style.display='none';}
 const J=(o)=>esc(JSON.stringify(o,null,2));
 const num=(x,d=3)=>(typeof x==='number'?(Math.abs(x)>=100?x.toFixed(0):x.toFixed(d)):(x==null?'—':esc(x)));
 function raw(label,obj){return `<details class="raw"><summary>${label}</summary><pre>${J(obj)}</pre></details>`;}
@@ -144,8 +158,51 @@ function renderTotals(){
 }
 function shell(){
   document.getElementById('app').innerHTML=
-    `<div class="wrap"><div class="left"><div class="sparkwrap" id="spark"></div><div id="ticklist"></div></div><div class="right"><div id="legend"></div><div id="attrib"></div><div id="chain"></div></div></div>`;
-  renderSpark();
+    `<div class="exwrap"><div id="legend"></div><div id="attrib"></div><div id="replay"></div><div id="chain"></div></div>`;
+}
+function renderReplay(){
+  const ts=B.ticks;
+  document.getElementById('replay').innerHTML=
+   `<div class="sec mod-head"><div class="b" style="padding:12px 13px">
+     <div class="rwc"><button id="rwprev">◀ prev</button><button id="rwplay">▶ play</button><button id="rwnext">next ▶</button>
+       <button id="rwgain">⤴ next SU gain</button>
+       <input type="range" id="rwscrub" min="0" max="${ts.length-1}" value="${curTick}"/>
+       <span class="readout" id="rwread"></span></div>
+     <div id="timeline"></div>
+     <div class="mut" style="font-size:11px;margin-top:4px">Click any point (or scrub / play) to load that tick's full module chain below. Larger dots = ticks where SU increased; colour = state.</div>
+   </div></div>`;
+  document.getElementById('rwprev').onclick=()=>selectTick(Math.max(0,curTick-1));
+  document.getElementById('rwnext').onclick=()=>selectTick(Math.min(ts.length-1,curTick+1));
+  document.getElementById('rwgain').onclick=()=>{let i=curTick+1;while(i<ts.length&&!((ts[i].su_delta||0)>0))i++;selectTick(i<ts.length?i:curTick);};
+  document.getElementById('rwscrub').oninput=e=>selectTick(+e.target.value);
+  document.getElementById('rwplay').onclick=function(){
+    if(rwPlay){clearInterval(rwPlay);rwPlay=null;this.textContent='▶ play';return;}
+    this.textContent='❚❚ pause';
+    rwPlay=setInterval(()=>{let i=curTick+1;while(i<ts.length&&!((ts[i].su_delta||0)>0))i++;
+      if(i>=ts.length){clearInterval(rwPlay);rwPlay=null;document.getElementById('rwplay').textContent='▶ play';return;} selectTick(i);},1100);
+  };
+  drawTimeline();
+}
+function drawTimeline(){
+  const host=document.getElementById('timeline'); if(!host)return; const ts=B.ticks;
+  const W=host.clientWidth||860,H=132,m={l:42,r:14,t:12,b:24};
+  const xmax=Math.max(...ts.map(t=>t.gpu_h),1), ymax=Math.max(1,...ts.map(t=>t.su));
+  const xs=v=>m.l+(v/xmax)*(W-m.l-m.r), ys=v=>H-m.b-(v/ymax)*(H-m.t-m.b);
+  let g=`<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}">`;
+  for(let i=0;i<=4;i++){const v=ymax*i/4;g+=`<line x1="${m.l}" y1="${ys(v).toFixed(1)}" x2="${W-m.r}" y2="${ys(v).toFixed(1)}" stroke="#16233c"/><text x="${m.l-5}" y="${(ys(v)+3).toFixed(1)}" text-anchor="end" font-size="9" fill="#5f7494">${Math.round(v)}</text>`;}
+  g+=`<path d="${ts.map((t,i)=>(i?'L':'M')+xs(t.gpu_h).toFixed(1)+' '+ys(t.su).toFixed(1)).join(' ')}" fill="none" stroke="#f87171" stroke-width="1.8"/>`;
+  ts.forEach(t=>{if((t.su_delta||0)>0)g+=`<circle cx="${xs(t.gpu_h).toFixed(1)}" cy="${ys(t.su).toFixed(1)}" r="3.4" fill="${STATECOL[t.state]||'#94a3b8'}"/>`;});
+  const c=ts[curTick];
+  g+=`<line x1="${xs(c.gpu_h).toFixed(1)}" y1="${m.t}" x2="${xs(c.gpu_h).toFixed(1)}" y2="${H-m.b}" stroke="#60a5fa" stroke-width="1.4"/>`;
+  g+=`<circle cx="${xs(c.gpu_h).toFixed(1)}" cy="${ys(c.su).toFixed(1)}" r="5" fill="#60a5fa" stroke="#0b1220" stroke-width="1.5"/>`;
+  g+=`<text x="${W-m.r}" y="${H-6}" text-anchor="end" fill="#5f7494" font-size="9">worker GPU-hours →</text>`;
+  g+=`<rect x="${m.l}" y="${m.t}" width="${W-m.l-m.r}" height="${H-m.t-m.b}" fill="transparent" id="rwov"/></svg>`;
+  host.innerHTML=g;
+  const ov=host.querySelector('#rwov');
+  const pick=ev=>{const r=host.querySelector('svg').getBoundingClientRect();const gx=((ev.clientX-r.left)*(W/r.width)-m.l)/(W-m.l-m.r)*xmax;let bi=0,bd=1e9;ts.forEach((t,i)=>{const dd=Math.abs(t.gpu_h-gx);if(dd<bd){bd=dd;bi=i;}});return bi;};
+  ov.onclick=ev=>selectTick(pick(ev));
+  ov.onmousemove=ev=>{const t=ts[pick(ev)];showTip(`tick <b>${t.n}</b> · ${t.gpu_h} GPU-h · SU <b>${t.su}</b>${t.su_delta>0?' (+'+t.su_delta+')':''} · ${t.state}`,ev);};
+  ov.onmouseleave=hideTip;
 }
 function renderLegend(){
   const sw=(c,l)=>`<span style="display:inline-flex;align-items:center;gap:4px;margin:0 12px 4px 0"><span style="width:11px;height:11px;border-radius:3px;background:${c};display:inline-block"></span>${l}</span>`;
@@ -212,10 +269,11 @@ function renderTickList(){
   document.querySelectorAll('.tkrow').forEach(r=>r.onclick=()=>selectTick(+r.dataset.i));
 }
 function selectTick(i){
-  curTick=i;
-  document.querySelectorAll('.tkrow').forEach(r=>r.classList.toggle('sel',+r.dataset.i===i));
-  const row=document.querySelector('.tkrow[data-i="'+i+'"]'); if(row)row.scrollIntoView({block:'nearest'});
-  renderChain(B.ticks[i]);
+  curTick=i; const t=B.ticks[i];
+  const sc=document.getElementById('rwscrub'); if(sc)sc.value=i;
+  const rd=document.getElementById('rwread'); if(rd)rd.textContent=`tick ${t.n} (${t.tick_id}) · ${t.gpu_h} GPU-h · SU ${t.su}${t.su_delta>0?' (+'+t.su_delta+')':''} · ${t.state}`;
+  drawTimeline();
+  renderChain(t);
 }
 function sec(mod,title,count,inner,collapsed){
   return `<div class="sec mod-${mod} ${collapsed?'collapsed':''}"><div class="h" onclick="this.parentNode.classList.toggle('collapsed')">
@@ -275,7 +333,7 @@ function renderChain(t){
       <td class="mono" style="font-size:10px">${esc(c.parent_result_id||'')}</td><td>${esc(c.lane_id||'')}/${esc(c.operator_id||'')}</td>
       <td>${esc(c.estimated_cost_class||'')}</td><td>${ok?'<span class=good>✓</span>':'<span class=bad>✗ '+esc((f.reasons||[]).join(','))+'</span>'}</td></tr>`;}).join('')+
     `</tbody></table>`+raw('candidates JSON',cands):'<span class="mut">none</span>';
-  C.push(sec('candidates','③ Candidates built (deterministic)',cands.length,cd,true));
+  C.push(sec('candidates','③ Candidates built (deterministic)',cands.length,cd,false));
   // SUPERVISOR
   const s=t.supervisor;
   let sv;
@@ -309,7 +367,7 @@ function renderChain(t){
       <td>${r.strict?'<span class=good>✓</span>':''}</td><td>${num(m.pLDDT,1)}</td><td>${num(m.iPAE,3)}</td><td>${num(m.binder_scRMSD,3)}</td><td>${num(m.ipTM,2)}</td><td>${num(r.gpu_h,3)}</td><td class="mut">${esc(r.exit)}</td></tr>`;}).join('')+`</tbody></table>`;
     if(R.length>120) re+=`<div class="mut" style="margin-top:5px">… ${R.length-120} more (see raw JSON)</div>`;
     re+=raw('results JSON ('+R.length+')',R);}
-  C.push(sec('results','⑦ Results — outcomes',rs.n,re,true));
+  C.push(sec('results','⑦ Results — outcomes',rs.n,re,false));
   // LLM CALLS
   const LL=t.llm||[];
   let lc=LL.length?`<table><thead><tr><th>role</th><th>model</th><th>latency s</th><th>conf</th><th>parse</th><th>abstain</th><th>fallback</th></tr></thead><tbody>`+
@@ -320,7 +378,7 @@ function renderChain(t){
   let pn=p?`<div class="kpi">${kpi('K',p.K)}${kpi('panel value',num(p.panel_value,2))}</div>
     <div class="mut">diversity bins: ${esc(JSON.stringify(p.diversity_bins))}</div>
     <div class="mut" style="margin-top:4px">selected: ${(p.selected_ids||[]).slice(0,12).map(esc).join(', ')}</div>${raw('panel JSON',p)}`:'<span class="mut">none</span>';
-  C.push(sec('panel','⑨ Panel snapshot',p?p.K:0,pn,true));
+  C.push(sec('panel','⑨ Panel snapshot',p?p.K:0,pn,false));
   document.getElementById('chain').innerHTML=C.join('');
 }
 function kpi(label,val){return `<div class="b"><span>${label}</span><b>${val==null?'—':esc(val)}</b></div>`;}
@@ -419,7 +477,7 @@ function showMod(i){
 }
 function applyView(){
   if(view==='pipeline'){ renderPipeline(); }
-  else if(B){ shell(); renderLegend(); renderAttrib(); renderTickList(); selectTick(curTick); }
+  else if(B){ shell(); renderLegend(); renderAttrib(); renderReplay(); selectTick(curTick); }
   else { document.getElementById('app').innerHTML='<div class="err">Select a target above to load its archive bundle.</div>'; }
 }
 document.getElementById('vtoggle').querySelectorAll('button').forEach(b=>b.onclick=()=>{
