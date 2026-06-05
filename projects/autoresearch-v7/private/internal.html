@@ -101,6 +101,9 @@ svg{display:block}
 .readout{font-weight:700;color:#cdd9ec;font-size:12px;font-variant-numeric:tabular-nums}
 .tip{position:fixed;pointer-events:none;background:#0a1322;border:1px solid var(--line);color:#e6edf6;padding:7px 9px;border-radius:7px;font-size:11.5px;box-shadow:0 8px 18px rgba(0,0,0,.4);display:none;z-index:60;max-width:300px}
 #timeline{cursor:crosshair}
+.suhit{margin-top:9px;padding:9px 12px;background:#0c2a1c;border:1px solid #1c6b46;border-radius:8px;color:#d7f7e6;font-size:12.5px}
+.suhit b{color:#fff}
+.sunohit{margin-top:9px;padding:7px 12px;background:#0e1728;border:1px solid var(--line);border-radius:8px;color:var(--mut);font-size:12px}
 </style></head><body>
 <div class="banner">INTERNAL — full pipeline detail (evidence, planner, supervisor, selector, dispatch, results). Not for public distribution.</div>
 <div class="top">
@@ -283,6 +286,11 @@ function kvtags(o,keys){return keys.filter(k=>o&&o[k]!=null&&o[k]!=='').map(k=>`
 
 function renderChain(t){
   const C=[];
+  const strictFams=[...new Set((t.results||[]).filter(r=>r.strict).map(r=>r.fam))];
+  const mmH=(t.supervisor||{}).mode_mixture; const domMode=mmH?Object.keys(mmH).reduce((a,b)=>mmH[b]>mmH[a]?b:a):null;
+  const suhit=t.su_delta>0
+    ?`<div class="suhit">&#9650; <b>+${t.su_delta} structure-unique SU</b> gained at this tick &mdash; strict results from <b>${strictFams.join(', ')||'a verification chain'}</b>${domMode?`; supervisor leaned <b style="color:${MODECOL[domMode]||'#cdd9ec'}">${domMode}</b>`:''}. Running total <b>${t.su}</b> SU.</div>`
+    :`<div class="sunohit">No new SU at this tick &middot; running total <b>${t.su}</b> SU.</div>`;
   // header
   C.push(`<div class="sec mod-head"><div class="b" style="padding:12px 13px">
     <div class="kpi">
@@ -293,7 +301,7 @@ function renderChain(t){
       <div class="b"><span>worker GPU-h</span><b>${t.gpu_h}</b></div>
       <div class="b"><span>charged</span><b>${t.charged}</b></div>
       <div class="b"><span>wall elapsed/rem</span><b>${t.wall_elapsed}/${t.wall_remaining}h</b></div>
-    </div></div></div>`);
+    </div>${suhit}</div></div>`);
   // EVIDENCE
   const e=t.evidence||{};
   let ev=`<div class="kpi">
@@ -389,41 +397,41 @@ function liveRaw(label,obj,summary){
   return (summary?`<div class="mut" style="margin:4px 0">${summary}</div>`:'')+raw(label,obj);
 }
 const MODSPEC=[
- {id:'archive',name:'Archive',kind:'det',role:'Append-only, replayable store of the whole campaign. Single source of truth; every other module only reads/appends here.',
+ {id:'archive',name:'Archive',kind:'det',role:'The Archive is the project memory and the single source of truth. Every module only reads from it and appends to it — there is no hidden state anywhere else. Each record is stamped with the tick it belongs to, so the complete decision chain for any moment can be reconstructed exactly (that is what this explorer does). Final reporting and replay read these files alone; the live caches are derived and disposable.',
   input:'Appends from every module (results, hypotheses, decisions, …).',
   output:'13 JSON-lines streams per target: result_records, evidence_summaries, hypothesis_cards, action_candidates, supervisor_decisions, launch_decisions, dispatch_records, llm_call_records, panel_selections (+more).',
   how:['Every record carries <code>tick_id</code> (e.g. <code>v7r369</code>) so the whole decision chain re-joins per tick.','A result record holds <code>backend_family, parent_ids, route_lineage, metrics{pLDDT,iPAE,binder_scRMSD,…}, gpu_h, exit_status, artifacts.pdb_path</code>.','Reporting + replay read only these files; the EvidenceSummary is derived state, never authoritative.'],
   live:t=>liveRaw('a result_record (example)',(t.results||[])[0],`${(t.results||[]).length} result records this tick`)},
- {id:'evidence',name:'EvidenceReducer',kind:'det',role:'Turns the raw archive into the trusted, typed feedback the LLM reasons over.',
+ {id:'evidence',name:'EvidenceReducer',kind:'det',role:'Generators produce thousands of raw structures; the EvidenceReducer turns that flood into a small, trustworthy, typed summary that an LLM can actually reason over. Each tick it re-clusters the strict successes (to count structurally-unique wins), tracks near-misses, measures mode-collapse, and rolls up per-method performance. Critically it attaches a trust/provenance flag to every number, so a degraded tool shows up as unknown rather than silently inflating success.',
   input:'All result_records for the target (this tick and before).',
   output:'One EvidenceSummary (the LLM input): axis stats, method_health per family, diversity, near-miss memory, recipes, exemplars, route/backlog health, panel snapshot, state_label.',
   how:['Four clustering passes: strict-only Foldseek → <code>run_su_count</code> (headline SU); near-miss-only Foldseek; recent-window whole-archive Foldseek → <code>duplicate_fraction / top_bin_share</code>; MMseqs2 → sequence uniqueness.','Per-family <code>method_health</code>: attempts, cumulative_gpu_h, strict_yield_su, chained_strict_yield_su, su_per_gpu_h_recent.','Exact in-process cache keyed by a SHA-256 of inputs + binaries; failures are never cached.','Provenance/trust flags on every dedup (status, coverage).'],
   live:t=>liveRaw('EvidenceSummary JSON (LLM input)',t.evidence,t.evidence?`${Object.keys(t.evidence).length} fields · state=${t.evidence.state_label} · SU=${t.evidence.run_su_count} · dup_frac=${num(t.evidence.duplicate_fraction,2)}`:null)},
- {id:'state',name:'StateClassifier',kind:'det',role:'Compresses the evidence into one control state that conditions defaults & safety logic.',
+ {id:'state',name:'StateClassifier',kind:'det',role:'Instead of asking the LLM to infer how the campaign is going from scratch every tick, a deterministic classifier compresses the evidence into one of four control states. That single label sets the safe defaults and the guardrails downstream — a stalled run is pushed to explore, a productive run is allowed to exploit. The LLM can see the label but cannot move it.',
   input:'Evidence signals: recent SU rate, duplicate fraction, near-miss count, top_bin_share.',
   output:'<code>state_label ∈ {productive, rescue_rich, stalled, low_evidence}</code>.',
   how:['<b>low_evidence</b>: cold start.','<b>productive</b>: recent SU accruing, low collapse.','<b>rescue_rich</b>: many near-misses concentrated on one axis.','<b>stalled</b>: budget spent, no recent SU, structural collapse (top_bin_share high).','The LLM sees the label but cannot change it; it drives default mixtures and which clamps fire.'],
   live:t=>liveRaw('state',{state_label:t.state,top_bin_share:(t.evidence||{}).top_bin_share,near_miss_count:(t.evidence||{}).near_miss_count,su_per_gpu_h_recent:(t.evidence||{}).su_per_gpu_h_recent},`state = ${t.state}`)},
- {id:'planner',name:'Planner',kind:'LLM',role:'Reads the evidence and proposes falsifiable hypotheses about what is limiting success and what to try next.',
+ {id:'planner',name:'Planner',kind:'LLM',role:'This is where language genuinely helps. The Planner reads the evidence and writes down falsifiable scientific hypotheses about what is limiting success and what to try next. Each hypothesis must cite the evidence it rests on and predict which metric axis it will move, so later runs can mark it supported or contradicted by its own descendants. The free-text reasoning is recorded for audit, but only the schema-validated families and parameters are ever executed.',
   input:'EvidenceSummary + the registered action families available this tick + allowed parameter ranges.',
   output:'1–4 HypothesisCards: claim, reasoning_trace{observed_signal→inference→action_implication}, mode_affinity{exploit,rescue,explore}, recommended_action_families, config_delta_suggestions, predicted_metric_changes, preserve_constraints, evidence_refs.',
   how:['Objective in-prompt: maximize structure-unique strict success per GPU-hour (not raw strict).','Must cite archive evidence (<code>evidence_refs</code>) and route a near-miss fix to its dominant deficit axis.','Cards get a lifecycle: supported (≥2 supporting descendants) / contradicted (≥3 evaluated, ≥70% contradict) / TTL≈10 ticks.','The free-text reasoning is audit metadata; dispatch depends only on the schema-validated families/params.'],
   live:t=>liveRaw('HypothesisCards JSON (Planner output)',t.cards,`${(t.cards||[]).length} cards · e.g. "${((t.cards||[])[0]||{}).claim||'—'}"`)},
- {id:'critic',name:'Critic (optional)',kind:'LLM',role:'Flag-only audit of the planner output before candidates are built (ablatable).',
+ {id:'critic',name:'Critic (optional)',kind:'LLM',role:'An optional second LLM pass that audits the planner cards before anything runs — flagging evidence-free claims, reuse of already-contradicted hypotheses, or out-of-range requests. It is deliberately flag-only: it can warn, but it never edits a card or a threshold. It can be switched off for ablations.',
   input:'Planner cards + evidence.',output:'Advisory flags (does not block dispatch).',
   how:['Checks for evidence-free claims, contradicted-hypothesis reuse, range violations.','Flag-only: never edits cards or thresholds.'],
   live:t=>liveRaw('critic LLM calls this tick',(t.llm||[]).filter(x=>x.role==='critic'))},
- {id:'candidates',name:'CandidateBuilder',kind:'det',role:'Turns hypotheses into validated, executable typed actions.',
+ {id:'candidates',name:'CandidateBuilder',kind:'det',role:'A deterministic step that turns each hypothesis into concrete, runnable experiments. It validates every requested parameter against the capability registry, resolves the parent structures that redesign and refilter actions need, and attaches the downstream verification a diagnostic generator requires to earn credit. It also injects safety fallbacks (cold-start search, stalled-state escapes) so the campaign keeps moving even when the LLM output is thin.',
   input:'HypothesisCards.',
   output:'ActionCandidates: method_family, config_delta (validated vs capability registry), parent_result_id, downstream_route_plan, feasibility{backend_healthy,cost_ok,route_cap_ok,…}, lane_id, operator_id, estimated_cost_class.',
   how:['Validates config_delta against registry ranges (drops bad keys, re-checks eval-budget).','Resolves parent PDBs for parent-required families; attaches a downstream refilter plan to diagnostic generators.','Adds deterministic fallbacks (cold-start search; stalled escapes) and auto-chains diagnostic outputs to canonical refiltering.','Infeasible candidates stay in the pool (auditable) but are dropped by the Selector.'],
   live:t=>liveRaw('ActionCandidates JSON',t.candidates,`${(t.candidates||[]).length} candidates · families: ${[...new Set((t.candidates||[]).map(c=>c.method_family))].join(', ')}`)},
- {id:'supervisor',name:'Supervisor',kind:'LLM',role:'Ranks the candidate pool and sets the exploit/rescue/explore budget split.',
+ {id:'supervisor',name:'Supervisor',kind:'LLM',role:'The Supervisor decides how to spend the next batch of GPU time. It ranks the validated candidate pool and emits a budget split across three strategies — exploit (more of what is working), rescue (convert near-misses into wins), and explore (try something orthogonal). The mixture is advice only: the deterministic Selector below can clamp or override it, and the Supervisor can never launch a job itself.',
   input:'EvidenceSummary + active cards + the validated candidate pool + per-state mode-mixture ranges.',
   output:'SupervisorOutput: mode_mixture{exploit,rescue,explore} (sums to 1), candidate_decisions[{candidate_id,mode,rank_in_mode,expected_signal,reasoning_trace}], confidence, clamps_applied.',
   how:['Rank exploit by recent SU/GPU-h; diagnostic generators by recent chained credit.','Each candidate appears in at most one mode.','The mixture is advisory — the deterministic Selector clamps & quota-allocates it; the Supervisor cannot start jobs.'],
   live:t=>t.supervisor?(`<div class="mut">mode_mixture ${JSON.stringify(t.supervisor.mode_mixture)} · confidence ${t.supervisor.confidence} · clamps ${(t.supervisor.clamps_applied||[]).join(', ')||'none'}</div>`+mixbar(t.supervisor.mode_mixture,360)+raw('SupervisorOutput JSON',t.supervisor)):'<div class="mut">no supervisor decision this tick</div>'},
- {id:'selector',name:'Selector',kind:'det',role:'Deterministically turns the mixture + ranks into concrete launches. Guarantees feasibility, budget split and diversity.',
+ {id:'selector',name:'Selector',kind:'det',role:'The Selector is the safety-and-fairness gate that converts the Supervisor advice into actual launches. It honours the LLM intent when the evidence is trustworthy, but clamps it when signals say otherwise (low confidence, mode collapse, a stalled run), then allocates the three GPU slots so that even a small exploration share is never rounded away. Because it is fully deterministic, the launched batch is exactly reproducible from its inputs.',
   input:'Validated candidates + SupervisorOutput + evidence + recent realised modes.',
   output:'LaunchDecisions (launched + top-3 rejected/mode), each with realised mode, resource class, source, why.',
   how:['<b>① hard gates</b> (feasibility) → <b>② resolve mixture</b> (LLM or DEFAULT_MIXTURES) → <b>③ clamp</b> (Cat-A always, Cat-B gated) → <b>④ windowed deficit-fill quotas</b> (K=10) → <b>⑤ rank within mode + diversity cap</b> → <b>⑥ backfill idle slots</b> → <b>⑦ emit</b>.',
@@ -432,15 +440,15 @@ const MODSPEC=[
   'Windowed deficit-fill (K=10): each of 3 slots → mode with largest (target − recent-actual) share, so a 10% explore floor wins ≈1 slot per 10 launches instead of rounding to 0.',
   'Diversity cap 2/family — relaxed to 3 when confident + productive/low_evidence + no collapse. chain_* refilters compete in the rescue slot but log realised mode <code>chain_refilter</code> so they don\'t skew the window.'],
   live:t=>liveRaw('LaunchDecisions JSON',t.launches,`${(t.launches||[]).filter(x=>x.status==='launched').length} launched / ${(t.launches||[]).filter(x=>x.status!=='launched').length} rejected`)},
- {id:'dispatch',name:'Controller / Dispatcher',kind:'det',role:'Runs selected candidates on free GPU slots and records what actually happened.',
+ {id:'dispatch',name:'Controller / Dispatcher',kind:'det',role:'The Controller/Dispatcher is the execution boundary. It places selected candidates onto free GPU workers, records what actually started (versus what was merely intended), and guards against silent failures — a job that burns GPU time but yields no artifact still writes a record, which keeps the GPU-hour accounting honest.',
   input:'LaunchDecisions.',output:'DispatchRecords (gpu_id, worker_slot, output_dir, status) → backend run → ResultRecords.',
   how:['Starts candidates on free GPU workers (CUDA_VISIBLE_DEVICES).','LaunchDecision (intent) vs DispatchRecord (actual start / terminal failure).','Exception-guarded; emits a synthetic failure record if a job burned GPU but produced no artifact (keeps GPU-h honest).'],
   live:t=>liveRaw('DispatchRecords JSON',t.dispatches,`${(t.dispatches||[]).length} dispatches`)},
- {id:'parsers',name:'Parsers',kind:'det',role:'Convert raw backend outputs into typed, comparable result records.',
+ {id:'parsers',name:'Parsers',kind:'det',role:'Backends emit results in their own formats and with their own (often optimistic) native scores. The Parsers normalise everything into one typed result record and, crucially, treat a generator native score as advisory — a design only counts as a success after it passes the single canonical structural gate.',
   input:'Backend output directories.',output:'ResultRecords with canonical metrics; native generator scores stay advisory until canonically refiltered.',
   how:['Strict gate (single source of truth): pLDDT≥90, iPAE≤7/31≈0.226, binder scRMSD≤1.5 Å.','Diagnostic families (BindCraft/BoltzGen/ProteinMPNN) earn SU only after a downstream structure_refilter re-scores them.'],
   live:t=>liveRaw('ResultRecords (examples)',(t.results||[]).slice(0,5),`${(t.results||[]).length} results · ${(t.results_summary||{}).strict||0} strict`)},
- {id:'finalizer',name:'Finalizer / Panel',kind:'off',role:'Offline authoritative consolidation + wet-lab panel selection.',
+ {id:'finalizer',name:'Finalizer / Panel',kind:'off',role:'Online dedup is a fast planning hint; the Finalizer is the authoritative, offline reckoning. It re-runs strict-only structural and sequence clustering on the completed campaign, then greedily selects a small, diverse wet-lab panel under the hard gate. The reported SU and the final panel always come from this pass, not from the live caches.',
   input:'The completed archive.',output:'Strict-only Foldseek + MMseqs2 dedup; a greedy top-K diverse PanelSelection.',
   how:['Re-runs strict-only structural + sequence dedup on the finished run (authoritative SU).','Greedy top-K panel: hard-gate on strict + artifact, diversify across structure/sequence/family.','Online caches are planning hints; this offline pass is authoritative for reported SU/panel.'],
   live:t=>liveRaw('PanelSelection JSON (snapshot)',t.panel,t.panel?`K=${t.panel.K} · panel_value=${num(t.panel.panel_value,2)}`:null)},
