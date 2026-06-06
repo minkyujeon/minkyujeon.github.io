@@ -32,7 +32,7 @@ Another key area of my research is **AI for Science**. I am currently working on
 ## Selected Projects
 
 <ul class="plain-list">
-  <li><strong>Agentic Inference-Time Scaling for De Novo Protein Design</strong>: AI-agent workflows for protein binder and scaffold design, with live tracking of Qwen-guided config search, validation runs, and hard-target diagnostics. <a href="/projects/autoresearch-v2/">Project hub</a> / <a href="/projects/agentic-protein-design.html">Historical archive</a></li>
+  <li><strong>Agentic Inference-Time Scaling for De Novo Protein Design</strong>: an LLM scientific agent that runs de novo protein-complex binder-design campaigns under a fixed GPU budget — reading structured evidence to form hypotheses, schedule generative and verification tools, and maximize structurally-unique binders per GPU-hour. <a href="/projects/">Project hub</a></li>
   <li><strong>CryoBench and Heterogeneous Cryo-EM Reconstruction</strong>: datasets and amortized reconstruction methods for challenging conformational heterogeneity problems in cryo-EM. <a href="https://cryobench.cs.princeton.edu/">CryoBench</a></li>
 </ul>
 
