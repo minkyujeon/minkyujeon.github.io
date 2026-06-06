@@ -1,14 +1,27 @@
 ---
-layout: about
-image: /assets/img/profile.jpg
+layout: minimal
+title: Minkyu Jeon
+description: >
+  PhD Candidate in Computer Science at Princeton University. Research focuses on 3D reconstruction,
+  generative models, and their applications to scientific imaging (cryo-EM, protein design).
 hide_description: true
 permalink: /
 ---
 
-# About
+<div class="intro">
+  <div>
+    <h1>Minkyu Jeon</h1>
+    <p class="contact-line">
+      mj7341@princeton.edu /
+      <a href="https://scholar.google.com/citations?hl=en&user=kyQR6ecAAAAJ">Google Scholar</a> /
+      <a href="https://www.linkedin.com/in/minkyu-jeon-9a5b92152/">LinkedIn</a> /
+      <a href="https://x.com/MinkyuJeon19791">X</a>
+    </p>
+  </div>
+  <img class="profile-photo" src="/assets/img/profile.jpg" alt="Minkyu Jeon">
+</div>
 
 Minkyu Jeon is a Ph.D. candidate in the Department of Computer Science at [Princeton University](https://www.cs.princeton.edu/), advised by [Prof. Ellen D. Zhong](https://ezlab.princeton.edu/). His research develops generative and representation learning methods for scientific inverse problems, with a current focus on heterogeneous cryo-EM reconstruction and AI-driven de novo protein design. He is a former summer research intern and contractor at [Prescient Design (Genentech)](https://www.gene.com/scientists/our-scientists/prescient-design), and a former Associate Computational Biologist and visiting graduate student at the [Broad Institute of MIT and Harvard](https://www.broadinstitute.org/).
-{:.lead}
 
 ## Research Interests
 
@@ -18,8 +31,10 @@ Another key area of my research is **AI for Science**. I am currently working on
 
 ## Selected Projects
 
-- **Agentic Inference-Time Scaling for De Novo Protein Design**: AI-agent workflows for protein binder and scaffold design, with live tracking of Qwen-guided config search, validation runs, and hard-target diagnostics. [Project hub](/projects/autoresearch-v2/) / [Historical archive](/projects/agentic-protein-design.html)
-- **CryoBench and Heterogeneous Cryo-EM Reconstruction**: datasets and amortized reconstruction methods for challenging conformational heterogeneity problems in cryo-EM. [CryoBench](https://cryobench.cs.princeton.edu/)
+<ul class="plain-list">
+  <li><strong>Agentic Inference-Time Scaling for De Novo Protein Design</strong>: AI-agent workflows for protein binder and scaffold design, with live tracking of Qwen-guided config search, validation runs, and hard-target diagnostics. <a href="/projects/autoresearch-v2/">Project hub</a> / <a href="/projects/agentic-protein-design.html">Historical archive</a></li>
+  <li><strong>CryoBench and Heterogeneous Cryo-EM Reconstruction</strong>: datasets and amortized reconstruction methods for challenging conformational heterogeneity problems in cryo-EM. <a href="https://cryobench.cs.princeton.edu/">CryoBench</a></li>
+</ul>
 
 ## News
 
@@ -48,17 +63,21 @@ Another key area of my research is **AI for Science**. I am currently working on
 
 ## Teaching
 
-- **Instructor**, [AI4ALL](https://ai4all.princeton.edu) — Princeton University, Summer 2024
-- **Teaching Assistant**, [Mathematics for Numerical Computing and Machine Learning (COS302)](https://cos302-f24.notion.site/COS-302-SML-305-ECE-305-Mathematics-for-Numerical-Computing-and-Machine-Learning-cf6eb3724cb644bbba13352bd83b1087) — Princeton University, Fall 2024
-- **Teaching Assistant**, Artificial Intelligence (COSE361) — Korea University, Spring 2021
-- **Teaching Assistant**, AI Security (AAA712) — Korea University, Fall 2020
-- **Tutorial Teaching Fellow**, Deep Learning — Korea University, Fall 2020
+<ul class="plain-list">
+  <li><strong>Instructor</strong>, <a href="https://ai4all.princeton.edu">AI4ALL</a> — Princeton University, Summer 2024</li>
+  <li><strong>Teaching Assistant</strong>, <a href="https://cos302-f24.notion.site/COS-302-SML-305-ECE-305-Mathematics-for-Numerical-Computing-and-Machine-Learning-cf6eb3724cb644bbba13352bd83b1087">Mathematics for Numerical Computing and Machine Learning (COS302)</a> — Princeton University, Fall 2024</li>
+  <li><strong>Teaching Assistant</strong>, Artificial Intelligence (COSE361) — Korea University, Spring 2021</li>
+  <li><strong>Teaching Assistant</strong>, AI Security (AAA712) — Korea University, Fall 2020</li>
+  <li><strong>Tutorial Teaching Fellow</strong>, Deep Learning — Korea University, Fall 2020</li>
+</ul>
 
 ## Contact
 
-<p style="font-size: 2em;">
-  <a href="mailto:mj7341@princeton.edu" title="Email">✉️</a>&nbsp;&nbsp;
-  <a href="https://x.com/MinkyuJeon19791" title="Twitter/X">𝕏</a>&nbsp;&nbsp;
-  <a href="https://www.linkedin.com/in/minkyu-jeon-9a5b92152/" title="LinkedIn"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" width="28" height="28" style="vertical-align: middle;"></a>&nbsp;&nbsp;
-  <a href="https://scholar.google.com/citations?hl=en&user=kyQR6ecAAAAJ" title="Google Scholar"><i class="ai ai-google-scholar" style="font-size:1em;vertical-align:middle;"></i></a>
+<p class="contact-line">
+  <a href="mailto:mj7341@princeton.edu">mj7341@princeton.edu</a> /
+  <a href="https://scholar.google.com/citations?hl=en&user=kyQR6ecAAAAJ">Google Scholar</a> /
+  <a href="https://www.linkedin.com/in/minkyu-jeon-9a5b92152/">LinkedIn</a> /
+  <a href="https://x.com/MinkyuJeon19791">X</a>
 </p>
+
+<p class="note">See <a href="/publications/">publications</a> for a fuller list, or my <a href="/cv/">CV</a>.</p>

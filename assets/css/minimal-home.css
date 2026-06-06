@@ -1,0 +1,344 @@
+@font-face {
+  font-family: "Newsreader";
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url("/assets/fonts/Newsreader.woff2") format("woff2");
+}
+
+:root {
+  --text: #111;
+  --muted: #555;
+  --faint: #777;
+  --rule: #ddd;
+  --link: #8b0000;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #fff;
+  color: var(--text);
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.page {
+  width: min(740px, calc(100% - 40px));
+  margin: 20px auto 56px;
+}
+
+.site-nav {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  margin-bottom: 34px;
+  font-size: 18px;
+}
+
+.site-nav nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 12px 16px;
+}
+
+.site-nav a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.site-nav a:hover {
+  color: var(--text);
+  text-decoration: underline;
+}
+
+h1 {
+  margin: 0 0 4px;
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.intro {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 28px;
+  margin-bottom: 18px;
+}
+
+.profile-photo {
+  width: 116px;
+  height: 116px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center 42%;
+  flex: 0 0 auto;
+}
+
+h2 {
+  margin: 32px 0 10px;
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+h3 {
+  margin: 24px 0 8px;
+  font-size: 23px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+p {
+  margin: 0 0 13px;
+}
+
+a {
+  color: var(--link);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.contact-line {
+  margin: 0 0 22px;
+  color: var(--muted);
+  font-size: 18px;
+}
+
+.contact-line a {
+  color: var(--link);
+}
+
+.pub-list,
+.plain-list,
+.post-list,
+.project-list {
+  margin: 0;
+  padding-left: 24px;
+}
+
+.pub-list li,
+.plain-list li,
+.post-list li,
+.project-list li {
+  margin-bottom: 13px;
+}
+
+.pub-title {
+  font-weight: 400;
+}
+
+.pub-meta {
+  color: var(--muted);
+}
+
+.pub-meta strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.pub-entry {
+  display: flex;
+  gap: 18px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.pub-entry:last-child {
+  border-bottom: 0;
+}
+
+.pub-thumb {
+  flex: 0 0 105px;
+}
+
+.pub-thumb img {
+  width: 105px;
+  height: 78px;
+  object-fit: cover;
+  display: block;
+  border-radius: 3px;
+}
+
+.pub-entry .pub-title {
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.pub-authors,
+.pub-venue,
+.pub-abstract,
+.pub-links {
+  font-size: 18px;
+}
+
+.pub-authors,
+.pub-abstract {
+  color: var(--muted);
+}
+
+.pub-abstract {
+  font-style: italic;
+}
+
+.venue-badge {
+  color: var(--muted);
+}
+
+.pub-links {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.project-list a,
+.post-list a {
+  font-weight: 600;
+}
+
+.project-list span,
+.post-list span {
+  color: var(--muted);
+}
+
+.project-list span {
+  display: block;
+}
+
+.post-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.post-list span {
+  flex: 0 0 auto;
+}
+
+.note {
+  color: var(--faint);
+  font-size: 18px;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--rule);
+  margin: 28px 0;
+}
+
+@media (max-width: 640px) {
+  .page {
+    width: min(100% - 28px, 760px);
+    margin-top: 18px;
+  }
+
+  .site-nav {
+    justify-content: flex-start;
+    margin-bottom: 28px;
+  }
+
+  .site-nav nav {
+    justify-content: flex-start;
+    margin-top: 8px;
+  }
+
+  h1 {
+    font-size: 30px;
+  }
+
+  h2 {
+    font-size: 25px;
+  }
+
+  h3 {
+    font-size: 22px;
+  }
+
+  .intro {
+    gap: 18px;
+  }
+
+  .profile-photo {
+    width: 88px;
+    height: 88px;
+  }
+
+  .pub-entry {
+    display: block;
+  }
+
+  .pub-thumb {
+    margin-bottom: 8px;
+  }
+
+  .post-list li {
+    display: block;
+  }
+}
+
+@media (max-width: 430px) {
+  .intro {
+    display: block;
+  }
+
+  .profile-photo {
+    margin-top: 8px;
+  }
+}
+
+/* --- generic markdown content (News table, Teaching, inline code) --- */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 17px;
+  margin: 4px 0 18px;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+
+th {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+td:first-child {
+  white-space: nowrap;
+  color: var(--faint);
+}
+
+code {
+  background: #f4f2ee;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 0.82em;
+  color: var(--muted);
+}
+
+ul:not([class]) {
+  padding-left: 24px;
+}
+
+ul:not([class]) li {
+  margin-bottom: 8px;
+}
+
+strong {
+  color: var(--text);
+  font-weight: 600;
+}
