@@ -58,7 +58,7 @@ function boot(){
   document.getElementById("resetView").addEventListener("click",()=>{if(viewer){viewer.zoomTo();viewer.render()}});
   initSelects();renderKpis();renderBenchmark();renderTrajectory();renderTraces();renderStructureCards();loadStructure(STRUCTURES[0]);
 }
-if(document.readyState==="complete") boot(); else window.addEventListener("load",boot,{once:true});
+if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",boot,{once:true}); else boot();
 </script>
 </body>
 </html>
