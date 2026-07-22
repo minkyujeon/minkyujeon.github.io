@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Protein Design Campaign v1 Presentation Demo</title>
+<script src="https://3Dmol.org/build/3Dmol-min.js"></script>
+<style>
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;background:#f6f7f9;color:#1f2933}
+header{background:#102a43;color:#fff;padding:30px 36px}
+main{padding:24px 36px 52px}
+h1{font-size:30px;margin:0 0 8px}
+h2{font-size:18px;color:#102a43;margin:0 0 12px}
+p{line-height:1.55}
+.sub{opacity:.84}
+.panel{background:#fff;border:1px solid #dde3ea;border-radius:8px;padding:16px 18px;margin-bottom:18px;box-shadow:0 1px 2px rgba(16,42,67,.05)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px}
+.target{background:#fff;border:1px solid #dde3ea;border-radius:8px;padding:14px;box-shadow:0 1px 2px rgba(16,42,67,.05)}
+.target h3{margin:0 0 8px;color:#102a43;font-size:17px}
+.metric{display:grid;grid-template-columns:120px 1fr 66px;gap:8px;align-items:center;margin:7px 0;font-size:13px}
+.label{color:#52606d;font-weight:650}
+.bar{height:13px;background:#e5edf5;border-radius:999px;overflow:hidden}
+.fill{height:100%;background:#1f6feb}
+.fill.base{background:#94a3b8}
+.fill.human{background:#16a34a}
+.fill.bad{background:#cbd5e1}
+.pct{text-align:right;font-variant-numeric:tabular-nums}
+.detail{margin-top:8px;color:#52606d;font-size:12px;line-height:1.45}
+table{border-collapse:collapse;width:100%;background:#fff}
+th,td{border:1px solid #d9e2ec;padding:8px 9px;text-align:left;font-size:12px;vertical-align:top}
+th{background:#f0f4f8;color:#334e68}
+.good{color:#176c36;font-weight:700}
+.warn{color:#8d2b0b;font-weight:700}
+.muted{color:#829ab1}
+a.btn{display:inline-block;background:#1f6feb;color:#fff;text-decoration:none;padding:8px 11px;border-radius:6px;font-size:13px;font-weight:700}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+button.btn{border:0;cursor:pointer}
+iframe.treeframe{width:100%;height:560px;border:1px solid #d9e2ec;border-radius:8px;background:#fff}
+.viewer{height:420px;border:1px solid #d9e2ec;border-radius:8px;background:#fff;position:relative;overflow:hidden}
+.viewer-meta{font-size:13px;color:#52606d;margin:8px 0}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin:8px 0 4px;font-size:13px;color:#334e68}
+.legend-item{display:inline-flex;align-items:center;gap:6px}
+.swatch{width:13px;height:13px;border-radius:3px;display:inline-block;border:1px solid rgba(16,42,67,.22)}
+.swatch.target-chain{background:#2563eb}
+.swatch.binder-chain{background:#f97316}
+.small{font-size:12px;color:#52606d}
+</style>
+</head>
+<body>
+<header>
+  <h1>Protein Design Campaign v1 demo: baseline, human best, ours best</h1>
+  <div class="sub">Presentation snapshot using preserved completed runs. Denominators are shown explicitly, including N=32, N=96, and larger search results.</div>
+</header>
+<main>
+  <section class="panel">
+    <h2>Reading rules</h2>
+    <p>This page reports preserved completed runs. Each target is shown as Baseline, Human best, and Ours best. Baseline is the preserved baseline run for that target; Human best is the best preserved local human-designed reference available in this snapshot; Ours best is the selected v2 run node used for this comparison.</p>
+    <p class="muted">Success criterion: a self binder must pass normalized <code>self_complex_i_pAE &lt;= 7/31</code> (~0.226), <code>self_complex_pLDDT &gt;= 0.9</code>, and <code>self_binder_scRMSD_ca &lt; 1.5</code>. Lower iPAE and scRMSD are better; higher pLDDT is better.</p>
+    <table>
+      <tr><th>Term</th><th>Meaning on this page</th></tr>
+      <tr><td><strong>raw success</strong></td><td><code>n_successful / n_finals</code> from the run summary before unique clustering.</td></tr>
+      <tr><td><strong>audit self-success</strong></td><td>Successful self samples included in the audit/clustering pass. This can differ from raw success when the audit filters or available outputs differ.</td></tr>
+      <tr><td><strong>unique self clusters</strong></td><td>FoldSeek/self-cluster count among audited successful self samples. It is a diversity count, not another success-rate denominator.</td></tr>
+      <tr><td><strong>N=32, N=96</strong></td><td>Number of final candidates evaluated for that row.</td></tr>
+      <tr><td><strong>tree score trace</strong></td><td>Normalized score values from the archived tree report. These values are not success percentages.</td></tr>
+    </table>
+  </section>
+
+  <section class="panel">
+    <h2>Comparison references</h2>
+    <table>
+      <tr><th>Target</th><th>Baseline</th><th>Human best</th><th>Ours best</th><th>Audit note</th></tr>
+      <tr><td><strong>CD45</strong></td><td>8/32 = 25%; baseline unique 1/8; iPAE pass 8/32; pLDDT pass 30/32.</td><td>15/32 = 46.9%; human-best unique not available; baseline unique is 1/8.</td><td>22/32 = 68.8% raw success; audit self-success 21/32; 5 unique self clusters; iPAE 0.1931, pLDDT 0.9532.</td><td>Audited unique count available.</td></tr>
+      <tr><td><strong>BetV1</strong></td><td>6/32 = 18.8%; baseline unique 1/6; iPAE pass 6/32; pLDDT pass 8/32.</td><td>11/32 = 34.4%; human-best unique not available; baseline unique is 1/6.</td><td>10/32 = 31.3% raw success; audit unique 4 among 10 successful self binders; iPAE 0.1529, pLDDT 0.9618.</td><td>Audited unique count available.</td></tr>
+      <tr><td><strong>HER2_AAV</strong></td><td>1/32 = 3.1%; compact baseline unique unavailable; iPAE pass 16/32; pLDDT pass 7/32.</td><td>21/32 = 65.6%; human-best unique not available; baseline unique not resolved in compact source.</td><td>9/32 = 28.1% raw success; audit unique 3 among 9 successful self binders; iPAE 0.1867, pLDDT 0.9410.</td><td>Audited unique count available.</td></tr>
+      <tr><td><strong>SC2RBD</strong></td><td>0/32 = 0%; baseline unique 0; iPAE pass 0/32; pLDDT pass 0/32.</td><td>5/8 = 62.5%; human-best unique not available; baseline unique is 0 because baseline has 0 successes.</td><td>0/32 = 0%; unique 0.</td><td>Opened tree best row iPAE 0.2510, pLDDT 0.8672.</td></tr>
+    </table>
+  </section>
+
+  <section class="panel">
+    <h2>Interactive tree demos</h2>
+    <p>The opened iframe uses an archived search trace for that target. The tree score trace column shows normalized score values from the report, not the raw success rate used in the comparison columns.</p>
+    <table>
+      <tr><th>Target</th><th>Opened tree report</th><th>Tree score trace, not success rate</th><th>Ours best / audited unique</th></tr>
+      <tr><td><strong>CD45</strong></td><td>14-node larger search</td><td>0.0000 &rarr; 0.1250 &rarr; 0.2031 &rarr; 0.3125 &rarr; 0.3750 &rarr; 0.4479</td><td>22/32 raw; audit 5 unique among 21 self-successes</td></tr>
+      <tr><td><strong>BetV1</strong></td><td>15-node larger search</td><td>0.0000 &rarr; 0.1875</td><td>10/32 raw; audit 4 unique among 10 self-successes</td></tr>
+      <tr><td><strong>HER2_AAV</strong></td><td>6-node larger search</td><td>0.0000 &rarr; 0.3438 &rarr; 0.3646</td><td>9/32 raw; audit 3 unique among 9 self-successes</td></tr>
+      <tr><td><strong>SC2RBD</strong></td><td>negative tree</td><td>0.0000 values because no v2 candidate passes in the opened tree</td><td>0/32 raw; 0 unique</td></tr>
+    </table>
+    <div class="btnrow">
+      <button class="btn" data-tree="selfhost_qwen36_05_CD45_20260424_113757_7323363/study_view.html">CD45</button>
+      <button class="btn" data-tree="selfhost_qwen36_23_BetV1_20260424_113757_7323365/study_view.html">BetV1</button>
+      <button class="btn" data-tree="selfhost_qwen36_27_HER2_AAV_20260421_000315_7199569/study_view.html">HER2_AAV</button>
+      <button class="btn" data-tree="selfhost_qwen36_30_SC2RBD_20260424_113757_7323364/study_view.html">SC2RBD</button>
+    </div>
+    <iframe id="treeframe" class="treeframe" src="selfhost_qwen36_05_CD45_20260424_113757_7323363/study_view.html"></iframe>
+  </section>
+
+  <section class="panel">
+    <h2>Interactive target/binder structures</h2>
+    <p>Representative Ours complex PDBs copied from preserved completed runs. The quantitative comparison values are the table values on this page.</p>
+    <div class="btnrow">
+      <button class="btn" data-pdb="demo_structures/cd45_success.pdb" data-meta="CD45 success from audited completed run db45199f978b: iPAE 0.1931, pLDDT 0.9519, pass">CD45 success</button>
+      <button class="btn" data-pdb="demo_structures/betv1_success.pdb" data-meta="BetV1 success from audited completed run 6ad4f4291115: iPAE 0.1529, pLDDT 0.9569, pass">BetV1 success</button>
+      <button class="btn" data-pdb="demo_structures/her2_success.pdb" data-meta="HER2_AAV success from audited completed run f7e0548068e2: iPAE 0.1867, pLDDT 0.9410, pass">HER2_AAV success</button>
+      <button class="btn" data-pdb="demo_structures/sc2rbd_near_miss.pdb" data-meta="SC2RBD representative failed complex: iPAE 0.2433, pLDDT 0.8749">SC2RBD representative fail</button>
+    </div>
+    <div class="legend">
+      <span class="legend-item"><span class="swatch target-chain"></span>Target, chain A</span>
+      <span class="legend-item"><span class="swatch binder-chain"></span>Generated binder, chain B</span>
+    </div>
+    <div id="viewer-meta" class="viewer-meta"></div>
+    <div id="viewer" class="viewer"></div>
+    <p class="small">3Dmol.js is loaded from a public CDN. If a browser blocks external scripts, the PDB assets remain available under <code>demo_structures/</code>.</p>
+  </section>
+
+  <section class="panel">
+    <h2>Where the audited unique numbers come from</h2>
+    <table>
+      <tr><th>Target</th><th>Ours unique-audit source</th><th>Meaning</th><th>Shown result</th></tr>
+      <tr><td><strong>CD45</strong></td><td><code>selfhost_qwen36_05_CD45_20260420_122615_7179326</code><br>node <code>db45199f978b</code></td><td><strong>5 unique</strong> FoldSeek clusters among <strong>21 audited successful</strong> self samples from <strong>32 finals</strong>.</td><td><strong>22/32</strong> online raw success for the same node.</td></tr>
+      <tr><td><strong>BetV1</strong></td><td><code>selfhost_qwen36_23_BetV1_20260421_195532_7228133</code><br>node <code>6ad4f4291115</code></td><td><strong>4 unique</strong> FoldSeek clusters among <strong>10 successful</strong> self binders from <strong>32 finals</strong>.</td><td><strong>10/32</strong> online raw success for the same node.</td></tr>
+      <tr><td><strong>HER2_AAV</strong></td><td><code>selfhost_qwen36_27_HER2_AAV_20260421_195532_7228134</code><br>node <code>f7e0548068e2</code></td><td><strong>3 unique</strong> FoldSeek clusters among <strong>9 successful</strong> self binders from <strong>32 finals</strong>.</td><td><strong>9/32</strong> online raw success for the same node.</td></tr>
+    </table>
+  </section>
+
+  <section class="panel">
+    <h2>Success-rate bars</h2>
+    <p class="muted">Bars use Baseline, Ours best, and Human best.</p>
+    <div class="grid">
+      <div class="target">
+        <h3>CD45</h3>
+        <div class="metric"><span class="label">Baseline N=32</span><span class="bar"><span class="fill base" style="width:25%"></span></span><span class="pct">25%</span></div>
+        <div class="metric"><span class="label">Ours best</span><span class="bar"><span class="fill" style="width:68.8%"></span></span><span class="pct">68.8%</span></div>
+        <div class="metric"><span class="label">Human best</span><span class="bar"><span class="fill human" style="width:46.9%"></span></span><span class="pct">46.9%</span></div>
+        <div class="detail">Ours best: node db45199f978b, 22/32 online raw success, 5 unique clusters from 21 audited successful self samples.</div>
+      </div>
+      <div class="target">
+        <h3>BetV1</h3>
+        <div class="metric"><span class="label">Baseline N=32</span><span class="bar"><span class="fill base" style="width:18.8%"></span></span><span class="pct">18.8%</span></div>
+        <div class="metric"><span class="label">Ours best</span><span class="bar"><span class="fill" style="width:31.3%"></span></span><span class="pct">31.3%</span></div>
+        <div class="metric"><span class="label">Human best</span><span class="bar"><span class="fill human" style="width:34.4%"></span></span><span class="pct">34.4%</span></div>
+        <div class="detail">Ours best: node 6ad4f4291115, 10/32 online raw success, 4 unique clusters from 10 audited successful self samples.</div>
+      </div>
+      <div class="target">
+        <h3>HER2_AAV</h3>
+        <div class="metric"><span class="label">Baseline N=32</span><span class="bar"><span class="fill base" style="width:3.1%"></span></span><span class="pct">3.1%</span></div>
+        <div class="metric"><span class="label">Ours best</span><span class="bar"><span class="fill" style="width:28.1%"></span></span><span class="pct">28.1%</span></div>
+        <div class="metric"><span class="label">Human best</span><span class="bar"><span class="fill human" style="width:65.6%"></span></span><span class="pct">65.6%</span></div>
+        <div class="detail">Ours best: node f7e0548068e2, 9/32 online raw success, 3 unique clusters from 9 audited successful self samples.</div>
+      </div>
+      <div class="target">
+        <h3>SC2RBD</h3>
+        <div class="metric"><span class="label">Baseline N=32</span><span class="bar"><span class="fill bad" style="width:0%"></span></span><span class="pct">0%</span></div>
+        <div class="metric"><span class="label">Ours best</span><span class="bar"><span class="fill bad" style="width:0%"></span></span><span class="pct">0%</span></div>
+        <div class="metric"><span class="label">Human best</span><span class="bar"><span class="fill human" style="width:62.5%"></span></span><span class="pct">62.5%</span></div>
+        <div class="detail">Ours best remains 0 successful binders on preserved SC2RBD searches. The opened tree best row has iPAE 0.2510 and pLDDT 0.8672, outside the pass threshold.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Detailed comparison table</h2>
+    <table>
+      <tr><th>Target</th><th>Baseline</th><th>Human best</th><th>Ours best</th><th>Structure metrics / audit note</th></tr>
+      <tr><td><strong>CD45</strong></td><td>8/32 = 25%; unique 1/8; iPAE pass 8/32; pLDDT pass 30/32.</td><td>15/32 = 46.9%; human-best unique not available; baseline unique is 1/8.</td><td class="good">22/32 = 68.8% raw success; audit self-success 21/32; 5 unique self clusters.</td><td>Ours best node iPAE 0.1931, pLDDT 0.9532.</td></tr>
+      <tr><td><strong>BetV1</strong></td><td>6/32 = 18.8%; unique 1/6; iPAE pass 6/32; pLDDT pass 8/32.</td><td>11/32 = 34.4%; human-best unique not available; baseline unique is 1/6.</td><td>10/32 = 31.3% raw success; audit unique 4 among 10 successful self binders.</td><td>Ours best node iPAE 0.1529, pLDDT 0.9618.</td></tr>
+      <tr><td><strong>HER2_AAV</strong></td><td>1/32 = 3.1%; unique not resolved in compact summary; iPAE pass 16/32; pLDDT pass 7/32.</td><td>21/32 = 65.6%; human-best unique not available; baseline unique not resolved in compact source.</td><td class="good">9/32 = 28.1% raw success; audit unique 3 among 9 successful self binders.</td><td>Ours best node iPAE 0.1867, pLDDT 0.9410.</td></tr>
+      <tr><td><strong>SC2RBD</strong></td><td>0/32 = 0%; unique 0; iPAE pass 0/32; pLDDT pass 0/32.</td><td>5/8 = 62.5%; human-best unique not available; baseline unique is 0 because baseline has 0 successes.</td><td>0 successful binders in preserved Ours searches.</td><td>Opened tree best row iPAE 0.2510, pLDDT 0.8672. No successful unique audit.</td></tr>
+    </table>
+  </section>
+
+  <p><a class="btn" href="index.html">Back to full runs index</a></p>
+</main>
+<script>
+(function(){
+  var treeFrame = document.getElementById('treeframe');
+  document.querySelectorAll('[data-tree]').forEach(function(btn){
+    btn.addEventListener('click', function(){ treeFrame.src = btn.getAttribute('data-tree'); });
+  });
+  function loadPdb(url, meta){
+    var metaEl = document.getElementById('viewer-meta');
+    var viewerEl = document.getElementById('viewer');
+    metaEl.textContent = meta || '';
+    if(!window.$3Dmol){
+      viewerEl.innerHTML = '<p style="padding:14px">3Dmol.js did not load. Open '+url+' directly.</p>';
+      return;
+    }
+    viewerEl.innerHTML = '';
+    fetch(url).then(function(resp){ return resp.text(); }).then(function(pdb){
+      var viewer = window.$3Dmol.createViewer(viewerEl, {backgroundColor:'#ffffff'});
+      viewer.addModel(pdb, 'pdb');
+      viewer.setStyle({chain:'A'}, {cartoon:{color:'#2563eb'}});
+      viewer.setStyle({chain:'B'}, {cartoon:{color:'#f97316'}});
+      viewer.addSurface(window.$3Dmol.SurfaceType.VDW, {opacity:0.16, color:'white'});
+      viewer.zoomTo();
+      viewer.render();
+    }).catch(function(err){
+      viewerEl.innerHTML = '<p style="padding:14px">Could not load PDB: '+String(err)+'</p>';
+    });
+  }
+  document.querySelectorAll('[data-pdb]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      loadPdb(btn.getAttribute('data-pdb'), btn.getAttribute('data-meta'));
+    });
+  });
+  var first = document.querySelector('[data-pdb]');
+  if(first){ loadPdb(first.getAttribute('data-pdb'), first.getAttribute('data-meta')); }
+})();
+</script>
+</body>
+</html>

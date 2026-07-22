@@ -1,0 +1,209 @@
+[
+  {
+    "id": "fixed_05_CD45_best_child_n96_20260425_152815_7352521",
+    "target": "CD45",
+    "kind": "fixed route",
+    "label": "fixed 05 CD45 best child n96 20260425 152815 7352521",
+    "summary": true,
+    "study": false,
+    "tree": false
+  },
+  {
+    "id": "fixed_05_CD45_best_child_n96_20260426_103256_7374150",
+    "target": "CD45",
+    "kind": "fixed route",
+    "label": "fixed 05 CD45 best child n96 20260426 103256 7374150",
+    "summary": true,
+    "study": false,
+    "tree": false
+  },
+  {
+    "id": "fixed_23_BetV1_best_child_n96_20260425_152815_7352522",
+    "target": "BetV1",
+    "kind": "fixed route",
+    "label": "fixed 23 BetV1 best child n96 20260425 152815 7352522",
+    "summary": true,
+    "study": false,
+    "tree": false
+  },
+  {
+    "id": "fixed_23_BetV1_best_child_n96_20260426_103256_7374151",
+    "target": "BetV1",
+    "kind": "fixed route",
+    "label": "fixed 23 BetV1 best child n96 20260426 103256 7374151",
+    "summary": true,
+    "study": false,
+    "tree": false
+  },
+  {
+    "id": "fixed_27_HER2_AAV_best_child_n96_20260425_153119_7352523",
+    "target": "HER2-AAV",
+    "kind": "fixed route",
+    "label": "fixed 27 HER2 AAV best child n96 20260425 153119 7352523",
+    "summary": true,
+    "study": false,
+    "tree": false
+  },
+  {
+    "id": "selfhost_qwen36_05_CD45_20260420_122615_7179326",
+    "target": "CD45",
+    "kind": "adaptive run",
+    "label": "selfhost qwen36 05 CD45 20260420 122615 7179326",
+    "summary": true,
+    "study": true,
+    "tree": false
+  },
+  {
+    "id": "selfhost_qwen36_05_CD45_20260421_195608_7228135",
+    "target": "CD45",
+    "kind": "adaptive run",
+    "label": "selfhost qwen36 05 CD45 20260421 195608 7228135",
+    "summary": true,
+    "study": true,
+    "tree": true
+  },
+  {
+    "id": "selfhost_qwen36_05_CD45_20260422_091648_7241303",
+    "target": "CD45",
+    "kind": "adaptive run",
+    "label": "selfhost qwen36 05 CD45 20260422 091648 7241303",
+    "summary": true,
+    "study": true,
+    "tree": true
+  },
+  {
+    "id": "selfhost_qwen36_05_CD45_20260423_222309_7307347",
+    "target": "CD45",
+    "kind": "adaptive run",
+    "label": "selfhost qwen36 05 CD45 20260423 222309 7307347",
+    "summary": true,
+    "study": true,
+    "tree": true
+  },
+  {
+    "id": "selfhost_qwen36_05_CD45_20260424_113757_7323363",
+    "target": "CD45",
+    "kind": "adaptive run",
+    "label": "selfhost qwen36 05 CD45 20260424 113757 7323363",
+    "summary": true,
+    "study": true,
+    "tree": true
+  },
+  {
+    "id": "selfhost_qwen36_05_CD45_20260426_102840_7373675",
+    "target": "CD45",
+    "kind": "adaptive run",
+    "label": "selfhost qwen36 05 CD45 20260426 102840 7373675",
+    "summary": true,
+    "study": true,
+    "tree": true
+  },
+  {
+    "id": "selfhost_qwen36_23_BetV1_20260421_195532_7228133",
+    "target": "BetV1",
+    "kind": "adaptive run",
+    "label": "selfhost qwen36 23 BetV1 20260421 195532 7228133",
+    "summary": true,
+    "study": true,
+    "tree": false
+  },
+  {
+    "id": "selfhost_qwen36_23_BetV1_20260422_091648_7241305",
+    "target": "BetV1",
+    "kind": "adaptive run",
+    "label": "selfhost qwen36 23 BetV1 20260422 091648 7241305",
+    "summary": true,
+    "study": true,
+    "tree": true
+  },
+  {
+    "id": "selfhost_qwen36_23_BetV1_20260423_172906_7298585",
+    "target": "BetV1",
+    "kind": "adaptive run",
+    "label": "selfhost qwen36 23 BetV1 20260423 172906 7298585",
+    "summary": true,
+    "study": true,
+    "tree": true
+  },
+  {
+    "id": "selfhost_qwen36_23_BetV1_20260423_222337_7307348",
+    "target": "BetV1",
+    "kind": "adaptive run",
+    "label": "selfhost qwen36 23 BetV1 20260423 222337 7307348",
+    "summary": true,
+    "study": true,
+    "tree": true
+  },
+  {
+    "id": "selfhost_qwen36_23_BetV1_20260424_113757_7323365",
+    "target": "BetV1",
+    "kind": "adaptive run",
+    "label": "selfhost qwen36 23 BetV1 20260424 113757 7323365",
+    "summary": true,
+    "study": true,
+    "tree": true
+  },
+  {
+    "id": "selfhost_qwen36_23_BetV1_20260426_102841_7373676",
+    "target": "BetV1",
+    "kind": "adaptive run",
+    "label": "selfhost qwen36 23 BetV1 20260426 102841 7373676",
+    "summary": true,
+    "study": true,
+    "tree": true
+  },
+  {
+    "id": "selfhost_qwen36_27_HER2_AAV_20260421_000315_7199569",
+    "target": "HER2-AAV",
+    "kind": "adaptive run",
+    "label": "selfhost qwen36 27 HER2 AAV 20260421 000315 7199569",
+    "summary": false,
+    "study": true,
+    "tree": false
+  },
+  {
+    "id": "selfhost_qwen36_27_HER2_AAV_20260421_195532_7228134",
+    "target": "HER2-AAV",
+    "kind": "adaptive run",
+    "label": "selfhost qwen36 27 HER2 AAV 20260421 195532 7228134",
+    "summary": true,
+    "study": true,
+    "tree": false
+  },
+  {
+    "id": "selfhost_qwen36_27_HER2_AAV_20260422_091648_7241304",
+    "target": "HER2-AAV",
+    "kind": "adaptive run",
+    "label": "selfhost qwen36 27 HER2 AAV 20260422 091648 7241304",
+    "summary": true,
+    "study": true,
+    "tree": true
+  },
+  {
+    "id": "selfhost_qwen36_27_HER2_AAV_20260423_222338_7307349",
+    "target": "HER2-AAV",
+    "kind": "adaptive run",
+    "label": "selfhost qwen36 27 HER2 AAV 20260423 222338 7307349",
+    "summary": true,
+    "study": true,
+    "tree": true
+  },
+  {
+    "id": "selfhost_qwen36_30_SC2RBD_20260423_222338_7307350",
+    "target": "SC2RBD",
+    "kind": "adaptive run",
+    "label": "selfhost qwen36 30 SC2RBD 20260423 222338 7307350",
+    "summary": true,
+    "study": true,
+    "tree": true
+  },
+  {
+    "id": "selfhost_qwen36_30_SC2RBD_20260424_113757_7323364",
+    "target": "SC2RBD",
+    "kind": "adaptive run",
+    "label": "selfhost qwen36 30 SC2RBD 20260424 113757 7323364",
+    "summary": true,
+    "study": true,
+    "tree": true
+  }
+]

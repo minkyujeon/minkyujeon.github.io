@@ -1,130 +1,62 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Projects — Minkyu Jeon</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Protein Design Campaigns | Minkyu Jeon</title>
   <style>
-    :root {
-      --bg: #fafbfc;
-      --card: #ffffff;
-      --text: #1a1a2e;
-      --muted: #5a6577;
-      --accent: #2563eb;
-      --border: #e2e8f0;
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-    }
-    .header {
-      background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%);
-      color: #fff;
-      padding: 48px 24px 40px;
-    }
-    .header .container { max-width: 900px; margin: 0 auto; }
-    .header .breadcrumb { font-size: 0.85rem; color: #94a3b8; margin-bottom: 12px; }
-    .header .breadcrumb a { color: #93c5fd; text-decoration: none; }
-    .header h1 { font-size: 2rem; font-weight: 800; }
-    .header p { color: #cbd5e1; margin-top: 8px; }
-
-    .container { max-width: 900px; margin: 0 auto; padding: 32px 24px; }
-    .project-list { display: flex; flex-direction: column; gap: 20px; }
-    .project-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 28px 32px;
-      text-decoration: none;
-      color: inherit;
-      display: block;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    .project-card:hover {
-      border-color: var(--accent);
-      box-shadow: 0 4px 12px rgba(37,99,235,0.1);
-      text-decoration: none;
-    }
-    .project-card .tag {
-      display: inline-block; font-size: 0.72rem; font-weight: 600;
-      letter-spacing: 0.06em; text-transform: uppercase;
-      padding: 3px 10px; border-radius: 4px; margin-bottom: 10px;
-      background: #dbeafe; color: #2563eb;
-    }
-    .project-card h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; color: var(--text); }
-    .project-card p { font-size: 0.92rem; color: var(--muted); line-height: 1.6; margin-bottom: 12px; }
-    .project-card .meta { font-size: 0.8rem; color: #94a3b8; display: flex; gap: 16px; }
-    .card-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
-    .card-actions a {
-      display: inline-block; text-decoration: none; font-size: 0.85rem; font-weight: 700;
-      padding: 8px 11px; border-radius: 7px; border: 1px solid var(--border);
-    }
-    .card-actions .primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-    .card-actions .secondary { background: #f8fafc; color: var(--accent); }
-    .footer {
-      text-align: center; padding: 32px 24px; color: var(--muted);
-      font-size: 0.82rem; border-top: 1px solid var(--border); margin-top: 40px;
-    }
-    .footer a { color: var(--accent); text-decoration: none; }
+    :root { --ink:#18212f; --muted:#5c6878; --paper:#f7f8fa; --panel:#fff; --line:#d9e0e8; --teal:#0f766e; --amber:#b45309; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    a { color:inherit; }
+    .wrap { width:min(1100px,calc(100% - 40px)); margin:0 auto; }
+    header { border-bottom:1px solid var(--line); background:#fff; padding:52px 0 36px; }
+    .crumb { color:var(--muted); font-size:14px; }
+    .crumb a { color:var(--teal); text-decoration:none; }
+    h1 { margin:10px 0 8px; font-size:clamp(34px,5vw,54px); line-height:1.05; letter-spacing:0; }
+    .lede { max-width:700px; margin:0; color:var(--muted); font-size:18px; }
+    main { padding:34px 0 72px; }
+    .toolbar { display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:24px; }
+    .count { color:var(--muted); font-size:14px; }
+    .filters { display:flex; gap:8px; flex-wrap:wrap; }
+    button { border:1px solid var(--line); border-radius:6px; background:#fff; color:var(--ink); padding:8px 12px; font:inherit; font-weight:700; cursor:pointer; }
+    button:hover, button[aria-pressed="true"] { border-color:var(--teal); background:#ecfdf5; color:#065f46; }
+    .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px; }
+    .campaign { background:var(--panel); border:1px solid var(--line); border-radius:8px; overflow:hidden; display:flex; flex-direction:column; min-height:390px; }
+    .campaign[hidden] { display:none; }
+    .thumb { aspect-ratio:16/7; background:#eef6f6; border-bottom:1px solid var(--line); position:relative; overflow:hidden; }
+    .thumb img { width:100%; height:100%; object-fit:cover; object-position:left center; opacity:.92; }
+    .fallback { position:absolute; inset:0; display:grid; place-items:center; color:var(--teal); font-weight:800; font-size:20px; }
+    .content { padding:22px; display:flex; flex-direction:column; gap:12px; flex:1; }
+    .version { align-self:flex-start; color:#075985; background:#e0f2fe; border:1px solid #bae6fd; border-radius:4px; padding:3px 8px; font-size:12px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; }
+    h2 { margin:0; font-size:24px; line-height:1.2; }
+    p { margin:0; color:var(--muted); }
+    .meta { margin-top:auto; border-top:1px solid var(--line); padding-top:14px; color:var(--muted); font-size:14px; }
+    .actions { display:flex; flex-wrap:wrap; gap:9px; margin-top:4px; }
+    .action { text-decoration:none; border:1px solid var(--line); border-radius:6px; padding:9px 11px; font-weight:800; font-size:14px; }
+    .action.primary { background:var(--teal); border-color:var(--teal); color:#fff; }
+    .action.secondary { color:var(--teal); background:#fff; }
+    .notice { margin-top:28px; padding:16px 18px; background:#fff7ed; border:1px solid #fed7aa; border-left:4px solid var(--amber); color:#78350f; }
+    footer { border-top:1px solid var(--line); background:#fff; padding:24px 0; color:var(--muted); font-size:14px; }
+    @media (max-width:720px) { .wrap { width:min(100% - 28px,1100px); } header { padding:36px 0 28px; } .grid { grid-template-columns:1fr; } }
   </style>
 </head>
 <body>
-
-<div class="header">
-  <div class="container" style="padding:0;">
-    <div class="breadcrumb"><a href="/">Minkyu Jeon</a></div>
-    <h1>Projects</h1>
-    <p>Research projects in scientific machine learning, agentic protein design, and generative modeling.</p>
-  </div>
-</div>
-
-<div class="container">
-  <div class="project-list">
-    <a href="/projects/ordering/" class="project-card">
-      <div class="tag" style="background:#ede9fe; color:#7c3aed;">Token Ordering</div>
-      <h2>Learned Token Ordering for Visual Autoregressive Generation</h2>
-      <p>
-        Investigating whether a learned generation order (via OrderHead) can improve image quality in
-        autoregressive models. Systematic evaluation across MAR (masked) and LlamaGen (causal) architectures,
-        with 50+ experiments covering heuristic orderings, STE-based learned orderings, oracle supervision,
-        and random-order training (RAR).
-      </p>
-      <div class="meta">
-        <span>Princeton University</span>
-      </div>
-    </a>
-    <div class="project-card">
-      <div class="tag">Inference-Time Scaling</div>
-      <h2>Agentic Inference-Time Scaling for De Novo Protein Design</h2>
-      <p>
-        Current work centers on <strong>Autoresearch V7</strong>: an LLM scientific agent that runs
-        budgeted de novo protein-complex binder-design campaigns across seven targets. The live hub
-        tracks results, discovery curves, where successes come from, and the agent's recorded
-        scientific reasoning at each decision point (results &amp; reasoning only).
-      </p>
-      <p>
-        Earlier <strong>v2/v5</strong> hubs and the original audited baseline map remain available as
-        historical archives.
-      </p>
-      <div class="card-actions">
-        <!-- v7 hub temporarily hidden (private); restore this link + projects/autoresearch-v7/ when ready -->
-        <a class="primary" href="/projects/autoresearch-v5/results.html">Open v5 hub</a>
-        <a class="primary" href="/projects/autoresearch-v2/">Open v2 hub</a>
-        <a class="secondary" href="/projects/agentic-protein-design.html">Historical baseline archive</a>
-      </div>
-      <div class="meta">
-        <span>Princeton University</span>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="footer">
-  <p>Minkyu Jeon &middot; <a href="/">minkyujeon.github.io</a></p>
-</div>
-
+  <header><div class="wrap"><div class="crumb"><a href="/">Minkyu Jeon</a> / Projects</div><h1>Protein Design Campaigns</h1><p class="lede">Public, archived result explorers for completed computational protein-design campaigns.</p></div></header>
+  <main class="wrap">
+    <div class="toolbar"><div class="filters" aria-label="Filter campaign archive"><button type="button" data-filter="all" aria-pressed="true">All campaigns</button><button type="button" data-filter="results" aria-pressed="false">Result explorers</button><button type="button" data-filter="runs" aria-pressed="false">Job archives</button></div><div class="count" id="count" aria-live="polite"></div></div>
+    <section class="grid" aria-label="Completed campaigns">
+      <article class="campaign" data-kind="results runs"><div class="thumb"><img src="protein-design-v1/runs/curve_7694929_cd45_48h.svg" alt="Archived CD45 discovery curve"></div><div class="content"><span class="version">v1</span><h2>Adaptive Binder Discovery</h2><p>Archived fixed-route and adaptive campaign results with interactive discovery curves, recorded decision snapshots, and 24-hour and 48-hour job summaries.</p><div class="meta">Completed historical campaign</div><div class="actions"><a class="action primary" href="protein-design-v1/results.html">Open results explorer</a><a class="action secondary" href="protein-design-v1/runs/">Browse job archive</a></div></div></article>
+      <article class="campaign" data-kind="results"><div class="thumb"><div class="fallback">Interactive multi-target results</div></div><div class="content"><span class="version">v2</span><h2>Multi-route Binder Discovery</h2><p>Archived interactive multi-target comparisons, route-level outcomes, and candidate-quality summaries from a completed campaign.</p><div class="meta">Completed historical campaign</div><div class="actions"><a class="action primary" href="protein-design-v2/results.html">Open results explorer</a><a class="action secondary" href="protein-design-v2/">Campaign overview</a></div></div></article>
+      <article class="campaign" data-kind="results"><div class="thumb"><div class="fallback">Interactive multi-target results</div></div><div class="content"><span class="version">v3</span><h2>Target-adaptive Binder Discovery</h2><p>Archived multi-target results with interactive throughput, diversity, candidate-quality and campaign-replay views.</p><div class="meta">Completed historical campaign</div><div class="actions"><a class="action primary" href="protein-design-v3/">Open results explorer</a><a class="action secondary" href="protein-design-v3/#methods">Read evaluation details</a></div></div></article>
+    </section>
+    <aside class="notice">This archive contains completed, public result summaries. Ongoing research, implementation details and unpublished candidate records are intentionally not displayed.</aside>
+  </main>
+  <footer><div class="wrap">Minkyu Jeon  |  <a href="/">minkyujeon.github.io</a></div></footer>
+  <script>
+    const cards=[...document.querySelectorAll(".campaign")], buttons=[...document.querySelectorAll("[data-filter]")], count=document.querySelector("#count");
+    function render(filter){let n=0;cards.forEach(card=>{const show=filter==="all"||card.dataset.kind.split(" ").includes(filter);card.hidden=!show;if(show)n++;});buttons.forEach(button=>button.setAttribute("aria-pressed",String(button.dataset.filter===filter)));count.textContent=n+" completed campaign"+(n===1?"":"s");}
+    buttons.forEach(button=>button.addEventListener("click",()=>render(button.dataset.filter)));render("all");
+  </script>
 </body>
 </html>

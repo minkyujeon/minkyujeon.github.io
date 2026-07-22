@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Protein Design Campaign v1 | Job Archive</title>
+<style>
+:root{--ink:#18212f;--muted:#5c6878;--paper:#f7f8fa;--panel:#fff;--line:#d9e0e8;--teal:#0f766e;--blue:#1d4ed8}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}main{width:min(1120px,calc(100% - 40px));margin:0 auto;padding:42px 0 72px}a{color:var(--teal)}.back{font-size:14px;text-decoration:none;color:var(--teal)}h1{font-size:clamp(30px,4vw,46px);line-height:1.1;margin:12px 0 8px}p{margin:0;color:var(--muted)}.tools{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:28px 0 16px}.filters{display:flex;flex-wrap:wrap;gap:8px}button{font:inherit;font-size:14px;font-weight:800;padding:8px 11px;border:1px solid var(--line);border-radius:6px;color:var(--ink);background:#fff;cursor:pointer}button:hover,button[aria-pressed="true"]{border-color:var(--teal);color:#065f46;background:#ecfdf5}.count{font-size:14px;color:var(--muted)}.resources{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 24px}.resources a{border:1px solid var(--line);padding:8px 10px;border-radius:6px;background:#fff;text-decoration:none;font-weight:700;font-size:14px}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.run{background:#fff;border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:10px;min-height:205px}.run[hidden]{display:none}.tags{display:flex;gap:6px;flex-wrap:wrap}.tag{font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:3px 6px;border-radius:4px;background:#e0f2fe;color:#075985}.tag.kind{background:#f3e8ff;color:#6b21a8}.run h2{font-size:16px;line-height:1.35;margin:0;word-break:break-word}.links{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto}.links a{border:1px solid var(--line);border-radius:5px;padding:6px 8px;text-decoration:none;font-size:13px;font-weight:800}.links a.primary{background:var(--teal);border-color:var(--teal);color:#fff}.empty{display:none;background:#fff;border:1px dashed var(--line);padding:24px;color:var(--muted);border-radius:8px}.empty.show{display:block}@media(max-width:850px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:580px){main{width:min(100% - 28px,1120px);padding-top:30px}.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body><main>
+<a class="back" href="../">Back to Campaign v1</a>
+<h1>Completed Job Archive</h1>
+<p>Public records from the completed v1 campaign. Each card provides every available archived view for that run.</p>
+<div class="resources"><a href="24h-jobs.html">24-hour summary</a><a href="48h-jobs.html">48-hour summary</a><a href="demo.html">Result demo</a><a href="structure-audit.html">Structure audit</a></div>
+<div class="tools"><div class="filters" id="filters" aria-label="Filter archived jobs"></div><div class="count" id="count" aria-live="polite"></div></div>
+<section class="grid" id="grid" aria-label="Archived completed jobs"></section>
+<div class="empty" id="empty">No archived jobs match this filter.</div>
+</main>
+<script>
+const grid=document.querySelector("#grid"), filters=document.querySelector("#filters"), count=document.querySelector("#count"), empty=document.querySelector("#empty");
+let runs=[], active="All";
+function render(){
+  const visible=runs.filter(run=>active==="All"||run.target===active);
+  grid.innerHTML=visible.map(run=>{
+    const prefix=encodeURIComponent(run.id).replace(/%2F/g,"/");
+    const links=[];
+    if(run.summary)links.push('<a class="primary" href="'+prefix+'/summary.html">Summary</a>');
+    if(run.study)links.push('<a href="'+prefix+'/study_view.html">Study view</a>');
+    if(run.tree)links.push('<a href="'+prefix+'/tree_view.html">Tree view</a>');
+    return '<article class="run"><div class="tags"><span class="tag">'+run.target+'</span><span class="tag kind">'+run.kind+'</span></div><h2>'+run.label+'</h2><div class="links">'+links.join("")+'</div></article>';
+  }).join("");
+  empty.classList.toggle("show",visible.length===0);
+  count.textContent=visible.length+" archived job"+(visible.length===1?"":"s");
+  [...filters.querySelectorAll("button")].forEach(button=>button.setAttribute("aria-pressed",String(button.dataset.target===active)));
+}
+fetch("runs-index.json").then(response=>response.ok?response.json():Promise.reject(new Error("archive unavailable"))).then(data=>{
+  runs=data;
+  ["All",...new Set(runs.map(run=>run.target))].forEach(target=>{
+    const button=document.createElement("button");button.type="button";button.dataset.target=target;button.textContent=target;
+    button.addEventListener("click",()=>{active=target;render();});filters.appendChild(button);
+  });render();
+}).catch(()=>{empty.textContent="The archived run index could not be loaded.";empty.classList.add("show");});
+</script>
+</body></html>
