@@ -59,10 +59,17 @@
 \end{center}
 
 \cvsection{Research Summary}
-Ph.D. candidate in Computer Science at Princeton University, advised by Prof. Ellen D. Zhong. My research develops generative and representation learning methods for scientific inverse problems, with a focus on heterogeneous cryo-EM reconstruction and AI-driven de novo protein design.
+Ph.D. candidate in Computer Science at Princeton University, advised by Prof. Ellen D. Zhong. I build AI systems for scientific discovery: agentic systems that coordinate validated scientific tools for de novo protein design, and generative and representation learning methods for heterogeneous cryo-EM reconstruction. My work connects model development, high-performance scientific workflows, and rigorous in silico validation so that generative models can be used as reproducible discovery systems rather than isolated samplers.
 
 \vspace{3pt}
-\textbf{Interests:} AI agents for scientific discovery; de novo protein design; protein generative models; diffusion and flow matching in 3D structure spaces; cryo-EM heterogeneity; representation learning; 3D vision.
+\textbf{Interests:} scientific agentic systems; AI for biology; de novo protein design; protein generative models; diffusion and flow matching in 3D structure spaces; cryo-EM heterogeneity; representation learning; 3D vision.
+
+\cvsection{Research Themes}
+\begin{tabularx}{\textwidth}{@{}p{2.45cm}>{\raggedright\arraybackslash}X@{}}
+Scientific agents & Closed-loop systems that synthesize structured scientific evidence, allocate GPU compute across tools, and keep decisions auditable.\\
+Protein design & De novo binder generation, interface-confidence scoring, structural uniqueness, sequence novelty, and wet-lab candidate-panel selection.\\
+Cryo-EM & Generative and amortized methods for continuous conformational heterogeneity, with benchmarks that stress-test reconstruction quality and robustness.\\
+\end{tabularx}
 
 \cvsection{Education}
 \entry{Princeton University}{2023--present}{Ph.D. Candidate, Computer Science}{Princeton, NJ}
@@ -70,17 +77,19 @@ Ph.D. candidate in Computer Science at Princeton University, advised by Prof. El
 \entry{Konkuk University}{2014--2020}{B.S., Applied Statistics and Computer Engineering, double major}{Seoul, Korea}
 
 \cvsection{Selected Research Projects}
-\entry{Agentic Inference-Time Scaling for De Novo Protein Design}{2026--present}{Princeton University}{}
+\entry{T-ReX: Agentic Inference-Time Scaling for De Novo Protein Design}{2026--present}{Princeton University}{}
 \compactitem{
-  \item Building AI-agent workflows for protein binder and scaffold design that combine LLM-guided search, structural validation, and iterative sequence/structure refinement.
-  \item Developing evaluation pipelines for hard de novo design targets, including diagnostics for structure confidence, interface quality, diversity, and reproducibility.
-  \item Exploring how inference-time search, self-refinement, and targeted experimental routing can improve practical protein design beyond one-shot generative sampling.
+  \item Developing a closed-loop binder-design system that treats de novo generation as target-adaptive compute allocation across published design tools, redesign actions, and canonical scoring.
+  \item Designed an LLM Planner/Supervisor interface that reads structured EvidenceSummary records, proposes Rescue--Explore--eXploit actions, and leaves final action validation and GPU scheduling to deterministic software.
+  \item Built evaluation workflows for hard design targets, including strict success criteria, Foldseek structural uniqueness, MMseqs2 sequence novelty, AF2 ipTM diagnostics, and post hoc candidate-panel ranking.
+  \item Emphasis: produce more structure-unique, in silico qualified binders per GPU-hour while preserving scientific evidence trails for analysis and wet-lab prioritization.
 }
 
 \entry{Heterogeneous Cryo-EM Reconstruction}{2023--present}{Princeton University}{}
 \compactitem{
-  \item Developing amortized and transformer-based methods for reconstructing continuous conformational heterogeneity from cryo-EM particle images.
+  \item Developing amortized, self-distilled, and transformer-based methods for reconstructing continuous conformational heterogeneity from cryo-EM particle images.
   \item Led CryoBench, a benchmark suite for diverse and challenging cryo-EM heterogeneity problems, accepted as a NeurIPS 2024 Spotlight.
+  \item Co-led CryoHype, a transformer-hypernetwork approach for reconstructing large conformational ensembles, accepted to CVPR 2026.
 }
 
 \cvsection{Publications}
@@ -135,12 +144,13 @@ Ph.D. candidate in Computer Science at Princeton University, advised by Prof. El
 \entry{Prescient Design, Genentech}{Nov 2025--Mar 2026}{Contractor}{New York, NY}
 \compactitem{
   \item Worked on protein representation learning and generative modeling for protein design, with emphasis on modern 3D generative models including diffusion and flow matching.
-  \item Studied limitations of voxel- and structure-space generative models and developed design/evaluation workflows for improved generation performance.
+  \item Studied limitations of voxel- and structure-space generative models and developed evaluation workflows for diagnosing and improving generation performance.
 }
 
 \entry{Prescient Design, Genentech}{Jun 2025--Aug 2025}{Research Intern}{New York, NY}
 \compactitem{
   \item Led a project on understanding and improving modern generative models in 3D spaces, with applications to protein generation and design.
+  \item Connected model behavior to practical design diagnostics, including structure quality, interface plausibility, and robustness across target settings.
 }
 
 \entry{AI4ALL}{Jul 2024--Aug 2024}{Instructor}{Princeton, NJ}
@@ -196,8 +206,9 @@ Fall 2020 & Tutorial Teaching Fellow, Deep Learning, Korea University.\\
 \cvsection{Skills}
 \begin{tabularx}{\textwidth}{@{}p{2.45cm}>{\raggedright\arraybackslash}X@{}}
 Programming & Python, PyTorch, TensorFlow, Keras, R, C, Git.\\
-Systems & Linux, macOS, Windows, scientific computing workflows.\\
-Research & Generative modeling, diffusion/flow matching, protein design, cryo-EM reconstruction, representation learning, 3D vision.\\
+Systems & Linux, Slurm/HPC workflows, reproducible experiment pipelines, scientific data processing, macOS, Windows.\\
+Scientific ML & LLM-guided scientific workflows, generative modeling, diffusion/flow matching, protein design, cryo-EM reconstruction, representation learning, 3D vision.\\
+Bio/structure tools & Protein design evaluation, AlphaFold-style confidence diagnostics, Foldseek, MMseqs2, structural clustering, candidate-panel analysis.\\
 \end{tabularx}
 
 \cvsection{Additional Experience}
