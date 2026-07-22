@@ -15,6 +15,11 @@ hide_description: true
   **CVPR 2026**
   [Paper](https://arxiv.org/pdf/2512.06332) / [Project page](https://arxiv.org/pdf/2512.06332)
 
+- **CHIMERA: Adaptive CacHe Injection and SeMantic Anchor Prompting for ZERo-shot ImAge Morphing with Morphing-oriented Metrics**<br>
+  Dahyeon kye, Jaehun Sung, **Minkyu Jeon**, Jihyong Oh
+  **ECCV 2026**
+  [Paper](https://www.arxiv.org/abs/2512.07155) / [Project page](https://cmlab-korea.github.io/CHIMERA/)
+
 - **ConforNets: Latents-Based Conformational Control in OpenFold3**<br>
   Minji Lee, Colin Kalicki, **Minkyu Jeon**, Aymen Qabel, Alisia Fadini, Mohammed AlQuraishi
   *arXiv preprint*, 2026
@@ -28,11 +33,6 @@ hide_description: true
   **Minkyu Jeon\***, Jeffrey Gu\*, Ambri Ma, Serena Yeung-Levy, Vincent Sitzmann, Ellen D. Zhong
   **NeurIPS Workshop (MLSB) 2025 (Oral)**
   [Paper](https://openreview.net/pdf?id=YIvDrdPCo2) / [Project page](https://openreview.net/pdf?id=YIvDrdPCo2)
-
-- **CHIMERA: Adaptive CacHe Injection and SeMantic Anchor Prompting for ZERo-shot ImAge Morphing with Morphing-oriented Metrics**<br>
-  Dahyeon kye, Jaehun Sung, **Minkyu Jeon**, Jihyong Oh
-  *In submission*, 2025
-  [Paper](https://www.arxiv.org/abs/2512.07155) / [Project page](https://cmlab-korea.github.io/CHIMERA/)
 
 - **R3eVision: A Survey on Robust Rendering, Restoration, and Enhancement for 3D Low-Level Vision**<br>
   Weeyoung Kwon, Jeahun Sung, **Minkyu Jeon**, Chanho Eom, Jihyong Oh
