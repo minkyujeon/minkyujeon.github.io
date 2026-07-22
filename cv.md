@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: minimal
 title: CV
 description: >
   Curriculum Vitae for Minkyu Jeon.

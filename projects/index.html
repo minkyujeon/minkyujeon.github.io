@@ -42,8 +42,10 @@
     @media (max-width:960px) { .grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
     @media (max-width:640px) { .wrap { width:min(100% - 28px,1180px); } header { padding:36px 0 28px; } .grid { grid-template-columns:1fr; } .category + .category { margin-top:38px; padding-top:34px; } }
   </style>
+  <link rel="stylesheet" href="/assets/css/site-shell.css">
+  <script defer src="/assets/js/site-shell.js"></script>
 </head>
-<body>
+<body class="site-project-index">
   <header>
     <div class="wrap">
       <div class="crumb"><a href="/">Minkyu Jeon</a> / Projects</div>
@@ -77,6 +79,5 @@
     </section>
     <aside class="notice">The protein-design archive contains completed public results. Ongoing research and unpublished implementation records are intentionally excluded.</aside>
   </main>
-  <footer><div class="wrap">Minkyu Jeon | <a href="/">minkyujeon.github.io</a></div></footer>
 </body>
 </html>

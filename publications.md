@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: minimal
 title: Publications
 description: >
   Academic publications and preprints. *: co-first author.

@@ -7,20 +7,29 @@
   <meta name="description" content="{{ page.description | default: site.description | strip_html | strip_newlines | escape }}">
   <link rel="canonical" href="{{ page.url | absolute_url }}">
   <link rel="stylesheet" href="{{ '/assets/css/minimal-home.css' | relative_url }}">
+  <link rel="stylesheet" href="{{ '/assets/css/site-shell.css' | relative_url }}">
 </head>
-<body>
-  <div class="page">
-    <header class="site-nav">
-      <nav>
+<body class="site-shell-page minimal-page">
+  <header class="global-site-header" data-global-site-shell>
+    <div class="global-site-header__inner">
+      <a class="global-site-header__brand" href="{{ '/' | relative_url }}">{{ site.title }}</a>
+      <nav class="global-site-header__nav" aria-label="Primary">
         {% for item in site.menu %}
-          <a href="{{ item.url | relative_url }}">{{ item.title }}</a>
+          <a href="{{ item.url | relative_url }}"{% if page.url == item.url %} aria-current="page"{% endif %}>{{ item.title }}</a>
         {% endfor %}
       </nav>
-    </header>
-
+    </div>
+  </header>
+  <div class="page">
     <main>
+      {% unless page.hide_title %}
+        <h1 class="page-title">{{ page.title }}</h1>
+      {% endunless %}
       {{ content }}
     </main>
   </div>
+  <footer class="global-site-footer" data-global-site-shell>
+    {{ site.title }} <span aria-hidden="true">|</span> <a href="{{ '/' | relative_url }}">{{ site.url | remove: 'https://' }}</a>
+  </footer>
 </body>
 </html>

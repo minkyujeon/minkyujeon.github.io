@@ -5,6 +5,7 @@ description: >
   PhD Candidate in Computer Science at Princeton University. Research focuses on 3D reconstruction,
   generative models, and their applications to scientific imaging (cryo-EM, protein design).
 hide_description: true
+hide_title: true
 permalink: /
 ---
 

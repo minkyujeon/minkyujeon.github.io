@@ -30,7 +30,11 @@ body {
 
 .page {
   width: min(740px, calc(100% - 40px));
-  margin: 20px auto 56px;
+  margin: 42px auto 56px;
+}
+
+.page-title {
+  margin-bottom: 28px;
 }
 
 .site-nav {
