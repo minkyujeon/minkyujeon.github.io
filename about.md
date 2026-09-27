@@ -41,6 +41,7 @@ Another key area of my research is **AI for Science**. I am currently working on
 
 | Date | Update |
 |:-----|:-------|
+| `09-2026` | Preprint released: [T-REX](https://www.biorxiv.org/content/10.64898/2026.09.22.753604v2) — Agentic campaign control for high-throughput de novo binder design. |
 | `05-2026` | Added the current project hub for **agentic inference-time scaling for de novo protein design**. |
 | `04-2026` | Preprint released: [ConforNets](https://arxiv.org/abs/2604.18559) — Latents-Based Conformational Control in OpenFold3. |
 | `02-2026` | Our [work](https://arxiv.org/abs/2512.06332), a transformer-based hypernetwork for cryo-EM reconstruction, has been accepted to **CVPR 2026**. |

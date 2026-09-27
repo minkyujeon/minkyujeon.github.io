@@ -10,6 +10,11 @@ hide_description: true
 
 ## 2026
 
+- **Agentic campaign control for high-throughput de novo binder design**<br>
+  **Minkyu Jeon**, Jinyeop Song, Jina Kim Ellen D. Zhong
+  *arXiv preprint*, 2026
+  [Paper](https://www.biorxiv.org/content/10.64898/2026.09.22.753604v2) / [Project page](https://github.com/ml-struct-bio/T-REX)
+
 - **CryoHype: Reconstructing a thousand cryo-EM structures with transformer-based hypernetworks**<br>
   Jeffrey Gu\*, **Minkyu Jeon\***, Ambri Ma, Serena Yeung-Levy, Ellen D. Zhong
   **CVPR 2026**
@@ -17,7 +22,7 @@ hide_description: true
 
 - **CHIMERA: Adaptive CacHe Injection and SeMantic Anchor Prompting for ZERo-shot ImAge Morphing with Morphing-oriented Metrics**<br>
   Dahyeon kye, Jaehun Sung, **Minkyu Jeon**, Jihyong Oh
-  **ECCV 2026**
+  *arXiv preprint*, 2026
   [Paper](https://www.arxiv.org/abs/2512.07155) / [Project page](https://cmlab-korea.github.io/CHIMERA/)
 
 - **ConforNets: Latents-Based Conformational Control in OpenFold3**<br>
