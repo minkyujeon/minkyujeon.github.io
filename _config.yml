@@ -45,6 +45,12 @@ plugins:
   - jekyll-seo-tag
   - jekyll-sitemap
 
+# Default social-preview image (og:image / twitter:image) for every page
+defaults:
+  - scope: {path: ""}
+    values:
+      image: /assets/img/profile.jpg
+
 # Template leftovers and build by-products stay in the repository but are not published.
 exclude:
   - Gemfile

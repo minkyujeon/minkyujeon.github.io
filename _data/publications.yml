@@ -51,6 +51,7 @@
   venue: arXiv 2026
   year: 2026
   topic: protein
+  image: /assets/img/pubs/confornets.jpg
   summary: >-
     Channel-wise affine transforms of pair latents steer OpenFold3 toward alternate protein
     conformations; a transform trained on one protein can induce a conserved conformational
@@ -113,6 +114,7 @@
   venue: Information Sciences 2023
   year: 2023
   topic: ml
+  image: /assets/img/pubs/croffle.jpg
   links:
     - {name: Paper, url: "https://www.sciencedirect.com/science/article/pii/S0020025522013032"}
     - {name: Code, url: "https://github.com/minkyujeon/CROFFLE/tree/main/"}
@@ -145,5 +147,6 @@
   venue: IEEE Access 2021
   year: 2021
   topic: ml
+  image: /assets/img/pubs/meta-learning.jpg
   links:
     - {name: Paper, url: "https://ieeexplore.ieee.org/document/9541196"}
