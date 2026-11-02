@@ -1,0 +1,183 @@
+---
+layout: default
+---
+{%- assign news_limit = 6 -%}
+
+<section class="hero">
+  <div class="hero__text">
+    <h1>Minkyu Jeon</h1>
+    <p class="hero__role">Ph.D. Candidate in Computer Science, Princeton University</p>
+    <p>
+      I develop generative and representation-learning methods for scientific inverse problems,
+      advised by <a href="https://ezlab.princeton.edu/">Prof. Ellen D. Zhong</a>. My current work
+      focuses on <strong>agentic inference-time scaling for de novo protein design</strong>, where
+      LLM agents run binder-design campaigns under a fixed GPU budget, and on
+      <strong>heterogeneous cryo-EM reconstruction</strong> of conformational and compositional
+      variability.
+    </p>
+    <p>
+      Previously, I was a research intern and contractor at
+      <a href="https://www.gene.com/scientists/our-scientists/prescient-design">Prescient Design (Genentech)</a>
+      and an Associate Computational Biologist at the
+      <a href="https://www.broadinstitute.org/">Broad Institute of MIT and Harvard</a>.
+    </p>
+    <p class="link-row">
+      {%- for link in site.profile_links %}
+      <a class="btn{% if link.name == 'CV' %} btn--primary{% endif %}" href="{{ link.url | relative_url }}">{{ link.name }}</a>
+      {%- endfor %}
+    </p>
+  </div>
+  <img class="hero__photo" src="{{ '/assets/img/profile.jpg' | relative_url }}" alt="Portrait of Minkyu Jeon" width="200" height="200">
+</section>
+
+<section class="section" aria-labelledby="research">
+  <h2 id="research">Research</h2>
+  <div class="research-grid">
+    <article class="card">
+      <img class="card__img" src="{{ '/assets/img/pubs/trex.jpg' | relative_url }}" alt="T-REX overview: target, generation families, evaluation, and the Planner/Supervisor controller" decoding="async">
+      <div class="card__body">
+        <p class="eyebrow">Agentic AI &times; protein design</p>
+        <h3>T-REX: agentic campaign control for de novo binder design</h3>
+        <p>
+          LLM agents decide when to rescue, explore, or exploit across six generation methods
+          (four Prot&eacute;ina-Complexa search variants, BindCraft, BoltzGen), ProteinMPNN, and
+          AlphaFold2; a deterministic controller validates and schedules every job.
+        </p>
+        <dl class="stats">
+          <div><dt>7 / 7</dt><dd>targets led in distinct in-silico hits per GPU-hour (vs. 5 baselines)</dd></div>
+          <div><dt>2.43&times;</dt><dd>vs. a tree-search controller (geo. mean)</dd></div>
+          <div><dt>2.48&times;</dt><dd>vs. the best generator-only baseline per target (geo. mean)</dd></div>
+        </dl>
+        <p class="stats__note">
+          Matched worker-GPU budgets; T-REX still leads the tree-search controller and the strongest
+          generator-only baseline on every target when its LLM-serving GPU is also charged.
+        </p>
+        <p class="card__note">
+          Now applied to the Anthropic &times; Adaptyv 2026 wet-lab challenges (EGFR, TNF-&alpha;,
+          GLP1R, TfR1, KRAS G12D pMHC), adding in-silico proxies for pH-selective binding and mouse
+          cross-reactivity on EGFR, TNF-&alpha;, and TfR1.
+        </p>
+        <p class="pub__links">
+          <a class="chip" href="https://www.biorxiv.org/content/10.64898/2026.09.22.753604v2">Paper</a><a class="chip" href="https://github.com/ml-struct-bio/T-REX">Code</a>
+        </p>
+      </div>
+    </article>
+
+    <article class="card">
+      <img class="card__img" src="{{ '/assets/img/pubs/cryobench.jpg' | relative_url }}" alt="CryoBench overview: image formation model, datasets, methods, and metrics" decoding="async">
+      <div class="card__body">
+        <p class="eyebrow">Cryo-EM &times; structural biology</p>
+        <h3>Heterogeneous cryo-EM reconstruction &amp; protein conformation</h3>
+        <p>
+          Benchmarks and amortized methods for recovering conformational and compositional
+          heterogeneity from noisy cryo-EM images.
+        </p>
+        <dl class="stats stats--2">
+          <div><dt>5</dt><dd>benchmark datasets of conformational and compositional heterogeneity (CryoBench)</dd></div>
+          <div><dt>1,000</dt><dd>structures from one hypernetwork (CryoHype, fixed-pose)</dd></div>
+        </dl>
+        <ul class="plain">
+          <li><strong>CryoBench</strong> &middot; NeurIPS 2024 Datasets &amp; Benchmarks <span class="badge badge--award">Spotlight</span></li>
+          <li><strong>CryoHype</strong> &middot; CVPR 2026</li>
+          <li><strong>Self-distillation</strong> &middot; NeurIPS 2025 MLSB Workshop <span class="badge badge--award">Oral</span></li>
+          <li><strong>ConforNets</strong> &middot; alternate conformations in OpenFold3</li>
+        </ul>
+        <p class="pub__links">
+          <a class="chip" href="https://cryobench.cs.princeton.edu/">CryoBench</a><a class="chip" href="https://arxiv.org/abs/2512.06332">CryoHype</a><a class="chip" href="https://arxiv.org/abs/2604.18559">ConforNets</a>
+        </p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="selected">
+  <div class="section__head">
+    <h2 id="selected">Selected publications</h2>
+    <a class="more" href="{{ '/publications/' | relative_url }}">All publications &rarr;</a>
+  </div>
+  <p class="note">* equal contribution</p>
+  {%- assign selected = site.data.publications | where: 'selected', true %}
+  {%- for pub in selected %}
+  {% include pub.html pub=pub thumb=true summary=true %}
+  {%- endfor %}
+</section>
+
+<section class="section" aria-labelledby="news">
+  <h2 id="news">News</h2>
+  <ul class="news">
+    {%- for item in site.data.news limit: news_limit %}
+    <li><span class="news__date">{{ item.date }}</span><span>{{ item.text }}</span></li>
+    {%- endfor %}
+  </ul>
+  {%- if site.data.news.size > news_limit %}
+  <details class="news-more">
+    <summary>Earlier news</summary>
+    <ul class="news">
+      {%- for item in site.data.news offset: news_limit %}
+      <li><span class="news__date">{{ item.date }}</span><span>{{ item.text }}</span></li>
+      {%- endfor %}
+    </ul>
+  </details>
+  {%- endif %}
+</section>
+
+<section class="section two-col" aria-label="Experience and education">
+  <div>
+    <h2>Experience</h2>
+    <ul class="timeline">
+      <li>
+        <strong>Prescient Design, Genentech</strong>
+        <span>Contractor (part-time) &middot; Nov 2025&ndash;Mar 2026</span>
+        <span>Research Intern &middot; Jun&ndash;Aug 2025</span>
+      </li>
+      <li>
+        <strong>Broad Institute of MIT and Harvard</strong>
+        <span>Associate Computational Biologist &middot; Jan&ndash;Aug 2023</span>
+        <span>Visiting Graduate Student &middot; Sep 2021&ndash;Apr 2022</span>
+      </li>
+    </ul>
+  </div>
+  <div>
+    <h2>Education</h2>
+    <ul class="timeline">
+      <li><strong>Princeton University</strong><span>Ph.D., Computer Science &middot; 2023&ndash;present</span></li>
+      <li><strong>Korea University</strong><span>M.S., Computer Science and Engineering &middot; 2020&ndash;2023</span></li>
+      <li><strong>Konkuk University</strong><span>B.S., Applied Statistics and Computer Engineering &middot; 2014&ndash;2020</span></li>
+    </ul>
+  </div>
+</section>
+
+<section class="section two-col" aria-label="Honors and talks">
+  <div>
+    <h2>Honors</h2>
+    <ul class="timeline">
+      <li><strong>Asan Foundation Biomedical Science Scholarship</strong><span>Three-year doctoral scholarship &middot; 2024&ndash;2026</span></li>
+      <li><strong>I-Corps Program</strong><span>$35,000 government support for startup customer discovery &middot; 2021</span></li>
+    </ul>
+  </div>
+  <div>
+    <h2>Talks</h2>
+    <ul class="timeline">
+      <li><strong>NeurIPS 2025 MLSB Workshop</strong><span>Oral (with Jeffrey Gu): amortized heterogeneous cryo-EM reconstruction &middot; Dec 2025</span></li>
+      <li><strong>Flatiron Institute, Simons Foundation</strong><span>Invited talk: CryoBench &middot; Aug 2024</span></li>
+      <li><strong>CMU MetaMobility Lab</strong><span>Invited lecture: k-SALSA &middot; Feb 2024</span></li>
+    </ul>
+  </div>
+</section>
+
+<section class="section two-col" aria-label="Teaching and service">
+  <div>
+    <h2>Teaching</h2>
+    <ul class="timeline">
+      <li><strong>Princeton University</strong><span>TA, COS302 Mathematics for Numerical Computing and ML &middot; Fall 2024</span><span>Instructor, AI4ALL &middot; Summer 2024</span></li>
+      <li><strong>Korea University</strong><span>TA, Artificial Intelligence &middot; Spring 2021</span><span>TA, AI Security; Tutorial Teaching Fellow, Deep Learning &middot; Fall 2020</span></li>
+    </ul>
+  </div>
+  <div>
+    <h2>Service</h2>
+    <ul class="timeline">
+      <li><strong>Program committee</strong><span>AAAI 2027</span></li>
+      <li><strong>Reviewer</strong><span>NeurIPS 2025&ndash;26, ICLR 2025&ndash;27, CVPR 2026, ECCV 2026, NeurIPS workshops 2023&ndash;24, Information Sciences 2024</span></li>
+    </ul>
+  </div>
+</section>

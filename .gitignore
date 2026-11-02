@@ -1,0 +1,8 @@
+_site/
+.jekyll-cache/
+.sass-cache/
+vendor/
+core.*
+data/*.aux
+data/*.log
+data/*.out

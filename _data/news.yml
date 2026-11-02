@@ -1,0 +1,59 @@
+# Newest first. `text` is HTML. The first `home_limit` items (see index.html) show on the home page.
+
+- date: Sep 2026
+  text: >-
+    Preprint released: <a href="https://www.biorxiv.org/content/10.64898/2026.09.22.753604v2">T-REX</a>,
+    agentic campaign control for high-throughput de novo binder design
+    (<a href="https://github.com/ml-struct-bio/T-REX">code</a>).
+- date: Jul 2026
+  text: >-
+    <a href="https://arxiv.org/abs/2512.07155">CHIMERA</a> accepted to the ECCV 2026 Workshop on
+    Multimodal Large Language Models for Unified Comprehension and Generation (MUCG).
+- date: Apr 2026
+  text: >-
+    Preprint released: <a href="https://arxiv.org/abs/2604.18559">ConforNets</a>, latents-based
+    conformational control in OpenFold3.
+- date: Feb 2026
+  text: >-
+    <a href="https://arxiv.org/abs/2512.06332">CryoHype</a>, a transformer-based hypernetwork for
+    cryo-EM reconstruction, accepted to <strong>CVPR 2026</strong>.
+- date: Dec 2025
+  text: >-
+    Preprints released: <a href="https://arxiv.org/abs/2512.06332">CryoHype</a> and
+    <a href="https://arxiv.org/abs/2512.07155">CHIMERA</a>.
+- date: Nov 2025
+  text: Started as a part-time contractor at <strong>Prescient Design</strong> (Genentech).
+- date: Oct 2025
+  text: >-
+    Two papers accepted at the <strong>NeurIPS 2025 Machine Learning in Structural Biology</strong>
+    workshop: CryoHype (poster) and the self-distillation paper (oral).
+- date: Jun 2025
+  text: >-
+    Started a summer research internship at <strong>Prescient Design</strong> (Genentech);
+    preprint released: <a href="https://arxiv.org/abs/2506.16262">R3eVision</a>.
+- date: May 2025
+  text: Passed the general exam and became a <strong>Ph.D. candidate</strong>.
+- date: Sep 2024
+  text: >-
+    <a href="https://arxiv.org/abs/2408.05526">CryoBench</a> accepted to the
+    <strong>NeurIPS 2024</strong> Datasets &amp; Benchmarks Track as a Spotlight.
+- date: Aug 2024
+  text: Presented CryoBench at the Flatiron Institute (Simons Foundation).
+- date: Jul 2024
+  text: Instructed high-school students at <strong>AI4ALL Princeton</strong>.
+- date: Feb 2024
+  text: >-
+    Invited lecture on <a href="https://arxiv.org/abs/2303.10824">k-SALSA</a> at the CMU
+    <a href="https://metamobility.cmu.edu">MetaMobility Lab</a>.
+- date: Sep 2023
+  text: Started my Ph.D. at <strong>Princeton University</strong>.
+- date: Jan 2023
+  text: Started as an Associate Computational Biologist at the <strong>Broad Institute of MIT and Harvard</strong>.
+- date: Nov 2022
+  text: Paper on self-supervised representation learning accepted to <strong>Information Sciences</strong>.
+- date: Sep 2022
+  text: SageMix, saliency-guided mixup for point clouds, accepted to <strong>NeurIPS 2022</strong>.
+- date: Jul 2022
+  text: k-SALSA, privacy-preserving retinal image synthesis, accepted to <strong>ECCV 2022</strong>.
+- date: Sep 2021
+  text: Started as a visiting graduate student at the <strong>Broad Institute of MIT and Harvard</strong>.

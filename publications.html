@@ -1,0 +1,30 @@
+---
+layout: default
+title: Publications
+permalink: /publications/
+description: Publications and preprints by Minkyu Jeon.
+scripts:
+  - /assets/js/publications.js
+---
+<section class="page-head">
+  <h1>Publications</h1>
+  <p class="note">
+    * equal contribution &middot; also on
+    <a href="https://scholar.google.com/citations?hl=en&user=kyQR6ecAAAAJ">Google Scholar</a>
+  </p>
+  <div class="filters" role="group" aria-label="Filter by topic">
+    <button type="button" data-filter="all" aria-pressed="true">All</button>
+    <button type="button" data-filter="protein" aria-pressed="false">Protein design &amp; structural biology</button>
+    <button type="button" data-filter="ml" aria-pressed="false">ML, vision &amp; health</button>
+  </div>
+</section>
+
+{%- assign years = site.data.publications | group_by: 'year' | sort: 'name' | reverse %}
+{%- for year in years %}
+<section class="year-group" aria-labelledby="y{{ year.name }}">
+  <h2 id="y{{ year.name }}" class="year">{{ year.name }}</h2>
+  {%- for pub in year.items %}
+  {% include pub.html pub=pub thumb=true summary=false %}
+  {%- endfor %}
+</section>
+{%- endfor %}

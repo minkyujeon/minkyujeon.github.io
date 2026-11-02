@@ -1,0 +1,149 @@
+# Publications, newest first within each year.
+# topic: protein (protein design & structural biology) | ml (ML, vision & health)
+# selected: true -> shown on the home page
+# Mark equal contribution with a trailing * on the author name.
+
+- title: "Agentic campaign control for high-throughput de novo binder design"
+  short: T-REX
+  authors: [Minkyu Jeon, Jinyeop Song, Jina Kim, Ellen D. Zhong]
+  venue: bioRxiv 2026
+  year: 2026
+  topic: protein
+  selected: true
+  image: /assets/img/pubs/trex.jpg
+  summary: >-
+    LLM agents orchestrate protein generative models and structure evaluators under a fixed
+    GPU budget, achieving the highest throughput of structurally distinct in-silico binder hits
+    on all seven benchmark targets under matched worker-GPU budgets.
+  links:
+    - {name: Paper, url: "https://www.biorxiv.org/content/10.64898/2026.09.22.753604v2"}
+    - {name: Code, url: "https://github.com/ml-struct-bio/T-REX"}
+
+- title: "CryoHype: Reconstructing a thousand cryo-EM structures with transformer-based hypernetworks"
+  short: CryoHype
+  authors: ["Jeffrey Gu*", "Minkyu Jeon*", Ambri Ma, Serena Yeung-Levy, Ellen D. Zhong]
+  venue: CVPR 2026
+  note: Also presented at the NeurIPS 2025 MLSB Workshop (poster).
+  year: 2026
+  topic: protein
+  selected: true
+  image: /assets/img/pubs/cryohype.jpg
+  summary: >-
+    A transformer hypernetwork for compositional heterogeneity that reconstructs 1,000 distinct
+    structures from unlabeled cryo-EM images (fixed-pose).
+  links:
+    - {name: Paper, url: "https://arxiv.org/abs/2512.06332"}
+
+- title: "CHIMERA: Adaptive cache injection and semantic anchor prompting for zero-shot image morphing with morphing-oriented metrics"
+  short: CHIMERA
+  authors: [Dahyeon Kye, Jeahun Sung, Minkyu Jeon, Jihyong Oh]
+  venue: ECCV 2026 Workshop (MUCG)
+  year: 2026
+  topic: ml
+  image: /assets/img/pubs/chimera.jpg
+  links:
+    - {name: Paper, url: "https://arxiv.org/abs/2512.07155"}
+    - {name: Project, url: "https://cmlab-korea.github.io/CHIMERA/"}
+
+- title: "ConforNets: Latents-based conformational control in OpenFold3"
+  short: ConforNets
+  authors: [Minji Lee, Colin Kalicki, Minkyu Jeon, Aymen Qabel, Alisia Fadini, Mohammed AlQuraishi]
+  venue: arXiv 2026
+  year: 2026
+  topic: protein
+  summary: >-
+    Channel-wise affine transforms of pair latents steer OpenFold3 toward alternate protein
+    conformations; a transform trained on one protein can induce a conserved conformational
+    change across its protein family.
+  links:
+    - {name: Paper, url: "https://arxiv.org/abs/2604.18559"}
+
+- title: "Separating signal from noise: A self-distillation approach for amortized heterogeneous cryo-EM reconstruction"
+  short: Self-distillation
+  authors: ["Minkyu Jeon*", "Jeffrey Gu*", Ambri Ma, Serena Yeung-Levy, Vincent Sitzmann, Ellen D. Zhong]
+  venue: NeurIPS 2025 MLSB Workshop
+  award: Oral
+  year: 2025
+  topic: protein
+  selected: true
+  image: /assets/img/pubs/selfdistill.jpg
+  summary: >-
+    Amortized heterogeneous cryo-EM reconstruction with noise-augmented self-distillation: a
+    VICReg loss between the latents of each image and of a noise-augmented re-render.
+  links:
+    - {name: Paper, url: "https://openreview.net/pdf?id=YIvDrdPCo2"}
+
+- title: "R3eVision: A survey on robust rendering, restoration, and enhancement for 3D low-level vision"
+  short: R3eVision
+  authors: [Weeyoung Kwon, Jeahun Sung, Minkyu Jeon, Chanho Eom, Jihyong Oh]
+  venue: arXiv 2025
+  year: 2025
+  topic: ml
+  links:
+    - {name: Paper, url: "https://arxiv.org/abs/2506.16262"}
+
+- title: "CryoBench: Diverse and challenging datasets for the heterogeneity problem in cryo-EM"
+  short: CryoBench
+  authors: [Minkyu Jeon, Rishwanth Raghu, Miro Astore, Geoffrey Woollard, Ryan Feathers, Alkin Kaz, Sonya M. Hanson, Pilar Cossio, Ellen D. Zhong]
+  venue: NeurIPS 2024 Datasets & Benchmarks
+  award: Spotlight
+  year: 2024
+  topic: protein
+  selected: true
+  image: /assets/img/pubs/cryobench.jpg
+  summary: >-
+    Benchmark datasets and metrics for conformational and compositional heterogeneity in
+    cryo-EM, with an evaluation of neural and non-neural reconstruction methods.
+  links:
+    - {name: Paper, url: "https://arxiv.org/abs/2408.05526"}
+    - {name: Project, url: "https://cryobench.cs.princeton.edu/"}
+
+- title: "A multivariable prediction model for mild cognitive impairment and dementia: Algorithm development and validation"
+  short: JMIR
+  authors: [Sarah Soyeon Oh, Bada Kang, Dahye Hong, Jennifer Ivy Kim, Hyewon Jeong, Jinyeop Song, Minkyu Jeon]
+  venue: JMIR Medical Informatics 2024
+  year: 2024
+  topic: ml
+  links:
+    - {name: Paper, url: "https://doi.org/10.2196/59396"}
+
+- title: "Randomly shuffled convolution for self-supervised representation learning"
+  short: CROFFLE
+  authors: ["Youngjin Oh*", "Minkyu Jeon*", Dohwan Ko, Hyunwoo J. Kim]
+  venue: Information Sciences 2023
+  year: 2023
+  topic: ml
+  links:
+    - {name: Paper, url: "https://www.sciencedirect.com/science/article/pii/S0020025522013032"}
+    - {name: Code, url: "https://github.com/minkyujeon/CROFFLE/tree/main/"}
+
+- title: "SageMix: Saliency-guided mixup for point clouds"
+  short: SageMix
+  authors: ["Sanghyeok Lee*", "Minkyu Jeon*", Injae Kim, Yunyang Xiong, Hyunwoo J. Kim]
+  venue: NeurIPS 2022
+  year: 2022
+  topic: ml
+  image: /assets/img/pubs/sagemix.jpg
+  links:
+    - {name: Paper, url: "https://openreview.net/pdf?id=q-FRENiEP_d"}
+    - {name: Code, url: "https://github.com/mlvlab/SageMix/"}
+
+- title: "k-SALSA: k-anonymous synthetic averaging of retinal images via local style alignment"
+  short: k-SALSA
+  authors: [Minkyu Jeon, Hyeonjin Park, Hyunwoo J. Kim, Michael Morley, Hyunghoon Cho]
+  venue: ECCV 2022
+  year: 2022
+  topic: ml
+  image: /assets/img/pubs/k-salsa.jpg
+  links:
+    - {name: Paper, url: "https://arxiv.org/abs/2303.10824"}
+    - {name: Code, url: "https://github.com/hcholab/k-salsa/"}
+
+- title: "Learning to balance local losses via meta-learning"
+  short: Meta-learning
+  authors: [Seungdong Yoa, Minkyu Jeon, Youngjin Oh, Hyunwoo J. Kim]
+  venue: IEEE Access 2021
+  year: 2021
+  topic: ml
+  links:
+    - {name: Paper, url: "https://ieeexplore.ieee.org/document/9541196"}

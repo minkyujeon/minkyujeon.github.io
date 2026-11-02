@@ -1,0 +1,42 @@
+{%- comment -%}
+  One publication entry.
+  include.pub      a record from _data/publications.yml
+  include.thumb    show the thumbnail column when the record has an image
+  include.summary  show the one-sentence summary
+{%- endcomment -%}
+{%- assign p = include.pub -%}
+{%- assign has_thumb = false -%}
+{%- if include.thumb and p.image -%}{%- assign has_thumb = true -%}{%- endif -%}
+<article class="pub{% if has_thumb %} pub--thumb{% endif %}" data-topic="{{ p.topic }}">
+  {%- if has_thumb %}
+  <a class="pub__thumb" href="{{ p.links[0].url | default: '#' }}" tabindex="-1" aria-hidden="true">
+    <img src="{{ p.image | relative_url }}" alt="" decoding="async">
+  </a>
+  {%- endif %}
+  <div class="pub__body">
+    <p class="pub__meta">
+      <span class="badge badge--venue">{{ p.venue }}</span>
+      {%- if p.award %} <span class="badge badge--award">{{ p.award }}</span>{% endif %}
+    </p>
+    <h3 class="pub__title">
+      {%- if p.links -%}<a href="{{ p.links[0].url }}">{{ p.title }}</a>{%- else -%}{{ p.title }}{%- endif -%}
+    </h3>
+    <p class="pub__authors">
+      {%- for author in p.authors -%}
+        {%- if author contains 'Minkyu Jeon' -%}<strong>{{ author }}</strong>{%- else -%}{{ author }}{%- endif -%}
+        {%- unless forloop.last %}, {% endunless -%}
+      {%- endfor -%}
+    </p>
+    {%- if include.summary and p.summary %}
+    <p class="pub__summary">{{ p.summary }}</p>
+    {%- endif %}
+    {%- if p.note %}
+    <p class="pub__note">{{ p.note }}</p>
+    {%- endif %}
+    {%- if p.links %}
+    <p class="pub__links">
+      {%- for link in p.links %}<a class="chip" href="{{ link.url }}">{{ link.name }}</a>{% endfor -%}
+    </p>
+    {%- endif %}
+  </div>
+</article>
